@@ -64,7 +64,7 @@ export default function BlogGrid() {
 
               {/* Content */}
               <div className="flex-1">
-                <h2 className="font-display font-black text-base text-white group-hover:text-orange-400 transition-colors duration-300 leading-snug mb-2">
+                <h2 className="font-black text-base text-white group-hover:text-orange-400 transition-colors duration-300 leading-snug mb-2">
                   {post.title}
                 </h2>
                 <p className="text-white/30 text-sm leading-relaxed line-clamp-2">{post.excerpt}</p>

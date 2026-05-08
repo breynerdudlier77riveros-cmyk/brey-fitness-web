@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function VideosPage() {
   return (
-    <main className="max-w-6xl mx-auto px-6 py-14">
+    <main className="max-w-6xl mx-auto px-4 md:px-6 py-10 md:py-14">
       <div className="mb-14">
         <p className="text-[11px] tracking-[0.22em] uppercase text-white/25 mb-3 font-medium">
           Biblioteca

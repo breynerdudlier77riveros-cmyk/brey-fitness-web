@@ -99,7 +99,7 @@ export default function VideoGrid() {
               {/* Info */}
               <div className={`flex flex-col gap-2 flex-1 ${featured ? "p-7" : "p-5"}`}>
                 <h3
-                  className={`font-display font-black text-white group-hover:text-orange-400 transition-colors duration-300 leading-snug ${
+                  className={`font-black text-white group-hover:text-orange-400 transition-colors duration-300 leading-snug ${
                     featured ? "text-xl sm:text-2xl" : "text-sm"
                   }`}
                 >

@@ -51,14 +51,14 @@ export default function ProductosPage() {
   const [featured, ...rest] = productos;
 
   return (
-    <main className="max-w-6xl mx-auto px-6 py-14">
+    <main className="max-w-6xl mx-auto px-4 md:px-6 py-10 md:py-14">
 
       {/* ── Header ── */}
-      <div className="mb-14">
+      <div className="mb-10 md:mb-14">
         <p className="text-[11px] tracking-[0.22em] uppercase text-white/25 mb-3 font-medium">
           Catálogo
         </p>
-        <h1 className="font-display font-black text-4xl sm:text-5xl text-white mb-3">
+        <h1 className="font-black text-4xl sm:text-5xl text-white mb-3">
           Productos
         </h1>
         <p className="text-white/35 max-w-lg leading-relaxed">
@@ -67,12 +67,12 @@ export default function ProductosPage() {
       </div>
 
       {/* ── Bento grid ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 lg:auto-rows-[300px] gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 lg:auto-rows-[300px] gap-4">
 
-        {/* Featured product — 2-col × 2-row */}
+        {/* Featured product — full width on md, 2-col × 2-row on lg */}
         <Link
           href={`/productos/${featured.id}`}
-          className="group lg:col-span-2 lg:row-span-2 flex flex-col bg-slate-900/80 border border-slate-700/50 rounded-3xl overflow-hidden backdrop-blur-sm hover:border-slate-600/60 hover:bg-slate-900 transition-all duration-500"
+          className="group md:col-span-2 lg:col-span-2 lg:row-span-2 flex flex-col bg-slate-900/80 border border-slate-700/50 rounded-3xl overflow-hidden backdrop-blur-sm hover:border-slate-600/60 hover:bg-slate-900 transition-all duration-500"
         >
           {/* Image placeholder with gradient */}
           <div className="flex-1 bg-gradient-to-br from-slate-800/80 to-slate-900/60 flex items-center justify-center relative min-h-[200px]">
@@ -87,12 +87,12 @@ export default function ProductosPage() {
 
           {/* Info */}
           <div className="p-7 flex flex-col gap-3">
-            <h2 className="font-display font-black text-xl sm:text-2xl text-white group-hover:text-orange-400 transition-colors duration-300 leading-snug">
+            <h2 className="font-black text-xl sm:text-2xl text-white group-hover:text-orange-400 transition-colors duration-300 leading-snug">
               {featured.nombre}
             </h2>
             <p className="text-white/35 text-sm leading-relaxed">{featured.descripcion}</p>
             <div className="flex items-center justify-between mt-2">
-              <p className="font-display font-black text-3xl text-white">{featured.precio}</p>
+              <p className="font-black text-3xl text-white">{featured.precio}</p>
               <span className="inline-flex items-center gap-1.5 text-sm text-white/40 group-hover:text-white/70 transition-colors">
                 Ver programa
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -103,7 +103,7 @@ export default function ProductosPage() {
           </div>
         </Link>
 
-        {/* Regular products — col 3, rows 1 and 2 */}
+        {/* Regular products */}
         {rest.map((p) => (
           <Link
             key={p.id}
@@ -122,11 +122,11 @@ export default function ProductosPage() {
 
             {/* Info */}
             <div className="p-5 flex flex-col gap-2">
-              <h2 className="font-display font-black text-base text-white group-hover:text-orange-400 transition-colors duration-300 leading-snug">
+              <h2 className="font-black text-base text-white group-hover:text-orange-400 transition-colors duration-300 leading-snug">
                 {p.nombre}
               </h2>
               <p className="text-white/30 text-xs leading-relaxed line-clamp-2">{p.descripcion}</p>
-              <p className="font-display font-black text-xl text-white mt-1">{p.precio}</p>
+              <p className="font-black text-xl text-white mt-1">{p.precio}</p>
             </div>
           </Link>
         ))}

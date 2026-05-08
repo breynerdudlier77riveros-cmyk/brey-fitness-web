@@ -27,13 +27,6 @@ function IconUsers() {
     </svg>
   );
 }
-function IconArrow() {
-  return (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-    </svg>
-  );
-}
 
 /* ── Data ───────────────────────────────────────────────── */
 const stats = [
@@ -105,11 +98,10 @@ export default function HomePage() {
       {/* ════════════════════════════════════════
           HERO
       ════════════════════════════════════════ */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-32 pb-44">
+      <section className="relative min-h-screen flex flex-col items-center justify-center px-4 md:px-6 pt-14 pb-20 md:pt-32 md:pb-44">
 
         {/* Ambient orbs + radial depth gradient */}
         <div aria-hidden className="absolute inset-0 pointer-events-none overflow-hidden">
-          {/* Radial center glow for depth */}
           <div
             className="absolute inset-0"
             style={{
@@ -125,33 +117,33 @@ export default function HomePage() {
         <div className="relative max-w-5xl mx-auto text-center">
 
           {/* Badge */}
-          <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full border border-white/10 bg-white/[0.04] backdrop-blur-sm text-sm text-white/50 mb-14">
+          <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full border border-white/10 bg-white/[0.04] backdrop-blur-sm text-sm text-white/50 mb-10 md:mb-14">
             <span className="w-1.5 h-1.5 rounded-full bg-lime-400 animate-pulse" />
             Programa de Transformación 2026
           </div>
 
           {/* H1 */}
-          <h1 className="font-display font-black leading-snug tracking-normal mb-14">
-            <span className="block text-6xl sm:text-7xl md:text-[88px] text-white">
+          <h1 className="font-black leading-snug tracking-normal mb-10 md:mb-14">
+            <span className="block text-4xl sm:text-5xl md:text-6xl text-white">
               Transforma
             </span>
-            <span className="block text-6xl sm:text-7xl md:text-[88px] text-white">
+            <span className="block text-4xl sm:text-5xl md:text-6xl text-white">
               tu físico.
             </span>
-            <span className="block text-5xl sm:text-6xl md:text-7xl mt-4 text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-orange-500 to-amber-500">
+            <span className="block text-3xl sm:text-4xl md:text-5xl mt-3 text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-orange-500 to-amber-500">
               Con Brey Fitness.
             </span>
           </h1>
 
           {/* Subtitle */}
-          <p className="text-lg sm:text-xl text-white/40 max-w-xl mx-auto mb-16 leading-[1.8] font-light">
+          <p className="text-lg sm:text-xl text-white/40 max-w-xl mx-auto mb-12 md:mb-16 leading-[1.8] font-light">
             El sistema completo que ya transformó a más de{" "}
             <span className="text-white/80 font-medium">500 personas</span>.
             Sin excusas, sin gimnasio obligatorio, con resultados reales.
           </p>
 
           {/* CTAs */}
-          <div className="flex flex-col items-center gap-7 mb-24">
+          <div className="flex flex-col items-center gap-7 mb-16 md:mb-24">
             <CheckoutButton href={HOTMART_URL} />
             <Link
               href="/videos"
@@ -190,7 +182,7 @@ export default function HomePage() {
       {/* ════════════════════════════════════════
           STATS BENTO
       ════════════════════════════════════════ */}
-      <section className="max-w-6xl mx-auto px-6 py-32">
+      <section className="max-w-6xl mx-auto px-4 md:px-6 py-16 md:py-32">
         <ScrollReveal>
           <SectionLabel>Resultados que hablan</SectionLabel>
         </ScrollReveal>
@@ -198,12 +190,12 @@ export default function HomePage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {stats.map(({ value, label, sub }, i) => (
             <ScrollReveal key={label} delay={i * 80}>
-              <div className="flex flex-col justify-between p-7 rounded-3xl border border-white/[0.07] bg-white/[0.03] backdrop-blur-sm hover:border-lime-500/20 hover:bg-white/[0.05] transition-all duration-300 min-h-[160px]">
-                <p className="font-display text-4xl sm:text-5xl font-black text-orange-400 leading-tight">
+              <div className="flex flex-col justify-between p-5 sm:p-7 rounded-3xl border border-white/[0.07] bg-white/[0.03] backdrop-blur-sm hover:border-lime-500/20 hover:bg-white/[0.05] transition-all duration-300 min-h-[140px] sm:min-h-[160px]">
+                <p className="text-3xl sm:text-4xl md:text-5xl font-black text-orange-400 leading-snug">
                   {value}
                 </p>
                 <div>
-                  <p className="font-display text-sm font-bold text-white/80 mt-4">{label}</p>
+                  <p className="text-sm font-bold text-white/80 mt-3">{label}</p>
                   <p className="text-xs text-white/30 mt-0.5">{sub}</p>
                 </div>
               </div>
@@ -215,11 +207,11 @@ export default function HomePage() {
       {/* ════════════════════════════════════════
           INCLUDES BENTO
       ════════════════════════════════════════ */}
-      <section className="max-w-6xl mx-auto px-6 py-32">
+      <section className="max-w-6xl mx-auto px-4 md:px-6 py-16 md:py-32">
         <ScrollReveal>
           <SectionLabel>Todo lo que obtienes</SectionLabel>
           <div className="text-center mb-16 -mt-8">
-            <h2 className="font-display font-black text-4xl sm:text-5xl text-white">
+            <h2 className="font-black text-3xl sm:text-4xl md:text-5xl text-white">
               Un sistema completo.
             </h2>
             <p className="text-white/30 mt-4 max-w-lg mx-auto">
@@ -239,7 +231,7 @@ export default function HomePage() {
                   {icon}
                 </div>
                 <div>
-                  <h3 className={`font-display font-black text-white mb-2 ${large ? "text-2xl sm:text-3xl" : "text-xl"}`}>
+                  <h3 className={`font-black text-white mb-2 ${large ? "text-2xl sm:text-3xl" : "text-xl"}`}>
                     {title}
                   </h3>
                   <p className="text-white/40 text-sm leading-relaxed">{description}</p>
@@ -253,11 +245,11 @@ export default function HomePage() {
       {/* ════════════════════════════════════════
           BLOG PREVIEW BENTO
       ════════════════════════════════════════ */}
-      <section className="max-w-6xl mx-auto px-6 py-32">
+      <section className="max-w-6xl mx-auto px-4 md:px-6 py-16 md:py-32">
         <ScrollReveal>
           <SectionLabel>Conocimiento gratuito</SectionLabel>
           <div className="flex items-end justify-between mb-16 -mt-8">
-            <h2 className="font-display font-black text-4xl sm:text-5xl text-white">
+            <h2 className="font-black text-3xl sm:text-4xl md:text-5xl text-white">
               Lo último del blog.
             </h2>
             <Link
@@ -297,7 +289,7 @@ export default function HomePage() {
                 {/* Bottom: title + excerpt + meta */}
                 <div>
                   <h3
-                    className={`font-display font-black text-white group-hover:text-orange-400 transition-colors mb-2 leading-snug ${
+                    className={`font-black text-white group-hover:text-orange-400 transition-colors mb-2 leading-snug ${
                       i === 0 ? "text-2xl sm:text-3xl" : "text-lg"
                     }`}
                   >
@@ -339,11 +331,11 @@ export default function HomePage() {
         </div>
 
         <ScrollReveal>
-          <div className="relative max-w-3xl mx-auto px-6 py-48 text-center">
+          <div className="relative max-w-3xl mx-auto px-4 md:px-6 py-20 md:py-48 text-center">
             <p className="text-xs font-semibold tracking-[0.25em] uppercase text-white/20 mb-8">
               Tu momento es ahora
             </p>
-            <h2 className="font-display font-black text-5xl sm:text-6xl md:text-7xl text-white leading-snug tracking-normal mb-8">
+            <h2 className="font-black text-4xl sm:text-5xl md:text-6xl text-white leading-snug tracking-normal mb-8">
               ¿Listo para
               <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-500">

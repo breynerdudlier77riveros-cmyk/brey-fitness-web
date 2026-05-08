@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
-import { Inter, Syne } from "next/font/google";
+import { Inter } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const syne = Syne({ subsets: ["latin"], variable: "--font-syne", weight: ["700", "800"] });
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Brey Fitness",
@@ -21,13 +20,13 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="es" className={`${inter.variable} ${syne.variable} h-full`}>
-      <body className="min-h-full flex flex-col bg-slate-950 text-white antialiased">
+    <html lang="es" className="h-full">
+      <body className={`${inter.className} min-h-full flex flex-col bg-slate-950 text-white antialiased`}>
 
         {/* ── Glassmorphism Navbar ── */}
         <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-slate-950/70 backdrop-blur-2xl">
           <nav className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-            <Link href="/" className="font-display text-xl font-black leading-none whitespace-nowrap tracking-normal">
+            <Link href="/" className="text-xl font-black leading-snug whitespace-nowrap tracking-normal">
               <span className="text-orange-400">Brey</span>
               <span className="text-white"> Fitness</span>
             </Link>
