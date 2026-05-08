@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: #000000;
+}
+
+/* ── Custom font utilities ── */
+@utility font-display {
+  font-family: var(--font-syne), system-ui, sans-serif;
+}
+
+body {
+  background: #0f172a; /* slate-950 — negro profundo con matiz azulado */
+  color: #fff;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  line-height: 1.65;       /* baseline saludable para todo el texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Scroll Reveal ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Gradient border utility ── */
+.gradient-border {
+  padding: 1px;
+  border-radius: 1.5rem;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 40%,
+    rgba(132, 204, 22, 0.12) 100%
+  );
+}
+
+/* ── Orange glow on CTA buttons ── */
+.glow-orange {
+  box-shadow: 0 0 40px rgba(249, 115, 22, 0.35);
+}
+.glow-orange:hover {
+  box-shadow: 0 0 60px rgba(249, 115, 22, 0.5);
+}
+
+/* ── Checkout button: emerald pulse glow + shimmer sweep ── */
+@keyframes checkout-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 30px rgba(16, 185, 129, 0.5),
+      0 0 70px rgba(16, 185, 129, 0.2),
+      0 4px 24px rgba(0, 0, 0, 0.4);
+  }
+  50% {
+    box-shadow:
+      0 0 55px rgba(16, 185, 129, 0.7),
+      0 0 110px rgba(16, 185, 129, 0.3),
+      0 4px 24px rgba(0, 0, 0, 0.4);
+  }
+}
+
+@keyframes shimmer-sweep {
+  0%   { transform: translateX(-100%) skewX(-20deg); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateX(250%) skewX(-20deg); opacity: 0; }
+}
+
+.checkout-btn {
+  position: relative;
+  overflow: hidden;
+  animation: checkout-pulse 2.5s ease-in-out infinite;
+}
+
+.checkout-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.22) 50%,
+    transparent 100%
+  );
+  animation: shimmer-sweep 3.5s ease-in-out infinite;
+  pointer-events: none;
+}
