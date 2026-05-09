@@ -23,7 +23,35 @@ export interface Video {
 
 // ─── BLOG POSTS ──────────────────────────────────────────────────────────────
 // Para añadir un nuevo artículo, copia un objeto del array y edita los campos.
-export const posts: Post[] = [
+export const posts: Post[] = [   {
+    slug: "ciencia-metodo-calistenia",
+    title: "El Secreto de mi Transformación: La Ciencia Detrás de mi 'Método' en Calistenia",
+    excerpt: "Descubre los principios científicos (sobrecarga progresiva y control de fatiga) que me permitieron transformar mi físico y cómo puedes aplicarlos hoy.",
+    date: "2026-05-08",
+    category: "Entrenamiento",
+    type: "Lectura",
+    readTime: "5 min",
+    body: [
+      "Si llevas meses o incluso años sudando en el parque de calistenia y sientes que tu fuerza no aumenta y tu cuerpo no cambia, te entiendo perfectamente. En mi último video, te mostré mi transformación física tras 3 años de diferencia. El cambio radical que ves entre mi versión del pasado y la actual no es producto de una genética mágica; esto es lo que cambia cuando tú entrenas con un **método**.",
+      "La cruda realidad es que la mayoría de los atletas pasan años intentando dominar su cuerpo porque, sencillamente, no saben la diferencia entre *entrenar* y *progresar*. Aquí te explico, con la ciencia sobre la mesa, por qué mi método funciona y cómo puede transformar tu físico de una vez por todas.",
+      "### 1. La Diferencia entre 'Sudar' y 'Progresar' (La Sobrecarga Progresiva)",
+      "Muchos van a las barras a hacer su máximo número de dominadas todos los días pensando que eso es suficiente. Según el **Colegio Americano de Medicina Deportiva (ACSM)**, el principio más crítico del entrenamiento de fuerza es la *sobrecarga progresiva*; sin ella, tu cuerpo no tiene ninguna razón fisiológica para cambiar ni adaptarse.",
+      "Para construir músculo y ganar fuerza real, debes exigirle a tu cuerpo más de lo que está acostumbrado a dar gradualmente. Por eso, mi enfoque no se basa en el azar, sino en un programa estructurado. Cada semana le damos a tu sistema nervioso un estímulo medible para forzar su evolución.",
+      "### 2. Fuerza Relativa y el Poder de tu Propio Peso",
+      "Uno de los mayores cambios que hice fue priorizar la fuerza relativa sobre el volumen basura. ¿Por qué hacer 50 flexiones mediocres cuando puedes dominar progresiones más complejas?",
+      "Un estudio publicado en el *Journal of Exercise Science & Fitness* (Kikuchi et al.) demostró que los ejercicios de peso corporal como las variaciones de flexiones pueden inducir ganancias de fuerza e hipertrofia **similares** a las del press de banca pesado, siempre que se alcance una intensidad alta. En calistenia, 'intensidad alta' significa usar progresiones cada vez más difíciles. Al priorizar esto, construyes músculos densos y funcionales en lugar de solo inflarte con repeticiones infinitas.",
+      "### 3. Fatiga Controlada y Ejercicios que Transfieren",
+      "¿Alguna vez te has sentido 'quemado' o con dolor articular después de una semana de intentar trucos sin parar? El éxito requiere aprender a gestionar la fatiga.",
+      "La investigación científica en gestión de fatiga y entrenamiento de resistencia señala que entrenar constantemente al fallo muscular sin una recuperación adecuada produce estancamiento (Pareja-Blanco et al.). Un programa inteligente selecciona movimientos con una alta relación estímulo-fatiga. Elegimos estratégicamente las variaciones que estimulan tus fibras al máximo, pero generando el menor daño a tu sistema nervioso central. Entrenas más inteligente y te recuperas más rápido.",
+      "---",
+      "### 🔥 Tu Transformación Comienza Hoy",
+      "La diferencia entre el físico que tienes ahora mismo y el que deseas está en la estrategia. Ya pasaste suficiente tiempo adivinando rutinas de internet.",
+      "No tienes que esperar 3 años para ver resultados si tienes la hoja de ruta correcta desde el primer día. Con mis **planes de entrenamiento personalizados**, evaluamos tu nivel actual y aplicamos estos principios científicos exactos a tu cuerpo. Te daré el programa de progresión, gestionaré tu fatiga y seleccionaremos los ejercicios que te darán una fuerza descomunal.",
+      "**Deja de improvisar. Si quieres dominar tu cuerpo de una vez por todas, comenta la palabra 'MÉTODO' en mis redes o adquiere hoy mismo tu plan personalizado en la sección de Productos. ¡Es hora de tu verdadera transformación!**",
+      "> **Referencias Científicas:**\n> * American College of Sports Medicine (ACSM). *Progression Models in Resistance Training*.\n> * Kikuchi, N. et al. *Low-load bench press and push-up induce similar muscle hypertrophy*.\n> * Pareja-Blanco, F. et al. *Effects of Acute Loading Induced Fatigability*."
+    ]
+  },
+
   {
     slug: "como-empezar-en-el-gym",
     title: "Cómo empezar en el gym sin cometer los errores típicos",
