@@ -30,8 +30,24 @@ export default async function BlogPost({ params }: Props) {
 
   if (!post) notFound();
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description: post.excerpt,
+    datePublished: post.date,
+    inLanguage: "es",
+    author: { "@type": "Organization", name: "Brey Fitness" },
+  };
+
   return (
     <main className="max-w-2xl mx-auto px-4 py-14">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
       {/* Back */}
       <Link
         href="/blog"
@@ -76,11 +92,17 @@ export default async function BlogPost({ params }: Props) {
 
       {/* Body */}
       <article className="space-y-6">
-        {post.body.map((paragraph, i) => (
-          <p key={i} className="text-slate-300 leading-relaxed text-[1.05rem]">
-            {paragraph}
-          </p>
-        ))}
+        {post.body.map((paragraph, i) =>
+          paragraph.startsWith("### ") ? (
+            <h2 key={i} className="font-black text-xl text-white pt-4">
+              {paragraph.slice(4)}
+            </h2>
+          ) : (
+            <p key={i} className="text-slate-300 leading-relaxed text-[1.05rem]">
+              {paragraph}
+            </p>
+          )
+        )}
       </article>
 
       {/* Footer CTA */}
@@ -89,10 +111,10 @@ export default async function BlogPost({ params }: Props) {
           ¿Listo para aplicar esto y transformar tu físico?
         </p>
         <Link
-          href="/productos"
+          href="/programas"
           className="inline-block bg-orange-500 hover:bg-orange-400 text-white font-bold px-8 py-3 rounded-full transition-colors shadow-lg shadow-orange-500/20"
         >
-          Ver el programa completo
+          Ver los programas
         </Link>
       </div>
     </main>

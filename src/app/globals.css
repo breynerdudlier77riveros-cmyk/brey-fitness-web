@@ -1,11 +1,22 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: #000000;
+  --color-background: #0f172a;
+}
+
+/* ── Design tokens ── */
+:root {
+  --bg-primary:    #0f172a;
+  --bg-surface:    rgba(255, 255, 255, 0.03);
+  --accent:        #fb923c;
+  --accent-hover:  #f97316;
+  --border:        rgba(255, 255, 255, 0.07);
+  --border-hover:  rgba(255, 255, 255, 0.14);
+  --text-muted:    rgba(255, 255, 255, 0.35);
 }
 
 body {
-  background: #0f172a; /* slate-950 — negro profundo con matiz azulado */
+  background: var(--bg-primary);
   color: #fff;
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
@@ -37,15 +48,7 @@ body {
   );
 }
 
-/* ── Orange glow on CTA buttons ── */
-.glow-orange {
-  box-shadow: 0 0 40px rgba(249, 115, 22, 0.35);
-}
-.glow-orange:hover {
-  box-shadow: 0 0 60px rgba(249, 115, 22, 0.5);
-}
-
-/* ── Checkout button: emerald pulse glow + shimmer sweep ── */
+/* ── Checkout button pulse + shimmer ── */
 @keyframes checkout-pulse {
   0%, 100% {
     box-shadow:
@@ -86,4 +89,10 @@ body {
   );
   animation: shimmer-sweep 3.5s ease-in-out infinite;
   pointer-events: none;
+}
+
+/* ── Slide down animation for mobile menu ── */
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }

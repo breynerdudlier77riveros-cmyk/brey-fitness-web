@@ -1,5 +1,6 @@
 interface Props {
   href: string;
+  label: string;
   className?: string;
 }
 
@@ -19,7 +20,7 @@ function IconArrow() {
   );
 }
 
-export default function CheckoutButton({ href, className = "" }: Props) {
+export default function CheckoutButton({ href, label, className = "" }: Props) {
   return (
     <div className="flex flex-col items-center gap-5">
       <a
@@ -29,7 +30,7 @@ export default function CheckoutButton({ href, className = "" }: Props) {
         className={`checkout-btn inline-flex items-center justify-center gap-3 bg-emerald-500 hover:bg-emerald-400 text-white font-black text-base sm:text-lg px-8 sm:px-12 py-4 sm:py-5 rounded-2xl shadow-lg shadow-emerald-500/20 transition-colors duration-300 active:scale-[0.97] ${className}`}
       >
         <IconLock />
-        ¡Sí, quiero empezar mi transformación hoy!
+        {label}
         <IconArrow />
       </a>
       <p className="text-slate-500 text-[11px] tracking-[0.18em] uppercase">

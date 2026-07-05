@@ -1,256 +1,284 @@
 import Link from "next/link";
 import { posts } from "@/lib/content";
+import { programas } from "@/data/programs";
+import { ejercicios } from "@/data/exercises";
 import ScrollReveal from "@/components/ScrollReveal";
-import CheckoutButton from "@/components/CheckoutButton";
+import SectionLabel from "@/components/layout/SectionLabel";
+import TestimonialsSlider from "@/components/TestimonialsSlider";
 
-const HOTMART_URL = "https://pay.hotmart.com/XXXXXXXX"; // reemplaza con tu URL real
-
-/* ── Icons ─────────────────────────────────────────────── */
-function IconBook() {
-  return (
-    <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
-    </svg>
-  );
-}
-function IconVideo() {
-  return (
-    <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z" />
-    </svg>
-  );
-}
-function IconUsers() {
-  return (
-    <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
-    </svg>
-  );
-}
-
-/* ── Data ───────────────────────────────────────────────── */
 const stats = [
-  { value: "+500", label: "Alumnos", sub: "y creciendo cada semana" },
-  { value: "12", label: "Semanas", sub: "de programa estructurado" },
-  { value: "50+", label: "Videos", sub: "con técnica y rutinas" },
-  { value: "30d", label: "Garantía", sub: "devolución sin preguntas" },
+  { value: "5",   label: "Ecosistemas",  sub: "de programa completo" },
+  { value: "72",  label: "Semanas",      sub: "de programación estructurada" },
+  { value: "6",   label: "Calculadoras", sub: "gratuitas basadas en evidencia" },
+  { value: "30d", label: "Garantía",     sub: "devolución sin preguntas" },
 ];
 
-const includes = [
+const pillars = [
   {
-    id: "ebooks",
-    icon: <IconBook />,
-    title: "Ebooks & Guías PDF",
-    description:
-      "Planes de entrenamiento y nutrición completos en PDF. Descárgalos una vez y úsalos de por vida, desde cualquier dispositivo, a tu propio ritmo.",
-    accent: "from-orange-500/10 to-transparent",
-    iconColor: "text-orange-400",
-    large: true,
+    num: "01",
+    title: "Sobrecarga Progresiva",
+    body:  "Cada sesión es un estímulo medible. Sin progresión cuantificada, el cuerpo no tiene razón fisiológica para adaptarse.",
   },
   {
-    id: "videos",
-    icon: <IconVideo />,
-    title: "Videos Exclusivos",
-    description:
-      "Más de 50 tutoriales con técnica correcta y rutinas completas.",
-    accent: "from-sky-500/8 to-transparent",
-    iconColor: "text-sky-400",
-    large: false,
+    num: "02",
+    title: "Gestión Científica de la Fatiga",
+    body:  "Entrenar duro no es lo mismo que entrenar bien. El sistema controla el estrés acumulado para maximizar la adaptación y prevenir el sobreentrenamiento.",
   },
   {
-    id: "comunidad",
-    icon: <IconUsers />,
-    title: "Comunidad Privada",
-    description:
-      "Grupo exclusivo con seguimiento, dudas respondidas y motivación real.",
-    accent: "from-lime-500/8 to-transparent",
-    iconColor: "text-lime-400",
-    large: false,
+    num: "03",
+    title: "Fuerza Relativa y Absoluta",
+    body:  "La relación entre tu fuerza y tu peso corporal es el indicador más honesto de rendimiento real. El BPS optimiza ambas.",
+  },
+  {
+    num: "04",
+    title: "Nutrición Periodizada",
+    body:  "La nutrición no es un complemento — es parte del programa. Cada fase de entrenamiento tiene un protocolo nutricional específico.",
   },
 ];
 
 const categoryColor: Record<string, string> = {
   Entrenamiento: "text-emerald-400",
-  Nutrición: "text-violet-400",
-  Mentalidad: "text-yellow-400",
+  Nutrición:     "text-violet-400",
+  Mentalidad:    "text-yellow-400",
 };
 
-/* ── Section label ─────────────────────────────────────── */
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex items-center gap-4 mb-16">
-      <div className="h-px flex-1 bg-gradient-to-r from-transparent to-white/10" />
-      <span className="text-[11px] font-semibold tracking-[0.25em] uppercase text-white/30">
-        {children}
-      </span>
-      <div className="h-px flex-1 bg-gradient-to-l from-transparent to-white/10" />
-    </div>
-  );
-}
-
-/* ── Page ───────────────────────────────────────────────── */
 export default function HomePage() {
-  const previewPosts = posts.slice(0, 3);
+  const previewPosts  = posts.slice(0, 3);
+  const featuredProgs = programas.slice(0, 3);
 
   return (
     <div className="bg-slate-950 text-white overflow-x-hidden">
 
       {/* ════════════════════════════════════════
-          HERO
+          HERO — Metodología primero
       ════════════════════════════════════════ */}
       <section className="relative min-h-screen flex flex-col items-center justify-center px-4 md:px-6 pt-14 pb-20 md:pt-32 md:pb-44">
-
-        {/* Ambient orbs + radial depth gradient */}
         <div aria-hidden className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(ellipse 80% 55% at 50% 25%, rgba(99,102,241,0.07) 0%, transparent 70%)",
-            }}
-          />
-          <div className="absolute -top-32 -left-32 w-[700px] h-[700px] rounded-full bg-orange-600/10 blur-[140px]" />
-          <div className="absolute top-1/4 -right-48 w-[500px] h-[500px] rounded-full bg-indigo-600/6 blur-[120px]" />
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[900px] h-[250px] bg-orange-600/6 blur-[80px]" />
+          <div className="absolute -top-32 -left-32 w-[700px] h-[700px] rounded-full bg-orange-600/8 blur-[140px]" />
+          <div className="absolute top-1/4 -right-48 w-[500px] h-[500px] rounded-full bg-indigo-600/5 blur-[120px]" />
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[900px] h-[200px] bg-orange-600/5 blur-[80px]" />
         </div>
 
         <div className="relative max-w-5xl mx-auto text-center">
-
           {/* Badge */}
           <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full border border-white/10 bg-white/[0.04] backdrop-blur-sm text-sm text-white/50 mb-10 md:mb-14">
-            <span className="w-1.5 h-1.5 rounded-full bg-lime-400 animate-pulse" />
-            Programa de Transformación 2026
+            <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
+            The Brey Performance System
           </div>
 
-          {/* H1 */}
-          <h1 className="font-black leading-snug tracking-normal mb-10 md:mb-14">
-            <span className="block text-4xl sm:text-5xl md:text-6xl text-white">
-              Transforma
+          {/* H1 — método, no persona */}
+          <h1 className="font-black leading-[1.08] tracking-tight mb-8 md:mb-12">
+            <span className="block text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white">
+              Entrena con método.
             </span>
-            <span className="block text-4xl sm:text-5xl md:text-6xl text-white">
-              tu físico.
-            </span>
-            <span className="block text-3xl sm:text-4xl md:text-5xl mt-3 text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-orange-500 to-amber-500">
-              Con Brey Fitness.
+            <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-orange-500 to-amber-400 mt-2">
+              No con intuición.
             </span>
           </h1>
 
-          {/* Subtitle */}
-          <p className="text-lg sm:text-xl text-white/40 max-w-xl mx-auto mb-12 md:mb-16 leading-[1.8] font-light">
-            El sistema completo que ya transformó a más de{" "}
-            <span className="text-white/80 font-medium">500 personas</span>.
-            Sin excusas, sin gimnasio obligatorio, con resultados reales.
+          <p className="text-lg sm:text-xl text-white/40 max-w-2xl mx-auto mb-12 md:mb-16 leading-[1.8] font-light">
+            5 ecosistemas de entrenamiento construidos sobre evidencia científica. Desde el principiante hasta el atleta avanzado — hay un sistema diseñado exactamente para ti.
           </p>
 
           {/* CTAs */}
-          <div className="flex flex-col items-center gap-7 mb-16 md:mb-24">
-            <CheckoutButton href={HOTMART_URL} />
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 md:mb-24">
             <Link
-              href="/videos"
+              href="/quiz"
+              className="checkout-btn inline-flex items-center gap-3 px-8 py-4 rounded-full bg-emerald-500 text-white text-base font-bold"
+            >
+              Encontrar mi programa
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+              </svg>
+            </Link>
+            <Link
+              href="/bps"
               className="inline-flex items-center gap-2 text-white/35 hover:text-white/70 text-sm font-medium transition-colors duration-200"
             >
-              Ver videos gratuitos primero
+              Conocer el método BPS
               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
               </svg>
             </Link>
           </div>
 
-          {/* VSL — gradient border */}
-          <div className="gradient-border shadow-2xl shadow-black">
-            <div className="rounded-[calc(1.5rem-1px)] bg-[#0b0b0b] overflow-hidden">
-              <div className="aspect-video flex flex-col items-center justify-center gap-5">
-                <button
-                  aria-label="Reproducir video"
-                  className="w-16 h-16 rounded-2xl bg-orange-500 hover:bg-orange-400 flex items-center justify-center shadow-[0_0_50px_rgba(249,115,22,0.45)] hover:shadow-[0_0_70px_rgba(249,115,22,0.55)] transition-all duration-300 hover:scale-105 cursor-pointer"
-                >
-                  <svg className="w-7 h-7 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z" />
-                  </svg>
-                </button>
-                <p className="text-white/20 text-sm tracking-wide">Ver el video de presentación</p>
+          {/* Stats strip */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-2xl mx-auto">
+            {stats.map(({ value, label, sub }) => (
+              <div key={label} className="flex flex-col p-4 rounded-2xl border border-white/[0.07] bg-white/[0.02]">
+                <span className="font-black text-2xl text-orange-400">{value}</span>
+                <span className="font-bold text-white/70 text-xs mt-1">{label}</span>
+                <span className="text-white/25 text-[10px] mt-0.5 leading-tight">{sub}</span>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════
+          BPS TEASER
+      ════════════════════════════════════════ */}
+      <section className="max-w-6xl mx-auto px-4 md:px-6 py-20 md:py-32">
+        <ScrollReveal>
+          <SectionLabel>The Brey Performance System</SectionLabel>
+        </ScrollReveal>
+
+        <div className="grid md:grid-cols-2 gap-12 items-center mb-14">
+          <ScrollReveal>
+            <h2 className="font-black text-3xl sm:text-4xl md:text-5xl text-white leading-snug tracking-tight">
+              Una metodología.<br />
+              <span className="text-white/40">No una colección</span><br />
+              de rutinas.
+            </h2>
+          </ScrollReveal>
+          <ScrollReveal delay={100}>
+            <p className="text-white/45 leading-relaxed text-base md:text-lg">
+              El BPS es el sistema que unifica sobrecarga progresiva, gestión de fatiga, fuerza relativa y nutrición periodizada en un solo método coherente. Cada programa parte de los mismos principios. Cada fase tiene un propósito. Cada ejercicio tiene una razón.
+            </p>
+            <Link
+              href="/bps"
+              className="inline-flex items-center gap-2 mt-6 text-orange-400 hover:text-orange-300 text-sm font-bold transition-colors"
+            >
+              Conocer el método completo
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+              </svg>
+            </Link>
+          </ScrollReveal>
+        </div>
+
+        {/* 4 pillars */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {pillars.map((p, i) => (
+            <ScrollReveal key={p.num} delay={i * 80}>
+              <div className="p-6 rounded-2xl border border-white/[0.07] bg-white/[0.02] hover:border-orange-500/20 hover:bg-white/[0.04] transition-all duration-300 h-full flex flex-col">
+                <span className="font-mono text-[11px] font-bold text-orange-400/60 mb-4">{p.num}</span>
+                <h3 className="font-black text-white text-base mb-3 leading-snug">{p.title}</h3>
+                <p className="text-white/35 text-xs leading-relaxed flex-1">{p.body}</p>
+              </div>
+            </ScrollReveal>
+          ))}
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════
+          5 PROGRAMAS PREVIEW
+      ════════════════════════════════════════ */}
+      <section className="max-w-6xl mx-auto px-4 md:px-6 py-16 md:py-24">
+        <ScrollReveal>
+          <SectionLabel>Los ecosistemas</SectionLabel>
+          <div className="flex items-end justify-between mb-12 -mt-8">
+            <h2 className="font-black text-3xl sm:text-4xl md:text-5xl text-white">
+              5 sistemas.<br />Un solo método.
+            </h2>
+            <Link
+              href="/programas"
+              className="hidden sm:inline-flex items-center gap-1.5 text-sm text-white/30 hover:text-white/70 transition-colors"
+            >
+              Ver todos
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+              </svg>
+            </Link>
+          </div>
+        </ScrollReveal>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {featuredProgs.map((p, i) => (
+            <ScrollReveal key={p.slug} delay={i * 80}>
+              <Link
+                href={`/programas/${p.slug}`}
+                className="group flex flex-col rounded-2xl border border-white/[0.07] bg-white/[0.02] overflow-hidden hover:border-white/[0.14] hover:bg-white/[0.04] transition-all duration-500 h-full"
+              >
+                <div className={`h-28 bg-gradient-to-br ${p.color.gradient} flex items-end p-5`}>
+                  <span className={`text-[10px] font-bold tracking-[0.12em] uppercase px-2.5 py-1 rounded-full border ${p.color.badge}`}>
+                    {p.duracion}
+                  </span>
+                </div>
+                <div className="flex-1 p-5">
+                  <h3 className="font-black text-base text-white group-hover:text-orange-400 transition-colors duration-300 mb-1.5">
+                    {p.nombre}
+                  </h3>
+                  <p className="text-white/35 text-xs leading-relaxed line-clamp-2 mb-4">{p.tagline}</p>
+                  <div className="flex items-center justify-between">
+                    <span className="font-black text-base text-white">{p.precioFormato}</span>
+                    <span className="text-xs font-bold text-white/30 group-hover:text-orange-400 transition-colors flex items-center gap-1">
+                      Ver programa
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            </ScrollReveal>
+          ))}
+        </div>
+
+        <ScrollReveal className="mt-4 sm:hidden">
+          <Link
+            href="/programas"
+            className="flex items-center justify-center gap-2 text-sm text-white/30 hover:text-white/60 transition-colors py-4"
+          >
+            Ver los 5 ecosistemas
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+            </svg>
+          </Link>
+        </ScrollReveal>
+      </section>
+
+      {/* ════════════════════════════════════════
+          EJERCICIOS TEASER
+      ════════════════════════════════════════ */}
+      <section className="max-w-6xl mx-auto px-4 md:px-6 py-16 md:py-24">
+        <ScrollReveal>
+          <div className="rounded-3xl border border-white/[0.07] bg-white/[0.02] p-8 md:p-12 flex flex-col md:flex-row items-center gap-8">
+            <div className="flex-1">
+              <p className="text-[11px] font-semibold tracking-[0.25em] uppercase text-white/25 mb-4">
+                Biblioteca de ejercicios
+              </p>
+              <h2 className="font-black text-3xl sm:text-4xl text-white leading-snug mb-4">
+                Cada ejercicio,<br />analizado a fondo.
+              </h2>
+              <p className="text-white/40 leading-relaxed text-sm max-w-md">
+                Técnica paso a paso, errores comunes, músculos involucrados y variantes de cada movimiento. {ejercicios.length} ejercicios hoy — la biblioteca crece cada semana.
+              </p>
+              <Link
+                href="/ejercicios"
+                className="inline-flex items-center gap-2 mt-6 px-6 py-3 rounded-full border border-white/[0.12] text-white/60 hover:text-white hover:border-white/25 text-sm font-bold transition-all duration-200"
+              >
+                Explorar ejercicios
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                </svg>
+              </Link>
+            </div>
+
+            {/* Visual muscle groups */}
+            <div className="grid grid-cols-3 gap-2 flex-shrink-0">
+              {['Pecho', 'Espalda', 'Hombros', 'Piernas', 'Core', 'Calistenia'].map((g) => (
+                <div
+                  key={g}
+                  className="px-3 py-2 rounded-xl border border-white/[0.07] bg-white/[0.02] text-[10px] font-semibold text-white/40 text-center whitespace-nowrap"
+                >
+                  {g}
+                </div>
+              ))}
             </div>
           </div>
-
-          <p className="text-white/20 text-xs mt-6 tracking-widest uppercase">
-            Acceso inmediato · Sin contratos · Garantía 30 días
-          </p>
-        </div>
-      </section>
-
-      {/* ════════════════════════════════════════
-          STATS BENTO
-      ════════════════════════════════════════ */}
-      <section className="max-w-6xl mx-auto px-4 md:px-6 py-16 md:py-32">
-        <ScrollReveal>
-          <SectionLabel>Resultados que hablan</SectionLabel>
         </ScrollReveal>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {stats.map(({ value, label, sub }, i) => (
-            <ScrollReveal key={label} delay={i * 80}>
-              <div className="flex flex-col justify-between p-5 sm:p-7 rounded-3xl border border-white/[0.07] bg-white/[0.03] backdrop-blur-sm hover:border-lime-500/20 hover:bg-white/[0.05] transition-all duration-300 min-h-[140px] sm:min-h-[160px]">
-                <p className="text-3xl sm:text-4xl md:text-5xl font-black text-orange-400 leading-snug">
-                  {value}
-                </p>
-                <div>
-                  <p className="text-sm font-bold text-white/80 mt-3">{label}</p>
-                  <p className="text-xs text-white/30 mt-0.5">{sub}</p>
-                </div>
-              </div>
-            </ScrollReveal>
-          ))}
-        </div>
       </section>
 
       {/* ════════════════════════════════════════
-          INCLUDES BENTO
+          BLOG PREVIEW
       ════════════════════════════════════════ */}
-      <section className="max-w-6xl mx-auto px-4 md:px-6 py-16 md:py-32">
+      <section className="max-w-6xl mx-auto px-4 md:px-6 py-16 md:py-24">
         <ScrollReveal>
-          <SectionLabel>Todo lo que obtienes</SectionLabel>
-          <div className="text-center mb-16 -mt-8">
+          <SectionLabel>Conocimiento libre</SectionLabel>
+          <div className="flex items-end justify-between mb-12 -mt-8">
             <h2 className="font-black text-3xl sm:text-4xl md:text-5xl text-white">
-              Un sistema completo.
-            </h2>
-            <p className="text-white/30 mt-4 max-w-lg mx-auto">
-              Diseñado para darte resultados reales sin importar tu nivel actual.
-            </p>
-          </div>
-        </ScrollReveal>
-
-        {/* Bento: 3-col, Ebooks spans 2 cols + 2 rows */}
-        <div className="grid grid-cols-1 md:grid-cols-3 md:auto-rows-[260px] gap-4">
-          {includes.map(({ id, icon, title, description, accent, iconColor, large }, i) => (
-            <ScrollReveal key={id} delay={i * 100} className={large ? "md:col-span-2 md:row-span-2" : ""}>
-              <div
-                className={`h-full flex flex-col justify-between p-8 rounded-3xl border border-white/[0.07] bg-gradient-to-br ${accent} bg-white/[0.03] backdrop-blur-sm hover:border-lime-500/[0.18] hover:bg-white/[0.05] transition-all duration-300 group`}
-              >
-                <div className={`${iconColor} p-3 rounded-2xl bg-white/[0.05] w-fit`}>
-                  {icon}
-                </div>
-                <div>
-                  <h3 className={`font-black text-white mb-2 ${large ? "text-2xl sm:text-3xl" : "text-xl"}`}>
-                    {title}
-                  </h3>
-                  <p className="text-white/40 text-sm leading-relaxed">{description}</p>
-                </div>
-              </div>
-            </ScrollReveal>
-          ))}
-        </div>
-      </section>
-
-      {/* ════════════════════════════════════════
-          BLOG PREVIEW BENTO
-      ════════════════════════════════════════ */}
-      <section className="max-w-6xl mx-auto px-4 md:px-6 py-16 md:py-32">
-        <ScrollReveal>
-          <SectionLabel>Conocimiento gratuito</SectionLabel>
-          <div className="flex items-end justify-between mb-16 -mt-8">
-            <h2 className="font-black text-3xl sm:text-4xl md:text-5xl text-white">
-              Lo último del blog.
+              Ciencia hecha<br />accesible.
             </h2>
             <Link
               href="/blog"
@@ -264,19 +292,13 @@ export default function HomePage() {
           </div>
         </ScrollReveal>
 
-        {/* Bento: first post 2-col 2-row, next two fill col 3 */}
         <div className="grid grid-cols-1 md:grid-cols-3 md:auto-rows-[220px] gap-4">
           {previewPosts.map((post, i) => (
-            <ScrollReveal
-              key={post.slug}
-              delay={i * 80}
-              className={i === 0 ? "md:col-span-2 md:row-span-2" : ""}
-            >
+            <ScrollReveal key={post.slug} delay={i * 80} className={i === 0 ? "md:col-span-2 md:row-span-2" : ""}>
               <Link
                 href={`/blog/${post.slug}`}
                 className="h-full flex flex-col justify-between p-7 rounded-3xl border border-white/[0.07] bg-white/[0.03] hover:border-lime-500/20 hover:bg-white/[0.05] transition-all duration-300 group"
               >
-                {/* Top: badges */}
                 <div className="flex items-center gap-2">
                   <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold border border-white/10 text-white/40">
                     {post.type}
@@ -285,20 +307,12 @@ export default function HomePage() {
                     {post.category}
                   </span>
                 </div>
-
-                {/* Bottom: title + excerpt + meta */}
                 <div>
-                  <h3
-                    className={`font-black text-white group-hover:text-orange-400 transition-colors mb-2 leading-snug ${
-                      i === 0 ? "text-2xl sm:text-3xl" : "text-lg"
-                    }`}
-                  >
+                  <h3 className={`font-black text-white group-hover:text-orange-400 transition-colors mb-2 leading-snug ${i === 0 ? "text-xl sm:text-2xl" : "text-base"}`}>
                     {post.title}
                   </h3>
                   {i === 0 && (
-                    <p className="text-white/40 text-sm leading-relaxed mb-4 line-clamp-2">
-                      {post.excerpt}
-                    </p>
+                    <p className="text-white/40 text-sm leading-relaxed mb-4 line-clamp-2">{post.excerpt}</p>
                   )}
                   <p className="text-xs text-white/20">{post.date} · {post.readTime}</p>
                 </div>
@@ -306,50 +320,44 @@ export default function HomePage() {
             </ScrollReveal>
           ))}
         </div>
-
-        <ScrollReveal className="mt-6 sm:hidden">
-          <Link
-            href="/blog"
-            className="flex items-center justify-center gap-2 text-sm text-white/30 hover:text-white/60 transition-colors"
-          >
-            Ver todos los artículos
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-            </svg>
-          </Link>
-        </ScrollReveal>
       </section>
 
       {/* ════════════════════════════════════════
-          CTA FINAL
+          TESTIMONIOS — se oculta hasta tener reales
+      ════════════════════════════════════════ */}
+      <TestimonialsSlider />
+
+      {/* ════════════════════════════════════════
+          CTA FINAL — Quiz
       ════════════════════════════════════════ */}
       <section className="relative overflow-hidden border-t border-white/[0.05]">
-        {/* Deep ambient glow */}
         <div aria-hidden className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-orange-600/8 blur-[120px] rounded-full" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[200px] bg-lime-600/5 blur-[80px] rounded-full" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-orange-600/6 blur-[120px] rounded-full" />
         </div>
 
         <ScrollReveal>
-          <div className="relative max-w-3xl mx-auto px-4 md:px-6 py-20 md:py-48 text-center">
+          <div className="relative max-w-2xl mx-auto px-4 md:px-6 py-20 md:py-40 text-center">
             <p className="text-xs font-semibold tracking-[0.25em] uppercase text-white/20 mb-8">
-              Tu momento es ahora
+              2 minutos · Sin registro · Gratis
             </p>
-            <h2 className="font-black text-4xl sm:text-5xl md:text-6xl text-white leading-snug tracking-normal mb-8">
-              ¿Listo para
-              <br />
+            <h2 className="font-black text-4xl sm:text-5xl md:text-6xl text-white leading-snug tracking-tight mb-6">
+              ¿No sabes por<br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-500">
-                cambiar tu vida?
+                dónde empezar?
               </span>
             </h2>
-            <p className="text-white/35 text-lg mb-14 max-w-md mx-auto leading-relaxed">
-              Únete ahora y empieza tu transformación hoy mismo. Sin excusas, sin esperas.
+            <p className="text-white/35 text-lg mb-12 max-w-md mx-auto leading-relaxed">
+              El quiz analiza tu objetivo, nivel, equipo disponible y situación actual para recomendarte el ecosistema exacto que necesitas.
             </p>
-
-            <CheckoutButton href={HOTMART_URL} />
-            <p className="text-white/15 text-xs mt-8 tracking-widest uppercase">
-              Acceso inmediato · Garantía de devolución 30 días
-            </p>
+            <Link
+              href="/quiz"
+              className="checkout-btn inline-flex items-center gap-3 px-10 py-5 rounded-full bg-emerald-500 text-white font-black text-base"
+            >
+              Tomar el quiz gratuito
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+              </svg>
+            </Link>
           </div>
         </ScrollReveal>
       </section>

@@ -1,55 +1,48 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import Link from "next/link";
 import "./globals.css";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import { SITE_URL } from "@/lib/site";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
-  title: "Brey Fitness",
-  description: "Transforma tu físico con entrenamiento, nutrición y comunidad.",
-};
+const plausibleDomain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN;
 
-const navLinks = [
-  { href: "/programas", label: "Programas" },
-  { href: "/blog", label: "Blog" },
-  { href: "/productos", label: "Productos" },
-  { href: "/videos", label: "Videos" },
-];
+export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Brey Fitness — The Brey Performance System",
+    template: "%s | Brey Fitness",
+  },
+  description:
+    "El sistema de entrenamiento basado en evidencia más completo del mercado hispanohablante. 5 ecosistemas de programa, biblioteca de ejercicios y metodología científica.",
+  keywords: ["entrenamiento", "calistenia", "gym", "fitness", "hipertrofia", "fuerza", "BPS"],
+  openGraph: {
+    siteName: "Brey Fitness",
+    locale: "es_ES",
+    type: "website",
+  },
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="es" className="h-full">
-      <body className={`${inter.className} min-h-full flex flex-col bg-slate-950 text-white antialiased`}>
-
-        {/* ── Glassmorphism Navbar ── */}
-        <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-slate-950/70 backdrop-blur-2xl">
-          <nav className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-            <Link href="/" className="text-xl font-black leading-snug whitespace-nowrap tracking-normal">
-              <span className="text-orange-400">Brey</span>
-              <span className="text-white"> Fitness</span>
-            </Link>
-
-            <ul className="flex gap-7 text-sm font-medium text-white/40">
-              {navLinks.map(({ href, label }) => (
-                <li key={href}>
-                  <Link href={href} className="hover:text-white transition-colors duration-200">
-                    {label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        </header>
-
+      <body
+        className={`${inter.className} min-h-full flex flex-col bg-slate-950 text-white antialiased`}
+      >
+        <Navbar />
         <div className="flex-1">{children}</div>
-
-        <footer className="border-t border-white/[0.05] text-center text-xs text-white/20 py-10 tracking-wider">
-          © {new Date().getFullYear()} BREY FITNESS · TODOS LOS DERECHOS RESERVADOS
-        </footer>
-
+        <Footer />
+        {plausibleDomain && (
+          <script
+            defer
+            data-domain={plausibleDomain}
+            src="https://plausible.io/js/script.js"
+          />
+        )}
       </body>
     </html>
   );
