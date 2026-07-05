@@ -11,6 +11,7 @@ export const metadata: Metadata = {
 };
 
 const navLinks = [
+  { href: "/programas", label: "Programas" },
   { href: "/blog", label: "Blog" },
   { href: "/productos", label: "Productos" },
   { href: "/videos", label: "Videos" },
