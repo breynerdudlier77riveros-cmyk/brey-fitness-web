@@ -8,6 +8,7 @@ import Button from "@/components/ui/Button";
 import { cardStyles } from "@/components/ui/Card";
 import DashboardPreview from "@/components/DashboardPreview";
 import FounderSection from "@/components/FounderSection";
+import EvolucionSection from "@/components/EvolucionSection";
 
 // ── Acto 2 · Manifiesto ─────────────────────────────────────────────────────
 const creencias = [
@@ -256,6 +257,12 @@ export default function HomePage() {
           Responde: ¿por qué confiar en BREY?
       ════════════════════════════════════════ */}
       <FounderSection />
+
+      {/* ════════════════════════════════════════
+          ACTO 7 · EL ECOSISTEMA — BREY evoluciona
+          Responde: ¿esto crece o ya terminó?
+      ════════════════════════════════════════ */}
+      <EvolucionSection />
 
       {/* ════════════════════════════════════════
           TESTIMONIOS — se oculta hasta tener reales

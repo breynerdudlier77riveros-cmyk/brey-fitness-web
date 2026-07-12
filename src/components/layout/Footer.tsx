@@ -1,5 +1,6 @@
 import Link from "next/link";
 import LeadCapture from "@/components/LeadCapture";
+import SocialLinks from "@/components/SocialLinks";
 
 const sections = {
   Programas: [
@@ -17,8 +18,12 @@ const sections = {
   ],
   Plataforma: [
     { href: "/diagnostico", label: "Diagnóstico BPS" },
-    { href: "/historia", label: "Historia" },
     { href: "/faq", label: "Preguntas frecuentes" },
+  ],
+  Empresa: [
+    { href: "/historia", label: "Nuestra historia" },
+    { href: "/bps", label: "El Manifiesto" },
+    { href: "/contacto", label: "Contacto" },
   ],
 } as const;
 
@@ -51,7 +56,7 @@ export default function Footer() {
           />
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-14">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-10 mb-14">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <Link href="/" className="text-sm font-black tracking-[0.10em] uppercase">
@@ -64,6 +69,7 @@ export default function Footer() {
             <p className="text-white/40 text-[10px] mt-6 tracking-[0.15em] uppercase font-medium">
               The Brey Performance System
             </p>
+            <SocialLinks className="mt-6" />
           </div>
 
           {/* Link columns */}

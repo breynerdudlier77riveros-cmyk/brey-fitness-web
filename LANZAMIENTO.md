@@ -44,8 +44,22 @@ En orden de importancia:
       añádelos en [`src/data/testimonials.ts`](src/data/testimonials.ts).
       La sección aparece sola en la home cuando el array tiene datos.
       Nunca inventes testimonios: la marca vende evidencia.
-- [ ] **Email de soporte**: configura `NEXT_PUBLIC_CONTACT_EMAIL` con el
-      correo real (aparece en privacidad, términos y reembolsos).
+- [ ] **Email de soporte corporativo (no Gmail)**: crea el buzón en tu
+      dominio (ej. `contacto@breyfitness.com`) y configura
+      `NEXT_PUBLIC_CONTACT_EMAIL`. Aparece en /contacto, privacidad,
+      términos y reembolsos.
+- [ ] **Formulario de /contacto**: usa Brevo transaccional. Además de la
+      `BREVO_API_KEY`, verifica el remitente (`CONTACT_EMAIL`) como sender
+      en Brevo (Settings → Senders). Sin esto, el formulario ofrece el
+      email directo como alternativa — nada queda roto.
+- [x] **Redes sociales (D7)**: Instagram ya activo en
+      [`src/data/social.ts`](src/data/social.ts) (@brey_trainersw y
+      @breyner_sw). Cuando existan TikTok/YouTube/Facebook/LinkedIn, pega
+      la URL y aparecen solas en footer y /contacto.
+- [x] **Métricas del producto (D8)**: cero números inventados. La banda de
+      métricas en la home está dormida hasta cruzar los umbrales reales
+      (50 usuarios activos · 100 programas iniciados · 500 entrenamientos ·
+      1000 horas) en [`src/data/metricas.ts`](src/data/metricas.ts).
 - [ ] **Páginas legales**: lee /privacidad, /terminos y /reembolsos y ajusta
       lo que no encaje con tu operación real.
 
