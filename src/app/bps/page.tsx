@@ -37,6 +37,33 @@ const pillars = [
   },
 ];
 
+const manifiesto = [
+  {
+    no: "No creemos en copiar rutinas.",
+    si: "Creemos en entender el entrenamiento.",
+    porque:
+      "Una rutina copiada funciona hasta que deja de hacerlo — y entonces no sabes qué ajustar. Entender por qué funciona te acompaña toda la vida de entrenamiento.",
+  },
+  {
+    no: "No creemos en tendencias.",
+    si: "Creemos en evidencia científica.",
+    porque:
+      "Las tendencias cambian cada año. Los principios fisiológicos que gobiernan tu adaptación — sobrecarga, recuperación, especificidad — no han cambiado en décadas.",
+  },
+  {
+    no: "No creemos en entrenar más.",
+    si: "Creemos en entrenar mejor.",
+    porque:
+      "El volumen sin dirección es fatiga gratis. La dosis correcta de estímulo, en el momento correcto de la fase correcta, es lo que produce progreso medible.",
+  },
+  {
+    no: "No creemos en improvisar.",
+    si: "Creemos en sistemas.",
+    porque:
+      "La motivación fluctúa; es humano. Un sistema decide por ti los días en que la motivación no aparece — y esos días son los que separan el progreso del abandono.",
+  },
+];
+
 const steps = [
   {
     step: "1",
@@ -186,6 +213,28 @@ export default function BPSPage() {
                 </div>
                 <h3 className="font-black text-white text-sm mb-3">{s.title}</h3>
                 <p className="text-white/55 text-xs leading-relaxed flex-1">{s.body}</p>
+              </div>
+            </ScrollReveal>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Manifiesto — versión extendida ── */}
+      <section className="max-w-5xl mx-auto px-6 py-20 border-b border-white/[0.05]">
+        <ScrollReveal>
+          <SectionLabel>En qué creemos</SectionLabel>
+          <h2 className="font-black text-3xl sm:text-4xl text-white text-center leading-snug mb-14 -mt-8">
+            El ADN del sistema.
+          </h2>
+        </ScrollReveal>
+
+        <div className="grid sm:grid-cols-2 gap-4">
+          {manifiesto.map((m, i) => (
+            <ScrollReveal key={i} delay={i * 80}>
+              <div className="p-7 rounded-2xl border border-white/[0.07] bg-white/[0.02] hover:border-orange-500/15 hover:bg-white/[0.04] transition-all duration-300 h-full flex flex-col">
+                <p className="text-white/40 text-sm font-medium mb-2">{m.no}</p>
+                <h3 className="font-black text-xl text-white mb-4 leading-snug">{m.si}</h3>
+                <p className="text-white/55 text-sm leading-relaxed flex-1">{m.porque}</p>
               </div>
             </ScrollReveal>
           ))}

@@ -1,52 +1,46 @@
 import Link from "next/link";
-import { posts } from "@/lib/content";
 import { programas } from "@/data/programs";
-import { ejercicios } from "@/data/exercises";
 import ScrollReveal from "@/components/ScrollReveal";
 import SectionLabel from "@/components/layout/SectionLabel";
 import TestimonialsSlider from "@/components/TestimonialsSlider";
 import { ArrowRight } from "@/components/ui/icons";
 import Button from "@/components/ui/Button";
+import { cardStyles } from "@/components/ui/Card";
 import DashboardPreview from "@/components/DashboardPreview";
 
-const pillars = [
+// ── Acto 2 · Manifiesto ─────────────────────────────────────────────────────
+const creencias = [
+  { no: "No creemos en copiar rutinas.",  si: "Creemos en entender el entrenamiento." },
+  { no: "No creemos en tendencias.",      si: "Creemos en evidencia científica." },
+  { no: "No creemos en entrenar más.",    si: "Creemos en entrenar mejor." },
+  { no: "No creemos en improvisar.",      si: "Creemos en sistemas." },
+];
+
+// ── Acto 3 · Los tres pilares del sistema ───────────────────────────────────
+const sistema = [
   {
-    num: "01",
-    title: "Sobrecarga Progresiva",
-    body:  "Cada sesión es un estímulo medible. Sin progresión cuantificada, el cuerpo no tiene razón fisiológica para adaptarse.",
+    titulo: "Ciencia",
+    cuerpo:
+      "Cada variable del programa — volumen, intensidad, frecuencia, descanso — proviene de literatura científica publicada, no de la rutina de moda. Si no hay evidencia que lo respalde, no entra al sistema.",
   },
   {
-    num: "02",
-    title: "Gestión Científica de la Fatiga",
-    body:  "Entrenar duro no es lo mismo que entrenar bien. El sistema controla el estrés acumulado para maximizar la adaptación y prevenir el sobreentrenamiento.",
+    titulo: "Planificación",
+    cuerpo:
+      "El azar no produce adaptación. Cada sesión existe dentro de una estructura periodizada: sabes qué toca hoy, qué viene después y qué objetivo fisiológico persigue cada fase.",
   },
   {
-    num: "03",
-    title: "Fuerza Relativa y Absoluta",
-    body:  "La relación entre tu fuerza y tu peso corporal es el indicador más honesto de rendimiento real. El BPS optimiza ambas.",
-  },
-  {
-    num: "04",
-    title: "Nutrición Periodizada",
-    body:  "La nutrición no es un complemento — es parte del programa. Cada fase de entrenamiento tiene un protocolo nutricional específico.",
+    titulo: "Seguimiento",
+    cuerpo:
+      "Lo que no se mide no progresa. Peso, series, RPE y RIR convierten cada sesión en datos — y los datos convierten el estancamiento en una decisión de ajuste, no en un misterio.",
   },
 ];
 
-const categoryColor: Record<string, string> = {
-  Entrenamiento: "text-emerald-400",
-  Nutrición:     "text-violet-400",
-  Mentalidad:    "text-yellow-400",
-};
-
 export default function HomePage() {
-  const previewPosts  = posts.slice(0, 3);
-  const featuredProgs = programas.slice(0, 3);
-
   return (
     <div className="bg-slate-950 text-white overflow-x-hidden">
 
       {/* ════════════════════════════════════════
-          HERO — Transformación + producto
+          ACTO 1 · HERO — Transformación + producto
           Responde: ¿por qué debería quedarme?
       ════════════════════════════════════════ */}
       <section className="relative overflow-hidden">
@@ -110,75 +104,106 @@ export default function HomePage() {
       </section>
 
       {/* ════════════════════════════════════════
-          BPS TEASER
+          ACTO 2 · MANIFIESTO — El ADN
+          Responde: ¿en qué cree esta empresa?
       ════════════════════════════════════════ */}
-      <section className="max-w-6xl mx-auto px-4 md:px-6 py-20 md:py-32">
-        <ScrollReveal>
-          <SectionLabel>The Brey Performance System</SectionLabel>
-        </ScrollReveal>
-
-        <div className="grid md:grid-cols-2 gap-12 items-center mb-14">
+      <section className="border-t border-white/[0.05]">
+        <div className="max-w-3xl mx-auto px-4 md:px-6 py-24 md:py-36">
           <ScrollReveal>
-            <h2 className="font-black text-3xl sm:text-4xl md:text-5xl text-white leading-snug tracking-tight">
-              Una metodología.<br />
-              <span className="text-white/60">No una colección</span><br />
-              de rutinas.
-            </h2>
+            <SectionLabel>En qué creemos</SectionLabel>
           </ScrollReveal>
-          <ScrollReveal delay={100}>
-            <p className="text-white/60 leading-relaxed text-base md:text-lg">
-              El BPS es el sistema que unifica sobrecarga progresiva, gestión de fatiga, fuerza relativa y nutrición periodizada en un solo método coherente. Cada programa parte de los mismos principios. Cada fase tiene un propósito. Cada ejercicio tiene una razón.
-            </p>
-            <Link
-              href="/bps"
-              className="inline-flex items-center gap-2 mt-6 text-orange-400 hover:text-orange-300 text-sm font-bold transition-colors"
-            >
-              Conocer el método completo
-              <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
-            </Link>
-          </ScrollReveal>
-        </div>
 
-        {/* 4 pillars */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {pillars.map((p, i) => (
-            <ScrollReveal key={p.num} delay={i * 80}>
-              <div className="p-6 rounded-2xl border border-white/[0.07] bg-white/[0.02] hover:border-orange-500/20 hover:bg-white/[0.04] transition-all duration-300 h-full flex flex-col">
-                <span className="font-mono text-[11px] font-bold text-orange-400/60 mb-4">{p.num}</span>
-                <h3 className="font-black text-white text-base mb-3 leading-snug">{p.title}</h3>
-                <p className="text-white/55 text-xs leading-relaxed flex-1">{p.body}</p>
-              </div>
+          <div className="flex flex-col gap-14 md:gap-20 text-center">
+            {creencias.map((c, i) => (
+              <ScrollReveal key={i} delay={i * 60}>
+                <p className="text-white/40 text-base md:text-lg font-medium mb-3">
+                  {c.no}
+                </p>
+                <p className="font-black text-2xl sm:text-3xl md:text-[2.6rem] md:leading-[1.25] text-white text-balance">
+                  {c.si}
+                </p>
+              </ScrollReveal>
+            ))}
+
+            <ScrollReveal>
+              <div aria-hidden className="w-10 h-px bg-orange-400/40 mx-auto mb-8" />
+              <p className="font-black text-lg sm:text-xl text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400 tracking-tight">
+                Esto es el Brey Performance System.
+              </p>
             </ScrollReveal>
-          ))}
+          </div>
         </div>
       </section>
 
       {/* ════════════════════════════════════════
-          5 PROGRAMAS PREVIEW
+          ACTO 3 · EL SISTEMA
+          Responde: ¿por qué funciona?
+      ════════════════════════════════════════ */}
+      <section className="max-w-6xl mx-auto px-4 md:px-6 py-20 md:py-28">
+        <ScrollReveal>
+          <SectionLabel>El sistema</SectionLabel>
+          <div className="flex items-end justify-between gap-6 mb-6 -mt-8">
+            <h2 className="font-black text-3xl sm:text-4xl md:text-5xl text-white">
+              ¿Por qué funciona?
+            </h2>
+            <Link
+              href="/bps"
+              className="hidden sm:inline-flex items-center gap-1.5 text-sm text-orange-400 hover:text-orange-300 font-bold transition-colors flex-shrink-0"
+            >
+              Conocer el método completo
+              <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
+            </Link>
+          </div>
+          <p className="text-white/60 leading-relaxed max-w-xl mb-12">
+            El BPS se sostiene sobre tres pilares. Quita cualquiera de los tres y deja de funcionar.
+          </p>
+        </ScrollReveal>
+
+        <div className="grid md:grid-cols-3 gap-4">
+          {sistema.map((p, i) => (
+            <ScrollReveal key={p.titulo} delay={i * 80}>
+              <div className={`${cardStyles.base} ${cardStyles.interactive} p-7 h-full flex flex-col`}>
+                <h3 className="font-black text-xl text-orange-400 mb-4">{p.titulo}</h3>
+                <p className="text-white/60 text-sm leading-relaxed flex-1">{p.cuerpo}</p>
+              </div>
+            </ScrollReveal>
+          ))}
+        </div>
+
+        <ScrollReveal className="mt-6 sm:hidden">
+          <Link
+            href="/bps"
+            className="flex items-center justify-center gap-2 text-sm text-orange-400 hover:text-orange-300 font-bold transition-colors py-3"
+          >
+            Conocer el método completo
+            <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
+          </Link>
+        </ScrollReveal>
+      </section>
+
+      {/* ════════════════════════════════════════
+          ACTO 4 · LOS ECOSISTEMAS
+          Responde: ¿cuál es para mí?
       ════════════════════════════════════════ */}
       <section className="max-w-6xl mx-auto px-4 md:px-6 py-16 md:py-24">
         <ScrollReveal>
           <SectionLabel>Los ecosistemas</SectionLabel>
-          <div className="flex items-end justify-between mb-12 -mt-8">
+          <div className="mb-6 -mt-8">
             <h2 className="font-black text-3xl sm:text-4xl md:text-5xl text-white">
               5 sistemas.<br />Un solo método.
             </h2>
-            <Link
-              href="/programas"
-              className="hidden sm:inline-flex items-center gap-1.5 text-sm text-white/55 hover:text-white/90 transition-colors"
-            >
-              Ver todos
-              <ArrowRight className="w-4 h-4" strokeWidth={2} />
-            </Link>
           </div>
+          <p className="text-white/60 leading-relaxed max-w-xl mb-12">
+            Cada ecosistema es un sistema completo para un perfil específico — no una colección de PDFs. El tuyo está aquí.
+          </p>
         </ScrollReveal>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {featuredProgs.map((p, i) => (
+          {programas.map((p, i) => (
             <ScrollReveal key={p.slug} delay={i * 80}>
               <Link
                 href={`/programas/${p.slug}`}
-                className="group flex flex-col rounded-2xl border border-white/[0.07] bg-white/[0.02] overflow-hidden hover:border-white/[0.14] hover:bg-white/[0.04] transition-all duration-500 h-full"
+                className={`${cardStyles.base} ${cardStyles.interactive} group flex flex-col overflow-hidden h-full`}
               >
                 <div className={`h-28 bg-gradient-to-br ${p.color.gradient} flex items-end p-5`}>
                   <span className={`text-[10px] font-bold tracking-[0.12em] uppercase px-2.5 py-1 rounded-full border ${p.color.badge}`}>
@@ -201,106 +226,27 @@ export default function HomePage() {
               </Link>
             </ScrollReveal>
           ))}
-        </div>
 
-        <ScrollReveal className="mt-4 sm:hidden">
-          <Link
-            href="/programas"
-            className="flex items-center justify-center gap-2 text-sm text-white/55 hover:text-white/90 transition-colors py-4"
-          >
-            Ver los 5 ecosistemas
-            <ArrowRight className="w-4 h-4" strokeWidth={2} />
-          </Link>
-        </ScrollReveal>
-      </section>
-
-      {/* ════════════════════════════════════════
-          EJERCICIOS TEASER
-      ════════════════════════════════════════ */}
-      <section className="max-w-6xl mx-auto px-4 md:px-6 py-16 md:py-24">
-        <ScrollReveal>
-          <div className="rounded-3xl border border-white/[0.07] bg-white/[0.02] p-8 md:p-12 flex flex-col md:flex-row items-center gap-8">
-            <div className="flex-1">
-              <p className="text-[11px] font-semibold tracking-[0.25em] uppercase text-white/50 mb-4">
-                Biblioteca de ejercicios
-              </p>
-              <h2 className="font-black text-3xl sm:text-4xl text-white leading-snug mb-4">
-                Cada ejercicio,<br />analizado a fondo.
-              </h2>
-              <p className="text-white/60 leading-relaxed text-sm max-w-md">
-                Técnica paso a paso, errores comunes, músculos involucrados y variantes de cada movimiento. {ejercicios.length} ejercicios hoy — la biblioteca crece cada semana.
-              </p>
-              <Link
-                href="/ejercicios"
-                className="inline-flex items-center gap-2 mt-6 px-6 py-3 rounded-full border border-white/[0.12] text-white/60 hover:text-white hover:border-white/25 text-sm font-bold transition-all duration-200"
-              >
-                Explorar ejercicios
+          {/* Puente al diagnóstico — completa la cuadrícula de 6 */}
+          <ScrollReveal delay={5 * 80}>
+            <div className="h-full flex flex-col justify-between rounded-2xl border border-orange-500/25 bg-orange-500/[0.05] p-6">
+              <div>
+                <p className="text-[10px] font-bold tracking-[0.18em] uppercase text-orange-400 mb-3">
+                  ¿No sabes cuál elegir?
+                </p>
+                <h3 className="font-black text-lg text-white leading-snug mb-2">
+                  Deja que el diagnóstico decida contigo.
+                </h3>
+                <p className="text-white/60 text-xs leading-relaxed">
+                  6 preguntas sobre tu objetivo, nivel y equipo — y una recomendación con su porqué.
+                </p>
+              </div>
+              <Button href="/quiz" size="md" className="mt-6 w-full">
+                Empezar mi diagnóstico
                 <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
-              </Link>
+              </Button>
             </div>
-
-            {/* Visual muscle groups */}
-            <div className="grid grid-cols-3 gap-2 flex-shrink-0">
-              {['Pecho', 'Espalda', 'Hombros', 'Piernas', 'Core', 'Calistenia'].map((g) => (
-                <div
-                  key={g}
-                  className="px-3 py-2 rounded-xl border border-white/[0.07] bg-white/[0.02] text-[10px] font-semibold text-white/60 text-center whitespace-nowrap"
-                >
-                  {g}
-                </div>
-              ))}
-            </div>
-          </div>
-        </ScrollReveal>
-      </section>
-
-      {/* ════════════════════════════════════════
-          BLOG PREVIEW
-      ════════════════════════════════════════ */}
-      <section className="max-w-6xl mx-auto px-4 md:px-6 py-16 md:py-24">
-        <ScrollReveal>
-          <SectionLabel>Conocimiento libre</SectionLabel>
-          <div className="flex items-end justify-between mb-12 -mt-8">
-            <h2 className="font-black text-3xl sm:text-4xl md:text-5xl text-white">
-              Ciencia hecha<br />accesible.
-            </h2>
-            <Link
-              href="/blog"
-              className="hidden sm:inline-flex items-center gap-1.5 text-sm text-white/55 hover:text-white/90 transition-colors"
-            >
-              Ver todos
-              <ArrowRight className="w-4 h-4" strokeWidth={2} />
-            </Link>
-          </div>
-        </ScrollReveal>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 md:auto-rows-[220px] gap-4">
-          {previewPosts.map((post, i) => (
-            <ScrollReveal key={post.slug} delay={i * 80} className={i === 0 ? "md:col-span-2 md:row-span-2" : ""}>
-              <Link
-                href={`/blog/${post.slug}`}
-                className="h-full flex flex-col justify-between p-7 rounded-3xl border border-white/[0.07] bg-white/[0.03] hover:border-white/[0.14] hover:bg-white/[0.05] transition-all duration-300 group"
-              >
-                <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold border border-white/10 text-white/60">
-                    {post.type}
-                  </span>
-                  <span className={`text-xs font-medium ${categoryColor[post.category]}`}>
-                    {post.category}
-                  </span>
-                </div>
-                <div>
-                  <h3 className={`font-black text-white group-hover:text-orange-400 transition-colors mb-2 leading-snug ${i === 0 ? "text-xl sm:text-2xl" : "text-base"}`}>
-                    {post.title}
-                  </h3>
-                  {i === 0 && (
-                    <p className="text-white/60 text-sm leading-relaxed mb-4 line-clamp-2">{post.excerpt}</p>
-                  )}
-                  <p className="text-xs text-white/50">{post.date} · {post.readTime}</p>
-                </div>
-              </Link>
-            </ScrollReveal>
-          ))}
+          </ScrollReveal>
         </div>
       </section>
 
@@ -310,7 +256,8 @@ export default function HomePage() {
       <TestimonialsSlider />
 
       {/* ════════════════════════════════════════
-          CTA FINAL — Quiz
+          ACTO 8 · CTA FINAL — Diagnóstico
+          Responde: ¿qué hago ahora?
       ════════════════════════════════════════ */}
       <section className="relative overflow-hidden border-t border-white/[0.05]">
         <div aria-hidden className="absolute inset-0 pointer-events-none">
@@ -329,10 +276,10 @@ export default function HomePage() {
               </span>
             </h2>
             <p className="text-white/55 text-lg mb-12 max-w-md mx-auto leading-relaxed">
-              El quiz analiza tu objetivo, nivel, equipo disponible y situación actual para recomendarte el ecosistema exacto que necesitas.
+              El diagnóstico analiza tu objetivo, nivel, equipo y situación actual para recomendarte el ecosistema exacto — y explicarte por qué.
             </p>
             <Button href="/quiz" size="xl">
-              Tomar el quiz gratuito
+              Empezar mi diagnóstico
               <ArrowRight className="w-5 h-5" strokeWidth={2.5} />
             </Button>
           </div>
