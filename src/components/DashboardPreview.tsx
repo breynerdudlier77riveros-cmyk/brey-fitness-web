@@ -5,7 +5,8 @@ import { Check } from "@/components/ui/icons";
 // que se construirá: lo que se dibuja aquí es lo que existirá.
 // REGLA: siempre se muestra con la etiqueta "Vista previa · Plataforma en
 // desarrollo" — nunca como producto existente (Constitución, ley 4).
-// Datos de ejemplo coherentes con Performance Gym, módulo Fuerza Máxima.
+// Datos de ejemplo coherentes con el Sistema de Hipertrofia (fase de
+// sobrecarga, semana 7 de 16).
 
 const sesion = [
   { nombre: "Press banca",     esquema: "4 × 5",     intensidad: "RPE 8", hecho: true },
@@ -55,12 +56,12 @@ export default function DashboardPreview({ className = "" }: { className?: strin
             </p>
             <p className="font-black text-white text-lg leading-tight">Empuje · Fuerza</p>
             <p className="text-white/50 text-[11px] mt-1">
-              Módulo Fuerza Máxima · Semana 7 de 16
+              Sistema de Hipertrofia · Semana 7 de 16
             </p>
           </div>
           <div className="flex flex-col items-end flex-shrink-0">
             <span className="font-mono font-bold text-white text-sm tabular-nums">44%</span>
-            <span className="text-white/50 text-[10px]">del programa</span>
+            <span className="text-white/50 text-[10px]">del Sistema</span>
             <div className="w-16 h-1 rounded-full bg-white/[0.08] mt-1.5 overflow-hidden">
               <div className="h-full w-[44%] rounded-full bg-orange-400" />
             </div>

@@ -53,7 +53,7 @@ export const founder = {
 
   stats: [
     { value: '+6', label: 'Años entrenando calistenia' },
-    { value: '5', label: 'Ecosistemas de programa diseñados' },
+    { value: '5', label: 'Sistemas de entrenamiento diseñados' },
     { value: '4', label: 'Especialidades del sistema' },
   ] satisfies FounderStat[],
 

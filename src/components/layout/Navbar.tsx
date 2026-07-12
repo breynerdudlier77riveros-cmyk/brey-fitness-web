@@ -8,7 +8,7 @@ import Button from "@/components/ui/Button";
 
 const navLinks = [
   { href: "/bps", label: "El Método" },
-  { href: "/programas", label: "Programas" },
+  { href: "/Sistemas", label: "Sistemas" },
   { href: "/ejercicios", label: "Ejercicios" },
   { href: "/blog", label: "Blog" },
   { href: "/calculadoras", label: "Calculadoras" },
@@ -53,7 +53,7 @@ export default function Navbar() {
 
         {/* Desktop CTA */}
         <Button href="/diagnostico" size="sm" className="hidden md:inline-flex tracking-wide flex-shrink-0">
-          ¿Cuál es mi programa?
+          ¿Cuál es mi Sistema?
           <ArrowRight className="w-3.5 h-3.5" strokeWidth={2.5} />
         </Button>
 
@@ -94,7 +94,7 @@ export default function Navbar() {
               );
             })}
             <Button href="/diagnostico" size="md" onClick={() => setOpen(false)} className="mt-2 w-full">
-              ¿Cuál es mi programa?
+              ¿Cuál es mi Sistema?
               <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
             </Button>
           </div>

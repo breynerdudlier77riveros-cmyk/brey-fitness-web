@@ -5,6 +5,15 @@ const nextConfig: NextConfig = {
     return [
       // El quiz evolucionó al Diagnóstico BPS (F6) — los enlaces viejos no mueren.
       { source: "/quiz", destination: "/diagnostico", permanent: true },
+      // Arquitectura BREY v2: Programas → Sistemas (v1.6).
+      { source: "/programas", destination: "/sistemas", permanent: true },
+      { source: "/programas/performance-gym", destination: "/sistemas/hipertrofia", permanent: true },
+      { source: "/programas/performance-calisthenics", destination: "/sistemas/calistenia", permanent: true },
+      { source: "/programas/performance-hybrid", destination: "/sistemas/hibrido", permanent: true },
+      { source: "/programas/performance-elite", destination: "/sistemas/elite", permanent: true },
+      // Start ya no es un producto: el nivel lo asigna el Diagnóstico.
+      { source: "/programas/performance-start", destination: "/diagnostico", permanent: true },
+      { source: "/programas/:slug", destination: "/sistemas", permanent: true },
     ];
   },
 };

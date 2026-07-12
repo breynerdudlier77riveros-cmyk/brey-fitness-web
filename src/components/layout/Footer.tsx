@@ -3,12 +3,12 @@ import LeadCapture from "@/components/LeadCapture";
 import SocialLinks from "@/components/SocialLinks";
 
 const sections = {
-  Programas: [
-    { href: "/programas/performance-start", label: "Performance Start" },
-    { href: "/programas/performance-gym", label: "Performance Gym" },
-    { href: "/programas/performance-calisthenics", label: "Performance Calisthenics" },
-    { href: "/programas/performance-hybrid", label: "Performance Hybrid" },
-    { href: "/programas/performance-elite", label: "Performance Elite" },
+  Sistemas: [
+    { href: "/sistemas/hipertrofia", label: "Sistema de Hipertrofia" },
+    { href: "/sistemas/calistenia", label: "Sistema de Calistenia" },
+    { href: "/sistemas/hibrido", label: "Sistema Híbrido" },
+    { href: "/sistemas/fuerza", label: "Sistema de Fuerza" },
+    { href: "/sistemas/elite", label: "Sistema Elite" },
   ],
   Recursos: [
     { href: "/bps", label: "El Método" },

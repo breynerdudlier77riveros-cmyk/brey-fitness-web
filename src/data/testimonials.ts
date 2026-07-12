@@ -5,14 +5,14 @@
 // la credibilidad de una marca que vende evidencia científica.
 //
 // Para añadir uno: nombre (o nombre + inicial), iniciales para el avatar,
-// programa REAL del sistema actual, resultado concreto y su comentario.
+// Testimonio REAL de una persona real, resultado concreto y su comentario.
 
 export interface Testimonial {
   nombre: string;
   iniciales: string;
   color: string; // gradiente tailwind del avatar, ej. "from-orange-600 to-amber-700"
   objetivo: string; // resultado concreto, ej. "Primera dominada en 6 semanas"
-  programa: string; // uno de los 5 programas Performance
+  sistema: string; // uno de los 5 Sistemas del BPS
   comentario: string;
   estrellas: number; // 1–5
 }

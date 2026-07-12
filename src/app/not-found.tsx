@@ -30,7 +30,7 @@ export default function NotFound() {
               Volver al inicio
               <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
             </Button>
-            <Button href="/programas" variant="outline" size="md">
+            <Button href="/sistemas" variant="outline" size="md">
               Ver los 5 ecosistemas
             </Button>
           </div>

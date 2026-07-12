@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { getProgramBySlug } from "@/data/programs";
+import { getSistemaBySlug } from "@/data/sistemas";
 import { motorGuionado } from "@/lib/diagnostico/motor";
 import { preguntas } from "@/lib/diagnostico/preguntas";
 import type { Opcion, Pregunta, Respuesta, Resultado } from "@/lib/diagnostico/tipos";
 import LeadCapture from "@/components/LeadCapture";
+import WaitlistForm from "@/components/WaitlistForm";
 import Button from "@/components/ui/Button";
 import { ArrowRight, Check } from "@/components/ui/icons";
 
@@ -104,7 +105,10 @@ export default function DiagnosticoClient() {
     void reproducir(motor.iniciar());
   }
 
-  const programa = resultado ? getProgramBySlug(resultado.programa) : null;
+  const sistema = resultado ? getSistemaBySlug(resultado.sistema) : null;
+  const alternativa = resultado?.alternativa
+    ? getSistemaBySlug(resultado.alternativa.sistema)
+    : null;
 
   return (
     <div className="flex-1 flex flex-col">
@@ -198,16 +202,28 @@ export default function DiagnosticoClient() {
         )}
 
         {/* Resultado */}
-        {resultado && programa && !escribiendo && (
+        {resultado && sistema && !escribiendo && (
           <div className="msg-in mt-8">
-            <div className={`rounded-2xl border border-white/[0.08] bg-gradient-to-br ${programa.color.gradient} p-7 mb-5`}>
-              <span className={`text-[10px] font-bold tracking-[0.14em] uppercase px-3 py-1.5 rounded-full border ${programa.color.badge} mb-5 inline-block`}>
-                BPS · Tu ecosistema
-              </span>
+            <div className={`rounded-2xl border border-white/[0.08] bg-gradient-to-br ${sistema.color.gradient} p-7 mb-5`}>
+              <div className="flex flex-wrap items-center gap-2 mb-5">
+                <span className={`text-[10px] font-bold tracking-[0.14em] uppercase px-3 py-1.5 rounded-full border ${sistema.color.badge}`}>
+                  BPS · Tu Sistema
+                </span>
+                {!resultado.disponible && (
+                  <span className="text-[10px] font-bold tracking-[0.14em] uppercase px-3 py-1.5 rounded-full border border-white/15 bg-white/[0.06] text-white/60">
+                    Disponible próximamente
+                  </span>
+                )}
+              </div>
               <h2 className="font-black text-3xl sm:text-4xl text-white leading-snug mb-2">
-                {programa.nombre}
+                {sistema.nombre}
               </h2>
-              <p className="text-white/60 text-sm font-medium">{programa.tagline}</p>
+              <p className="text-white/60 text-sm font-medium">{sistema.tagline}</p>
+              {resultado.nivelEntrada && (
+                <p className="mt-4 inline-flex items-center gap-2 text-xs font-bold text-white/80 px-3 py-1.5 rounded-full bg-white/[0.06] border border-white/[0.10]">
+                  Tu punto de entrada: <span className={sistema.color.accent}>{resultado.nivelEntrada}</span>
+                </p>
+              )}
             </div>
 
             {/* El porqué — personalizado con sus respuestas */}
@@ -233,21 +249,52 @@ export default function DiagnosticoClient() {
               ))}
             </div>
 
-            <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 mb-6">
-              <LeadCapture
-                source={`diagnostico-${resultado.programa}`}
-                title="Guarda tu resultado: te enviamos el plan de arranque de tu ecosistema por email."
-                buttonLabel="Enviarme mi plan"
-              />
-            </div>
+            {resultado.disponible ? (
+              <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 mb-6">
+                <LeadCapture
+                  source={`diagnostico-${resultado.sistema}`}
+                  title="Guarda tu resultado: te enviamos la guía de arranque de tu Sistema por email."
+                  buttonLabel="Enviarme mi guía"
+                />
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 mb-5">
+                <p className="text-sm font-semibold text-white/70 mb-4">
+                  Este Sistema está en construcción. Únete a la lista y serás de los primeros en entrar:
+                </p>
+                <WaitlistForm sistemaSlug={resultado.sistema} />
+              </div>
+            )}
+
+            {/* Mejor camino disponible hoy */}
+            {!resultado.disponible && resultado.alternativa && alternativa && (
+              <div className={`rounded-2xl border ${alternativa.color.border} bg-white/[0.02] p-6 mb-6`}>
+                <p className="text-[10px] font-bold tracking-[0.18em] uppercase text-white/50 mb-3">
+                  Mientras tanto, disponible hoy
+                </p>
+                <h3 className="font-black text-lg text-white mb-2">{alternativa.nombre}</h3>
+                <p className="text-white/60 text-sm leading-relaxed mb-4">
+                  {resultado.alternativa.razon}
+                </p>
+                <Button href={`/sistemas/${alternativa.slug}`} size="md" className="w-full">
+                  Explorar el {alternativa.nombre}
+                  <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
+                </Button>
+              </div>
+            )}
 
             <div className="flex flex-col gap-3">
-              <Button href={`/programas/${resultado.programa}`} size="lg" className="w-full text-sm">
-                Ver {programa.nombre} completo
+              <Button
+                href={`/sistemas/${resultado.sistema}`}
+                variant={resultado.disponible ? "primary" : "outline"}
+                size="lg"
+                className="w-full text-sm"
+              >
+                {resultado.disponible ? `Explorar el ${sistema.nombre}` : `Conocer el ${sistema.nombre}`}
                 <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
               </Button>
-              <Button href="/programas" variant="outline" size="lg" className="w-full text-sm">
-                Ver todos los ecosistemas
+              <Button href="/sistemas" variant="outline" size="lg" className="w-full text-sm">
+                Ver todos los Sistemas
               </Button>
               <div className="flex items-center justify-center gap-6 pt-1">
                 <button

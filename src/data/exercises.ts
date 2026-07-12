@@ -12,7 +12,7 @@ export const ejercicios: Exercise[] = [
     musculoPrincipal: "pecho",
     musculosSecundarios: ["hombros", "brazos"],
     descripcion:
-      "El press de banca es el ejercicio compuesto de empuje horizontal por excelencia. Recluta el pectoral mayor en toda su extensión, con participación activa de los deltoides anteriores y tríceps. Es el pilar de cualquier programa de fuerza e hipertrofia del tren superior.",
+      "El press de banca es el ejercicio compuesto de empuje horizontal por excelencia. Recluta el pectoral mayor en toda su extensión, con participación activa de los deltoides anteriores y tríceps. Es el pilar de cualquier sistema de fuerza e hipertrofia del tren superior.",
     instrucciones: [
       "Agarra la barra a una anchura ligeramente mayor que los hombros (índice en las anillas exteriores o justo dentro).",
       "Retrae las escápulas y apóyalas en el banco. El arco lumbar es natural, no exagerado.",
@@ -40,7 +40,7 @@ export const ejercicios: Exercise[] = [
       "Permite progresión de carga clara semana a semana (sobrecarga progresiva cuantificable)",
       "Fortalece el manguito rotador como estabilizador secundario",
     ],
-    programasVinculados: ["performance-gym", "performance-hybrid", "performance-elite"],
+    sistemasVinculados: ["hipertrofia", "hibrido", "elite"],
   },
   {
     slug: "press-inclinado-mancuernas",
@@ -75,7 +75,7 @@ export const ejercicios: Exercise[] = [
       "Corrección de desbalances bilaterales al trabajar cada brazo de forma independiente",
       "Menor estrés articular en muñeca y codo vs barra",
     ],
-    programasVinculados: ["performance-start", "performance-gym", "performance-hybrid"],
+    sistemasVinculados: ["hipertrofia", "hipertrofia", "hibrido"],
   },
   {
     slug: "fondos-paralelas",
@@ -87,7 +87,7 @@ export const ejercicios: Exercise[] = [
     musculoPrincipal: "pecho",
     musculosSecundarios: ["brazos", "hombros"],
     descripcion:
-      "Los fondos son el ejercicio de empuje vertical descendente del peso corporal. Con un ligero lean hacia adelante se convierte en un compuesto de pecho de alto reclutamiento. Es obligatorio en cualquier programa de calistenia estructurada.",
+      "Los fondos son el ejercicio de empuje vertical descendente del peso corporal. Con un ligero lean hacia adelante se convierte en un compuesto de pecho de alto reclutamiento. Es obligatorio en cualquier sistema de calistenia estructurada.",
     instrucciones: [
       "Agarra las barras paralelas y bloquea los codos. Esta es la posición inicial.",
       "Inclínate ligeramente hacia adelante (10-20°) para maximizar la activación pectoral.",
@@ -110,7 +110,7 @@ export const ejercicios: Exercise[] = [
       "Fortalece el tendón pectoral y la inserción distal del tríceps",
       "No requiere equipamiento de banca — ideal para entrenamiento fuera del gym",
     ],
-    programasVinculados: ["performance-calisthenics", "performance-hybrid", "performance-elite"],
+    sistemasVinculados: ["calistenia", "hibrido", "elite"],
   },
 
   // ── ESPALDA ───────────────────────────────────────────────────────────────
@@ -124,7 +124,7 @@ export const ejercicios: Exercise[] = [
     musculoPrincipal: "espalda",
     musculosSecundarios: ["brazos", "core"],
     descripcion:
-      "La dominada es el ejercicio de tracción vertical del peso corporal. Es el indicador más claro de fuerza relativa del tren superior y el pilar de cualquier programa de calistenia. Recluta el dorsal ancho, redondo mayor y bíceps con una intensidad que difícilmente se replica en máquina.",
+      "La dominada es el ejercicio de tracción vertical del peso corporal. Es el indicador más claro de fuerza relativa del tren superior y el pilar de cualquier sistema de calistenia. Recluta el dorsal ancho, redondo mayor y bíceps con una intensidad que difícilmente se replica en máquina.",
     instrucciones: [
       "Agarra la barra con prono (palmas alejadas) a anchura de hombros o algo mayor.",
       "Cuelga con los brazos completamente extendidos — esto activa el dorsal en elongación.",
@@ -151,7 +151,7 @@ export const ejercicios: Exercise[] = [
       "Fortalecimiento funcional del agarre",
       "Alta transferencia a otros movimientos de tracción vertical y horizontal",
     ],
-    programasVinculados: ["performance-calisthenics", "performance-hybrid", "performance-start", "performance-elite"],
+    sistemasVinculados: ["calistenia", "hibrido", "hipertrofia", "elite"],
   },
   {
     slug: "remo-barra",
@@ -189,7 +189,7 @@ export const ejercicios: Exercise[] = [
       "Desarrollo del grosor total de la espalda media",
       "Alta correlación con rendimiento en peso muerto",
     ],
-    programasVinculados: ["performance-gym", "performance-hybrid", "performance-elite"],
+    sistemasVinculados: ["hipertrofia", "hibrido", "elite"],
   },
   {
     slug: "jalon-pecho",
@@ -224,7 +224,7 @@ export const ejercicios: Exercise[] = [
       "Ideal como transición hacia las dominadas",
       "Excelente para volumen de acumulación sin fatiga del sistema nervioso central",
     ],
-    programasVinculados: ["performance-start", "performance-gym"],
+    sistemasVinculados: ["hipertrofia", "hipertrofia"],
   },
 
   // ── HOMBROS ───────────────────────────────────────────────────────────────
@@ -263,7 +263,7 @@ export const ejercicios: Exercise[] = [
       "Fortalecimiento del manguito rotador como estabilizador",
       "Alta correlación con fuerza funcional del tren superior en movimientos sobre la cabeza",
     ],
-    programasVinculados: ["performance-gym", "performance-hybrid", "performance-elite"],
+    sistemasVinculados: ["hipertrofia", "hibrido", "elite"],
   },
   {
     slug: "elevaciones-laterales",
@@ -299,7 +299,7 @@ export const ejercicios: Exercise[] = [
       "Construcción de la apariencia de hombros anchos independientemente del peso manejado en press",
       "Bajo riesgo de lesión si se ejecuta con carga apropiada",
     ],
-    programasVinculados: ["performance-start", "performance-gym", "performance-hybrid"],
+    sistemasVinculados: ["hipertrofia", "hipertrofia", "hibrido"],
   },
 
   // ── PIERNAS ───────────────────────────────────────────────────────────────
@@ -313,7 +313,7 @@ export const ejercicios: Exercise[] = [
     musculoPrincipal: "piernas",
     musculosSecundarios: ["core", "gluteos"],
     descripcion:
-      "La sentadilla con barra es el ejercicio compuesto de tren inferior con mayor reclutamiento muscular total. Cuádriceps, glúteo mayor, aductores, isquiotibiales y erector espinal trabajan simultáneamente. Es la base de cualquier programa serio de fuerza o hipertrofia de piernas.",
+      "La sentadilla con barra es el ejercicio compuesto de tren inferior con mayor reclutamiento muscular total. Cuádriceps, glúteo mayor, aductores, isquiotibiales y erector espinal trabajan simultáneamente. Es la base de cualquier sistema serio de fuerza o hipertrofia de piernas.",
     instrucciones: [
       "Posición de barra: high bar (sobre trapecio) o low bar (sobre deltoides posteriores), según el objetivo.",
       "Anchura de pies: entre hombros y ligeramente más ancho, pies rotados 15-30° hacia afuera.",
@@ -338,7 +338,7 @@ export const ejercicios: Exercise[] = [
       "Estímulo hormonal sistémico (GH, testosterona) por el volumen muscular implicado",
       "Desarrollo de la fuerza funcional base del tren inferior",
     ],
-    programasVinculados: ["performance-gym", "performance-hybrid", "performance-elite"],
+    sistemasVinculados: ["hipertrofia", "hibrido", "elite"],
   },
   {
     slug: "peso-muerto",
@@ -376,7 +376,7 @@ export const ejercicios: Exercise[] = [
       "Desarrollo del agarre funcional",
       "Correlación con rendimiento atlético general",
     ],
-    programasVinculados: ["performance-gym", "performance-hybrid", "performance-elite"],
+    sistemasVinculados: ["hipertrofia", "hibrido", "elite"],
   },
   {
     slug: "hip-thrust",
@@ -412,7 +412,7 @@ export const ejercicios: Exercise[] = [
       "Desarrollo específico del glúteo sin fatiga excesiva de cuádriceps o espalda",
       "Transferencia a rendimiento atlético en sprint y salto",
     ],
-    programasVinculados: ["performance-start", "performance-gym", "performance-hybrid"],
+    sistemasVinculados: ["hipertrofia", "hipertrofia", "hibrido"],
   },
   {
     slug: "romanian-deadlift",
@@ -447,7 +447,7 @@ export const ejercicios: Exercise[] = [
       "Fortalecimiento de la cadena posterior completa",
       "Prevención de lesiones en el isquiotibial",
     ],
-    programasVinculados: ["performance-gym", "performance-hybrid", "performance-elite"],
+    sistemasVinculados: ["hipertrofia", "hibrido", "elite"],
   },
 
   // ── CORE ──────────────────────────────────────────────────────────────────
@@ -485,7 +485,7 @@ export const ejercicios: Exercise[] = [
       "Prevención de dolor lumbar",
       "Accesible sin equipamiento para principiantes",
     ],
-    programasVinculados: ["performance-start", "performance-calisthenics", "performance-gym"],
+    sistemasVinculados: ["hipertrofia", "calistenia", "hipertrofia"],
   },
   {
     slug: "crunch-cable",
@@ -520,7 +520,7 @@ export const ejercicios: Exercise[] = [
       "Desarrollo estético y funcional del recto abdominal",
       "Alta activación EMG del recto abdominal",
     ],
-    programasVinculados: ["performance-gym", "performance-hybrid"],
+    sistemasVinculados: ["hipertrofia", "hibrido"],
   },
 
   // ── CALISTENIA ────────────────────────────────────────────────────────────
@@ -557,7 +557,7 @@ export const ejercicios: Exercise[] = [
       "Indicador de un nivel avanzado de fuerza relativa",
       "Desarrollo completo del tren superior sin equipamiento",
     ],
-    programasVinculados: ["performance-calisthenics", "performance-elite"],
+    sistemasVinculados: ["calistenia", "elite"],
   },
   {
     slug: "pistol-squat",
@@ -592,7 +592,7 @@ export const ejercicios: Exercise[] = [
       "Desarrollo de fuerza funcional unilateral con alta transferencia al deporte",
       "No requiere equipamiento",
     ],
-    programasVinculados: ["performance-calisthenics", "performance-elite"],
+    sistemasVinculados: ["calistenia", "elite"],
   },
   {
     slug: "handstand-push-up",
@@ -627,7 +627,7 @@ export const ejercicios: Exercise[] = [
       "Desarrollo del equilibrio y control propioceptivo",
       "Sin equipamiento de peso",
     ],
-    programasVinculados: ["performance-calisthenics", "performance-elite"],
+    sistemasVinculados: ["calistenia", "elite"],
   },
 
   // ── BRAZOS ────────────────────────────────────────────────────────────────
@@ -665,7 +665,7 @@ export const ejercicios: Exercise[] = [
       "Desarrollo de grosor en el brazo",
       "Fortalecimiento del tendón del bíceps",
     ],
-    programasVinculados: ["performance-start", "performance-gym", "performance-hybrid"],
+    sistemasVinculados: ["hipertrofia", "hipertrofia", "hibrido"],
   },
   {
     slug: "extension-triceps-cable",
@@ -700,7 +700,7 @@ export const ejercicios: Exercise[] = [
       "Bajo riesgo de lesión articular",
       "Excelente para trabajo de acumulación de volumen",
     ],
-    programasVinculados: ["performance-start", "performance-gym"],
+    sistemasVinculados: ["hipertrofia", "hipertrofia"],
   },
 ];
 

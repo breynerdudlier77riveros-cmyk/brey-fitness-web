@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     template: "%s | Brey Fitness",
   },
   description:
-    "El sistema de entrenamiento basado en evidencia más completo del mercado hispanohablante. 5 ecosistemas de programa, biblioteca de ejercicios y metodología científica.",
+    "Sistemas de entrenamiento construidos bajo la metodología BPS. Evidencia científica, diagnóstico personalizado y un ecosistema que evoluciona contigo.",
   openGraph: {
     siteName: "Brey Fitness",
     locale: "es_CO",

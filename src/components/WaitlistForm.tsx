@@ -1,0 +1,105 @@
+"use client";
+
+import { useState } from "react";
+import Button from "@/components/ui/Button";
+import { Check } from "@/components/ui/icons";
+
+// ── Lista de espera de Sistemas no disponibles ──────────────────────────────
+// Captura nombre + correo + objetivo (decisión BREY v2). No vende: promete
+// aviso prioritario. Los contactos llegan a Brevo con FUENTE espera-<slug>
+// y atributos NOMBRE / OBJETIVO.
+
+const objetivos = [
+  "Ganar fuerza máxima",
+  "Ganar masa muscular",
+  "Dominar habilidades de peso corporal",
+  "Combinar cargas y calistenia",
+  "Transformación completa con coaching",
+];
+
+type Estado = "idle" | "enviando" | "ok" | "error";
+
+const inputStyles =
+  "w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.10] text-sm text-white placeholder:text-white/50 focus:outline-none focus:border-orange-500/50 transition-colors";
+
+export default function WaitlistForm({ sistemaSlug }: { sistemaSlug: string }) {
+  const [nombre, setNombre] = useState("");
+  const [email, setEmail] = useState("");
+  const [objetivo, setObjetivo] = useState(objetivos[0]);
+  const [estado, setEstado] = useState<Estado>("idle");
+
+  async function enviar(e: React.FormEvent) {
+    e.preventDefault();
+    if (estado === "enviando") return;
+    setEstado("enviando");
+    try {
+      const res = await fetch("/api/lead", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email, nombre, objetivo, source: `espera-${sistemaSlug}` }),
+      });
+      setEstado(res.ok ? "ok" : "error");
+    } catch {
+      setEstado("error");
+    }
+  }
+
+  if (estado === "ok") {
+    return (
+      <div className="flex items-start gap-3 text-sm">
+        <Check className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" strokeWidth={2.5} />
+        <p className="text-white/70 leading-relaxed">
+          <span className="text-emerald-400 font-bold">Estás en la lista.</span>{" "}
+          Serás de los primeros en saber cuando este Sistema abra.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={enviar} className="flex flex-col gap-3">
+      <input
+        type="text"
+        required
+        maxLength={120}
+        value={nombre}
+        onChange={(e) => setNombre(e.target.value)}
+        placeholder="Tu nombre"
+        aria-label="Tu nombre"
+        className={inputStyles}
+      />
+      <input
+        type="email"
+        required
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="tu@email.com"
+        aria-label="Tu email"
+        className={inputStyles}
+      />
+      <select
+        value={objetivo}
+        onChange={(e) => setObjetivo(e.target.value)}
+        aria-label="Tu objetivo principal"
+        className={`${inputStyles} appearance-none cursor-pointer`}
+      >
+        {objetivos.map((o) => (
+          <option key={o} value={o} className="bg-slate-900">
+            {o}
+          </option>
+        ))}
+      </select>
+
+      <Button type="submit" size="md" disabled={estado === "enviando"} className="w-full">
+        {estado === "enviando" ? "Enviando…" : "Quiero ser de los primeros en acceder"}
+      </Button>
+
+      {estado === "error" && (
+        <p className="text-xs text-red-400">
+          No pudimos registrarte. Inténtalo de nuevo en unos minutos.
+        </p>
+      )}
+      <p className="text-[10px] text-white/50">Sin spam. Solo el aviso de apertura.</p>
+    </form>
+  );
+}

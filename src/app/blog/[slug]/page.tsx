@@ -111,10 +111,10 @@ export default async function BlogPost({ params }: Props) {
           ¿Listo para aplicar esto y transformar tu físico?
         </p>
         <Link
-          href="/programas"
+          href="/sistemas"
           className="inline-block bg-orange-500 hover:bg-orange-400 text-white font-bold px-8 py-3 rounded-full transition-colors shadow-lg shadow-orange-500/20"
         >
-          Ver los programas
+          Ver los Sistemas
         </Link>
       </div>
     </main>

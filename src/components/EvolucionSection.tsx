@@ -21,14 +21,14 @@ const organosReales = [
 ];
 
 const enDesarrollo = [
-  "Dashboard de entrenamiento",
-  "App iOS",
-  "App Android",
-  "Apple Watch",
-  "AI Coach",
+  "Dashboard inteligente",
+  "Aplicación móvil",
+  "Biblioteca científica",
+  "Academia",
+  "IA Coach",
   "Nutrición",
   "Comunidad",
-  "Wearables",
+  "Integración con wearables",
 ];
 
 export default function EvolucionSection() {
@@ -38,7 +38,7 @@ export default function EvolucionSection() {
         <ScrollReveal>
           <SectionLabel>El ecosistema</SectionLabel>
           <h2 className="font-black text-3xl sm:text-4xl md:text-5xl text-white mb-6 -mt-8">
-            BREY está evolucionando.
+            La evolución de BREY.
           </h2>
           <p className="text-white/60 leading-relaxed max-w-xl mb-12">
             Cada mes incorporamos nuevas funciones, mejoras y contenido — guiados por la
@@ -98,7 +98,7 @@ export default function EvolucionSection() {
             ))}
           </div>
           <p className="text-white/70 text-sm font-bold">
-            Tu sistema de hoy es tu acceso a todo lo que viene.
+            Tu Sistema de hoy es tu acceso a todo lo que viene.
           </p>
         </ScrollReveal>
       </div>

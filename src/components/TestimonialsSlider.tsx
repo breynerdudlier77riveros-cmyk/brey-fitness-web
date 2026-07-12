@@ -61,7 +61,7 @@ export default function TestimonialsSlider() {
 
               <div>
                 <p className="font-black text-white text-base">{t.nombre}</p>
-                <p className="text-white/55 text-xs mt-0.5">{t.programa}</p>
+                <p className="text-white/55 text-xs mt-0.5">{t.sistema}</p>
               </div>
 
               <div className="flex flex-col gap-2">

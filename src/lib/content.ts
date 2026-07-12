@@ -41,7 +41,7 @@ export const posts: Post[] = [
       "### 2. Fuerza Relativa y el Poder del Peso Corporal",
       "Un estudio publicado en el Journal of Exercise Science & Fitness (Kikuchi et al.) demostró que los ejercicios de peso corporal pueden inducir ganancias de fuerza e hipertrofia similares a las del press de banca pesado, siempre que se alcance una intensidad alta mediante progresiones más complejas.",
       "### 3. Gestión Científica de la Fatiga",
-      "La investigación de Pareja-Blanco et al. demuestra que entrenar constantemente al fallo muscular sin recuperación adecuada produce estancamiento. Un programa inteligente selecciona movimientos con alta relación estímulo-fatiga para maximizar la adaptación y minimizar el daño.",
+      "La investigación de Pareja-Blanco et al. demuestra que entrenar constantemente al fallo muscular sin recuperación adecuada produce estancamiento. Un sistema inteligente selecciona movimientos con alta relación estímulo-fatiga para maximizar la adaptación y minimizar el daño.",
       "**Referencias:** ACSM Progression Models in Resistance Training · Kikuchi et al., Journal of Exercise Science & Fitness · Pareja-Blanco et al., Effects of Acute Loading Induced Fatigability."
     ]
   },

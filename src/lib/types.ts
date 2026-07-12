@@ -1,44 +1,68 @@
-// ── Program types ──────────────────────────────────────────────────────────
+// ── Tipos de Sistema (arquitectura BREY v2: BREY → BPS → Sistemas) ─────────
+// El nivel del usuario NO es un producto: es configuración interna del
+// Sistema que asigna el Diagnóstico BPS.
 
-export type ProgramSlug =
-  | 'performance-start'
-  | 'performance-gym'
-  | 'performance-calisthenics'
-  | 'performance-hybrid'
-  | 'performance-elite';
+export type SistemaSlug =
+  | 'fuerza'
+  | 'hipertrofia'
+  | 'calistenia'
+  | 'hibrido'
+  | 'elite';
 
-export type ProgramLevel = 'principiante' | 'intermedio' | 'avanzado' | 'todos';
+/** Nivel interno de progresión dentro de un Sistema. */
+export interface NivelSistema {
+  nombre: string;
+  descripcion: string;
+}
 
-export interface ProgramModule {
+export interface FaseSistema {
   nombre: string;
   descripcion: string;
   semanas: number;
   sesionesSemanales: number;
 }
 
-export interface ProgramColor {
-  gradient: string;       // e.g. "from-emerald-950/60 via-emerald-900/20 to-slate-950"
-  badge: string;          // e.g. "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
-  accent: string;         // e.g. "text-emerald-400"
-  glow: string;           // e.g. "bg-emerald-600/8"
-  dot: string;            // e.g. "bg-emerald-400"
-  border: string;         // e.g. "border-emerald-500/20"
-  cta: string;            // e.g. "bg-emerald-500 hover:bg-emerald-400"
+/** Componente del ecosistema que acompaña a cada Sistema. */
+export interface ComponenteEcosistema {
+  etiqueta: string;
+  /** 'incluido' hoy · 'en-camino' = visión, sin promesa de fecha. */
+  estado: 'incluido' | 'en-camino';
 }
 
-export interface EcosystemProgram {
-  slug: ProgramSlug;
+export interface SistemaColor {
+  gradient: string;       // e.g. "from-orange-950/60 via-orange-900/20 to-slate-950"
+  badge: string;          // e.g. "text-orange-400 bg-orange-500/10 border-orange-500/20"
+  accent: string;         // e.g. "text-orange-400"
+  glow: string;           // e.g. "bg-orange-600/8"
+  dot: string;            // e.g. "bg-orange-400"
+  border: string;         // e.g. "border-orange-500/20"
+  cta: string;            // e.g. "bg-orange-500 hover:bg-orange-400"
+}
+
+export interface Sistema {
+  slug: SistemaSlug;
   nombre: string;
+  /** Objetivo principal del usuario que entra a este Sistema. */
+  objetivo: string;
   tagline: string;
   descripcion: string;
   para: string;
-  nivel: ProgramLevel;
-  duracion: string;
-  precio: number;
-  precioFormato: string;
-  modulos: ProgramModule[];
+  /** null en Sistemas aún no disponibles. */
+  duracion: string | null;
+  /** false = "Disponible próximamente" + lista de espera. Nunca se vende lo que no existe. */
+  disponible: boolean;
+  /** null = no se muestra precio (Sistema no disponible). */
+  precio: number | null;
+  precioFormato: string | null;
+  /** Modelo de cobro — preparado para membresía futura sin refactor. */
+  modeloPrecio: 'unico' | 'membresia';
+  niveles: NivelSistema[];
+  fases: FaseSistema[];
+  /** Entregables concretos de la compra hoy. */
   incluye: string[];
-  color: ProgramColor;
+  /** El ecosistema alrededor del Sistema (incluido / en camino). */
+  ecosistema: ComponenteEcosistema[];
+  color: SistemaColor;
   seo: {
     title: string;
     description: string;
@@ -75,7 +99,7 @@ export interface Exercise {
   erroresComunes: string[];
   variantes: string[];
   beneficios: string[];
-  programasVinculados: ProgramSlug[];
+  sistemasVinculados: SistemaSlug[];
 }
 
 // ── Blog types (la fuente de verdad vive en lib/content.ts) ────────────────

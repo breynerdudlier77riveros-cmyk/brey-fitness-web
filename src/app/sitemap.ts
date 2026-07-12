@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next';
-import { programas } from '@/data/programs';
+import { sistemas } from '@/data/sistemas';
 import { ejercicios } from '@/data/exercises';
 import { posts } from '@/lib/content';
 import { SITE_URL } from '@/lib/site';
@@ -7,7 +7,7 @@ import { SITE_URL } from '@/lib/site';
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: `${SITE_URL}/`, priority: 1, changeFrequency: 'weekly' },
-    { url: `${SITE_URL}/programas`, priority: 0.9, changeFrequency: 'weekly' },
+    { url: `${SITE_URL}/sistemas`, priority: 0.9, changeFrequency: 'weekly' },
     { url: `${SITE_URL}/bps`, priority: 0.8, changeFrequency: 'monthly' },
     { url: `${SITE_URL}/diagnostico`, priority: 0.8, changeFrequency: 'monthly' },
     { url: `${SITE_URL}/ejercicios`, priority: 0.7, changeFrequency: 'weekly' },
@@ -21,8 +21,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE_URL}/reembolsos`, priority: 0.2, changeFrequency: 'yearly' },
   ];
 
-  const programRoutes: MetadataRoute.Sitemap = programas.map((p) => ({
-    url: `${SITE_URL}/programas/${p.slug}`,
+  const sistemaRoutes: MetadataRoute.Sitemap = sistemas.map((s) => ({
+    url: `${SITE_URL}/sistemas/${s.slug}`,
     priority: 0.9,
     changeFrequency: 'monthly',
   }));
@@ -40,5 +40,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     changeFrequency: 'monthly',
   }));
 
-  return [...staticRoutes, ...programRoutes, ...exerciseRoutes, ...postRoutes];
+  return [...staticRoutes, ...sistemaRoutes, ...exerciseRoutes, ...postRoutes];
 }

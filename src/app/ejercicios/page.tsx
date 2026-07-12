@@ -147,13 +147,13 @@ export default function EjerciciosPage() {
           La biblioteca crece cada semana.
         </h2>
         <p className="text-white/55 text-sm max-w-md mx-auto mb-8">
-          Nuevos ejercicios, filtros avanzados por equipamiento y programa, y videos demostrativos están en camino.
+          Nuevos ejercicios, filtros avanzados por equipamiento y Sistema, y videos demostrativos están en camino.
         </p>
         <Link
           href="/diagnostico"
           className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-orange-500 hover:bg-orange-400 text-white font-bold text-sm transition-all"
         >
-          Encontrar mi programa
+          Encontrar mi Sistema
           <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
         </Link>
       </section>

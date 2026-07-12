@@ -6,7 +6,7 @@ import { CONTACT_EMAIL } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Política de Reembolsos — Garantía de 30 días",
   description:
-    "Cómo funciona la garantía de devolución de 30 días de los programas Brey Fitness y cómo solicitar un reembolso.",
+    "Cómo funciona la garantía de devolución de 30 días de los Sistemas Brey Fitness y cómo solicitar un reembolso.",
 };
 
 export default function ReembolsosPage() {
@@ -14,16 +14,16 @@ export default function ReembolsosPage() {
     <LegalShell title="Política de Reembolsos" updated="julio 2026">
       <h2>Garantía de 30 días, sin preguntas</h2>
       <p>
-        Todos los programas de compra única (Performance Start, Performance Gym,
-        Performance Calisthenics y Performance Hybrid) incluyen una garantía de
-        devolución del 100% durante los 30 días calendario siguientes a la compra.
-        No pedimos justificaciones: si el programa no es para ti, te devolvemos tu dinero.
+        Todos los Sistemas de compra única (Sistema de Hipertrofia, Sistema de
+        Calistenia y Sistema Híbrido) incluyen una garantía de devolución del
+        100% durante los 30 días calendario siguientes a la compra.
+        No pedimos justificaciones: si el Sistema no es para ti, te devolvemos tu dinero.
       </p>
 
       <h2>Cómo solicitar un reembolso</h2>
       <ul>
         <li>Escribe a <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> desde el correo con el que hiciste la compra, o responde directamente al email de confirmación.</li>
-        <li>Indica el programa comprado y la fecha de compra.</li>
+        <li>Indica el Sistema comprado y la fecha de compra.</li>
         <li>Si compraste a través de Hotmart, también puedes gestionar el reembolso desde tu cuenta de Hotmart en la sección de compras.</li>
       </ul>
 
@@ -34,9 +34,9 @@ export default function ReembolsosPage() {
         refleje depende de tu banco o medio de pago (generalmente 5–10 días hábiles).
       </p>
 
-      <h2>Membresía Performance Elite</h2>
+      <h2>Membresía Sistema Elite (cuando esté disponible)</h2>
       <p>
-        Performance Elite es una suscripción mensual sin permanencia: puedes
+        El Sistema Elite será una suscripción mensual sin permanencia: podrás
         cancelarla en cualquier momento y conservas el acceso hasta el final del
         período ya pagado. La garantía de 30 días aplica únicamente al primer mes
         de tu primera suscripción.

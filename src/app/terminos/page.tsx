@@ -6,7 +6,7 @@ import { CONTACT_EMAIL, SITE_NAME } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Términos y Condiciones",
   description:
-    "Términos y condiciones de uso de la plataforma y los programas de entrenamiento de Brey Fitness.",
+    "Términos y condiciones de uso de la plataforma y los Sistemas de entrenamiento de Brey Fitness.",
 };
 
 export default function TerminosPage() {
@@ -14,32 +14,32 @@ export default function TerminosPage() {
     <LegalShell title="Términos y Condiciones" updated="julio 2026">
       <h2>1. El servicio</h2>
       <p>
-        {SITE_NAME} ofrece programas de entrenamiento digitales, contenido
+        {SITE_NAME} ofrece Sistemas de entrenamiento digitales, contenido
         educativo y herramientas de cálculo relacionadas con el ejercicio físico
-        y la nutrición. Al comprar un programa o usar la plataforma aceptas estos términos.
+        y la nutrición. Al comprar un Sistema o usar la plataforma aceptas estos términos.
       </p>
 
       <h2>2. Aviso de salud — léelo</h2>
       <p>
-        Nuestros programas son contenido educativo sobre entrenamiento; no son
+        Nuestros Sistemas son contenido educativo sobre entrenamiento; no son
         asesoría médica ni sustituyen la consulta con profesionales de la salud.
-        Antes de comenzar cualquier programa de ejercicio, consulta a tu médico —
+        Antes de comenzar cualquier Sistema de ejercicio, consulta a tu médico —
         especialmente si tienes lesiones, condiciones cardiovasculares, o llevas
         largo tiempo sin actividad física. El entrenamiento físico implica riesgo
-        de lesión; al usar nuestros programas asumes ese riesgo y aceptas entrenar
+        de lesión; al usar nuestros Sistemas asumes ese riesgo y aceptas entrenar
         dentro de tus capacidades.
       </p>
 
       <h2>3. Licencia de uso</h2>
       <p>
-        Al comprar un programa recibes una licencia personal, intransferible y no
+        Al comprar un Sistema recibes una licencia personal, intransferible y no
         exclusiva para usar su contenido. No puedes revender, compartir, publicar
-        ni redistribuir los programas, videos o materiales, total o parcialmente.
+        ni redistribuir los Sistemas, videos o materiales, total o parcialmente.
       </p>
 
       <h2>4. Propiedad intelectual</h2>
       <p>
-        Todo el contenido de la plataforma — textos, programas, marca, The Brey
+        Todo el contenido de la plataforma — textos, Sistemas, marca, The Brey
         Performance System (BPS), diseños y materiales — es propiedad de{" "}
         {SITE_NAME} y está protegido por las leyes de propiedad intelectual.
       </p>

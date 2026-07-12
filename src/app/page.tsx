@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { programas } from "@/data/programs";
+import { sistemas } from "@/data/sistemas";
 import ScrollReveal from "@/components/ScrollReveal";
 import SectionLabel from "@/components/layout/SectionLabel";
 import TestimonialsSlider from "@/components/TestimonialsSlider";
@@ -23,7 +23,7 @@ const sistema = [
   {
     titulo: "Ciencia",
     cuerpo:
-      "Cada variable del programa — volumen, intensidad, frecuencia, descanso — proviene de literatura científica publicada, no de la rutina de moda. Si no hay evidencia que lo respalde, no entra al sistema.",
+      "Cada variable del Sistema — volumen, intensidad, frecuencia, descanso — proviene de literatura científica publicada, no de la rutina de moda. Si no hay evidencia que lo respalde, no entra al sistema.",
   },
   {
     titulo: "Planificación",
@@ -184,43 +184,68 @@ export default function HomePage() {
       </section>
 
       {/* ════════════════════════════════════════
-          ACTO 4 · LOS ECOSISTEMAS
+          ACTO 4 · SISTEMAS — Encuentra tu Camino
           Responde: ¿cuál es para mí?
       ════════════════════════════════════════ */}
       <section className="max-w-6xl mx-auto px-4 md:px-6 py-16 md:py-24">
         <ScrollReveal>
-          <SectionLabel>Los ecosistemas</SectionLabel>
-          <div className="mb-6 -mt-8">
-            <h2 className="font-black text-3xl sm:text-4xl md:text-5xl text-white">
-              5 sistemas.<br />Un solo método.
-            </h2>
-          </div>
-          <p className="text-white/60 leading-relaxed max-w-xl mb-12">
-            Cada ecosistema es un sistema completo para un perfil específico — no una colección de PDFs. El tuyo está aquí.
-          </p>
+          <SectionLabel>Sistemas</SectionLabel>
         </ScrollReveal>
 
+        {/* Encuentra tu Camino — CTA principal antes de los Sistemas */}
+        <ScrollReveal>
+          <div className="relative overflow-hidden rounded-3xl border border-orange-500/25 bg-orange-500/[0.05] p-8 md:p-12 text-center mb-12">
+            <div aria-hidden className="absolute -top-24 left-1/2 -translate-x-1/2 w-[400px] h-[200px] bg-orange-600/10 blur-[80px] rounded-full pointer-events-none" />
+            <div className="relative">
+              <h2 className="font-black text-3xl sm:text-4xl md:text-5xl text-white mb-4">
+                Encuentra tu Camino
+              </h2>
+              <p className="text-white/60 leading-relaxed max-w-lg mx-auto mb-8">
+                No necesitas adivinar qué Sistema elegir. El Diagnóstico BPS analiza tus
+                objetivos, experiencia y disponibilidad para recomendarte el Sistema — y el
+                nivel — más adecuado para ti.
+              </p>
+              <Button href="/diagnostico" size="lg">
+                Iniciar Diagnóstico BPS
+                <ArrowRight className="w-5 h-5" strokeWidth={2.5} />
+              </Button>
+            </div>
+          </div>
+        </ScrollReveal>
+
+        {/* Los 5 Sistemas — CTA secundario */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {programas.map((p, i) => (
-            <ScrollReveal key={p.slug} delay={i * 80}>
+          {sistemas.map((s, i) => (
+            <ScrollReveal key={s.slug} delay={i * 80}>
               <Link
-                href={`/programas/${p.slug}`}
+                href={`/sistemas/${s.slug}`}
                 className={`${cardStyles.base} ${cardStyles.interactive} group flex flex-col overflow-hidden h-full`}
               >
-                <div className={`h-28 bg-gradient-to-br ${p.color.gradient} flex items-end p-5`}>
-                  <span className={`text-[10px] font-bold tracking-[0.12em] uppercase px-2.5 py-1 rounded-full border ${p.color.badge}`}>
-                    {p.duracion}
-                  </span>
+                <div className={`h-24 bg-gradient-to-br ${s.color.gradient} flex items-end p-5`}>
+                  {s.disponible ? (
+                    <span className="text-[10px] font-bold tracking-[0.12em] uppercase px-2.5 py-1 rounded-full border border-emerald-500/25 bg-emerald-500/10 text-emerald-400">
+                      Disponible
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-bold tracking-[0.12em] uppercase px-2.5 py-1 rounded-full border border-white/15 bg-white/[0.05] text-white/60">
+                      Próximamente
+                    </span>
+                  )}
                 </div>
                 <div className="flex-1 p-5">
-                  <h3 className="font-black text-base text-white group-hover:text-orange-400 transition-colors duration-300 mb-1.5">
-                    {p.nombre}
+                  <h3 className="font-black text-base text-white group-hover:text-orange-400 transition-colors duration-300 mb-1">
+                    {s.nombre}
                   </h3>
-                  <p className="text-white/55 text-xs leading-relaxed line-clamp-2 mb-4">{p.tagline}</p>
+                  <p className={`text-[11px] font-semibold ${s.color.accent} mb-2`}>{s.objetivo}</p>
+                  <p className="text-white/55 text-xs leading-relaxed line-clamp-2 mb-4">{s.tagline}</p>
                   <div className="flex items-center justify-between">
-                    <span className="font-black text-base text-white">{p.precioFormato}</span>
+                    {s.disponible && s.precioFormato ? (
+                      <span className="font-black text-base text-white">{s.precioFormato}</span>
+                    ) : (
+                      <span className="text-xs text-white/50">Lista de espera</span>
+                    )}
                     <span className="text-xs font-bold text-white/55 group-hover:text-orange-400 transition-colors flex items-center gap-1">
-                      Ver programa
+                      Explorar
                       <ArrowRight className="w-3.5 h-3.5" strokeWidth={2.5} />
                     </span>
                   </div>
@@ -229,25 +254,20 @@ export default function HomePage() {
             </ScrollReveal>
           ))}
 
-          {/* Puente al diagnóstico — completa la cuadrícula de 6 */}
+          {/* Sexta casilla: el catálogo completo */}
           <ScrollReveal delay={5 * 80}>
-            <div className="h-full flex flex-col justify-between rounded-2xl border border-orange-500/25 bg-orange-500/[0.05] p-6">
-              <div>
-                <p className="text-[10px] font-bold tracking-[0.18em] uppercase text-orange-400 mb-3">
-                  ¿No sabes cuál elegir?
-                </p>
-                <h3 className="font-black text-lg text-white leading-snug mb-2">
-                  Deja que el diagnóstico decida contigo.
-                </h3>
-                <p className="text-white/60 text-xs leading-relaxed">
-                  6 preguntas sobre tu objetivo, nivel y equipo — y una recomendación con su porqué.
-                </p>
-              </div>
-              <Button href="/diagnostico" size="md" className="mt-6 w-full">
-                Empezar mi diagnóstico
-                <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
-              </Button>
-            </div>
+            <Link
+              href="/sistemas"
+              className={`${cardStyles.base} ${cardStyles.interactive} group h-full flex flex-col items-center justify-center gap-3 p-6 text-center`}
+            >
+              <p className="font-black text-base text-white group-hover:text-orange-400 transition-colors">
+                Ver los Sistemas en detalle
+              </p>
+              <p className="text-white/50 text-xs leading-relaxed max-w-[220px]">
+                Niveles internos, fases y todo lo que incluye cada ecosistema.
+              </p>
+              <ArrowRight className="w-4 h-4 text-white/55 group-hover:text-orange-400 transition-colors" strokeWidth={2.5} />
+            </Link>
           </ScrollReveal>
         </div>
       </section>

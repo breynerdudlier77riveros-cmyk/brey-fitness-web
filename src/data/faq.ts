@@ -5,48 +5,48 @@ export interface FaqItem {
 
 export const faqs: FaqItem[] = [
   {
-    pregunta: '¿Cómo recibo el programa después de comprar?',
+    pregunta: '¿Cómo recibo el Sistema después de comprar?',
     respuesta:
-      'El acceso es inmediato. Tras completar el pago recibes en tu correo el enlace de acceso al contenido completo del programa: estructura semana a semana, videos de técnica y materiales de seguimiento.',
+      'El acceso es inmediato. Tras completar el pago recibes en tu correo el enlace de acceso al contenido completo del Sistema: estructura semana a semana, videos de técnica y materiales de seguimiento.',
   },
   {
     pregunta: 'Soy principiante total. ¿Por dónde empiezo?',
     respuesta:
-      'Por Performance Start: 12 semanas para construir la base de movimiento, acondicionamiento y fuerza que hace que todo lo demás funcione. Si no estás seguro de tu nivel, el diagnóstico gratuito de 2 minutos te recomienda el punto de entrada correcto.',
+      'No existe un Sistema aparte para principiantes — y es a propósito. Cada Sistema contiene niveles internos de progresión, y el Diagnóstico BPS (gratuito, 2 minutos) te asigna el Sistema y el punto de entrada exactos para tu momento actual.',
   },
   {
     pregunta: '¿Necesito un gimnasio?',
     respuesta:
-      'Depende del ecosistema. Performance Calisthenics se entrena en parque o casa con barra y paralelas. Performance Gym requiere acceso a gimnasio. Performance Hybrid combina ambos. Performance Start puede adaptarse con equipamiento mínimo.',
+      'Depende del Sistema. El Sistema de Calistenia se entrena en parque o casa con barra y paralelas. El Sistema de Hipertrofia requiere acceso a gimnasio. El Sistema Híbrido combina ambos mundos.',
   },
   {
     pregunta: '¿Cómo funciona la garantía de 30 días?',
     respuesta:
-      'Si en los primeros 30 días decides que el programa no es para ti, te devolvemos el 100% del dinero sin pedirte explicaciones. Solo escribes al correo de soporte desde el email de tu compra.',
+      'Si en los primeros 30 días decides que el Sistema no es para ti, te devolvemos el 100% del dinero sin pedirte explicaciones. Solo escribes al correo de soporte desde el email de tu compra.',
   },
   {
     pregunta: '¿En qué se diferencia el BPS de una rutina de internet?',
     respuesta:
-      'Una rutina es una lista de ejercicios. El Brey Performance System es un sistema periodizado: cada fase tiene un objetivo fisiológico, la progresión está cuantificada (peso, volumen, RPE, RIR) y la gestión de la fatiga y la nutrición están integradas en el programa, no improvisadas.',
+      'Una rutina es una lista de ejercicios. El Brey Performance System es una metodología: cada fase tiene un objetivo fisiológico, la progresión está cuantificada (peso, volumen, RPE, RIR) y la gestión de la fatiga y la nutrición están integradas en el Sistema, no improvisadas.',
   },
   {
     pregunta: '¿Cuánto tiempo necesito por sesión?',
     respuesta:
-      'Entre 45 y 90 minutos según el programa y la fase. Performance Start usa sesiones más cortas (3-4 por semana); Hybrid es el más exigente en volumen (5 sesiones semanales).',
+      'Entre 45 y 90 minutos según el Sistema, el nivel y la fase. Los niveles iniciales usan sesiones más cortas (3-4 por semana); el Sistema Híbrido es el más exigente en volumen (5 sesiones semanales).',
   },
   {
-    pregunta: 'Tengo una lesión. ¿Puedo entrenar con estos programas?',
+    pregunta: 'Tengo una lesión. ¿Puedo entrenar con estos Sistemas?',
     respuesta:
-      'Primero consulta a tu médico o fisioterapeuta — nuestros programas son educativos y no sustituyen asesoría médica. Con el alta profesional, Performance Start es el punto de entrada más conservador, con progresiones graduales y énfasis en técnica.',
+      'Primero consulta a tu médico o fisioterapeuta — nuestros Sistemas son educativos y no sustituyen asesoría médica. Con el alta profesional, el Diagnóstico tiene en cuenta tu situación: tu nivel de entrada priorizará técnica y progresiones graduales.',
   },
   {
-    pregunta: '¿Performance Elite tiene permanencia?',
+    pregunta: '¿Qué pasa con los Sistemas marcados "próximamente"?',
     respuesta:
-      'No. Elite es una membresía mensual que puedes cancelar en cualquier momento, conservando el acceso hasta el final del período pagado.',
+      'El Sistema de Fuerza y el Sistema Elite están en construcción y no se venden todavía — no vendemos lo que aún no existe. Puedes unirte a su lista de espera y serás de los primeros en saber cuando abran.',
   },
   {
-    pregunta: '¿Puedo cambiar de programa si me equivoqué al elegir?',
+    pregunta: '¿Puedo cambiar de Sistema si me equivoqué al elegir?',
     respuesta:
-      'Sí. Escríbenos dentro de los primeros 30 días y te cambiamos al ecosistema correcto, o te devolvemos el dinero si prefieres.',
+      'Sí. Escríbenos dentro de los primeros 30 días y te cambiamos al Sistema correcto, o te devolvemos el dinero si prefieres.',
   },
 ];

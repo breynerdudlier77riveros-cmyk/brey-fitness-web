@@ -7,15 +7,22 @@ En orden de importancia:
 ## 1. Activar el checkout (crítico — sin esto no hay ventas)
 
 1. Crea una cuenta de productor en [Hotmart](https://hotmart.com).
-2. Crea un producto por cada programa (Start $47, Gym $97, Calisthenics $97,
-   Hybrid $127, Elite $197/mes como suscripción).
-3. Sube a cada producto de Hotmart el contenido entregable (PDF/videos/área de
+2. Crea un producto por cada Sistema del lanzamiento inicial (precios
+   Colombia/LatAm, decisión BREY v2):
+   - **Sistema de Hipertrofia — $39 USD**
+   - **Sistema de Calistenia — $49 USD**
+   - **Sistema Híbrido — $59 USD**
+   - Fuerza y Elite NO se crean todavía: están `disponible: false` y muestran
+     lista de espera (los contactos llegan a Brevo con FUENTE `espera-<slug>`
+     y atributos NOMBRE/OBJETIVO).
+3. Sube a cada producto de Hotmart el contenido entregable (videos/área de
    miembros de Hotmart — esta es la "entrega v0" hasta que exista el dashboard
    propio en v1.1).
-4. Pega el enlace de pago de cada producto en
+4. Pega el enlace de pago de cada Sistema en
    [`src/data/checkout.ts`](src/data/checkout.ts).
-   - Mientras un programa esté en `null`, su página muestra captura de email
-     ("avísame cuando abra") en lugar del botón de compra. Nada queda roto.
+   - Mientras un Sistema disponible esté en `null`, su página muestra captura
+     de email ("avísame cuando abra") en lugar del botón de compra. Nada
+     queda roto.
 
 ## 2. Activar la captura de email
 

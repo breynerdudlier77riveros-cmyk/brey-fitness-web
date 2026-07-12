@@ -1,4 +1,4 @@
-import type { ProgramSlug } from "@/lib/types";
+import type { SistemaSlug } from "@/lib/types";
 
 // ── Contratos del Diagnóstico BPS ───────────────────────────────────────────
 
@@ -12,8 +12,8 @@ export interface Opcion {
   razon?: string;
   /** Nota complementaria en el resultado (p. ej. edad → recuperación). */
   nota?: string;
-  /** Puntuación por programa. Solo la usa el motor guionado. */
-  puntos?: Partial<Record<ProgramSlug, number>>;
+  /** Puntuación por Sistema. Solo la usa el motor guionado. */
+  puntos?: Partial<Record<SistemaSlug, number>>;
 }
 
 export interface Pregunta {
@@ -30,10 +30,16 @@ export interface Respuesta {
 }
 
 export interface Resultado {
-  programa: ProgramSlug;
+  sistema: SistemaSlug;
+  /** Punto de entrada asignado (nivel interno del Sistema). null = individualizado. */
+  nivelEntrada: string | null;
+  /** false → el Sistema recomendado aún no está a la venta: lista de espera. */
+  disponible: boolean;
+  /** Mejor camino disponible HOY cuando el recomendado no lo está. */
+  alternativa?: { sistema: SistemaSlug; razon: string };
   /** Fragmentos de porqué, construidos desde las respuestas del usuario. */
   razones: string[];
-  /** Cierre específico del programa recomendado. */
+  /** Cierre específico del Sistema recomendado. */
   cierre: string;
   /** Notas complementarias (lesiones, edad). */
   notas: string[];

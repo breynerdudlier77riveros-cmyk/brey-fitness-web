@@ -32,7 +32,7 @@ const pillars = [
   {
     num: "04",
     title: "Nutrición Periodizada",
-    body: "La nutrición no es un protocolo genérico aplicado encima del entrenamiento — es parte del sistema. Cada fase del programa (volumen, fuerza, definición) requiere ajustes específicos en calorías, distribución de macros y timing. El BPS integra el protocolo nutricional dentro del programa, no como un anexo.",
+    body: "La nutrición no es un protocolo genérico aplicado encima del entrenamiento — es parte del sistema. Cada fase del Sistema (volumen, fuerza, definición) requiere ajustes específicos en calorías, distribución de macros y timing. El BPS integra el protocolo nutricional dentro del Sistema, no como un anexo.",
     science: "Helms et al., 2014 · Iraki et al., 2019",
   },
 ];
@@ -72,8 +72,8 @@ const steps = [
   },
   {
     step: "2",
-    title: "Ecosistema de programa",
-    body:  "Eres asignado al ecosistema que corresponde a tu diagnóstico. Cada ecosistema es un sistema completo, no un plan genérico.",
+    title: "Sistema asignado",
+    body:  "Eres asignado al Sistema — y al nivel interno — que corresponde a tu diagnóstico. Cada Sistema es un ecosistema completo, no una rutina genérica.",
   },
   {
     step: "3",
@@ -116,10 +116,10 @@ export default function BPSPage() {
 
           <div className="flex flex-wrap gap-4">
             <Button href="/diagnostico" size="md" className="px-7 py-3.5">
-              Encontrar mi programa
+              Encontrar mi Sistema
               <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
             </Button>
-            <Button href="/programas" variant="outline" size="md" className="px-7 py-3.5">
+            <Button href="/sistemas" variant="outline" size="md" className="px-7 py-3.5">
               Ver los 5 ecosistemas
             </Button>
           </div>
@@ -140,7 +140,7 @@ export default function BPSPage() {
                 El problema no es la falta de esfuerzo. El problema es la ausencia de una arquitectura que conecte el entrenamiento de hoy con el rendimiento de mañana.
               </p>
               <p className="text-white/60 leading-relaxed">
-                Rutinas aleatorias de internet, cambios de programa cada mes, volumen sin control y nutrición improvisada producen fatiga acumulada sin adaptación real. El cuerpo trabaja, pero no progresa.
+                Rutinas aleatorias de internet, cambios de rutina cada mes, volumen sin control y nutrición improvisada producen fatiga acumulada sin adaptación real. El cuerpo trabaja, pero no progresa.
               </p>
             </div>
             <div className="space-y-3">
@@ -148,7 +148,7 @@ export default function BPSPage() {
                 "Cambiar de rutina cada 4-6 semanas sin razón",
                 "Volumen sin control — más no es siempre mejor",
                 "Entrenar al fallo en cada sesión",
-                "Nutrición desconectada del programa",
+                "Nutrición desconectada del Sistema",
                 "Sin métricas — sin forma de saber si hay progresión",
                 "Cardio que interfiere con la ganancia muscular",
               ].map((item, i) => (
@@ -252,7 +252,7 @@ export default function BPSPage() {
             Encuentra tu ecosistema.
           </h2>
           <p className="text-white/55 mb-10 max-w-lg mx-auto leading-relaxed">
-            El diagnóstico de 2 minutos analiza tu objetivo, nivel y equipo disponible para recomendarte el programa exacto del Brey Performance System.
+            El diagnóstico de 2 minutos analiza tu objetivo, nivel y equipo disponible para recomendarte el Sistema exacto del Brey Performance System.
           </p>
           <Button href="/diagnostico" size="lg" className="px-9 text-sm">
             Empezar mi diagnóstico

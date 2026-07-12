@@ -11,7 +11,7 @@ import ContactoForm from "./ContactoForm";
 export const metadata: Metadata = {
   title: "Contacto — Hablemos",
   description:
-    "Escríbenos: soporte, preguntas sobre los programas o sobre el Brey Performance System. Respondemos en 24–48 horas hábiles.",
+    "Escríbenos: soporte, preguntas sobre los Sistemas o sobre el Brey Performance System. Respondemos en 24–48 horas hábiles.",
 };
 
 const preguntasRapidas = [

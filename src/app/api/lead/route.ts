@@ -2,13 +2,19 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 // Crea o actualiza un contacto en Brevo. Requiere BREVO_API_KEY (y opcional
 // BREVO_LIST_ID) en el entorno — ver .env.example y LANZAMIENTO.md.
+// Acepta atributos opcionales para la lista de espera de Sistemas:
+// `nombre` y `objetivo` llegan a Brevo como NOMBRE y OBJETIVO.
 export async function POST(request: Request) {
   let email = '';
   let source = 'web';
+  let nombre = '';
+  let objetivo = '';
   try {
     const body = await request.json();
     email = String(body.email ?? '').trim().toLowerCase();
     source = String(body.source ?? 'web').slice(0, 80);
+    nombre = String(body.nombre ?? '').trim().slice(0, 120);
+    objetivo = String(body.objetivo ?? '').trim().slice(0, 120);
   } catch {
     return Response.json({ ok: false, error: 'invalid_body' }, { status: 400 });
   }
@@ -30,7 +36,11 @@ export async function POST(request: Request) {
     body: JSON.stringify({
       email,
       updateEnabled: true,
-      attributes: { FUENTE: source },
+      attributes: {
+        FUENTE: source,
+        ...(nombre ? { NOMBRE: nombre } : {}),
+        ...(objetivo ? { OBJETIVO: objetivo } : {}),
+      },
       ...(Number.isFinite(listId) && listId > 0 ? { listIds: [listId] } : {}),
     }),
   });

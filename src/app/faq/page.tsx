@@ -7,7 +7,7 @@ import { ArrowRight } from "@/components/ui/icons";
 export const metadata: Metadata = {
   title: "Preguntas Frecuentes",
   description:
-    "Respuestas a las dudas más comunes sobre los programas Performance, la garantía de 30 días, el acceso y el método BPS.",
+    "Respuestas a las dudas más comunes sobre los Sistemas, la garantía de 30 días, el acceso y el método BPS.",
 };
 
 export default function FaqPage() {
@@ -69,7 +69,7 @@ export default function FaqPage() {
 
         <div className="mt-14 p-6 rounded-2xl border border-white/[0.07] bg-white/[0.02] text-center">
           <p className="text-white/50 text-sm mb-4">
-            ¿Todavía no sabes qué programa es para ti?
+            ¿Todavía no sabes qué Sistema es para ti?
           </p>
           <Link
             href="/diagnostico"

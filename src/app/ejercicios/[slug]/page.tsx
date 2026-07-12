@@ -159,16 +159,16 @@ export default async function EjercicioPage({ params }: Props) {
           </div>
 
           {/* Linked programs */}
-          {e.programasVinculados.length > 0 && (
+          {e.sistemasVinculados.length > 0 && (
             <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-5">
               <h3 className="font-black text-sm uppercase tracking-[0.15em] text-white/50 mb-4">
-                Programas que incluyen este ejercicio
+                Sistemas que incluyen este ejercicio
               </h3>
               <div className="space-y-2">
-                {e.programasVinculados.map((slug) => (
+                {e.sistemasVinculados.map((slug) => (
                   <Link
                     key={slug}
-                    href={`/programas/${slug}`}
+                    href={`/sistemas/${slug}`}
                     className="flex items-center justify-between p-3 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:border-white/[0.12] hover:bg-white/[0.04] transition-all group"
                   >
                     <span className="text-xs text-white/50 group-hover:text-white/90 transition-colors capitalize">
@@ -183,7 +183,7 @@ export default async function EjercicioPage({ params }: Props) {
 
           {/* CTA */}
           <div className="rounded-2xl border border-orange-500/15 bg-orange-500/[0.04] p-5">
-            <p className="text-xs text-white/55 mb-2">¿Quieres un programa con este ejercicio?</p>
+            <p className="text-xs text-white/55 mb-2">¿Quieres un Sistema con este ejercicio?</p>
             <h3 className="font-black text-white text-sm mb-3 leading-snug">
               El diagnóstico de 2 min te recomienda el ecosistema exacto.
             </h3>
