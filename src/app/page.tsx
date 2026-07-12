@@ -7,13 +7,7 @@ import SectionLabel from "@/components/layout/SectionLabel";
 import TestimonialsSlider from "@/components/TestimonialsSlider";
 import { ArrowRight } from "@/components/ui/icons";
 import Button from "@/components/ui/Button";
-
-const stats = [
-  { value: "5",   label: "Ecosistemas",  sub: "de programa completo" },
-  { value: "72",  label: "Semanas",      sub: "de programación estructurada" },
-  { value: "6",   label: "Calculadoras", sub: "gratuitas basadas en evidencia" },
-  { value: "30d", label: "Garantía",     sub: "devolución sin preguntas" },
-];
+import DashboardPreview from "@/components/DashboardPreview";
 
 const pillars = [
   {
@@ -52,60 +46,65 @@ export default function HomePage() {
     <div className="bg-slate-950 text-white overflow-x-hidden">
 
       {/* ════════════════════════════════════════
-          HERO — Metodología primero
+          HERO — Transformación + producto
+          Responde: ¿por qué debería quedarme?
       ════════════════════════════════════════ */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center px-4 md:px-6 pt-14 pb-20 md:pt-32 md:pb-44">
+      <section className="relative overflow-hidden">
         <div aria-hidden className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute -top-32 -left-32 w-[700px] h-[700px] rounded-full bg-orange-600/8 blur-[140px]" />
           <div className="absolute top-1/4 -right-48 w-[500px] h-[500px] rounded-full bg-indigo-600/5 blur-[120px]" />
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[900px] h-[200px] bg-orange-600/5 blur-[80px]" />
         </div>
 
-        <div className="relative max-w-5xl mx-auto text-center">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full border border-white/10 bg-white/[0.04] backdrop-blur-sm text-sm text-white/50 mb-10 md:mb-14">
-            <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
-            The Brey Performance System
-          </div>
+        <div className="relative max-w-6xl mx-auto px-4 md:px-6 pt-16 pb-20 md:pt-20 md:pb-28 lg:min-h-[88vh] flex items-center">
+          <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-14 lg:gap-10 items-center w-full">
 
-          {/* H1 — método, no persona */}
-          <h1 className="font-black leading-[1.08] tracking-tight mb-8 md:mb-12">
-            <span className="block text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white">
-              Entrena con método.
-            </span>
-            <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-orange-500 to-amber-400 mt-2">
-              No con intuición.
-            </span>
-          </h1>
-
-          <p className="text-lg sm:text-xl text-white/60 max-w-2xl mx-auto mb-12 md:mb-16 leading-[1.8] font-light">
-            5 ecosistemas de entrenamiento construidos sobre evidencia científica. Desde el principiante hasta el atleta avanzado — hay un sistema diseñado exactamente para ti.
-          </p>
-
-          {/* CTAs */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 md:mb-24">
-            <Button href="/quiz" size="lg">
-              Encontrar mi programa
-              <ArrowRight className="w-5 h-5" strokeWidth={2.5} />
-            </Button>
-            <Link
-              href="/bps"
-              className="inline-flex items-center gap-2 text-white/55 hover:text-white/90 text-sm font-medium transition-colors duration-200"
-            >
-              Conocer el método BPS
-              <ArrowRight className="w-4 h-4" strokeWidth={2} />
-            </Link>
-          </div>
-
-          {/* Stats strip */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-2xl mx-auto">
-            {stats.map(({ value, label, sub }) => (
-              <div key={label} className="flex flex-col p-4 rounded-2xl border border-white/[0.07] bg-white/[0.02]">
-                <span className="font-black text-2xl text-orange-400">{value}</span>
-                <span className="font-bold text-white/70 text-xs mt-1">{label}</span>
-                <span className="text-white/50 text-[10px] mt-0.5 leading-tight">{sub}</span>
+            {/* Columna de mensaje */}
+            <div className="text-center lg:text-left">
+              <div className="hero-enter inline-flex items-center gap-2.5 px-5 py-2 rounded-full border border-white/10 bg-white/[0.04] backdrop-blur-sm text-sm text-white/50 mb-8 md:mb-10">
+                <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
+                The Brey Performance System
               </div>
-            ))}
+
+              <h1 className="hero-enter hero-enter-2 font-black leading-[1.06] tracking-tight mb-7">
+                <span className="block text-4xl sm:text-5xl lg:text-6xl text-white">
+                  El fin del
+                </span>
+                <span className="block text-4xl sm:text-5xl lg:text-6xl text-white">
+                  entrenamiento
+                </span>
+                <span className="block text-4xl sm:text-5xl lg:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-orange-500 to-amber-400">
+                  a ciegas.
+                </span>
+              </h1>
+
+              <p className="hero-enter hero-enter-3 text-lg text-white/60 max-w-xl mx-auto lg:mx-0 mb-10 leading-[1.8] font-light">
+                Un sistema que convierte la evidencia científica en un camino claro: qué hacer hoy, por qué hacerlo, y qué esperar de tu cuerpo mañana.
+              </p>
+
+              <div className="hero-enter hero-enter-4 flex flex-col sm:flex-row items-center lg:justify-start justify-center gap-4 mb-10">
+                <Button href="/quiz" size="lg">
+                  Empezar mi diagnóstico
+                  <ArrowRight className="w-5 h-5" strokeWidth={2.5} />
+                </Button>
+                <Button href="/bps" variant="outline" size="md" className="px-7 py-3.5">
+                  Conocer el sistema
+                </Button>
+              </div>
+
+              {/* Indicadores de confianza — solo datos verdaderos */}
+              <div className="hero-enter hero-enter-4 flex flex-wrap items-center lg:justify-start justify-center gap-x-3 gap-y-2 text-[11px] font-semibold tracking-[0.14em] uppercase text-white/50">
+                <span>Referencias científicas publicadas</span>
+                <span aria-hidden className="text-orange-400/60">·</span>
+                <span>72 semanas de programación</span>
+                <span aria-hidden className="text-orange-400/60">·</span>
+                <span>Garantía 30 días</span>
+              </div>
+            </div>
+
+            {/* Columna de producto */}
+            <DashboardPreview className="preview-enter mt-2 lg:mt-0" />
+
           </div>
         </div>
       </section>

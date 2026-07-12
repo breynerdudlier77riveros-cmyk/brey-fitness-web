@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const alt =
-  "Brey Fitness — The Brey Performance System. Entrena con método, no con intuición.";
+  "Brey Fitness — The Brey Performance System. El fin del entrenamiento a ciegas.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -48,10 +48,10 @@ export default function OpenGraphImage() {
         {/* Headline */}
         <div style={{ display: "flex", flexDirection: "column" }}>
           <div style={{ fontSize: 84, lineHeight: 1.1, color: "#ffffff" }}>
-            Entrena con método.
+            El fin del entrenamiento
           </div>
           <div style={{ fontSize: 84, lineHeight: 1.1, color: "#fb923c" }}>
-            No con intuición.
+            a ciegas.
           </div>
         </div>
 

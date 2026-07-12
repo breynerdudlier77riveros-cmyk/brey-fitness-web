@@ -54,12 +54,36 @@ body {
   animation: checkout-pulse 3.5s ease-in-out infinite;
 }
 
+/* ── Entrada del hero: una secuencia orquestada al cargar ── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hero-enter   { animation: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.hero-enter-2 { animation-delay: 0.1s; }
+.hero-enter-3 { animation-delay: 0.2s; }
+.hero-enter-4 { animation-delay: 0.3s; }
+
+@keyframes preview-in {
+  from { opacity: 0; transform: translateY(26px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.preview-enter {
+  animation: preview-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both;
+}
+
 /* ── Movimiento reducido: el contenido siempre visible, sin animación ── */
 @media (prefers-reduced-motion: reduce) {
   .reveal {
     opacity: 1;
     transform: none;
     transition: none;
+  }
+  .hero-enter,
+  .preview-enter {
+    animation: none;
   }
   .checkout-btn {
     animation: none;
