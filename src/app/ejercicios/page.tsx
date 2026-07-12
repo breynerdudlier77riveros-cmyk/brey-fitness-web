@@ -150,7 +150,7 @@ export default function EjerciciosPage() {
           Nuevos ejercicios, filtros avanzados por equipamiento y programa, y videos demostrativos están en camino.
         </p>
         <Link
-          href="/quiz"
+          href="/diagnostico"
           className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-orange-500 hover:bg-orange-400 text-white font-bold text-sm transition-all"
         >
           Encontrar mi programa

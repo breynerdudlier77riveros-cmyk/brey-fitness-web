@@ -7,6 +7,7 @@ import { ArrowRight } from "@/components/ui/icons";
 import Button from "@/components/ui/Button";
 import { cardStyles } from "@/components/ui/Card";
 import DashboardPreview from "@/components/DashboardPreview";
+import FounderSection from "@/components/FounderSection";
 
 // ── Acto 2 · Manifiesto ─────────────────────────────────────────────────────
 const creencias = [
@@ -77,7 +78,7 @@ export default function HomePage() {
               </p>
 
               <div className="hero-enter hero-enter-4 flex flex-col sm:flex-row items-center lg:justify-start justify-center gap-4 mb-10">
-                <Button href="/quiz" size="lg">
+                <Button href="/diagnostico" size="lg">
                   Empezar mi diagnóstico
                   <ArrowRight className="w-5 h-5" strokeWidth={2.5} />
                 </Button>
@@ -241,7 +242,7 @@ export default function HomePage() {
                   6 preguntas sobre tu objetivo, nivel y equipo — y una recomendación con su porqué.
                 </p>
               </div>
-              <Button href="/quiz" size="md" className="mt-6 w-full">
+              <Button href="/diagnostico" size="md" className="mt-6 w-full">
                 Empezar mi diagnóstico
                 <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
               </Button>
@@ -249,6 +250,12 @@ export default function HomePage() {
           </ScrollReveal>
         </div>
       </section>
+
+      {/* ════════════════════════════════════════
+          ACTO 6 · FUNDADOR
+          Responde: ¿por qué confiar en BREY?
+      ════════════════════════════════════════ */}
+      <FounderSection />
 
       {/* ════════════════════════════════════════
           TESTIMONIOS — se oculta hasta tener reales
@@ -278,7 +285,7 @@ export default function HomePage() {
             <p className="text-white/55 text-lg mb-12 max-w-md mx-auto leading-relaxed">
               El diagnóstico analiza tu objetivo, nivel, equipo y situación actual para recomendarte el ecosistema exacto — y explicarte por qué.
             </p>
-            <Button href="/quiz" size="xl">
+            <Button href="/diagnostico" size="xl">
               Empezar mi diagnóstico
               <ArrowRight className="w-5 h-5" strokeWidth={2.5} />
             </Button>

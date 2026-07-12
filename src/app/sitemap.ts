@@ -9,7 +9,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE_URL}/`, priority: 1, changeFrequency: 'weekly' },
     { url: `${SITE_URL}/programas`, priority: 0.9, changeFrequency: 'weekly' },
     { url: `${SITE_URL}/bps`, priority: 0.8, changeFrequency: 'monthly' },
-    { url: `${SITE_URL}/quiz`, priority: 0.8, changeFrequency: 'monthly' },
+    { url: `${SITE_URL}/diagnostico`, priority: 0.8, changeFrequency: 'monthly' },
     { url: `${SITE_URL}/ejercicios`, priority: 0.7, changeFrequency: 'weekly' },
     { url: `${SITE_URL}/blog`, priority: 0.7, changeFrequency: 'weekly' },
     { url: `${SITE_URL}/calculadoras`, priority: 0.7, changeFrequency: 'monthly' },

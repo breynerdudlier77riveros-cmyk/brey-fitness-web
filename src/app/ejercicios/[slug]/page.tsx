@@ -185,13 +185,13 @@ export default async function EjercicioPage({ params }: Props) {
           <div className="rounded-2xl border border-orange-500/15 bg-orange-500/[0.04] p-5">
             <p className="text-xs text-white/55 mb-2">¿Quieres un programa con este ejercicio?</p>
             <h3 className="font-black text-white text-sm mb-3 leading-snug">
-              El quiz de 2 min te recomienda el ecosistema exacto.
+              El diagnóstico de 2 min te recomienda el ecosistema exacto.
             </h3>
             <Link
-              href="/quiz"
+              href="/diagnostico"
               className="inline-flex w-full items-center justify-center gap-2 px-4 py-3 rounded-xl bg-orange-500 hover:bg-orange-400 text-white font-bold text-xs transition-all"
             >
-              Tomar el quiz
+              Empezar el diagnóstico
               <ArrowRight className="w-3.5 h-3.5" strokeWidth={2.5} />
             </Link>
           </div>

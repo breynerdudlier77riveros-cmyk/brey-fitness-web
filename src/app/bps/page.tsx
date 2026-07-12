@@ -115,7 +115,7 @@ export default function BPSPage() {
           </p>
 
           <div className="flex flex-wrap gap-4">
-            <Button href="/quiz" size="md" className="px-7 py-3.5">
+            <Button href="/diagnostico" size="md" className="px-7 py-3.5">
               Encontrar mi programa
               <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
             </Button>
@@ -252,10 +252,10 @@ export default function BPSPage() {
             Encuentra tu ecosistema.
           </h2>
           <p className="text-white/55 mb-10 max-w-lg mx-auto leading-relaxed">
-            El quiz de 2 minutos analiza tu objetivo, nivel y equipo disponible para recomendarte el programa exacto del Brey Performance System.
+            El diagnóstico de 2 minutos analiza tu objetivo, nivel y equipo disponible para recomendarte el programa exacto del Brey Performance System.
           </p>
-          <Button href="/quiz" size="lg" className="px-9 text-sm">
-            Tomar el quiz gratuito
+          <Button href="/diagnostico" size="lg" className="px-9 text-sm">
+            Empezar mi diagnóstico
             <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
           </Button>
           <p className="text-white/50 text-xs mt-4 tracking-wider uppercase">2 minutos · Sin registro · Gratis</p>

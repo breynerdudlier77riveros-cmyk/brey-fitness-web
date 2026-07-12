@@ -109,10 +109,10 @@ export default async function ProgramaEcosistemaPage({ params }: Props) {
               <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
             </a>
             <Link
-              href="/quiz"
+              href="/diagnostico"
               className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-full border border-white/[0.12] text-white/60 hover:text-white hover:border-white/20 font-bold text-sm transition-all duration-200"
             >
-              Tomar el quiz primero
+              Hacer el diagnóstico primero
             </Link>
           </div>
         </div>

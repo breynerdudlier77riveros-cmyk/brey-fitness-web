@@ -52,7 +52,7 @@ export default function Navbar() {
         </ul>
 
         {/* Desktop CTA */}
-        <Button href="/quiz" size="sm" className="hidden md:inline-flex tracking-wide flex-shrink-0">
+        <Button href="/diagnostico" size="sm" className="hidden md:inline-flex tracking-wide flex-shrink-0">
           ¿Cuál es mi programa?
           <ArrowRight className="w-3.5 h-3.5" strokeWidth={2.5} />
         </Button>
@@ -93,7 +93,7 @@ export default function Navbar() {
                 </Link>
               );
             })}
-            <Button href="/quiz" size="md" onClick={() => setOpen(false)} className="mt-2 w-full">
+            <Button href="/diagnostico" size="md" onClick={() => setOpen(false)} className="mt-2 w-full">
               ¿Cuál es mi programa?
               <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
             </Button>

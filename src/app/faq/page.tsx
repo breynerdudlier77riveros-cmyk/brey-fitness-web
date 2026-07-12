@@ -72,10 +72,10 @@ export default function FaqPage() {
             ¿Todavía no sabes qué programa es para ti?
           </p>
           <Link
-            href="/quiz"
+            href="/diagnostico"
             className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-orange-500 hover:bg-orange-400 text-white font-bold text-sm transition-all"
           >
-            Tomar el quiz gratuito
+            Empezar mi diagnóstico
             <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
           </Link>
         </div>

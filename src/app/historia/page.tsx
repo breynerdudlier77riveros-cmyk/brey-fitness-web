@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 import { founder } from "@/data/founder";
+import Button from "@/components/ui/Button";
 import ScrollReveal from "@/components/ScrollReveal";
 import SectionLabel from "@/components/layout/SectionLabel";
 
 export const metadata: Metadata = {
   title: "Historia — Quién está detrás del sistema",
   description:
-    "La historia real detrás del Brey Performance System: barras, torneos nacionales y la obsesión por entrenar con método y evidencia.",
+    "La historia real detrás del Brey Performance System: calistenia, Street Workout, educación física y la obsesión por entrenar con criterio y evidencia.",
 };
 
 export default function HistoriaPage() {
@@ -37,16 +37,25 @@ export default function HistoriaPage() {
               </p>
             </div>
             <ScrollReveal>
-              <div className="relative aspect-[3/4] rounded-3xl overflow-hidden border border-white/[0.08]">
-                <Image
-                  src={founder.fotoPerfil.src}
-                  alt={founder.fotoPerfil.alt}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 280px"
-                  className="object-cover"
-                  priority
-                />
-              </div>
+              {founder.fotoPerfil ? (
+                <div className="relative aspect-[3/4] rounded-3xl overflow-hidden border border-white/[0.08]">
+                  <Image
+                    src={founder.fotoPerfil.src}
+                    alt={founder.fotoPerfil.alt}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 280px"
+                    className="object-cover"
+                    priority
+                  />
+                </div>
+              ) : (
+                /* Monograma mientras llega la fotografía profesional */
+                <div className="relative aspect-[3/4] rounded-3xl border border-white/[0.08] bg-gradient-to-br from-orange-950/40 via-slate-900 to-slate-950 flex items-center justify-center">
+                  <span aria-hidden className="font-black text-7xl text-transparent bg-clip-text bg-gradient-to-br from-orange-400 to-amber-500">
+                    BR
+                  </span>
+                </div>
+              )}
             </ScrollReveal>
           </div>
         </div>
@@ -103,18 +112,12 @@ export default function HistoriaPage() {
             “{founder.cierre}”
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/bps"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-orange-500 hover:bg-orange-400 text-white font-bold text-sm transition-all duration-200"
-            >
+            <Button href="/bps" size="lg" className="text-sm">
               Conocer el método BPS
-            </Link>
-            <Link
-              href="/quiz"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full border border-white/[0.10] text-white/50 hover:text-white hover:border-white/20 font-bold text-sm transition-all duration-200"
-            >
-              Encontrar mi programa
-            </Link>
+            </Button>
+            <Button href="/diagnostico" variant="outline" size="lg" className="text-sm">
+              Empezar mi diagnóstico
+            </Button>
           </div>
         </div>
       </section>

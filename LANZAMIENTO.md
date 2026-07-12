@@ -24,15 +24,22 @@ En orden de importancia:
 3. Copia `.env.example` a `.env.local` y completa `BREVO_API_KEY` y
    `BREVO_LIST_ID` (también configúralos en Vercel al desplegar).
 4. Prepara el email de bienvenida en Brevo: el "plan de arranque" prometido en
-   el resultado del quiz (una automatización por fuente: los contactos llegan
-   con el atributo `FUENTE`, ej. `quiz-performance-gym`).
+   el resultado del diagnóstico (una automatización por fuente: los contactos
+   llegan con el atributo `FUENTE`, ej. `diagnostico-performance-gym`).
 
 ## 3. Identidad y confianza (revisar antes de publicar)
 
-- [ ] **/historia**: el contenido actual viene de la web GRESH antigua
-      (historia de Gresly). Si el rostro de Brey Fitness es otra persona,
-      edita [`src/data/founder.ts`](src/data/founder.ts) y reemplaza las fotos
-      de `public/historia/`.
+- [x] **Identidad (D4 resuelta)**: el fundador es **Breyner Riveros** —
+      [`src/data/founder.ts`](src/data/founder.ts) ya tiene sus datos.
+      Pendientes en ese archivo:
+      - [ ] **Foto profesional**: añade la imagen en `public/historia/` y
+            apunta `fotoPerfil` a ella (mientras tanto se muestra el
+            monograma BR). Las fotos antiguas de la web GRESH siguen en la
+            carpeta pero ya no se muestran en ninguna página.
+      - [ ] **Formación**: está en su versión conservadora ("estudiante de
+            último año"). Si ya estás titulado, actualízala.
+      - [ ] **Certificaciones**: añádelas al array cuando existan — la
+            tarjeta aparece sola.
 - [ ] **Testimonios**: recolecta 3–5 testimonios REALES (con permiso) y
       añádelos en [`src/data/testimonials.ts`](src/data/testimonials.ts).
       La sección aparece sola en la home cuando el array tiene datos.

@@ -74,6 +74,25 @@ body {
   animation: preview-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both;
 }
 
+/* ── Chat del diagnóstico ── */
+@keyframes msg-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.msg-in {
+  animation: msg-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30%           { transform: translateY(-3px); opacity: 1; }
+}
+
+.typing-dot {
+  animation: typing-bounce 1.1s ease-in-out infinite;
+}
+
 /* ── Movimiento reducido: el contenido siempre visible, sin animación ── */
 @media (prefers-reduced-motion: reduce) {
   .reveal {
@@ -82,7 +101,9 @@ body {
     transition: none;
   }
   .hero-enter,
-  .preview-enter {
+  .preview-enter,
+  .msg-in,
+  .typing-dot {
     animation: none;
   }
   .checkout-btn {

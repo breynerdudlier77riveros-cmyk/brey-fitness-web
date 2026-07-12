@@ -58,14 +58,14 @@ export default function ProgramasPage() {
           <div className="text-left flex-1">
             <p className="font-bold text-white text-sm mb-1">¿No sabes cuál elegir?</p>
             <p className="text-white/60 text-xs leading-relaxed">
-              El quiz analiza tu objetivo, nivel y equipo disponible en 2 minutos.
+              El diagnóstico analiza tu objetivo, nivel y equipo disponible en 2 minutos.
             </p>
           </div>
           <Link
-            href="/quiz"
+            href="/diagnostico"
             className="flex-shrink-0 px-5 py-2.5 rounded-full bg-orange-500 hover:bg-orange-400 text-white text-sm font-bold transition-all duration-200 whitespace-nowrap"
           >
-            Tomar el quiz →
+            Empezar el diagnóstico →
           </Link>
         </div>
       </section>
@@ -176,13 +176,13 @@ export default function ProgramasPage() {
           Encuentra tu programa en 2 minutos.
         </h2>
         <p className="text-white/55 max-w-md mx-auto mb-10">
-          El quiz analiza tu objetivo, nivel, equipo y disponibilidad para recomendarte el ecosistema exacto.
+          El diagnóstico analiza tu objetivo, nivel, equipo y disponibilidad para recomendarte el ecosistema exacto.
         </p>
         <Link
-          href="/quiz"
+          href="/diagnostico"
           className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-orange-500 hover:bg-orange-400 text-white font-bold text-sm transition-all duration-200"
         >
-          Tomar el quiz gratuito
+          Empezar mi diagnóstico
           <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
         </Link>
         <p className="text-white/50 text-xs mt-4 tracking-wider uppercase">2 minutos · Sin registro · Gratis</p>

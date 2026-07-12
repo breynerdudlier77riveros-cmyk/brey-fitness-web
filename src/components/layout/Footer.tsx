@@ -16,7 +16,7 @@ const sections = {
     { href: "/calculadoras", label: "Calculadoras" },
   ],
   Plataforma: [
-    { href: "/quiz", label: "¿Cuál es mi programa?" },
+    { href: "/diagnostico", label: "Diagnóstico BPS" },
     { href: "/historia", label: "Historia" },
     { href: "/faq", label: "Preguntas frecuentes" },
   ],

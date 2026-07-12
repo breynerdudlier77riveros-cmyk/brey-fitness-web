@@ -12,7 +12,7 @@ export const faqs: FaqItem[] = [
   {
     pregunta: 'Soy principiante total. ¿Por dónde empiezo?',
     respuesta:
-      'Por Performance Start: 12 semanas para construir la base de movimiento, acondicionamiento y fuerza que hace que todo lo demás funcione. Si no estás seguro de tu nivel, el quiz gratuito de 2 minutos te recomienda el punto de entrada correcto.',
+      'Por Performance Start: 12 semanas para construir la base de movimiento, acondicionamiento y fuerza que hace que todo lo demás funcione. Si no estás seguro de tu nivel, el diagnóstico gratuito de 2 minutos te recomienda el punto de entrada correcto.',
   },
   {
     pregunta: '¿Necesito un gimnasio?',

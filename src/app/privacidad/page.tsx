@@ -13,14 +13,14 @@ export default function PrivacidadPage() {
     <LegalShell title="Política de Privacidad" updated="julio 2026">
       <h2>Qué datos recopilamos</h2>
       <ul>
-        <li><strong>Email</strong>, cuando lo dejas voluntariamente en nuestros formularios (resultado del quiz, newsletter, aviso de lanzamiento).</li>
+        <li><strong>Email</strong>, cuando lo dejas voluntariamente en nuestros formularios (resultado del diagnóstico, newsletter, aviso de lanzamiento).</li>
         <li><strong>Datos de compra</strong>, gestionados por la plataforma de pago (como Hotmart) cuando adquieres un programa. No almacenamos datos de tarjetas.</li>
         <li><strong>Datos de uso anónimos</strong> (páginas visitadas, dispositivo), solo si la analítica está activa, mediante herramientas que no usan cookies de seguimiento personal.</li>
       </ul>
 
       <h2>Para qué los usamos</h2>
       <ul>
-        <li>Enviarte el contenido que solicitaste (tu resultado del quiz, newsletter, avisos de lanzamiento).</li>
+        <li>Enviarte el contenido que solicitaste (tu resultado del diagnóstico, newsletter, avisos de lanzamiento).</li>
         <li>Darte acceso a los programas que compraste y soporte sobre ellos.</li>
         <li>Mejorar la plataforma a partir de datos de uso agregados.</li>
       </ul>
