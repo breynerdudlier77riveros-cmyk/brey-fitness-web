@@ -32,7 +32,7 @@ export default function HistoriaPage() {
                 </span>
               </h1>
               <p className="text-white/50 text-lg leading-relaxed max-w-xl mb-4">{founder.intro}</p>
-              <p className="text-white/30 text-sm">
+              <p className="text-white/55 text-sm">
                 {founder.nombre} · {founder.titulo} · {founder.ubicacion}
               </p>
             </div>
@@ -69,7 +69,7 @@ export default function HistoriaPage() {
                       className="object-cover"
                     />
                   </div>
-                  <figcaption className="text-[11px] text-white/25 mt-3 tracking-[0.15em] uppercase">
+                  <figcaption className="text-[11px] text-white/50 mt-3 tracking-[0.15em] uppercase">
                     {founder.fotos[i].caption}
                   </figcaption>
                 </figure>
@@ -84,7 +84,7 @@ export default function HistoriaPage() {
             {founder.stats.map((s) => (
               <div key={s.label} className="p-5 rounded-2xl border border-white/[0.07] bg-white/[0.02] text-center">
                 <p className="font-black text-2xl md:text-3xl text-orange-400">{s.value}</p>
-                <p className="text-[10px] md:text-[11px] uppercase tracking-widest text-white/30 mt-2 leading-snug">
+                <p className="text-[10px] md:text-[11px] uppercase tracking-widest text-white/55 mt-2 leading-snug">
                   {s.label}
                 </p>
               </div>

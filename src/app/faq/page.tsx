@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { faqs } from "@/data/faq";
 import SectionLabel from "@/components/layout/SectionLabel";
+import { ArrowRight } from "@/components/ui/icons";
 
 export const metadata: Metadata = {
   title: "Preguntas Frecuentes",
@@ -34,7 +35,7 @@ export default function FaqPage() {
         <h1 className="font-black text-4xl sm:text-5xl text-white mb-4">
           Preguntas frecuentes
         </h1>
-        <p className="text-white/35 leading-relaxed mb-14 max-w-lg">
+        <p className="text-white/55 leading-relaxed mb-14 max-w-lg">
           Todo lo que necesitas saber antes de empezar. ¿No encuentras tu
           respuesta? Escríbenos y la resolvemos.
         </p>
@@ -50,7 +51,7 @@ export default function FaqPage() {
                   {f.pregunta}
                 </span>
                 <svg
-                  className="w-4 h-4 text-white/30 flex-shrink-0 transition-transform duration-200 group-open:rotate-45"
+                  className="w-4 h-4 text-white/55 flex-shrink-0 transition-transform duration-200 group-open:rotate-45"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth={2}
@@ -59,7 +60,7 @@ export default function FaqPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
               </summary>
-              <p className="px-5 pb-5 text-sm text-white/45 leading-relaxed">
+              <p className="px-5 pb-5 text-sm text-white/60 leading-relaxed">
                 {f.respuesta}
               </p>
             </details>
@@ -75,9 +76,7 @@ export default function FaqPage() {
             className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-orange-500 hover:bg-orange-400 text-white font-bold text-sm transition-all"
           >
             Tomar el quiz gratuito
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-            </svg>
+            <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
           </Link>
         </div>
       </div>

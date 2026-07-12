@@ -12,13 +12,13 @@ export default function CalculadorasPage() {
     <main className="bg-slate-950 text-white">
       {/* Header */}
       <section className="max-w-4xl mx-auto px-6 pt-16 pb-12 text-center">
-        <p className="text-[11px] font-semibold tracking-[0.25em] uppercase text-white/25 mb-4">
+        <p className="text-[11px] font-semibold tracking-[0.25em] uppercase text-white/50 mb-4">
           Herramientas gratuitas
         </p>
         <h1 className="font-black text-4xl sm:text-5xl text-white leading-[1.1] tracking-tight mb-4">
           Calculadoras BPS
         </h1>
-        <p className="text-white/40 max-w-lg mx-auto leading-relaxed">
+        <p className="text-white/60 max-w-lg mx-auto leading-relaxed">
           Herramientas basadas en fórmulas científicas validadas. Sin registro, sin trampa.
         </p>
       </section>

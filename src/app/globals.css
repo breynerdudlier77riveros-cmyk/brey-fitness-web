@@ -36,63 +36,33 @@ body {
   transform: translateY(0);
 }
 
-/* ── Gradient border utility ── */
-.gradient-border {
-  padding: 1px;
-  border-radius: 1.5rem;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.1) 0%,
-    transparent 40%,
-    rgba(132, 204, 22, 0.12) 100%
-  );
-}
-
-/* ── Checkout button pulse + shimmer ── */
+/* ── Botón de compra: glow sereno, solo en acciones de dinero ── */
 @keyframes checkout-pulse {
   0%, 100% {
     box-shadow:
-      0 0 30px rgba(16, 185, 129, 0.5),
-      0 0 70px rgba(16, 185, 129, 0.2),
+      0 0 18px rgba(16, 185, 129, 0.28),
       0 4px 24px rgba(0, 0, 0, 0.4);
   }
   50% {
     box-shadow:
-      0 0 55px rgba(16, 185, 129, 0.7),
-      0 0 110px rgba(16, 185, 129, 0.3),
+      0 0 32px rgba(16, 185, 129, 0.42),
       0 4px 24px rgba(0, 0, 0, 0.4);
   }
 }
 
-@keyframes shimmer-sweep {
-  0%   { transform: translateX(-100%) skewX(-20deg); opacity: 0; }
-  10%  { opacity: 1; }
-  90%  { opacity: 1; }
-  100% { transform: translateX(250%) skewX(-20deg); opacity: 0; }
-}
-
 .checkout-btn {
-  position: relative;
-  overflow: hidden;
-  animation: checkout-pulse 2.5s ease-in-out infinite;
+  animation: checkout-pulse 3.5s ease-in-out infinite;
 }
 
-.checkout-btn::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.22) 50%,
-    transparent 100%
-  );
-  animation: shimmer-sweep 3.5s ease-in-out infinite;
-  pointer-events: none;
-}
-
-/* ── Slide down animation for mobile menu ── */
-@keyframes slide-down {
-  from { opacity: 0; transform: translateY(-8px); }
-  to   { opacity: 1; transform: translateY(0); }
+/* ── Movimiento reducido: el contenido siempre visible, sin animación ── */
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .checkout-btn {
+    animation: none;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  }
 }

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ejercicios, getEjercicioBySlug } from "@/data/exercises";
 import type { ExerciseLevel, ExerciseType } from "@/lib/types";
+import { ArrowRight, Close } from "@/components/ui/icons";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -35,7 +36,7 @@ const typeLabels: Record<ExerciseType, string> = {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <h2 className="font-black text-sm uppercase tracking-[0.15em] text-white/25 mb-4">{title}</h2>
+      <h2 className="font-black text-sm uppercase tracking-[0.15em] text-white/50 mb-4">{title}</h2>
       {children}
     </div>
   );
@@ -52,10 +53,10 @@ export default async function EjercicioPage({ params }: Props) {
     <main className="bg-slate-950 text-white">
       {/* Breadcrumb */}
       <div className="max-w-4xl mx-auto px-6 pt-8">
-        <nav className="flex items-center gap-2 text-xs text-white/25 mb-8">
-          <Link href="/ejercicios" className="hover:text-white/50 transition-colors">Ejercicios</Link>
+        <nav className="flex items-center gap-2 text-xs text-white/50 mb-8">
+          <Link href="/ejercicios" className="hover:text-white/90 transition-colors">Ejercicios</Link>
           <span>/</span>
-          <span className="text-white/40">{e.nombre}</span>
+          <span className="text-white/60">{e.nombre}</span>
         </nav>
       </div>
 
@@ -65,11 +66,11 @@ export default async function EjercicioPage({ params }: Props) {
           <span className={`inline-flex px-3 py-1 rounded-full border text-xs font-bold ${lvl.class}`}>
             {lvl.label}
           </span>
-          <span className="inline-flex px-3 py-1 rounded-full border border-white/[0.08] text-xs text-white/40">
+          <span className="inline-flex px-3 py-1 rounded-full border border-white/[0.08] text-xs text-white/60">
             {typeLabels[e.tipo]}
           </span>
           {e.equipo.map((eq) => (
-            <span key={eq} className="inline-flex px-3 py-1 rounded-full border border-white/[0.06] text-xs text-white/30">
+            <span key={eq} className="inline-flex px-3 py-1 rounded-full border border-white/[0.06] text-xs text-white/55">
               {eq}
             </span>
           ))}
@@ -79,19 +80,19 @@ export default async function EjercicioPage({ params }: Props) {
           {e.nombre}
         </h1>
         {e.nombreIngles && (
-          <p className="text-white/25 text-sm mb-6">{e.nombreIngles}</p>
+          <p className="text-white/50 text-sm mb-6">{e.nombreIngles}</p>
         )}
         <p className="text-white/50 leading-relaxed max-w-2xl">{e.descripcion}</p>
 
         {/* Muscle groups */}
         <div className="flex flex-wrap gap-6 mt-8">
           <div>
-            <p className="text-[10px] uppercase tracking-widest text-white/20 mb-1">Músculo principal</p>
+            <p className="text-[10px] uppercase tracking-widest text-white/50 mb-1">Músculo principal</p>
             <p className="text-sm font-bold text-orange-400 capitalize">{e.musculoPrincipal}</p>
           </div>
           {e.musculosSecundarios.length > 0 && (
             <div>
-              <p className="text-[10px] uppercase tracking-widest text-white/20 mb-1">Secundarios</p>
+              <p className="text-[10px] uppercase tracking-widest text-white/50 mb-1">Secundarios</p>
               <p className="text-sm font-semibold text-white/50 capitalize">
                 {e.musculosSecundarios.join(", ")}
               </p>
@@ -121,9 +122,7 @@ export default async function EjercicioPage({ params }: Props) {
             <div className="space-y-2.5">
               {e.erroresComunes.map((err, i) => (
                 <div key={i} className="flex gap-3 p-4 rounded-xl border border-red-500/10 bg-red-500/[0.03]">
-                  <svg className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+                  <Close className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" strokeWidth={2.5} />
                   <p className="text-sm text-white/50 leading-relaxed">{err}</p>
                 </div>
               ))}
@@ -148,10 +147,10 @@ export default async function EjercicioPage({ params }: Props) {
         <aside className="space-y-6">
           {/* Variants */}
           <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-5">
-            <h3 className="font-black text-sm uppercase tracking-[0.15em] text-white/25 mb-4">Variantes</h3>
+            <h3 className="font-black text-sm uppercase tracking-[0.15em] text-white/50 mb-4">Variantes</h3>
             <div className="space-y-2">
               {e.variantes.map((v, i) => (
-                <div key={i} className="flex gap-3 items-start text-sm text-white/45 leading-snug">
+                <div key={i} className="flex gap-3 items-start text-sm text-white/60 leading-snug">
                   <span className="w-1 h-1 rounded-full bg-orange-400/40 mt-2 flex-shrink-0" />
                   {v}
                 </div>
@@ -162,7 +161,7 @@ export default async function EjercicioPage({ params }: Props) {
           {/* Linked programs */}
           {e.programasVinculados.length > 0 && (
             <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-5">
-              <h3 className="font-black text-sm uppercase tracking-[0.15em] text-white/25 mb-4">
+              <h3 className="font-black text-sm uppercase tracking-[0.15em] text-white/50 mb-4">
                 Programas que incluyen este ejercicio
               </h3>
               <div className="space-y-2">
@@ -172,12 +171,10 @@ export default async function EjercicioPage({ params }: Props) {
                     href={`/programas/${slug}`}
                     className="flex items-center justify-between p-3 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:border-white/[0.12] hover:bg-white/[0.04] transition-all group"
                   >
-                    <span className="text-xs text-white/50 group-hover:text-white/70 transition-colors capitalize">
+                    <span className="text-xs text-white/50 group-hover:text-white/90 transition-colors capitalize">
                       {slug.replace(/-/g, " ")}
                     </span>
-                    <svg className="w-3.5 h-3.5 text-white/20 group-hover:text-white/40 transition-colors" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                    </svg>
+                    <ArrowRight className="w-3.5 h-3.5 text-white/50 group-hover:text-white/90 transition-colors" strokeWidth={2} />
                   </Link>
                 ))}
               </div>
@@ -186,7 +183,7 @@ export default async function EjercicioPage({ params }: Props) {
 
           {/* CTA */}
           <div className="rounded-2xl border border-orange-500/15 bg-orange-500/[0.04] p-5">
-            <p className="text-xs text-white/30 mb-2">¿Quieres un programa con este ejercicio?</p>
+            <p className="text-xs text-white/55 mb-2">¿Quieres un programa con este ejercicio?</p>
             <h3 className="font-black text-white text-sm mb-3 leading-snug">
               El quiz de 2 min te recomienda el ecosistema exacto.
             </h3>
@@ -195,9 +192,7 @@ export default async function EjercicioPage({ params }: Props) {
               className="inline-flex w-full items-center justify-center gap-2 px-4 py-3 rounded-xl bg-orange-500 hover:bg-orange-400 text-white font-bold text-xs transition-all"
             >
               Tomar el quiz
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-              </svg>
+              <ArrowRight className="w-3.5 h-3.5" strokeWidth={2.5} />
             </Link>
           </div>
         </aside>
@@ -207,7 +202,7 @@ export default async function EjercicioPage({ params }: Props) {
       <div className="max-w-4xl mx-auto px-6 pb-16">
         <Link
           href="/ejercicios"
-          className="inline-flex items-center gap-2 text-sm text-white/30 hover:text-white/60 transition-colors"
+          className="inline-flex items-center gap-2 text-sm text-white/55 hover:text-white/90 transition-colors"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { Check } from "@/components/ui/icons";
+import Button from "@/components/ui/Button";
 
 interface Props {
   source: string;
@@ -53,9 +55,7 @@ export default function LeadCapture({
   if (status === "ok") {
     return (
       <div className={`flex items-center gap-2.5 text-sm text-emerald-400 ${className}`}>
-        <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-        </svg>
+        <Check className="w-4 h-4 flex-shrink-0" strokeWidth={2.5} />
         {message}
       </div>
     );
@@ -74,20 +74,16 @@ export default function LeadCapture({
           onChange={(e) => setEmail(e.target.value)}
           placeholder="tu@email.com"
           aria-label="Tu email"
-          className="flex-1 min-w-0 px-4 py-3 rounded-full bg-white/[0.04] border border-white/[0.10] text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-orange-500/50 transition-colors"
+          className="flex-1 min-w-0 px-4 py-3 rounded-full bg-white/[0.04] border border-white/[0.10] text-sm text-white placeholder:text-white/50 focus:outline-none focus:border-orange-500/50 transition-colors"
         />
-        <button
-          type="submit"
-          disabled={status === "loading"}
-          className="px-6 py-3 rounded-full bg-orange-500 hover:bg-orange-400 disabled:opacity-60 text-white text-sm font-bold transition-all duration-200 whitespace-nowrap"
-        >
+        <Button type="submit" size="md" disabled={status === "loading"}>
           {status === "loading" ? "Enviando…" : buttonLabel}
-        </button>
+        </Button>
       </div>
       {status === "error" && (
         <p className="text-xs text-red-400 mt-2">{message}</p>
       )}
-      <p className="text-[10px] text-white/20 mt-2">
+      <p className="text-[10px] text-white/50 mt-2">
         Sin spam. Puedes darte de baja cuando quieras.
       </p>
     </form>

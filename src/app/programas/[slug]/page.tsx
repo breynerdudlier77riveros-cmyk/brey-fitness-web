@@ -5,6 +5,7 @@ import { programas, getProgramBySlug } from "@/data/programs";
 import { getCheckoutUrl } from "@/data/checkout";
 import CheckoutButton from "@/components/CheckoutButton";
 import LeadCapture from "@/components/LeadCapture";
+import { ArrowRight, Check } from "@/components/ui/icons";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -17,14 +18,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const p = getProgramBySlug(slug);
   if (!p) return {};
   return { title: p.seo.title, description: p.seo.description };
-}
-
-function Check({ color }: { color: string }) {
-  return (
-    <svg className={`w-4 h-4 ${color} flex-shrink-0 mt-0.5`} fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-    </svg>
-  );
 }
 
 const nivelLabel: Record<string, string> = {
@@ -76,8 +69,8 @@ export default async function ProgramaEcosistemaPage({ params }: Props) {
 
         <div className="relative max-w-5xl mx-auto px-6 pt-16 pb-20">
           {/* Breadcrumb */}
-          <div className="flex items-center gap-2 text-[11px] text-white/30 mb-8 font-medium">
-            <Link href="/programas" className="hover:text-white/60 transition-colors">Programas</Link>
+          <div className="flex items-center gap-2 text-[11px] text-white/55 mb-8 font-medium">
+            <Link href="/programas" className="hover:text-white/90 transition-colors">Programas</Link>
             <span>/</span>
             <span className={p.color.accent}>{p.nombre}</span>
           </div>
@@ -87,11 +80,11 @@ export default async function ProgramaEcosistemaPage({ params }: Props) {
             <span className={`text-[10px] font-bold tracking-[0.14em] uppercase px-3 py-1.5 rounded-full border ${p.color.badge}`}>
               {nivelLabel[p.nivel]}
             </span>
-            <span className="text-[10px] font-bold tracking-[0.14em] uppercase px-3 py-1.5 rounded-full border border-white/10 text-white/40">
+            <span className="text-[10px] font-bold tracking-[0.14em] uppercase px-3 py-1.5 rounded-full border border-white/10 text-white/60">
               {p.duracion}
             </span>
             {totalSemanas > 0 && (
-              <span className="text-[10px] font-bold tracking-[0.14em] uppercase px-3 py-1.5 rounded-full border border-white/10 text-white/40">
+              <span className="text-[10px] font-bold tracking-[0.14em] uppercase px-3 py-1.5 rounded-full border border-white/10 text-white/60">
                 {p.modulos.length} módulos
               </span>
             )}
@@ -113,9 +106,7 @@ export default async function ProgramaEcosistemaPage({ params }: Props) {
               className={`inline-flex items-center justify-center gap-2 px-7 py-4 rounded-full ${p.color.cta} text-white font-bold text-sm transition-all duration-200`}
             >
               Empezar con {p.nombre}
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-              </svg>
+              <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
             </a>
             <Link
               href="/quiz"
@@ -137,14 +128,14 @@ export default async function ProgramaEcosistemaPage({ params }: Props) {
             <h2 className="font-black text-3xl sm:text-4xl text-white leading-snug mb-5">
               Este programa es exactamente para ti si...
             </h2>
-            <p className="text-white/45 leading-relaxed">{p.para}</p>
+            <p className="text-white/60 leading-relaxed">{p.para}</p>
           </div>
           <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-7">
-            <p className="text-[10px] font-bold tracking-[0.18em] uppercase text-white/25 mb-5">Lo que incluye</p>
+            <p className="text-[10px] font-bold tracking-[0.18em] uppercase text-white/50 mb-5">Lo que incluye</p>
             <ul className="flex flex-col gap-3">
               {p.incluye.map((item) => (
                 <li key={item} className="flex items-start gap-3">
-                  <Check color={p.color.accent} />
+                  <Check className={`w-4 h-4 ${p.color.accent} flex-shrink-0 mt-0.5`} />
                   <span className="text-sm text-white/60 leading-relaxed">{item}</span>
                 </li>
               ))}
@@ -178,13 +169,13 @@ export default async function ProgramaEcosistemaPage({ params }: Props) {
                   <div className="flex-1 min-w-0">
                     <h3 className="font-black text-base text-white leading-snug">{mod.nombre}</h3>
                     {mod.semanas > 0 && (
-                      <p className="text-[11px] text-white/25 mt-1">
+                      <p className="text-[11px] text-white/50 mt-1">
                         {mod.semanas} semanas · {mod.sesionesSemanales}x/semana
                       </p>
                     )}
                   </div>
                 </div>
-                <p className="text-sm text-white/40 leading-relaxed">{mod.descripcion}</p>
+                <p className="text-sm text-white/60 leading-relaxed">{mod.descripcion}</p>
               </div>
             ))}
           </div>
@@ -201,14 +192,14 @@ export default async function ProgramaEcosistemaPage({ params }: Props) {
             <h2 className="font-black text-3xl sm:text-4xl text-white">
               Todos los ecosistemas incluidos.
             </h2>
-            <p className="text-white/35 mt-4 max-w-xl mx-auto">
+            <p className="text-white/55 mt-4 max-w-xl mx-auto">
               Performance Elite incluye acceso completo a los 4 sistemas de entrenamiento de la plataforma.
             </p>
           </div>
           <div className="grid sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
             {['Performance Start', 'Performance Gym', 'Performance Calisthenics', 'Performance Hybrid'].map((name) => (
               <div key={name} className="flex items-center gap-3 p-4 rounded-xl border border-white/[0.07] bg-white/[0.02]">
-                <Check color="text-yellow-400" />
+                <Check className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-0.5" />
                 <span className="text-sm font-semibold text-white/70">{name}</span>
               </div>
             ))}
@@ -222,7 +213,7 @@ export default async function ProgramaEcosistemaPage({ params }: Props) {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[300px] bg-orange-600/6 blur-[100px] rounded-full" />
         </div>
         <div className="relative max-w-2xl mx-auto px-6 py-24 text-center">
-          <p className="text-white/20 text-xs tracking-widest uppercase mb-6">
+          <p className="text-white/50 text-xs tracking-widest uppercase mb-6">
             Precio · {p.precioFormato}
           </p>
           <h2 className="font-black text-3xl sm:text-4xl md:text-5xl text-white leading-snug mb-6">
@@ -231,7 +222,7 @@ export default async function ProgramaEcosistemaPage({ params }: Props) {
               {p.nombre}
             </span>
           </h2>
-          <p className="text-white/35 mb-10 max-w-md mx-auto leading-relaxed">
+          <p className="text-white/55 mb-10 max-w-md mx-auto leading-relaxed">
             {p.tagline} Sistema completo, acceso inmediato y garantía de 30 días.
           </p>
           {checkoutUrl ? (
@@ -240,7 +231,7 @@ export default async function ProgramaEcosistemaPage({ params }: Props) {
                 href={checkoutUrl}
                 label={`Acceder ahora — ${p.precioFormato}`}
               />
-              <p className="text-white/15 text-xs mt-6 tracking-widest uppercase">
+              <p className="text-white/50 text-xs mt-6 tracking-widest uppercase">
                 Acceso inmediato · Garantía 30 días · Sin contratos
               </p>
             </>
@@ -256,7 +247,7 @@ export default async function ProgramaEcosistemaPage({ params }: Props) {
           <div className="mt-8">
             <Link
               href="/programas"
-              className="inline-flex items-center justify-center gap-2 text-sm text-white/30 hover:text-white/60 transition-colors"
+              className="inline-flex items-center justify-center gap-2 text-sm text-white/55 hover:text-white/90 transition-colors"
             >
               Ver todos los programas
             </Link>

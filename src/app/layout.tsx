@@ -17,11 +17,13 @@ export const metadata: Metadata = {
   },
   description:
     "El sistema de entrenamiento basado en evidencia más completo del mercado hispanohablante. 5 ecosistemas de programa, biblioteca de ejercicios y metodología científica.",
-  keywords: ["entrenamiento", "calistenia", "gym", "fitness", "hipertrofia", "fuerza", "BPS"],
   openGraph: {
     siteName: "Brey Fitness",
-    locale: "es_ES",
+    locale: "es_CO",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
   },
 };
 

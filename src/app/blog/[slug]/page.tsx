@@ -83,7 +83,7 @@ export default async function BlogPost({ params }: Props) {
       </h1>
 
       {/* Date + time */}
-      <p className="text-slate-500 text-sm mb-10">
+      <p className="text-slate-400 text-sm mb-10">
         {post.date} · {post.readTime} de lectura
       </p>
 

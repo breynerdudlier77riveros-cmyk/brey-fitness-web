@@ -5,6 +5,7 @@ import Link from "next/link";
 import { getProgramBySlug } from "@/data/programs";
 import type { ProgramSlug } from "@/lib/types";
 import LeadCapture from "@/components/LeadCapture";
+import { ArrowRight, Check } from "@/components/ui/icons";
 
 type ProgramId = ProgramSlug;
 
@@ -220,10 +221,8 @@ export default function QuizClient() {
     return (
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-20">
         <div className="max-w-xl w-full text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-lime-500/20 bg-lime-500/[0.06] text-xs text-lime-400 font-semibold mb-8">
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-            </svg>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/[0.06] text-xs text-emerald-400 font-semibold mb-8">
+            <Check className="w-3.5 h-3.5" strokeWidth={2.5} />
             Tu ecosistema ideal
           </div>
 
@@ -233,7 +232,7 @@ export default function QuizClient() {
             </span>
             <h2 className="font-black text-3xl sm:text-4xl text-white leading-snug mb-3">{r.nombre}</h2>
             <p className="text-white/60 text-sm font-medium mb-5">{r.tagline}</p>
-            <p className="text-white/40 text-sm leading-relaxed">{r.descripcion}</p>
+            <p className="text-white/60 text-sm leading-relaxed">{r.descripcion}</p>
           </div>
 
           <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 mb-8 text-left">
@@ -250,9 +249,7 @@ export default function QuizClient() {
               className={`w-full inline-flex items-center justify-center gap-2 px-7 py-4 rounded-full ${r.color.cta} text-white font-bold text-sm transition-all duration-200`}
             >
               Ver {r.nombre} completo
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-              </svg>
+              <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
             </Link>
             <Link
               href="/programas"
@@ -262,7 +259,7 @@ export default function QuizClient() {
             </Link>
             <button
               onClick={handleRestart}
-              className="text-xs text-white/20 hover:text-white/50 transition-colors pt-2"
+              className="text-xs text-white/50 hover:text-white/90 transition-colors pt-2"
             >
               Repetir el quiz
             </button>
@@ -288,7 +285,7 @@ export default function QuizClient() {
         <div className="max-w-xl w-full">
 
           {/* Step indicator */}
-          <p className="text-[11px] font-bold tracking-[0.20em] uppercase text-white/25 mb-8 text-center">
+          <p className="text-[11px] font-bold tracking-[0.20em] uppercase text-white/50 mb-8 text-center">
             Pregunta {step + 1} de {questions.length}
           </p>
 
@@ -323,7 +320,7 @@ export default function QuizClient() {
                     <p className={`font-bold text-sm transition-colors ${selected === i ? "text-white" : "text-white/70"}`}>
                       {opt.label}
                     </p>
-                    <p className="text-xs text-white/35 mt-0.5 leading-relaxed">{opt.description}</p>
+                    <p className="text-xs text-white/55 mt-0.5 leading-relaxed">{opt.description}</p>
                   </div>
                 </div>
               </button>
@@ -337,7 +334,7 @@ export default function QuizClient() {
             className={`w-full py-4 rounded-full font-bold text-sm transition-all duration-200 ${
               selected !== null
                 ? "bg-orange-500 hover:bg-orange-400 text-white cursor-pointer"
-                : "bg-white/[0.05] text-white/20 cursor-not-allowed"
+                : "bg-white/[0.05] text-white/50 cursor-not-allowed"
             }`}
           >
             {isLast ? "Ver mi programa recomendado →" : "Siguiente →"}

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ejercicios } from "@/data/exercises";
 import type { MuscleGroup, ExerciseLevel, ExerciseType } from "@/lib/types";
+import { ArrowRight } from "@/components/ui/icons";
 
 export const metadata: Metadata = {
   title: "Biblioteca de Ejercicios — técnica, errores y variantes",
@@ -58,13 +59,13 @@ export default function EjerciciosPage() {
           <div className="absolute -top-24 left-1/3 w-[500px] h-[300px] bg-violet-600/6 blur-[120px] rounded-full" />
         </div>
         <div className="relative max-w-5xl mx-auto px-6 pt-16 pb-14">
-          <p className="text-[11px] font-semibold tracking-[0.25em] uppercase text-white/25 mb-4">
+          <p className="text-[11px] font-semibold tracking-[0.25em] uppercase text-white/50 mb-4">
             Biblioteca de ejercicios
           </p>
           <h1 className="font-black text-4xl sm:text-5xl text-white leading-[1.1] tracking-tight mb-4">
             Movimiento con método.
           </h1>
-          <p className="text-white/40 max-w-xl leading-relaxed mb-10">
+          <p className="text-white/60 max-w-xl leading-relaxed mb-10">
             Instrucciones técnicas, errores comunes, variantes y fundamentos biomecánicos de cada ejercicio. No videos de ego. Información que transforma tu técnica.
           </p>
 
@@ -78,7 +79,7 @@ export default function EjerciciosPage() {
             ].map((s) => (
               <div key={s.label}>
                 <p className="font-black text-2xl text-white tabular-nums">{s.value}</p>
-                <p className="text-[11px] uppercase tracking-widest text-white/25">{s.label}</p>
+                <p className="text-[11px] uppercase tracking-widest text-white/50">{s.label}</p>
               </div>
             ))}
           </div>
@@ -92,7 +93,7 @@ export default function EjerciciosPage() {
             <div className="flex items-center gap-4 mb-6">
               <h2 className="font-black text-lg text-white">{muscleLabelMap[muscle]}</h2>
               <div className="h-px flex-1 bg-white/[0.06]" />
-              <span className="text-xs text-white/20">{exs.length} ejercicios</span>
+              <span className="text-xs text-white/50">{exs.length} ejercicios</span>
             </div>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -107,7 +108,7 @@ export default function EjerciciosPage() {
                       {e.nombre}
                     </h3>
                     <svg
-                      className="w-4 h-4 text-white/15 group-hover:text-white/40 flex-shrink-0 mt-0.5 transition-colors"
+                      className="w-4 h-4 text-white/50 group-hover:text-white/90 flex-shrink-0 mt-0.5 transition-colors"
                       fill="none"
                       stroke="currentColor"
                       strokeWidth={2}
@@ -117,7 +118,7 @@ export default function EjerciciosPage() {
                     </svg>
                   </div>
                   {e.nombreIngles && (
-                    <p className="text-[11px] text-white/20">{e.nombreIngles}</p>
+                    <p className="text-[11px] text-white/50">{e.nombreIngles}</p>
                   )}
                   <div className="flex flex-wrap gap-1.5 mt-auto">
                     <span className={`inline-flex px-2 py-0.5 rounded-full border text-[10px] font-semibold ${levelColors[e.nivel]}`}>
@@ -127,7 +128,7 @@ export default function EjerciciosPage() {
                       {e.tipo}
                     </span>
                     {e.equipo.slice(0, 2).map((eq) => (
-                      <span key={eq} className="inline-flex px-2 py-0.5 rounded-full border border-white/[0.08] text-[10px] text-white/30">
+                      <span key={eq} className="inline-flex px-2 py-0.5 rounded-full border border-white/[0.08] text-[10px] text-white/55">
                         {eq}
                       </span>
                     ))}
@@ -141,11 +142,11 @@ export default function EjerciciosPage() {
 
       {/* CTA */}
       <section className="border-t border-white/[0.05] py-16 px-6 text-center">
-        <p className="text-white/20 text-xs tracking-widest uppercase mb-4">Próximamente</p>
+        <p className="text-white/50 text-xs tracking-widest uppercase mb-4">Próximamente</p>
         <h2 className="font-black text-2xl text-white mb-3">
           La biblioteca crece cada semana.
         </h2>
-        <p className="text-white/30 text-sm max-w-md mx-auto mb-8">
+        <p className="text-white/55 text-sm max-w-md mx-auto mb-8">
           Nuevos ejercicios, filtros avanzados por equipamiento y programa, y videos demostrativos están en camino.
         </p>
         <Link
@@ -153,9 +154,7 @@ export default function EjerciciosPage() {
           className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-orange-500 hover:bg-orange-400 text-white font-bold text-sm transition-all"
         >
           Encontrar mi programa
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-          </svg>
+          <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
         </Link>
       </section>
     </main>

@@ -22,7 +22,7 @@ function Field({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/30">
+      <label className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/55">
         {label}
       </label>
       <div className="flex rounded-xl border border-white/[0.08] bg-white/[0.03] overflow-hidden focus-within:border-orange-500/40">
@@ -36,7 +36,7 @@ function Field({
           className="flex-1 bg-transparent px-4 py-3 text-white text-sm outline-none tabular-nums"
         />
         {unit && (
-          <span className="flex items-center px-4 text-xs text-white/25 border-l border-white/[0.06] select-none">
+          <span className="flex items-center px-4 text-xs text-white/50 border-l border-white/[0.06] select-none">
             {unit}
           </span>
         )}
@@ -58,7 +58,7 @@ function Select({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/30">
+      <label className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/55">
         {label}
       </label>
       <select
@@ -97,14 +97,14 @@ function ResultBox({
           : "border-white/[0.07] bg-white/[0.02]"
       }`}
     >
-      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/30 mb-1">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/55 mb-1">
         {label}
       </p>
       <p className={`font-black text-2xl tabular-nums ${accent ? "text-orange-400" : "text-white"}`}>
         {value}
-        {unit && <span className="text-base font-semibold text-white/30 ml-1">{unit}</span>}
+        {unit && <span className="text-base font-semibold text-white/55 ml-1">{unit}</span>}
       </p>
-      {sub && <p className="text-xs text-white/25 mt-1">{sub}</p>}
+      {sub && <p className="text-xs text-white/50 mt-1">{sub}</p>}
     </div>
   );
 }
@@ -128,7 +128,7 @@ function Calc1RM() {
   return (
     <div className="grid md:grid-cols-2 gap-8">
       <div className="space-y-4">
-        <p className="text-xs text-white/30 leading-relaxed">
+        <p className="text-xs text-white/55 leading-relaxed">
           Promedio de Brzycki y Epley. Más preciso entre 1–10 repeticiones.
         </p>
         <div className="flex gap-3">
@@ -139,7 +139,7 @@ function Calc1RM() {
               className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${
                 unit === u
                   ? "bg-orange-500/15 border border-orange-500/30 text-orange-400"
-                  : "border border-white/[0.07] text-white/30 hover:text-white/50"
+                  : "border border-white/[0.07] text-white/55 hover:text-white/90"
               }`}
             >
               {u.toUpperCase()}
@@ -152,16 +152,16 @@ function Calc1RM() {
       </div>
 
       <div>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/30 mb-3">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/55 mb-3">
           Tabla de porcentajes
         </p>
         <div className="rounded-2xl border border-white/[0.07] overflow-hidden">
           <table className="w-full text-sm tabular-nums">
             <thead>
               <tr className="border-b border-white/[0.06]">
-                <th className="px-4 py-2.5 text-left text-[10px] uppercase tracking-widest text-white/25 font-semibold">%1RM</th>
-                <th className="px-4 py-2.5 text-left text-[10px] uppercase tracking-widest text-white/25 font-semibold">{unit}</th>
-                <th className="px-4 py-2.5 text-left text-[10px] uppercase tracking-widest text-white/25 font-semibold">Reps aprox.</th>
+                <th className="px-4 py-2.5 text-left text-[10px] uppercase tracking-widest text-white/50 font-semibold">%1RM</th>
+                <th className="px-4 py-2.5 text-left text-[10px] uppercase tracking-widest text-white/50 font-semibold">{unit}</th>
+                <th className="px-4 py-2.5 text-left text-[10px] uppercase tracking-widest text-white/50 font-semibold">Reps aprox.</th>
               </tr>
             </thead>
             <tbody>
@@ -169,7 +169,7 @@ function Calc1RM() {
                 <tr key={row.pct} className={`border-b border-white/[0.04] ${i === 0 ? "bg-orange-500/[0.05]" : "hover:bg-white/[0.02]"}`}>
                   <td className={`px-4 py-2.5 font-bold ${i === 0 ? "text-orange-400" : "text-white/60"}`}>{row.pct}%</td>
                   <td className="px-4 py-2.5 text-white">{row.kg}</td>
-                  <td className="px-4 py-2.5 text-white/40">{row.reps}</td>
+                  <td className="px-4 py-2.5 text-white/60">{row.reps}</td>
                 </tr>
               ))}
             </tbody>
@@ -213,7 +213,7 @@ function CalcTDEE() {
   return (
     <div className="grid md:grid-cols-2 gap-8">
       <div className="space-y-4">
-        <p className="text-xs text-white/30 leading-relaxed">
+        <p className="text-xs text-white/55 leading-relaxed">
           Mifflin-St Jeor × factor de actividad. La fórmula más validada para población general.
         </p>
         <div className="flex gap-3">
@@ -224,7 +224,7 @@ function CalcTDEE() {
               className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${
                 sex === s
                   ? "bg-orange-500/15 border border-orange-500/30 text-orange-400"
-                  : "border border-white/[0.07] text-white/30 hover:text-white/50"
+                  : "border border-white/[0.07] text-white/55 hover:text-white/90"
               }`}
             >
               {s === "m" ? "Hombre" : "Mujer"}
@@ -238,7 +238,7 @@ function CalcTDEE() {
         <ResultBox label="Tu TDEE" value={tdee.toLocaleString()} unit="kcal/día" accent sub={`TMB: ${Math.round(bmr)} kcal`} />
       </div>
       <div className="space-y-3">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/30 mb-3">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/55 mb-3">
           Objetivos calóricos
         </p>
         {goals.map((g) => (
@@ -252,7 +252,7 @@ function CalcTDEE() {
               <span className={`text-sm font-semibold ${g.accent ? "text-orange-400" : "text-white/60"}`}>{g.label}</span>
               <span className={`font-black tabular-nums ${g.accent ? "text-orange-400" : "text-white"}`}>{g.cal.toLocaleString()}</span>
             </div>
-            <p className="text-xs text-white/25 mt-0.5">{g.note}</p>
+            <p className="text-xs text-white/50 mt-0.5">{g.note}</p>
           </div>
         ))}
       </div>
@@ -283,14 +283,14 @@ function CalcIMC() {
   return (
     <div className="grid md:grid-cols-2 gap-8">
       <div className="space-y-4">
-        <p className="text-xs text-white/30 leading-relaxed">
+        <p className="text-xs text-white/55 leading-relaxed">
           El IMC es un indicador de referencia, no un diagnóstico. Atletas con alta masa muscular tendrán valores elevados sin exceso de grasa.
         </p>
         <Field label="Peso" unit="kg" value={weight} onChange={setWeight} min={30} max={300} />
         <Field label="Altura" unit="cm" value={height} onChange={setHeight} min={100} max={250} />
 
         <div className="rounded-2xl border border-orange-500/25 bg-orange-500/[0.06] p-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/30 mb-1">Tu IMC</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/55 mb-1">Tu IMC</p>
           <p className="font-black text-4xl tabular-nums text-orange-400 mb-1">{imcR}</p>
           <p className={`text-sm font-bold ${cat.color}`}>{cat.label}</p>
         </div>
@@ -303,14 +303,14 @@ function CalcIMC() {
               style={{ width: `${pct}%` }}
             />
           </div>
-          <div className="flex justify-between text-[10px] text-white/20 mt-1 tabular-nums">
+          <div className="flex justify-between text-[10px] text-white/50 mt-1 tabular-nums">
             <span>10</span><span>18.5</span><span>25</span><span>30</span><span>40+</span>
           </div>
         </div>
       </div>
 
       <div>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/30 mb-3">Categorías OMS</p>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/55 mb-3">Categorías OMS</p>
         <div className="space-y-2">
           {categories.map((c) => (
             <div
@@ -323,9 +323,9 @@ function CalcIMC() {
             >
               <div className="flex items-center gap-3">
                 <div className={`w-2 h-2 rounded-full ${c.color.replace("text-", "bg-")}`} />
-                <span className={`text-sm ${cat.label === c.label ? "text-white font-bold" : "text-white/40"}`}>{c.label}</span>
+                <span className={`text-sm ${cat.label === c.label ? "text-white font-bold" : "text-white/60"}`}>{c.label}</span>
               </div>
-              <span className="text-xs text-white/25 tabular-nums">
+              <span className="text-xs text-white/50 tabular-nums">
                 {c.max < 999 ? `${c.min} – ${c.max}` : `≥ ${c.min}`}
               </span>
             </div>
@@ -371,7 +371,7 @@ function CalcMacros() {
   return (
     <div className="grid md:grid-cols-2 gap-8">
       <div className="space-y-4">
-        <p className="text-xs text-white/30 leading-relaxed">
+        <p className="text-xs text-white/55 leading-relaxed">
           Distribución de macronutrientes según objetivo. La proteína se ajusta por kg de peso corporal.
         </p>
         <Field label="Calorías totales" unit="kcal" value={calories} onChange={setCalories} min={800} max={6000} step={50} />
@@ -383,7 +383,7 @@ function CalcMacros() {
             <ResultBox key={b.label} label={b.label} value={b.g} unit="g" sub={`${b.pct}%`} />
           ))}
         </div>
-        <div className="text-xs text-white/30 p-3 rounded-xl border border-white/[0.05] bg-white/[0.02]">
+        <div className="text-xs text-white/55 p-3 rounded-xl border border-white/[0.05] bg-white/[0.02]">
           Proteína: <span className="text-white/60 font-bold">{protKg} g/kg</span> de peso corporal
           {protKg < 1.6 && " — considera aumentar calorías totales para mayor síntesis muscular"}
           {protKg >= 2.5 && " — nivel muy alto, considera redistribuir hacia carbohidratos"}
@@ -391,7 +391,7 @@ function CalcMacros() {
       </div>
 
       <div className="space-y-4">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/30">Distribución visual</p>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/55">Distribución visual</p>
         <div className="space-y-3">
           {bars.map((b) => (
             <div key={b.label}>
@@ -405,24 +405,24 @@ function CalcMacros() {
                   style={{ width: `${b.pct}%` }}
                 />
               </div>
-              <p className="text-right text-[10px] text-white/20 mt-0.5">{b.pct}%</p>
+              <p className="text-right text-[10px] text-white/50 mt-0.5">{b.pct}%</p>
             </div>
           ))}
         </div>
 
         <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-4 mt-4">
-          <p className="text-[11px] text-white/20 uppercase tracking-widest mb-3">Verificación calórica</p>
+          <p className="text-[11px] text-white/50 uppercase tracking-widest mb-3">Verificación calórica</p>
           <div className="space-y-1.5 text-sm tabular-nums">
             <div className="flex justify-between">
-              <span className="text-white/40">Proteína ({protG}g × 4)</span>
+              <span className="text-white/60">Proteína ({protG}g × 4)</span>
               <span className="text-white">{protG * 4} kcal</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-white/40">Carbohidratos ({carbG}g × 4)</span>
+              <span className="text-white/60">Carbohidratos ({carbG}g × 4)</span>
               <span className="text-white">{carbG * 4} kcal</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-white/40">Grasa ({fatG}g × 9)</span>
+              <span className="text-white/60">Grasa ({fatG}g × 9)</span>
               <span className="text-white">{fatG * 9} kcal</span>
             </div>
             <div className="flex justify-between border-t border-white/[0.06] pt-1.5 font-bold">
@@ -455,7 +455,7 @@ function CalcFC() {
   return (
     <div className="grid md:grid-cols-2 gap-8">
       <div className="space-y-4">
-        <p className="text-xs text-white/30 leading-relaxed">
+        <p className="text-xs text-white/55 leading-relaxed">
           Fórmula de Karvonen (frecuencia cardíaca de reserva). Más precisa que el método de % simple porque incorpora la FC en reposo.
         </p>
         <Field label="Edad" unit="años" value={age} onChange={setAge} min={15} max={99} />
@@ -464,13 +464,13 @@ function CalcFC() {
           <ResultBox label="FC Máxima" value={maxHR} unit="bpm" accent />
           <ResultBox label="FC Reserva" value={hrr} unit="bpm" />
         </div>
-        <p className="text-[10px] text-white/20 leading-relaxed">
+        <p className="text-[10px] text-white/50 leading-relaxed">
           Mide tu FC en reposo por la mañana antes de levantarte, durante al menos 3 días, y promedia los valores.
         </p>
       </div>
 
       <div>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/30 mb-3">Zonas de entrenamiento</p>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/55 mb-3">Zonas de entrenamiento</p>
         <div className="space-y-2">
           {zones.map((z) => {
             const low = Math.round(z.karvonen[0] * hrr + restHR);
@@ -481,13 +481,13 @@ function CalcFC() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className={`text-xs font-bold ${z.textColor}`}>{z.name}</span>
-                    <span className="text-xs text-white/25">{z.label}</span>
+                    <span className="text-xs text-white/50">{z.label}</span>
                   </div>
-                  <p className="text-white/30 text-[10px] mt-0.5">{z.pct} FC máx · Karvonen</p>
+                  <p className="text-white/55 text-[10px] mt-0.5">{z.pct} FC máx · Karvonen</p>
                 </div>
                 <div className="text-right">
                   <p className="text-white font-black text-sm tabular-nums">{low}–{high}</p>
-                  <p className="text-white/20 text-[10px]">bpm</p>
+                  <p className="text-white/50 text-[10px]">bpm</p>
                 </div>
               </div>
             );
@@ -532,12 +532,12 @@ function CalcVolumen() {
   return (
     <div>
       <div className="flex items-start justify-between mb-6 gap-4 flex-wrap">
-        <p className="text-xs text-white/30 leading-relaxed max-w-lg">
+        <p className="text-xs text-white/55 leading-relaxed max-w-lg">
           Basado en MEV (Volumen Mínimo Efectivo) y MRV (Volumen Máximo Recuperable) según Israetel et al., 2019.
           Ajusta las series directas semanales por grupo muscular.
         </p>
         <div className="rounded-xl border border-orange-500/20 bg-orange-500/[0.06] px-4 py-2 text-right flex-shrink-0">
-          <p className="text-[10px] text-white/30 uppercase tracking-widest">Total semanal</p>
+          <p className="text-[10px] text-white/55 uppercase tracking-widest">Total semanal</p>
           <p className="text-orange-400 font-black text-xl tabular-nums">{totalSets} series</p>
         </div>
       </div>
@@ -554,14 +554,14 @@ function CalcVolumen() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => update(g.id, v - 1)}
-                    className="w-6 h-6 rounded-md border border-white/[0.1] text-white/40 hover:text-white hover:border-white/20 text-sm font-bold transition-all"
+                    className="w-6 h-6 rounded-md border border-white/[0.1] text-white/60 hover:text-white hover:border-white/20 text-sm font-bold transition-all"
                   >
                     −
                   </button>
                   <span className="text-white font-black text-base tabular-nums w-6 text-center">{v}</span>
                   <button
                     onClick={() => update(g.id, v + 1)}
-                    className="w-6 h-6 rounded-md border border-white/[0.1] text-white/40 hover:text-white hover:border-white/20 text-sm font-bold transition-all"
+                    className="w-6 h-6 rounded-md border border-white/[0.1] text-white/60 hover:text-white hover:border-white/20 text-sm font-bold transition-all"
                   >
                     +
                   </button>
@@ -575,7 +575,7 @@ function CalcVolumen() {
               </div>
               <div className="flex items-center justify-between text-[10px]">
                 <span className={`font-semibold ${s.color}`}>{s.label}</span>
-                <span className="text-white/20">MEV {g.mev} · MRV {g.mrv}</span>
+                <span className="text-white/50">MEV {g.mev} · MRV {g.mrv}</span>
               </div>
             </div>
           );
@@ -609,7 +609,7 @@ export default function CalculadorasClient() {
             className={`flex-shrink-0 flex flex-col items-center gap-0.5 px-5 py-3.5 rounded-2xl border text-xs font-bold transition-all ${
               active === t.id
                 ? "border-orange-500/30 bg-orange-500/[0.08] text-orange-400"
-                : "border-white/[0.07] bg-white/[0.02] text-white/40 hover:text-white/60 hover:border-white/10"
+                : "border-white/[0.07] bg-white/[0.02] text-white/60 hover:text-white/90 hover:border-white/10"
             }`}
           >
             <span className="text-lg leading-none">{t.icon}</span>
@@ -625,7 +625,7 @@ export default function CalculadorasClient() {
           <h2 className="font-black text-xl text-white">
             {tabs.find((t) => t.id === active)?.label}
           </h2>
-          <p className="text-xs text-white/30 mt-1">
+          <p className="text-xs text-white/55 mt-1">
             {tabs.find((t) => t.id === active)?.sub}
           </p>
         </div>
@@ -639,7 +639,7 @@ export default function CalculadorasClient() {
       </div>
 
       {/* Footer note */}
-      <p className="text-center text-[11px] text-white/15 mt-6 leading-relaxed max-w-lg mx-auto">
+      <p className="text-center text-[11px] text-white/50 mt-6 leading-relaxed max-w-lg mx-auto">
         Las calculadoras producen estimaciones basadas en fórmulas validadas por la literatura científica.
         No reemplazan la evaluación individual ni el asesoramiento profesional.
       </p>

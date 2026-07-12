@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import ScrollReveal from "@/components/ScrollReveal";
 import SectionLabel from "@/components/layout/SectionLabel";
+import { ArrowRight, Close } from "@/components/ui/icons";
+import Button from "@/components/ui/Button";
 
 export const metadata: Metadata = {
   title: "The Brey Performance System — La Metodología",
@@ -87,21 +88,13 @@ export default function BPSPage() {
           </p>
 
           <div className="flex flex-wrap gap-4">
-            <Link
-              href="/quiz"
-              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-orange-500 hover:bg-orange-400 text-white font-bold text-sm transition-all duration-200"
-            >
+            <Button href="/quiz" size="md" className="px-7 py-3.5">
               Encontrar mi programa
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-              </svg>
-            </Link>
-            <Link
-              href="/programas"
-              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full border border-white/[0.12] text-white/60 hover:text-white hover:border-white/20 font-bold text-sm transition-all duration-200"
-            >
+              <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
+            </Button>
+            <Button href="/programas" variant="outline" size="md" className="px-7 py-3.5">
               Ver los 5 ecosistemas
-            </Link>
+            </Button>
           </div>
         </div>
       </section>
@@ -114,12 +107,12 @@ export default function BPSPage() {
               <SectionLabel>El problema</SectionLabel>
               <h2 className="font-black text-3xl sm:text-4xl text-white leading-snug mb-6 -mt-8">
                 La mayoría no entrena mal.<br />
-                <span className="text-white/40">Entrena sin sistema.</span>
+                <span className="text-white/60">Entrena sin sistema.</span>
               </h2>
-              <p className="text-white/45 leading-relaxed mb-4">
+              <p className="text-white/60 leading-relaxed mb-4">
                 El problema no es la falta de esfuerzo. El problema es la ausencia de una arquitectura que conecte el entrenamiento de hoy con el rendimiento de mañana.
               </p>
-              <p className="text-white/45 leading-relaxed">
+              <p className="text-white/60 leading-relaxed">
                 Rutinas aleatorias de internet, cambios de programa cada mes, volumen sin control y nutrición improvisada producen fatiga acumulada sin adaptación real. El cuerpo trabaja, pero no progresa.
               </p>
             </div>
@@ -133,9 +126,7 @@ export default function BPSPage() {
                 "Cardio que interfiere con la ganancia muscular",
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-3 p-4 rounded-xl border border-red-500/10 bg-red-500/[0.04]">
-                  <svg className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+                  <Close className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" strokeWidth={2.5} />
                   <span className="text-sm text-white/50">{item}</span>
                 </div>
               ))}
@@ -165,7 +156,7 @@ export default function BPSPage() {
                     </h3>
                   </div>
                   <div className="flex-1 pt-1">
-                    <p className="text-white/45 leading-relaxed text-sm mb-4">{p.body}</p>
+                    <p className="text-white/60 leading-relaxed text-sm mb-4">{p.body}</p>
                     <p className="text-[10px] font-semibold tracking-[0.15em] uppercase text-orange-400/40">
                       {p.science}
                     </p>
@@ -194,7 +185,7 @@ export default function BPSPage() {
                   <span className="text-xs font-black text-orange-400">{s.step}</span>
                 </div>
                 <h3 className="font-black text-white text-sm mb-3">{s.title}</h3>
-                <p className="text-white/35 text-xs leading-relaxed flex-1">{s.body}</p>
+                <p className="text-white/55 text-xs leading-relaxed flex-1">{s.body}</p>
               </div>
             </ScrollReveal>
           ))}
@@ -207,23 +198,18 @@ export default function BPSPage() {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-orange-600/6 blur-[120px] rounded-full" />
         </div>
         <div className="relative max-w-2xl mx-auto">
-          <p className="text-white/20 text-xs tracking-widest uppercase mb-6">Siguiente paso</p>
+          <p className="text-white/50 text-xs tracking-widest uppercase mb-6">Siguiente paso</p>
           <h2 className="font-black text-4xl sm:text-5xl text-white mb-6">
             Encuentra tu ecosistema.
           </h2>
-          <p className="text-white/35 mb-10 max-w-lg mx-auto leading-relaxed">
+          <p className="text-white/55 mb-10 max-w-lg mx-auto leading-relaxed">
             El quiz de 2 minutos analiza tu objetivo, nivel y equipo disponible para recomendarte el programa exacto del Brey Performance System.
           </p>
-          <Link
-            href="/quiz"
-            className="inline-flex items-center gap-2 px-9 py-4 rounded-full bg-orange-500 hover:bg-orange-400 text-white font-bold text-sm transition-all duration-200"
-          >
+          <Button href="/quiz" size="lg" className="px-9 text-sm">
             Tomar el quiz gratuito
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-            </svg>
-          </Link>
-          <p className="text-white/15 text-xs mt-4 tracking-wider uppercase">2 minutos · Sin registro · Gratis</p>
+            <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
+          </Button>
+          <p className="text-white/50 text-xs mt-4 tracking-wider uppercase">2 minutos · Sin registro · Gratis</p>
         </div>
       </section>
 

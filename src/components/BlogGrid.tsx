@@ -34,7 +34,7 @@ export default function BlogGrid() {
             className={`px-5 py-2 rounded-xl text-sm font-medium border transition-all duration-500 ${
               active === cat
                 ? "bg-white/[0.09] border-white/[0.18] text-white"
-                : "border-white/[0.06] text-white/30 hover:bg-white/[0.04] hover:border-white/[0.12] hover:text-white/60"
+                : "border-white/[0.06] text-white/55 hover:bg-white/[0.04] hover:border-white/[0.12] hover:text-white/90"
             }`}
           >
             {cat}
@@ -67,11 +67,11 @@ export default function BlogGrid() {
                 <h2 className="font-black text-base text-white group-hover:text-orange-400 transition-colors duration-300 leading-snug mb-2">
                   {post.title}
                 </h2>
-                <p className="text-white/30 text-sm leading-relaxed line-clamp-2">{post.excerpt}</p>
+                <p className="text-white/55 text-sm leading-relaxed line-clamp-2">{post.excerpt}</p>
               </div>
 
               {/* Footer */}
-              <div className="flex items-center gap-3 mt-6 text-xs text-white/20">
+              <div className="flex items-center gap-3 mt-6 text-xs text-white/50">
                 <span>{post.date}</span>
                 <span>·</span>
                 <span>{post.readTime}</span>
@@ -82,7 +82,7 @@ export default function BlogGrid() {
       </div>
 
       {filtered.length === 0 && (
-        <p className="text-white/20 text-center py-20">
+        <p className="text-white/50 text-center py-20">
           No hay artículos en esta categoría todavía.
         </p>
       )}

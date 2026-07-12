@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { programas } from "@/data/programs";
+import { ArrowRight, Check } from "@/components/ui/icons";
 
 export const metadata: Metadata = {
   title: "Programas — 5 Ecosistemas de Entrenamiento",
@@ -8,13 +9,6 @@ export const metadata: Metadata = {
     "Elige el ecosistema que corresponde a tu nivel, objetivo y equipo disponible. Cada programa es un sistema completo basado en el Brey Performance System.",
 };
 
-function Check() {
-  return (
-    <svg className="w-4 h-4 text-lime-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-    </svg>
-  );
-}
 
 const nivelLabel: Record<string, string> = {
   principiante: 'Principiante',
@@ -46,7 +40,7 @@ export default function ProgramasPage() {
         <div aria-hidden className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-orange-600/6 blur-[100px] rounded-full" />
         </div>
-        <p className="text-[11px] font-semibold tracking-[0.25em] uppercase text-white/25 mb-5">
+        <p className="text-[11px] font-semibold tracking-[0.25em] uppercase text-white/50 mb-5">
           The Brey Performance System
         </p>
         <h1 className="font-black text-4xl sm:text-5xl md:text-6xl text-white leading-[1.1] tracking-tight mb-5">
@@ -55,7 +49,7 @@ export default function ProgramasPage() {
             Un solo método.
           </span>
         </h1>
-        <p className="text-white/40 text-lg max-w-xl mx-auto leading-relaxed mb-12">
+        <p className="text-white/60 text-lg max-w-xl mx-auto leading-relaxed mb-12">
           Cada programa es un sistema completo — no una colección de rutinas. Elige el que corresponde exactamente a tu nivel, objetivo y equipo disponible.
         </p>
 
@@ -63,7 +57,7 @@ export default function ProgramasPage() {
         <div className="max-w-lg mx-auto rounded-2xl border border-orange-500/20 bg-orange-500/[0.06] p-6 flex flex-col sm:flex-row items-center gap-5">
           <div className="text-left flex-1">
             <p className="font-bold text-white text-sm mb-1">¿No sabes cuál elegir?</p>
-            <p className="text-white/40 text-xs leading-relaxed">
+            <p className="text-white/60 text-xs leading-relaxed">
               El quiz analiza tu objetivo, nivel y equipo disponible en 2 minutos.
             </p>
           </div>
@@ -99,7 +93,7 @@ export default function ProgramasPage() {
                   <h2 className="font-black text-lg text-white group-hover:text-orange-400 transition-colors duration-300 leading-snug">
                     {p.nombre}
                   </h2>
-                  <p className="text-white/35 text-xs leading-relaxed mt-1.5 line-clamp-2">
+                  <p className="text-white/55 text-xs leading-relaxed mt-1.5 line-clamp-2">
                     {p.tagline}
                   </p>
                 </div>
@@ -107,8 +101,8 @@ export default function ProgramasPage() {
                 <ul className="flex flex-col gap-1.5">
                   {p.incluye.slice(0, 3).map((item) => (
                     <li key={item} className="flex items-start gap-2">
-                      <Check />
-                      <span className="text-[11px] text-white/40 leading-relaxed">{item}</span>
+                      <Check className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                      <span className="text-[11px] text-white/60 leading-relaxed">{item}</span>
                     </li>
                   ))}
                 </ul>
@@ -116,13 +110,11 @@ export default function ProgramasPage() {
                 <div className="mt-auto pt-4 border-t border-white/[0.06] flex items-center justify-between">
                   <div>
                     <span className="font-black text-lg text-white">{p.precioFormato}</span>
-                    <span className="text-white/20 text-xs ml-1">· {p.duracion}</span>
+                    <span className="text-white/50 text-xs ml-1">· {p.duracion}</span>
                   </div>
-                  <span className="text-xs font-bold text-white/40 group-hover:text-orange-400 flex items-center gap-1 transition-colors duration-300">
+                  <span className="text-xs font-bold text-white/60 group-hover:text-orange-400 flex items-center gap-1 transition-colors duration-300">
                     Ver programa
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                    </svg>
+                    <ArrowRight className="w-3.5 h-3.5" strokeWidth={2.5} />
                   </span>
                 </div>
               </div>
@@ -134,7 +126,7 @@ export default function ProgramasPage() {
       {/* ── Comparison table ── */}
       <section className="max-w-6xl mx-auto px-4 md:px-6 pb-24">
         <div className="text-center mb-12">
-          <p className="text-[11px] font-semibold tracking-[0.25em] uppercase text-white/25 mb-4">Comparativa</p>
+          <p className="text-[11px] font-semibold tracking-[0.25em] uppercase text-white/50 mb-4">Comparativa</p>
           <h2 className="font-black text-3xl sm:text-4xl text-white">¿Qué incluye cada sistema?</h2>
         </div>
 
@@ -142,7 +134,7 @@ export default function ProgramasPage() {
           <table className="w-full text-sm border-collapse min-w-[640px]">
             <thead>
               <tr className="border-b border-white/[0.07]">
-                <th className="text-left p-4 text-white/25 text-[11px] font-bold tracking-[0.12em] uppercase w-2/5">
+                <th className="text-left p-4 text-white/50 text-[11px] font-bold tracking-[0.12em] uppercase w-2/5">
                   Función
                 </th>
                 {programas.map((p) => (
@@ -163,9 +155,7 @@ export default function ProgramasPage() {
                     {values.map((v, vi) => (
                       <td key={vi} className="p-3 text-center">
                         {v ? (
-                          <svg className="w-4 h-4 text-lime-400 mx-auto" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                          </svg>
+                          <Check className="w-4 h-4 text-emerald-400 mx-auto" strokeWidth={2.5} />
                         ) : (
                           <div className="w-4 h-px bg-white/10 mx-auto" />
                         )}
@@ -181,11 +171,11 @@ export default function ProgramasPage() {
 
       {/* ── Bottom CTA ── */}
       <section className="border-t border-white/[0.05] py-20 px-6 text-center">
-        <p className="text-white/20 text-xs tracking-widest uppercase mb-6">¿Listo para empezar?</p>
+        <p className="text-white/50 text-xs tracking-widest uppercase mb-6">¿Listo para empezar?</p>
         <h2 className="font-black text-3xl sm:text-4xl text-white mb-4">
           Encuentra tu programa en 2 minutos.
         </h2>
-        <p className="text-white/35 max-w-md mx-auto mb-10">
+        <p className="text-white/55 max-w-md mx-auto mb-10">
           El quiz analiza tu objetivo, nivel, equipo y disponibilidad para recomendarte el ecosistema exacto.
         </p>
         <Link
@@ -193,11 +183,9 @@ export default function ProgramasPage() {
           className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-orange-500 hover:bg-orange-400 text-white font-bold text-sm transition-all duration-200"
         >
           Tomar el quiz gratuito
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-          </svg>
+          <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
         </Link>
-        <p className="text-white/15 text-xs mt-4 tracking-wider uppercase">2 minutos · Sin registro · Gratis</p>
+        <p className="text-white/50 text-xs mt-4 tracking-wider uppercase">2 minutos · Sin registro · Gratis</p>
       </section>
 
     </main>

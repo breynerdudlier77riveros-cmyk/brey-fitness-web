@@ -39,7 +39,7 @@ export default function Footer() {
             <p className="font-black text-white text-base mb-1">
               Entrena con ciencia, no con ruido.
             </p>
-            <p className="text-white/30 text-xs leading-relaxed max-w-sm">
+            <p className="text-white/55 text-xs leading-relaxed max-w-sm">
               Un email por semana con lo mejor de la evidencia aplicada al entrenamiento.
             </p>
           </div>
@@ -58,10 +58,10 @@ export default function Footer() {
               <span className="text-orange-400">Brey</span>
               <span className="text-white"> Fitness</span>
             </Link>
-            <p className="text-white/20 text-xs mt-4 leading-relaxed max-w-[200px]">
+            <p className="text-white/50 text-xs mt-4 leading-relaxed max-w-[200px]">
               El sistema de entrenamiento basado en evidencia para el atleta hispanohablante.
             </p>
-            <p className="text-white/10 text-[10px] mt-6 tracking-[0.15em] uppercase font-medium">
+            <p className="text-white/40 text-[10px] mt-6 tracking-[0.15em] uppercase font-medium">
               The Brey Performance System
             </p>
           </div>
@@ -69,7 +69,7 @@ export default function Footer() {
           {/* Link columns */}
           {(Object.entries(sections) as [string, readonly { href: string; label: string }[]][]).map(([section, links]) => (
             <div key={section}>
-              <p className="text-[10px] font-bold tracking-[0.18em] uppercase text-white/20 mb-5">
+              <p className="text-[10px] font-bold tracking-[0.18em] uppercase text-white/50 mb-5">
                 {section}
               </p>
               <ul className="flex flex-col gap-3">
@@ -77,7 +77,7 @@ export default function Footer() {
                   <li key={href}>
                     <Link
                       href={href}
-                      className="text-xs text-white/35 hover:text-white/70 transition-colors duration-200"
+                      className="text-xs text-white/55 hover:text-white/90 transition-colors duration-200"
                     >
                       {label}
                     </Link>
@@ -89,7 +89,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-white/[0.05] pt-6 flex items-center justify-between flex-wrap gap-4">
-          <p className="text-[10px] text-white/15 tracking-widest uppercase">
+          <p className="text-[10px] text-white/50 tracking-widest uppercase">
             © {new Date().getFullYear()} Brey Fitness · Todos los derechos reservados
           </p>
           <div className="flex items-center gap-5">
@@ -97,7 +97,7 @@ export default function Footer() {
               <Link
                 key={href}
                 href={href}
-                className="text-[10px] text-white/15 hover:text-white/50 tracking-widest uppercase transition-colors"
+                className="text-[10px] text-white/50 hover:text-white/90 tracking-widest uppercase transition-colors"
               >
                 {label}
               </Link>

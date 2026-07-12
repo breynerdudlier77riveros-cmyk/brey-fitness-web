@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { testimonios } from "@/data/testimonials";
 import SectionLabel from "@/components/layout/SectionLabel";
+import { ArrowRight } from "@/components/ui/icons";
 
 function Stars({ n }: { n: number }) {
   return (
@@ -10,7 +11,7 @@ function Stars({ n }: { n: number }) {
       {[1, 2, 3, 4, 5].map((i) => (
         <svg
           key={i}
-          className={`w-4 h-4 ${i <= n ? "text-orange-400" : "text-white/10"}`}
+          className={`w-4 h-4 ${i <= n ? "text-orange-400" : "text-white/40"}`}
           fill="currentColor"
           viewBox="0 0 20 20"
         >
@@ -60,12 +61,12 @@ export default function TestimonialsSlider() {
 
               <div>
                 <p className="font-black text-white text-base">{t.nombre}</p>
-                <p className="text-white/30 text-xs mt-0.5">{t.programa}</p>
+                <p className="text-white/55 text-xs mt-0.5">{t.programa}</p>
               </div>
 
               <div className="flex flex-col gap-2">
                 <Stars n={t.estrellas} />
-                <span className="inline-block px-3 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase border border-lime-500/20 bg-lime-500/[0.07] text-lime-400">
+                <span className="inline-block px-3 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase border border-orange-500/20 bg-orange-500/[0.07] text-orange-400">
                   {t.objetivo}
                 </span>
               </div>
@@ -108,7 +109,7 @@ export default function TestimonialsSlider() {
             <div className="flex gap-2">
               <button
                 onClick={prev}
-                className="w-10 h-10 rounded-full border border-white/[0.08] bg-white/[0.03] flex items-center justify-center text-white/40 hover:text-white hover:border-white/20 hover:bg-white/[0.06] transition-all duration-200 cursor-pointer"
+                className="w-10 h-10 rounded-full border border-white/[0.08] bg-white/[0.03] flex items-center justify-center text-white/60 hover:text-white hover:border-white/20 hover:bg-white/[0.06] transition-all duration-200 cursor-pointer"
                 aria-label="Anterior"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -117,12 +118,10 @@ export default function TestimonialsSlider() {
               </button>
               <button
                 onClick={next}
-                className="w-10 h-10 rounded-full border border-white/[0.08] bg-white/[0.03] flex items-center justify-center text-white/40 hover:text-white hover:border-white/20 hover:bg-white/[0.06] transition-all duration-200 cursor-pointer"
+                className="w-10 h-10 rounded-full border border-white/[0.08] bg-white/[0.03] flex items-center justify-center text-white/60 hover:text-white hover:border-white/20 hover:bg-white/[0.06] transition-all duration-200 cursor-pointer"
                 aria-label="Siguiente"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                </svg>
+                <ArrowRight className="w-4 h-4" strokeWidth={2} />
               </button>
             </div>
           </div>
