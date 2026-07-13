@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/brand/Tabs";
 
 /* ─── shared input ─────────────────────────────────────── */
 function Field({
@@ -599,25 +600,17 @@ export default function CalculadorasClient() {
   const [active, setActive] = useState("1rm");
 
   return (
-    <div className="max-w-5xl mx-auto px-6 pb-24">
+    <Tabs value={active} onValueChange={setActive} className="gap-0 max-w-5xl mx-auto px-6 pb-24">
       {/* Tab bar */}
-      <div className="flex overflow-x-auto gap-2 pb-2 mb-8 scrollbar-hide">
+      <TabsList className="pb-2 mb-8">
         {tabs.map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setActive(t.id)}
-            className={`flex-shrink-0 flex flex-col items-center gap-0.5 px-5 py-3.5 rounded-2xl border text-xs font-bold transition-all ${
-              active === t.id
-                ? "border-orange-500/30 bg-orange-500/[0.08] text-orange-400"
-                : "border-white/[0.07] bg-white/[0.02] text-white/60 hover:text-white/90 hover:border-white/10"
-            }`}
-          >
+          <TabsTrigger key={t.id} value={t.id}>
             <span className="text-lg leading-none">{t.icon}</span>
             <span className="mt-1.5">{t.label}</span>
             <span className="text-[10px] font-normal opacity-60">{t.sub}</span>
-          </button>
+          </TabsTrigger>
         ))}
-      </div>
+      </TabsList>
 
       {/* Panel */}
       <div className="rounded-3xl border border-white/[0.07] bg-white/[0.015] p-6 sm:p-8">
@@ -630,12 +623,12 @@ export default function CalculadorasClient() {
           </p>
         </div>
 
-        {active === "1rm" && <Calc1RM />}
-        {active === "tdee" && <CalcTDEE />}
-        {active === "imc" && <CalcIMC />}
-        {active === "macros" && <CalcMacros />}
-        {active === "fc" && <CalcFC />}
-        {active === "volumen" && <CalcVolumen />}
+        <TabsContent value="1rm"><Calc1RM /></TabsContent>
+        <TabsContent value="tdee"><CalcTDEE /></TabsContent>
+        <TabsContent value="imc"><CalcIMC /></TabsContent>
+        <TabsContent value="macros"><CalcMacros /></TabsContent>
+        <TabsContent value="fc"><CalcFC /></TabsContent>
+        <TabsContent value="volumen"><CalcVolumen /></TabsContent>
       </div>
 
       {/* Footer note */}
@@ -643,6 +636,6 @@ export default function CalculadorasClient() {
         Las calculadoras producen estimaciones basadas en fórmulas validadas por la literatura científica.
         No reemplazan la evaluación individual ni el asesoramiento profesional.
       </p>
-    </div>
+    </Tabs>
   );
 }
