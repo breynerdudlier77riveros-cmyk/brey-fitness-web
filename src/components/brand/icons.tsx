@@ -46,6 +46,11 @@ export function Close(props: IconProps) {
   return <StrokeIcon d="M6 18L18 6M6 6l12 12" {...props} />;
 }
 
+/** Más — expandir (rota 45° a "×" al abrir, ver brand/Accordion.tsx). */
+export function Plus(props: IconProps) {
+  return <StrokeIcon d="M12 4.5v15m7.5-7.5h-15" {...props} />;
+}
+
 /** Hamburguesa — menú móvil. */
 export function Menu(props: IconProps) {
   return <StrokeIcon d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" {...props} />;
