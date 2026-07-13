@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { sistemas } from "@/data/sistemas";
 import ScrollReveal from "@/components/ScrollReveal";
-import Button from "@/components/ui/Button";
-import { cardStyles } from "@/components/ui/Card";
-import { ArrowRight, Check } from "@/components/ui/icons";
+import Button from "@/components/brand/Button";
+import { cardStyles } from "@/components/brand/Card";
+import { ArrowRight, Check } from "@/components/brand/icons";
 
 export const metadata: Metadata = {
   title: "Sistemas — Un método, cinco caminos",

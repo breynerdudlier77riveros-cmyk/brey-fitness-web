@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ejercicios, getEjercicioBySlug } from "@/data/exercises";
 import type { ExerciseLevel, ExerciseType } from "@/lib/types";
-import { ArrowRight, Close } from "@/components/ui/icons";
+import { ArrowRight, Close } from "@/components/brand/icons";
 
 type Props = { params: Promise<{ slug: string }> };
 

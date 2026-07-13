@@ -1,18 +1,64 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
+/* ── shadcn/ui: tokens semánticos → utilidades Tailwind ──
+   Infraestructura para componentes Radix generados por la CLI
+   (npx shadcn add ...). Valores fieles a la marca: naranja como
+   primary, superficies traslúcidas ya usadas en todo el sitio. */
 @theme inline {
-  --color-background: #0f172a;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }
 
 /* ── Design tokens ── */
 :root {
   --bg-primary:    #0f172a;
-  --bg-surface:    rgba(255, 255, 255, 0.03);
-  --accent:        #fb923c;
-  --accent-hover:  #f97316;
-  --border:        rgba(255, 255, 255, 0.07);
-  --border-hover:  rgba(255, 255, 255, 0.14);
-  --text-muted:    rgba(255, 255, 255, 0.35);
+
+  /* shadcn — tema único oscuro, sin variante .dark (el sitio no
+     alterna tema). Valores calcados de las clases Tailwind ya en
+     uso: border-white/[0.07], bg-white/[0.02], bg-orange-500... */
+  --background:          #020617;
+  --foreground:           #ffffff;
+  --card:                 rgba(255, 255, 255, 0.02);
+  --card-foreground:      #ffffff;
+  --popover:              #0f172a;
+  --popover-foreground:   #ffffff;
+  --primary:              #f97316;
+  --primary-foreground:   #ffffff;
+  --secondary:            rgba(255, 255, 255, 0.06);
+  --secondary-foreground: #ffffff;
+  --muted:                rgba(255, 255, 255, 0.04);
+  --muted-foreground:     rgba(255, 255, 255, 0.60);
+  --accent:               rgba(255, 255, 255, 0.06);
+  --accent-foreground:    #ffffff;
+  --destructive:          #f87171;
+  --destructive-foreground: #ffffff;
+  --border:               rgba(255, 255, 255, 0.07);
+  --input:                rgba(255, 255, 255, 0.10);
+  --ring:                 #fb923c;
+  --radius:               0.75rem;
 }
 
 body {

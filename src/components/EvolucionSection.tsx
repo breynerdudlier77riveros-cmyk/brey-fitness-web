@@ -2,8 +2,8 @@ import Link from "next/link";
 import { etiquetasMetricas, metricas, metricasListas } from "@/data/metricas";
 import ScrollReveal from "@/components/ScrollReveal";
 import SectionLabel from "@/components/layout/SectionLabel";
-import { cardStyles } from "@/components/ui/Card";
-import { ArrowRight } from "@/components/ui/icons";
+import { cardStyles } from "@/components/brand/Card";
+import { ArrowRight } from "@/components/brand/icons";
 
 // ── Acto 7 · El ecosistema — "BREY está evolucionando" ─────────────────────
 // Responde: ¿esto crece o ya terminó?

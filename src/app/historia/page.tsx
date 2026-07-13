@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { founder } from "@/data/founder";
-import Button from "@/components/ui/Button";
+import Button from "@/components/brand/Button";
 import ScrollReveal from "@/components/ScrollReveal";
 import SectionLabel from "@/components/layout/SectionLabel";
 

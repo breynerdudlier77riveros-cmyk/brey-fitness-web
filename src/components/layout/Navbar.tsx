@@ -3,8 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowRight, Close, Menu } from "@/components/ui/icons";
-import Button from "@/components/ui/Button";
+import { ArrowRight, Close, Menu } from "@/components/brand/icons";
+import Button from "@/components/brand/Button";
 
 const navLinks = [
   { href: "/bps", label: "El Método" },

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { faqs } from "@/data/faq";
 import SectionLabel from "@/components/layout/SectionLabel";
-import { ArrowRight } from "@/components/ui/icons";
+import { ArrowRight } from "@/components/brand/icons";
 
 export const metadata: Metadata = {
   title: "Preguntas Frecuentes",

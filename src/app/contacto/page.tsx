@@ -4,8 +4,8 @@ import { CONTACT_EMAIL } from "@/lib/site";
 import ScrollReveal from "@/components/ScrollReveal";
 import SectionLabel from "@/components/layout/SectionLabel";
 import SocialLinks from "@/components/SocialLinks";
-import { cardStyles } from "@/components/ui/Card";
-import { ArrowRight } from "@/components/ui/icons";
+import { cardStyles } from "@/components/brand/Card";
+import { ArrowRight } from "@/components/brand/icons";
 import ContactoForm from "./ContactoForm";
 
 export const metadata: Metadata = {

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import ScrollReveal from "@/components/ScrollReveal";
 import SectionLabel from "@/components/layout/SectionLabel";
-import { ArrowRight, Close } from "@/components/ui/icons";
-import Button from "@/components/ui/Button";
+import { ArrowRight, Close } from "@/components/brand/icons";
+import Button from "@/components/brand/Button";
 
 export const metadata: Metadata = {
   title: "The Brey Performance System — La Metodología",

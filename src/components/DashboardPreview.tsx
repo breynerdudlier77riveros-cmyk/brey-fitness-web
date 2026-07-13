@@ -1,4 +1,4 @@
-import { Check } from "@/components/ui/icons";
+import { Check } from "@/components/brand/icons";
 
 // ── Vista previa de la plataforma ───────────────────────────────────────────
 // Mockup del dashboard de miembros (v1.1). Es también la spec visual de lo

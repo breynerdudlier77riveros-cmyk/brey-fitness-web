@@ -6,8 +6,8 @@ import { getCheckoutUrl } from "@/data/checkout";
 import CheckoutButton from "@/components/CheckoutButton";
 import LeadCapture from "@/components/LeadCapture";
 import WaitlistForm from "@/components/WaitlistForm";
-import { cardStyles } from "@/components/ui/Card";
-import { ArrowRight, Check } from "@/components/ui/icons";
+import { cardStyles } from "@/components/brand/Card";
+import { ArrowRight, Check } from "@/components/brand/icons";
 
 type Props = { params: Promise<{ slug: string }> };
 

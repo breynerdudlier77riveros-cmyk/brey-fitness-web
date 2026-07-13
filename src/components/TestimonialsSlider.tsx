@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { testimonios } from "@/data/testimonials";
 import SectionLabel from "@/components/layout/SectionLabel";
-import { ArrowRight } from "@/components/ui/icons";
+import { ArrowRight } from "@/components/brand/icons";
 
 function Stars({ n }: { n: number }) {
   return (

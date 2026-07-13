@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ejercicios } from "@/data/exercises";
 import type { MuscleGroup, ExerciseLevel, ExerciseType } from "@/lib/types";
-import { ArrowRight } from "@/components/ui/icons";
+import { ArrowRight } from "@/components/brand/icons";
 
 export const metadata: Metadata = {
   title: "Biblioteca de Ejercicios — técnica, errores y variantes",

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Check } from "@/components/ui/icons";
-import Button from "@/components/ui/Button";
+import { Check } from "@/components/brand/icons";
+import Button from "@/components/brand/Button";
 
 interface Props {
   source: string;

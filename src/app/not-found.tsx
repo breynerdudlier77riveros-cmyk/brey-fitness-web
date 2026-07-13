@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Button from "@/components/ui/Button";
-import { ArrowRight } from "@/components/ui/icons";
+import Button from "@/components/brand/Button";
+import { ArrowRight } from "@/components/brand/icons";
 
 export const metadata: Metadata = {
   title: "Página no encontrada",

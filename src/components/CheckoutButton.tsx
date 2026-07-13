@@ -1,5 +1,5 @@
-import Button from "@/components/ui/Button";
-import { ArrowLong, Lock } from "@/components/ui/icons";
+import Button from "@/components/brand/Button";
+import { ArrowLong, Lock } from "@/components/brand/icons";
 
 interface Props {
   href: string;

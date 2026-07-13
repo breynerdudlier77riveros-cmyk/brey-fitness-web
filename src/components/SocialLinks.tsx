@@ -1,5 +1,5 @@
 import { redesActivas } from "@/data/social";
-import SocialGlyph from "@/components/ui/social-icons";
+import SocialGlyph from "@/components/brand/social-icons";
 
 // ── Enlaces sociales dinámicos ──────────────────────────────────────────────
 // Renderiza únicamente las redes con URL real (data/social.ts). Si ninguna

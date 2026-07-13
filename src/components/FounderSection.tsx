@@ -2,9 +2,9 @@ import Image from "next/image";
 import { founder } from "@/data/founder";
 import ScrollReveal from "@/components/ScrollReveal";
 import SectionLabel from "@/components/layout/SectionLabel";
-import Button from "@/components/ui/Button";
-import { cardStyles } from "@/components/ui/Card";
-import { ArrowRight } from "@/components/ui/icons";
+import Button from "@/components/brand/Button";
+import { cardStyles } from "@/components/brand/Card";
+import { ArrowRight } from "@/components/brand/icons";
 
 // ── Acto 6 · Fundador ───────────────────────────────────────────────────────
 // Responde: ¿por qué confiar en BREY?

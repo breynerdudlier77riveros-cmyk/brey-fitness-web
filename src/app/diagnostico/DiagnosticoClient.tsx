@@ -7,8 +7,8 @@ import { preguntas } from "@/lib/diagnostico/preguntas";
 import type { Opcion, Pregunta, Respuesta, Resultado } from "@/lib/diagnostico/tipos";
 import LeadCapture from "@/components/LeadCapture";
 import WaitlistForm from "@/components/WaitlistForm";
-import Button from "@/components/ui/Button";
-import { ArrowRight, Check } from "@/components/ui/icons";
+import Button from "@/components/brand/Button";
+import { ArrowRight, Check } from "@/components/brand/icons";
 
 // ── Diagnóstico BPS · experiencia conversacional (D6 · camino A) ────────────
 // La interfaz solo conoce el contrato MotorDiagnostico. Para migrar a

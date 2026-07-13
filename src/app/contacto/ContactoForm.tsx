@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Button from "@/components/ui/Button";
-import { Check } from "@/components/ui/icons";
+import Button from "@/components/brand/Button";
+import { Check } from "@/components/brand/icons";
 
 type Estado = "idle" | "enviando" | "ok" | "error" | "sin-servicio";
 
