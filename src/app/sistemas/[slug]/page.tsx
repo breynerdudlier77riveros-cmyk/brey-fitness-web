@@ -7,6 +7,7 @@ import CheckoutButton from "@/components/CheckoutButton";
 import LeadCapture from "@/components/LeadCapture";
 import WaitlistForm from "@/components/WaitlistForm";
 import { cardStyles } from "@/components/brand/Card";
+import Badge from "@/components/brand/Badge";
 import { ArrowRight, Check } from "@/components/brand/icons";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -75,13 +76,13 @@ export default async function SistemaPage({ params }: Props) {
 
           <div className="flex flex-wrap items-center gap-2 mb-6">
             {s.disponible ? (
-              <span className="text-[10px] font-bold tracking-[0.14em] uppercase px-3 py-1.5 rounded-full border border-emerald-500/25 bg-emerald-500/10 text-emerald-400">
+              <Badge variant="success" className="text-[10px] tracking-[0.14em] px-3 py-1.5">
                 Disponible
-              </span>
+              </Badge>
             ) : (
-              <span className="text-[10px] font-bold tracking-[0.14em] uppercase px-3 py-1.5 rounded-full border border-white/15 bg-white/[0.04] text-white/60">
+              <Badge variant="neutral" className="text-[10px] tracking-[0.14em] px-3 py-1.5">
                 Disponible próximamente
-              </span>
+              </Badge>
             )}
             {s.duracion && (
               <span className="text-[10px] font-bold tracking-[0.14em] uppercase px-3 py-1.5 rounded-full border border-white/10 text-white/60">

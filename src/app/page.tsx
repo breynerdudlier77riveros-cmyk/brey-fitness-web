@@ -6,6 +6,7 @@ import TestimonialsSlider from "@/components/TestimonialsSlider";
 import { ArrowRight } from "@/components/brand/icons";
 import Button from "@/components/brand/Button";
 import { cardStyles } from "@/components/brand/Card";
+import Badge from "@/components/brand/Badge";
 import DashboardPreview from "@/components/DashboardPreview";
 import FounderSection from "@/components/FounderSection";
 import EvolucionSection from "@/components/EvolucionSection";
@@ -223,13 +224,13 @@ export default function HomePage() {
               >
                 <div className={`h-24 bg-gradient-to-br ${s.color.gradient} flex items-end p-5`}>
                   {s.disponible ? (
-                    <span className="text-[10px] font-bold tracking-[0.12em] uppercase px-2.5 py-1 rounded-full border border-emerald-500/25 bg-emerald-500/10 text-emerald-400">
+                    <Badge variant="success" className="text-[10px] tracking-[0.12em] px-2.5 py-1">
                       Disponible
-                    </span>
+                    </Badge>
                   ) : (
-                    <span className="text-[10px] font-bold tracking-[0.12em] uppercase px-2.5 py-1 rounded-full border border-white/15 bg-white/[0.05] text-white/60">
+                    <Badge variant="neutral" className="text-[10px] tracking-[0.12em] px-2.5 py-1 bg-white/[0.05]">
                       Próximamente
-                    </span>
+                    </Badge>
                   )}
                 </div>
                 <div className="flex-1 p-5">

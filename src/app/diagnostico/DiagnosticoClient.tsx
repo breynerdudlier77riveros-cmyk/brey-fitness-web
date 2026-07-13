@@ -9,6 +9,7 @@ import LeadCapture from "@/components/LeadCapture";
 import WaitlistForm from "@/components/WaitlistForm";
 import Button from "@/components/brand/Button";
 import Progress from "@/components/brand/Progress";
+import Badge from "@/components/brand/Badge";
 import { ArrowRight, Check } from "@/components/brand/icons";
 
 // ── Diagnóstico BPS · experiencia conversacional (D6 · camino A) ────────────
@@ -206,9 +207,9 @@ export default function DiagnosticoClient() {
                   BPS · Tu Sistema
                 </span>
                 {!resultado.disponible && (
-                  <span className="text-[10px] font-bold tracking-[0.14em] uppercase px-3 py-1.5 rounded-full border border-white/15 bg-white/[0.06] text-white/60">
+                  <Badge variant="neutral" className="text-[10px] tracking-[0.14em] px-3 py-1.5 bg-white/[0.06]">
                     Disponible próximamente
-                  </span>
+                  </Badge>
                 )}
               </div>
               <h2 className="font-black text-3xl sm:text-4xl text-white leading-snug mb-2">

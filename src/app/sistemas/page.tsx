@@ -4,6 +4,7 @@ import { sistemas } from "@/data/sistemas";
 import ScrollReveal from "@/components/ScrollReveal";
 import Button from "@/components/brand/Button";
 import { cardStyles } from "@/components/brand/Card";
+import Badge from "@/components/brand/Badge";
 import { ArrowRight, Check } from "@/components/brand/icons";
 
 export const metadata: Metadata = {
@@ -81,13 +82,13 @@ export default function SistemasPage() {
                       </h2>
                     </div>
                     {s.disponible ? (
-                      <span className="flex-shrink-0 text-[10px] font-bold tracking-[0.12em] uppercase px-3 py-1.5 rounded-full border border-emerald-500/25 bg-emerald-500/10 text-emerald-400">
+                      <Badge variant="success" className="flex-shrink-0 text-[10px] tracking-[0.12em] px-3 py-1.5">
                         Disponible
-                      </span>
+                      </Badge>
                     ) : (
-                      <span className="flex-shrink-0 text-[10px] font-bold tracking-[0.12em] uppercase px-3 py-1.5 rounded-full border border-white/15 bg-white/[0.04] text-white/60">
+                      <Badge variant="neutral" className="flex-shrink-0 text-[10px] tracking-[0.12em] px-3 py-1.5">
                         Próximamente
-                      </span>
+                      </Badge>
                     )}
                   </div>
                 </div>
