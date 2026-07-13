@@ -2,6 +2,8 @@
 // El nivel del usuario NO es un producto: es configuración interna del
 // Sistema que asigna el Diagnóstico BPS.
 
+import type { ComponentType } from 'react';
+
 export type SistemaSlug =
   | 'fuerza'
   | 'hipertrofia'
@@ -42,6 +44,8 @@ export interface SistemaColor {
 export interface Sistema {
   slug: SistemaSlug;
   nombre: string;
+  /** Icono de trazo propio del Sistema — identidad visual de producto (BREY v2.1). */
+  icon: ComponentType<{ className?: string; strokeWidth?: number }>;
   /** Objetivo principal del usuario que entra a este Sistema. */
   objetivo: string;
   tagline: string;

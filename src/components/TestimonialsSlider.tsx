@@ -1,9 +1,26 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { testimonios } from "@/data/testimonials";
 import SectionLabel from "@/components/layout/SectionLabel";
 import { ArrowRight } from "@/components/brand/icons";
+
+/** Mini-gráfico de barras del progreso real del caso — mismo lenguaje visual que el tonelaje de DashboardPreview. */
+function MiniChart({ data }: { data: number[] }) {
+  const max = Math.max(...data);
+  return (
+    <div className="flex items-end gap-1 h-8 w-20" aria-hidden="true">
+      {data.map((v, i) => (
+        <div
+          key={i}
+          style={{ height: `${(v / max) * 100}%` }}
+          className={`flex-1 rounded-sm ${i === data.length - 1 ? "bg-orange-400" : "bg-orange-400/25"}`}
+        />
+      ))}
+    </div>
+  );
+}
 
 function Stars({ n }: { n: number }) {
   return (
@@ -54,14 +71,20 @@ export default function TestimonialsSlider() {
           <div className="relative flex flex-col md:flex-row gap-8 md:gap-12">
             {/* Left: Avatar + meta */}
             <div className="flex flex-col items-center md:items-start gap-4 md:min-w-[180px]">
-              {/* Avatar */}
-              <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${t.color} flex items-center justify-center flex-shrink-0`}>
-                <span className="text-white font-black text-lg tracking-wide">{t.iniciales}</span>
-              </div>
+              {/* Avatar — foto real si existe, si no las iniciales (nunca stock) */}
+              {t.foto ? (
+                <div className="relative w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0">
+                  <Image src={t.foto.src} alt={t.foto.alt} fill sizes="64px" className="object-cover" />
+                </div>
+              ) : (
+                <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${t.color} flex items-center justify-center flex-shrink-0`}>
+                  <span className="text-white font-black text-lg tracking-wide">{t.iniciales}</span>
+                </div>
+              )}
 
               <div>
                 <p className="font-black text-white text-base">{t.nombre}</p>
-                <p className="text-white/55 text-xs mt-0.5">{t.sistema}</p>
+                <p className="text-white/55 text-xs mt-0.5">{t.sistema} · {t.tiempo}</p>
               </div>
 
               <div className="flex flex-col gap-2">
@@ -70,6 +93,14 @@ export default function TestimonialsSlider() {
                   {t.objetivo}
                 </span>
               </div>
+
+              {/* Gráfico del progreso real — solo si el caso trae datos */}
+              {t.progreso && t.progreso.length > 1 && (
+                <div>
+                  <p className="text-white/40 text-[10px] tracking-widest uppercase mb-1.5">Progreso</p>
+                  <MiniChart data={t.progreso} />
+                </div>
+              )}
             </div>
 
             {/* Right: Quote */}

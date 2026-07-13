@@ -19,10 +19,15 @@ import { cn } from "@/lib/utils";
 // primitivo. Sigue siendo la vía real que usan las 8 páginas del sitio,
 // que mezclan la superficie de tarjeta en su propio <Link>/<div> — nunca
 // como componente <Card> (cero usos antes de esta migración).
+// interactive: elevación 6px + escala 1.02 (BREY v2.1), en CSS puro por la
+// misma razón que Button — cardStyles se consume como string plano en más
+// de 10 archivos (Link/div propios), nunca a través de un componente React;
+// envolver eso en Motion obligaría a convertir cada call site a Client
+// Component. -translate-y-1.5 es exactamente 6px en la escala de Tailwind.
 export const cardStyles = {
   base: "rounded-2xl border border-white/[0.07] bg-white/[0.02]",
   interactive:
-    "hover:border-white/[0.14] hover:bg-white/[0.04] transition-all duration-300",
+    "hover:border-white/[0.14] hover:bg-white/[0.04] hover:-translate-y-1.5 hover:scale-[1.02] transition-all duration-300 motion-reduce:hover:translate-y-0 motion-reduce:hover:scale-100",
 } as const;
 
 // Familia Card/Header/Title/Description/Action/Content/Footer: sin call

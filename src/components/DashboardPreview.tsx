@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { motion, animate, useReducedMotion } from "motion/react";
 import { Check } from "@/components/brand/icons";
 
 // ── Vista previa de la plataforma ───────────────────────────────────────────
@@ -7,6 +11,11 @@ import { Check } from "@/components/brand/icons";
 // desarrollo" — nunca como producto existente (Constitución, ley 4).
 // Datos de ejemplo coherentes con el Sistema de Hipertrofia (fase de
 // sobrecarga, semana 7 de 16).
+//
+// BREY v2.1: el "44%" cuenta hacia arriba y las barras de tonelaje crecen
+// al montar — animando scaleY (transform), nunca height, así que el
+// contenedor nunca cambia de tamaño y no hay CLS. "use client" porque
+// Motion necesita ejecutar en el navegador.
 
 const sesion = [
   { nombre: "Press banca",     esquema: "4 × 5",     intensidad: "RPE 8", hecho: true },
@@ -34,7 +43,37 @@ const diaEstilo: Record<(typeof dias)[number]["estado"], string> = {
   descanso: "bg-white/[0.06]",
 };
 
+// El propio mockup ya llega envuelto en HeroPreviewItem/ScrollReveal, que
+// tarda ~0.6-1s en asentarse visualmente (fade+scale). Sin este retraso,
+// el conteo terminaría "bajo cuerda" mientras la tarjeta aún es invisible
+// — se ve el número ya en su valor final apenas aparece, no contando.
+const REVEAL_DELAY = 0.6;
+
+/**
+ * Cuenta de 0 al valor objetivo una sola vez al montar.
+ * animate() es imperativo — a diferencia de motion.div, no lee el
+ * MotionConfig reducedMotion="user" de layout.tsx, así que aquí se
+ * consulta useReducedMotion() directamente y se salta la animación.
+ */
+function useCountUp(target: number, duration = 1.1, delay = REVEAL_DELAY) {
+  const shouldReduceMotion = useReducedMotion();
+  const [value, setValue] = useState(shouldReduceMotion ? target : 0);
+  useEffect(() => {
+    if (shouldReduceMotion) return;
+    const controls = animate(0, target, {
+      duration,
+      delay,
+      ease: [0.16, 1, 0.3, 1],
+      onUpdate: (v) => setValue(Math.round(v)),
+    });
+    return () => controls.stop();
+  }, [target, duration, delay, shouldReduceMotion]);
+  return value;
+}
+
 export default function DashboardPreview({ className = "" }: { className?: string }) {
+  const progreso = useCountUp(44);
+
   return (
     <div className={`relative mx-auto w-full max-w-md ${className}`}>
       {/* Glow ambiental */}
@@ -49,7 +88,7 @@ export default function DashboardPreview({ className = "" }: { className?: strin
       <div className="relative rounded-3xl border border-white/10 bg-slate-900/70 backdrop-blur-xl shadow-2xl shadow-black/50 p-5 sm:p-6">
 
         {/* Cabecera: hoy entrenas */}
-        <div className="flex items-start justify-between gap-4 mb-5">
+        <div className="flex items-start justify-between gap-4 mb-4">
           <div>
             <p className="text-[10px] font-bold tracking-[0.20em] uppercase text-orange-400 mb-1.5">
               Hoy entrenas
@@ -60,13 +99,23 @@ export default function DashboardPreview({ className = "" }: { className?: strin
             </p>
           </div>
           <div className="flex flex-col items-end flex-shrink-0">
-            <span className="font-mono font-bold text-white text-sm tabular-nums">44%</span>
+            <span className="font-mono font-bold text-white text-sm tabular-nums">{progreso}%</span>
             <span className="text-white/50 text-[10px]">del Sistema</span>
             <div className="w-16 h-1 rounded-full bg-white/[0.08] mt-1.5 overflow-hidden">
-              <div className="h-full w-[44%] rounded-full bg-orange-400" />
+              <motion.div
+                className="h-full rounded-full bg-orange-400 origin-left"
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 0.44 }}
+                transition={{ duration: 1.1, delay: REVEAL_DELAY, ease: [0.16, 1, 0.3, 1] }}
+              />
             </div>
           </div>
         </div>
+
+        {/* Objetivo — visible, no solo implícito en la sesión */}
+        <p className="text-[11px] text-white/55 mb-5">
+          Objetivo · <span className="text-white font-semibold">Ganar fuerza en tren superior</span>
+        </p>
 
         {/* Sesión */}
         <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] divide-y divide-white/[0.06] mb-4">
@@ -92,21 +141,24 @@ export default function DashboardPreview({ className = "" }: { className?: strin
 
         {/* Progreso + semana */}
         <div className="grid grid-cols-2 gap-3">
-          {/* Tonelaje */}
+          {/* Tonelaje + PR */}
           <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-4">
             <p className="text-[10px] font-bold tracking-[0.14em] uppercase text-white/50 mb-3">
               Tonelaje semanal
             </p>
             <div className="flex items-end gap-1.5 h-12 mb-2">
               {tonelaje.map((h, i) => (
-                <div
+                <motion.div
                   key={i}
                   style={{ height: `${h}%` }}
-                  className={`flex-1 rounded-sm ${i === tonelaje.length - 1 ? "bg-orange-400" : "bg-orange-400/25"}`}
+                  className={`flex-1 rounded-sm origin-bottom ${i === tonelaje.length - 1 ? "bg-orange-400" : "bg-orange-400/25"}`}
+                  initial={{ scaleY: 0 }}
+                  animate={{ scaleY: 1 }}
+                  transition={{ duration: 0.5, delay: REVEAL_DELAY + i * 0.06, ease: [0.16, 1, 0.3, 1] }}
                 />
               ))}
             </div>
-            <p className="font-mono text-[11px] text-emerald-400 tabular-nums">e1RM ↗ +8%</p>
+            <p className="font-mono text-[11px] text-emerald-400 tabular-nums">PR · Press banca 82kg ↑</p>
           </div>
 
           {/* Semana + racha */}

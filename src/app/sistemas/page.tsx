@@ -73,13 +73,18 @@ export default function SistemasPage() {
                 <div className={`relative bg-gradient-to-br ${s.color.gradient} p-6 md:p-7`}>
                   <div aria-hidden className={`absolute top-0 right-0 w-40 h-40 rounded-full ${s.color.glow} blur-3xl`} />
                   <div className="relative flex items-start justify-between gap-4">
-                    <div>
-                      <p className={`text-[10px] font-bold tracking-[0.20em] uppercase ${s.color.accent} mb-2`}>
-                        {s.objetivo}
-                      </p>
-                      <h2 className="font-black text-2xl md:text-3xl text-white leading-snug">
-                        {s.nombre}
-                      </h2>
+                    <div className="flex items-start gap-4">
+                      <div className={`w-11 h-11 rounded-xl border flex items-center justify-center flex-shrink-0 ${s.color.badge}`}>
+                        <s.icon className="w-5 h-5" strokeWidth={1.75} />
+                      </div>
+                      <div>
+                        <p className={`text-[10px] font-bold tracking-[0.20em] uppercase ${s.color.accent} mb-2`}>
+                          {s.objetivo}
+                        </p>
+                        <h2 className="font-black text-2xl md:text-3xl text-white leading-snug">
+                          {s.nombre}
+                        </h2>
+                      </div>
                     </div>
                     {s.disponible ? (
                       <Badge variant="success" className="flex-shrink-0 text-[10px] tracking-[0.12em] px-3 py-1.5">

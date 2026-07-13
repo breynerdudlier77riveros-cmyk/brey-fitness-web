@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { MotionConfig } from "motion/react";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -37,12 +38,17 @@ export default function RootLayout({
       <body
         className={`${inter.className} min-h-full flex flex-col bg-slate-950 text-white antialiased`}
       >
-        <TooltipProvider>
-          <Navbar />
-          <div className="flex-1">{children}</div>
-          <Footer />
-        </TooltipProvider>
-        <Toaster />
+        {/* reducedMotion="user": todo motion.* de la app respeta
+            prefers-reduced-motion desde este único punto — ningún
+            componente individual necesita llamar useReducedMotion(). */}
+        <MotionConfig reducedMotion="user">
+          <TooltipProvider>
+            <Navbar />
+            <div className="flex-1">{children}</div>
+            <Footer />
+          </TooltipProvider>
+          <Toaster />
+        </MotionConfig>
         {plausibleDomain && (
           <script
             defer

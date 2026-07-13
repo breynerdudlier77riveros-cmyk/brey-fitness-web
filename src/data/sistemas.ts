@@ -1,4 +1,5 @@
 import type { ComponenteEcosistema, Sistema } from '@/lib/types';
+import { Bolt, TrendingUp, Cycle, Merge, Star } from '@/components/brand/icons';
 
 // ── Los 5 Sistemas del BPS (arquitectura BREY v2, decisión jul 2026) ────────
 // Reglas del catálogo:
@@ -28,6 +29,7 @@ export const sistemas: Sistema[] = [
   // ── SISTEMA DE HIPERTROFIA ── disponible · lanzamiento ──────────────────
   {
     slug: 'hipertrofia',
+    icon: TrendingUp,
     nombre: 'Sistema de Hipertrofia',
     objetivo: 'Construir masa muscular con método',
     tagline: 'Músculo construido con ciencia, no con ensayo y error.',
@@ -103,6 +105,7 @@ export const sistemas: Sistema[] = [
   // ── SISTEMA DE CALISTENIA ── disponible · lanzamiento ───────────────────
   {
     slug: 'calistenia',
+    icon: Cycle,
     nombre: 'Sistema de Calistenia',
     objetivo: 'Dominar tu peso corporal, hasta las skills',
     tagline: 'Domina tu cuerpo. Desde la primera dominada hasta la planche.',
@@ -178,6 +181,7 @@ export const sistemas: Sistema[] = [
   // ── SISTEMA HÍBRIDO ── disponible · lanzamiento ─────────────────────────
   {
     slug: 'hibrido',
+    icon: Merge,
     nombre: 'Sistema Híbrido',
     objetivo: 'Fuerza absoluta y relativa en un solo camino',
     tagline: 'El mejor físico funcional. Cargas y peso corporal como uno solo.',
@@ -253,6 +257,7 @@ export const sistemas: Sistema[] = [
   // ── SISTEMA DE FUERZA ── próximamente · lista de espera ─────────────────
   {
     slug: 'fuerza',
+    icon: Bolt,
     nombre: 'Sistema de Fuerza',
     objetivo: 'Levantar más — con técnica y progresión reales',
     tagline: 'La fuerza es la base de todo. Constrúyela con método.',
@@ -292,6 +297,7 @@ export const sistemas: Sistema[] = [
   // ── SISTEMA ELITE ── próximamente · lista de espera ─────────────────────
   {
     slug: 'elite',
+    icon: Star,
     nombre: 'Sistema Elite',
     objetivo: 'Acceso total + coaching directo e individualizado',
     tagline: 'El acceso completo. Más coaching directo.',

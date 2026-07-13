@@ -21,17 +21,26 @@ import { cn } from "@/lib/utils";
 // Ningún wrapper de marca debe añadir su propio focus-visible:outline-* —
 // eso fue lo que producía el doble anillo. Un solo tratamiento, un solo color,
 // igual en Button/Input/Select/Checkbox/... sin importar la variante.
+//
+// MICROINTERACCIÓN — hover 1→1.03 / tap 0.98 (BREY v2.1), en CSS puro, no
+// Motion: Button se usa docenas de veces por página; envolverlo en
+// motion.create() lo convertiría en Client Component en todo el sitio para
+// un efecto que transform+transition ya resuelve con GPU y sin JS. Motion
+// se reserva para donde de verdad aporta (Hero, scroll-reveal, conteo de
+// números). motion-reduce: cubre prefers-reduced-motion sin duplicar la
+// media query ya centralizada para Motion en layout.tsx.
 
 type Variant = "primary" | "buy" | "outline";
 type Size = "sm" | "md" | "lg" | "xl";
 
-const base = "h-auto rounded-full";
+const base =
+  "h-auto rounded-full hover:scale-[1.03] active:scale-[0.98] motion-reduce:hover:scale-100 motion-reduce:active:scale-100";
 
 const variants: Record<Variant, string> = {
   primary:
-    "rounded-full bg-orange-500 hover:bg-orange-400 active:bg-orange-600 text-white transition-colors duration-200",
+    "rounded-full bg-orange-500 hover:bg-orange-400 active:bg-orange-600 text-white transition-all duration-200",
   buy:
-    "checkout-btn rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-white shadow-lg shadow-emerald-500/20 transition-colors duration-300 active:scale-[0.97]",
+    "checkout-btn rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-white shadow-lg shadow-emerald-500/20 transition-all duration-300",
   outline:
     "rounded-full border border-white/[0.12] text-white/70 hover:text-white hover:border-white/25 transition-all duration-200",
 };

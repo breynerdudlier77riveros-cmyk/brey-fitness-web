@@ -3,13 +3,15 @@ import { sistemas } from "@/data/sistemas";
 import ScrollReveal from "@/components/ScrollReveal";
 import SectionLabel from "@/components/layout/SectionLabel";
 import TestimonialsSlider from "@/components/TestimonialsSlider";
-import { ArrowRight } from "@/components/brand/icons";
+import { ArrowRight, Check, TrendingUp, Cycle, Calendar, ChartBar, UserIcon } from "@/components/brand/icons";
 import Button from "@/components/brand/Button";
 import { cardStyles } from "@/components/brand/Card";
 import Badge from "@/components/brand/Badge";
 import DashboardPreview from "@/components/DashboardPreview";
 import FounderSection from "@/components/FounderSection";
 import EvolucionSection from "@/components/EvolucionSection";
+import DiagnosticoFlow from "@/components/DiagnosticoFlow";
+import { HeroStagger, HeroItem, HeroPreviewItem } from "@/components/HeroEntrance";
 
 // ── Acto 2 · Manifiesto ─────────────────────────────────────────────────────
 const creencias = [
@@ -19,23 +21,16 @@ const creencias = [
   { no: "No creemos en improvisar.",      si: "Creemos en sistemas." },
 ];
 
-// ── Acto 3 · Los tres pilares del sistema ───────────────────────────────────
-const sistema = [
-  {
-    titulo: "Ciencia",
-    cuerpo:
-      "Cada variable del Sistema — volumen, intensidad, frecuencia, descanso — proviene de literatura científica publicada, no de la rutina de moda. Si no hay evidencia que lo respalde, no entra al sistema.",
-  },
-  {
-    titulo: "Planificación",
-    cuerpo:
-      "El azar no produce adaptación. Cada sesión existe dentro de una estructura periodizada: sabes qué toca hoy, qué viene después y qué objetivo fisiológico persigue cada fase.",
-  },
-  {
-    titulo: "Seguimiento",
-    cuerpo:
-      "Lo que no se mide no progresa. Peso, series, RPE y RIR convierten cada sesión en datos — y los datos convierten el estancamiento en una decisión de ajuste, no en un misterio.",
-  },
+// ── Acto 3 · Los 5 principios del método (BREY v2.1) ────────────────────────
+// Antes 3 pilares narrados en párrafos; ahora los principios concretos de
+// la ciencia del ejercicio, en formato compacto — "transmitir ciencia sin
+// saturar", no un artículo.
+const principios = [
+  { icon: TrendingUp, titulo: "Sobrecarga progresiva", frase: "Cada sesión, un estímulo mayor al anterior." },
+  { icon: Cycle,       titulo: "Autorregulación",        frase: "El plan se ajusta a cómo respondes, no al revés." },
+  { icon: Calendar,    titulo: "Periodización",           frase: "Cada fase tiene un propósito fisiológico distinto." },
+  { icon: ChartBar,    titulo: "Seguimiento del progreso", frase: "Lo que no se mide, no se puede ajustar." },
+  { icon: UserIcon,    titulo: "Adaptación individual",   frase: "Tu cuerpo, tu historial, tu punto de partida." },
 ];
 
 export default function HomePage() {
@@ -54,32 +49,36 @@ export default function HomePage() {
         </div>
 
         <div className="relative max-w-6xl mx-auto px-4 md:px-6 pt-16 pb-20 md:pt-20 md:pb-28 lg:min-h-[88vh] flex items-center">
-          <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-14 lg:gap-10 items-center w-full">
+          <HeroStagger className="grid lg:grid-cols-[1.05fr_0.95fr] gap-14 lg:gap-10 items-center w-full">
 
             {/* Columna de mensaje */}
             <div className="text-center lg:text-left">
-              <div className="hero-enter inline-flex items-center gap-2.5 px-5 py-2 rounded-full border border-white/10 bg-white/[0.04] backdrop-blur-sm text-sm text-white/50 mb-8 md:mb-10">
+              <HeroItem className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full border border-white/10 bg-white/[0.04] backdrop-blur-sm text-sm text-white/50 mb-8 md:mb-10">
                 <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
                 The Brey Performance System
-              </div>
+              </HeroItem>
 
-              <h1 className="hero-enter hero-enter-2 font-black leading-[1.06] tracking-tight mb-7">
-                <span className="block text-4xl sm:text-5xl lg:text-6xl text-white">
-                  El fin del
-                </span>
-                <span className="block text-4xl sm:text-5xl lg:text-6xl text-white">
-                  entrenamiento
-                </span>
-                <span className="block text-4xl sm:text-5xl lg:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-orange-500 to-amber-400">
-                  a ciegas.
-                </span>
-              </h1>
+              <HeroItem>
+                <h1 className="font-black leading-[1.06] tracking-tight mb-7">
+                  <span className="block text-4xl sm:text-5xl lg:text-6xl text-white">
+                    El fin del
+                  </span>
+                  <span className="block text-4xl sm:text-5xl lg:text-6xl text-white">
+                    entrenamiento
+                  </span>
+                  <span className="block text-4xl sm:text-5xl lg:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-orange-500 to-amber-400">
+                    a ciegas.
+                  </span>
+                </h1>
+              </HeroItem>
 
-              <p className="hero-enter hero-enter-3 text-lg text-white/60 max-w-xl mx-auto lg:mx-0 mb-10 leading-[1.8] font-light">
-                Un sistema que convierte la evidencia científica en un camino claro: qué hacer hoy, por qué hacerlo, y qué esperar de tu cuerpo mañana.
-              </p>
+              <HeroItem>
+                <p className="text-lg text-white/60 max-w-xl mx-auto lg:mx-0 mb-10 leading-[1.8] font-light">
+                  Un sistema que convierte la evidencia científica en un camino claro: qué hacer hoy, por qué hacerlo, y qué esperar de tu cuerpo mañana.
+                </p>
+              </HeroItem>
 
-              <div className="hero-enter hero-enter-4 flex flex-col sm:flex-row items-center lg:justify-start justify-center gap-4 mb-10">
+              <HeroItem className="flex flex-col sm:flex-row items-center lg:justify-start justify-center gap-4 mb-10">
                 <Button href="/diagnostico" size="lg">
                   Empezar mi diagnóstico
                   <ArrowRight className="w-5 h-5" strokeWidth={2.5} />
@@ -87,22 +86,24 @@ export default function HomePage() {
                 <Button href="/bps" variant="outline" size="md" className="px-7 py-3.5">
                   Conocer el sistema
                 </Button>
-              </div>
+              </HeroItem>
 
               {/* Indicadores de confianza — solo datos verdaderos */}
-              <div className="hero-enter hero-enter-4 flex flex-wrap items-center lg:justify-start justify-center gap-x-3 gap-y-2 text-[11px] font-semibold tracking-[0.14em] uppercase text-white/50">
+              <HeroItem className="flex flex-wrap items-center lg:justify-start justify-center gap-x-3 gap-y-2 text-[11px] font-semibold tracking-[0.14em] uppercase text-white/50">
                 <span>Referencias científicas publicadas</span>
                 <span aria-hidden className="text-orange-400/60">·</span>
                 <span>72 semanas de programación</span>
                 <span aria-hidden className="text-orange-400/60">·</span>
                 <span>Garantía 30 días</span>
-              </div>
+              </HeroItem>
             </div>
 
             {/* Columna de producto */}
-            <DashboardPreview className="preview-enter mt-2 lg:mt-0" />
+            <HeroPreviewItem className="mt-2 lg:mt-0">
+              <DashboardPreview />
+            </HeroPreviewItem>
 
-          </div>
+          </HeroStagger>
         </div>
       </section>
 
@@ -158,16 +159,19 @@ export default function HomePage() {
             </Link>
           </div>
           <p className="text-white/60 leading-relaxed max-w-xl mb-12">
-            El BPS se sostiene sobre tres pilares. Quita cualquiera de los tres y deja de funcionar.
+            Cinco principios de la ciencia del ejercicio. Ninguno es opcional.
           </p>
         </ScrollReveal>
 
-        <div className="grid md:grid-cols-3 gap-4">
-          {sistema.map((p, i) => (
-            <ScrollReveal key={p.titulo} delay={i * 80}>
-              <div className={`${cardStyles.base} ${cardStyles.interactive} p-7 h-full flex flex-col`}>
-                <h3 className="font-black text-xl text-orange-400 mb-4">{p.titulo}</h3>
-                <p className="text-white/60 text-sm leading-relaxed flex-1">{p.cuerpo}</p>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+          {principios.map((p, i) => (
+            <ScrollReveal key={p.titulo} delay={i * 70}>
+              <div className={`${cardStyles.base} ${cardStyles.interactive} p-5 h-full flex flex-col items-start gap-3`}>
+                <div className="w-9 h-9 rounded-lg border border-orange-500/20 bg-orange-500/[0.08] flex items-center justify-center flex-shrink-0">
+                  <p.icon className="w-4 h-4 text-orange-400" strokeWidth={1.75} />
+                </div>
+                <h3 className="font-black text-sm text-white leading-snug">{p.titulo}</h3>
+                <p className="text-white/55 text-xs leading-relaxed">{p.frase}</p>
               </div>
             </ScrollReveal>
           ))}
@@ -201,11 +205,12 @@ export default function HomePage() {
               <h2 className="font-black text-3xl sm:text-4xl md:text-5xl text-white mb-4">
                 Encuentra tu Camino
               </h2>
-              <p className="text-white/60 leading-relaxed max-w-lg mx-auto mb-8">
+              <p className="text-white/60 leading-relaxed max-w-lg mx-auto mb-10">
                 No necesitas adivinar qué Sistema elegir. El Diagnóstico BPS analiza tus
                 objetivos, experiencia y disponibilidad para recomendarte el Sistema — y el
                 nivel — más adecuado para ti.
               </p>
+              <DiagnosticoFlow />
               <Button href="/diagnostico" size="lg">
                 Iniciar Diagnóstico BPS
                 <ArrowRight className="w-5 h-5" strokeWidth={2.5} />
@@ -222,7 +227,10 @@ export default function HomePage() {
                 href={`/sistemas/${s.slug}`}
                 className={`${cardStyles.base} ${cardStyles.interactive} group flex flex-col overflow-hidden h-full`}
               >
-                <div className={`h-24 bg-gradient-to-br ${s.color.gradient} flex items-end p-5`}>
+                <div className={`h-24 bg-gradient-to-br ${s.color.gradient} flex items-start justify-between p-5`}>
+                  <div className={`w-10 h-10 rounded-xl border flex items-center justify-center flex-shrink-0 ${s.color.badge}`}>
+                    <s.icon className="w-5 h-5" strokeWidth={1.75} />
+                  </div>
                   {s.disponible ? (
                     <Badge variant="success" className="text-[10px] tracking-[0.12em] px-2.5 py-1">
                       Disponible
@@ -237,9 +245,29 @@ export default function HomePage() {
                   <h3 className="font-black text-base text-white group-hover:text-orange-400 transition-colors duration-300 mb-1">
                     {s.nombre}
                   </h3>
-                  <p className={`text-[11px] font-semibold ${s.color.accent} mb-2`}>{s.objetivo}</p>
+                  <div className="flex items-center gap-2 mb-2">
+                    <p className={`text-[11px] font-semibold ${s.color.accent}`}>{s.objetivo}</p>
+                    {s.niveles.length > 0 && (
+                      <>
+                        <span aria-hidden className="text-white/25">·</span>
+                        <p className="text-[11px] text-white/50">{s.niveles.length} niveles</p>
+                      </>
+                    )}
+                  </div>
                   <p className="text-white/55 text-xs leading-relaxed line-clamp-2 mb-4">{s.tagline}</p>
-                  <div className="flex items-center justify-between">
+
+                  {s.incluye.length > 0 && (
+                    <ul className="flex flex-col gap-1.5 mb-4">
+                      {s.incluye.slice(0, 3).map((item) => (
+                        <li key={item} className="flex items-start gap-1.5 text-[11px] text-white/55">
+                          <Check className={`w-3 h-3 flex-shrink-0 mt-0.5 ${s.color.accent}`} strokeWidth={3} />
+                          <span className="line-clamp-1">{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  <div className="flex items-center justify-between mt-auto pt-4 border-t border-white/[0.06]">
                     {s.disponible && s.precioFormato ? (
                       <span className="font-black text-base text-white">{s.precioFormato}</span>
                     ) : (
