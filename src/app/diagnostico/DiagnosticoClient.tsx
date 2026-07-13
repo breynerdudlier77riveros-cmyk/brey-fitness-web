@@ -8,6 +8,7 @@ import type { Opcion, Pregunta, Respuesta, Resultado } from "@/lib/diagnostico/t
 import LeadCapture from "@/components/LeadCapture";
 import WaitlistForm from "@/components/WaitlistForm";
 import Button from "@/components/brand/Button";
+import Progress from "@/components/brand/Progress";
 import { ArrowRight, Check } from "@/components/brand/icons";
 
 // ── Diagnóstico BPS · experiencia conversacional (D6 · camino A) ────────────
@@ -115,12 +116,7 @@ export default function DiagnosticoClient() {
 
       {/* Progreso */}
       <div className="sticky top-16 z-10 bg-slate-950/90 backdrop-blur-sm">
-        <div className="h-0.5 bg-white/[0.05]">
-          <div
-            className="h-full bg-orange-500 transition-all duration-500"
-            style={{ width: `${progreso}%` }}
-          />
-        </div>
+        <Progress value={progreso} />
         {!resultado && (
           <p className="max-w-xl mx-auto px-6 py-2 text-[10px] font-bold tracking-[0.18em] uppercase text-white/40 text-right">
             {Math.min(historial.length + 1, preguntas.length)} / {preguntas.length}
