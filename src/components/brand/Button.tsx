@@ -1,14 +1,24 @@
 import Link from "next/link";
+import { Button as ShadcnButton } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-// ── Botón del sistema ───────────────────────────────────────────────────────
+// ── Botón del sistema (sobre la primitiva shadcn ui/button.tsx) ────────────
 // Ley 2 de la Constitución de Diseño: un color, un significado.
 //   primary → naranja: acción de marca (navegar, diagnosticar, explorar)
 //   buy     → esmeralda: exclusivamente dinero (checkout). Único con pulse.
 //   outline → secundario neutro
 // Renderiza <Link> si recibe href interno, <a> si es externo, <button> si no.
+//
+// Usa variant="ghost" de shadcn como base neutra (sin color propio) y aporta
+// el 100% del look de marca vía className — cn() (tailwind-merge) resuelve
+// los conflictos de utilidades a favor de estas clases. h-auto neutraliza
+// la altura fija (h-8/h-9) del primitivo para que la altura la siga
+// determinando el padding vertical, como siempre.
 
 type Variant = "primary" | "buy" | "outline";
 type Size = "sm" | "md" | "lg" | "xl";
+
+const base = "h-auto rounded-full";
 
 const variants: Record<Variant, string> = {
   primary:
@@ -47,35 +57,44 @@ export default function Button({
   disabled = false,
   className = "",
 }: Props) {
-  const classes = [
+  const classes = cn(
     "inline-flex items-center justify-center whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2",
+    base,
     variants[variant],
     sizes[size],
-    disabled ? "opacity-60 pointer-events-none" : "",
-    className,
-  ]
-    .filter(Boolean)
-    .join(" ");
+    disabled && "opacity-60 pointer-events-none",
+    className
+  );
 
   if (href && /^https?:\/\//.test(href)) {
     return (
-      <a href={href} target="_blank" rel="noopener noreferrer" className={classes} onClick={onClick}>
-        {children}
-      </a>
+      <ShadcnButton asChild variant="ghost" className={classes}>
+        <a href={href} target="_blank" rel="noopener noreferrer" onClick={onClick}>
+          {children}
+        </a>
+      </ShadcnButton>
     );
   }
 
   if (href) {
     return (
-      <Link href={href} className={classes} onClick={onClick}>
-        {children}
-      </Link>
+      <ShadcnButton asChild variant="ghost" className={classes}>
+        <Link href={href} onClick={onClick}>
+          {children}
+        </Link>
+      </ShadcnButton>
     );
   }
 
   return (
-    <button type={type} disabled={disabled} onClick={onClick} className={classes}>
+    <ShadcnButton
+      variant="ghost"
+      type={type}
+      disabled={disabled}
+      onClick={onClick}
+      className={classes}
+    >
       {children}
-    </button>
+    </ShadcnButton>
   );
 }
