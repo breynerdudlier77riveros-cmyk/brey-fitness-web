@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Button from "@/components/brand/Button";
+import Input from "@/components/brand/Input";
 import { Check } from "@/components/brand/icons";
 
 // ── Lista de espera de Sistemas no disponibles ──────────────────────────────
@@ -19,6 +20,7 @@ const objetivos = [
 
 type Estado = "idle" | "enviando" | "ok" | "error";
 
+// Select aún sin migrar (viene más adelante) — conserva el estilo manual.
 const inputStyles =
   "w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.10] text-sm text-white placeholder:text-white/50 focus:outline-none focus:border-orange-500/50 transition-colors";
 
@@ -58,7 +60,7 @@ export default function WaitlistForm({ sistemaSlug }: { sistemaSlug: string }) {
 
   return (
     <form onSubmit={enviar} className="flex flex-col gap-3">
-      <input
+      <Input
         type="text"
         required
         maxLength={120}
@@ -66,16 +68,16 @@ export default function WaitlistForm({ sistemaSlug }: { sistemaSlug: string }) {
         onChange={(e) => setNombre(e.target.value)}
         placeholder="Tu nombre"
         aria-label="Tu nombre"
-        className={inputStyles}
+        className="w-full"
       />
-      <input
+      <Input
         type="email"
         required
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="tu@email.com"
         aria-label="Tu email"
-        className={inputStyles}
+        className="w-full"
       />
       <select
         value={objetivo}

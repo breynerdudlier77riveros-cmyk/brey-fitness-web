@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Check } from "@/components/brand/icons";
 import Button from "@/components/brand/Button";
+import Input from "@/components/brand/Input";
 
 interface Props {
   source: string;
@@ -67,14 +68,15 @@ export default function LeadCapture({
         <p className="text-sm font-semibold text-white/70 mb-3">{title}</p>
       )}
       <div className="flex flex-col sm:flex-row gap-2">
-        <input
+        <Input
           type="email"
+          shape="pill"
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="tu@email.com"
           aria-label="Tu email"
-          className="flex-1 min-w-0 px-4 py-3 rounded-full bg-white/[0.04] border border-white/[0.10] text-sm text-white placeholder:text-white/50 focus:outline-none focus:border-orange-500/50 transition-colors"
+          className="w-auto flex-1 min-w-0"
         />
         <Button type="submit" size="md" disabled={status === "loading"}>
           {status === "loading" ? "Enviando…" : buttonLabel}
