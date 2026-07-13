@@ -3,13 +3,10 @@
 import { useState } from "react";
 import Button from "@/components/brand/Button";
 import Input from "@/components/brand/Input";
+import Textarea from "@/components/brand/Textarea";
 import { Check } from "@/components/brand/icons";
 
 type Estado = "idle" | "enviando" | "ok" | "error" | "sin-servicio";
-
-// Textarea aún sin migrar (próximo en la lista) — conserva el estilo manual.
-const inputStyles =
-  "w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.10] text-sm text-white placeholder:text-white/50 focus:outline-none focus:border-orange-500/50 transition-colors";
 
 export default function ContactoForm({ emailDirecto }: { emailDirecto: string }) {
   const [nombre, setNombre] = useState("");
@@ -82,7 +79,7 @@ export default function ContactoForm({ emailDirecto }: { emailDirecto: string })
         <label htmlFor="mensaje" className="block text-xs font-bold text-white/70 mb-2">
           Mensaje
         </label>
-        <textarea
+        <Textarea
           id="mensaje"
           required
           rows={5}
@@ -90,7 +87,7 @@ export default function ContactoForm({ emailDirecto }: { emailDirecto: string })
           value={mensaje}
           onChange={(e) => setMensaje(e.target.value)}
           placeholder="Cuéntanos en qué podemos ayudarte"
-          className={`${inputStyles} resize-y min-h-[120px]`}
+          className="w-full min-h-[120px]"
         />
       </div>
 
