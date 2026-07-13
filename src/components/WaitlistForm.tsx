@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Button from "@/components/brand/Button";
 import Input from "@/components/brand/Input";
+import Select from "@/components/brand/Select";
 import { Check } from "@/components/brand/icons";
 
 // ── Lista de espera de Sistemas no disponibles ──────────────────────────────
@@ -19,10 +20,6 @@ const objetivos = [
 ];
 
 type Estado = "idle" | "enviando" | "ok" | "error";
-
-// Select aún sin migrar (viene más adelante) — conserva el estilo manual.
-const inputStyles =
-  "w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.10] text-sm text-white placeholder:text-white/50 focus:outline-none focus:border-orange-500/50 transition-colors";
 
 export default function WaitlistForm({ sistemaSlug }: { sistemaSlug: string }) {
   const [nombre, setNombre] = useState("");
@@ -79,18 +76,12 @@ export default function WaitlistForm({ sistemaSlug }: { sistemaSlug: string }) {
         aria-label="Tu email"
         className="w-full"
       />
-      <select
+      <Select
         value={objetivo}
-        onChange={(e) => setObjetivo(e.target.value)}
+        onValueChange={setObjetivo}
+        options={objetivos}
         aria-label="Tu objetivo principal"
-        className={`${inputStyles} appearance-none cursor-pointer`}
-      >
-        {objetivos.map((o) => (
-          <option key={o} value={o} className="bg-slate-900">
-            {o}
-          </option>
-        ))}
-      </select>
+      />
 
       <Button type="submit" size="md" disabled={estado === "enviando"} className="w-full">
         {estado === "enviando" ? "Enviando…" : "Quiero ser de los primeros en acceder"}
