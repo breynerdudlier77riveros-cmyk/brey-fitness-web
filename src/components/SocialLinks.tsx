@@ -19,7 +19,7 @@ export default function SocialLinks({ className = "" }: { className?: string }) 
           rel="noopener noreferrer"
           aria-label={red.etiqueta}
           title={red.etiqueta}
-          className="w-9 h-9 rounded-full border border-white/[0.10] flex items-center justify-center text-white/55 hover:text-white hover:border-white/30 transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400"
+          className="w-9 h-9 rounded-full border border-white/[0.10] flex items-center justify-center text-white/55 hover:text-white hover:border-white/30 transition-all duration-200 outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
         >
           <SocialGlyph id={red.id} className="w-4 h-4" />
         </a>

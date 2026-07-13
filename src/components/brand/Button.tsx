@@ -14,6 +14,13 @@ import { cn } from "@/lib/utils";
 // los conflictos de utilidades a favor de estas clases. h-auto neutraliza
 // la altura fija (h-8/h-9) del primitivo para que la altura la siga
 // determinando el padding vertical, como siempre.
+//
+// FOCO — identidad única en todo el sitio (ver también ui/*.tsx generados):
+// el anillo de foco lo aporta SIEMPRE la primitiva shadcn subyacente
+// (focus-visible:ring-ring, con --ring = naranja de marca en globals.css).
+// Ningún wrapper de marca debe añadir su propio focus-visible:outline-* —
+// eso fue lo que producía el doble anillo. Un solo tratamiento, un solo color,
+// igual en Button/Input/Select/Checkbox/... sin importar la variante.
 
 type Variant = "primary" | "buy" | "outline";
 type Size = "sm" | "md" | "lg" | "xl";
@@ -22,11 +29,11 @@ const base = "h-auto rounded-full";
 
 const variants: Record<Variant, string> = {
   primary:
-    "rounded-full bg-orange-500 hover:bg-orange-400 active:bg-orange-600 text-white transition-colors duration-200 focus-visible:outline-orange-400",
+    "rounded-full bg-orange-500 hover:bg-orange-400 active:bg-orange-600 text-white transition-colors duration-200",
   buy:
-    "checkout-btn rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-white shadow-lg shadow-emerald-500/20 transition-colors duration-300 active:scale-[0.97] focus-visible:outline-emerald-400",
+    "checkout-btn rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-white shadow-lg shadow-emerald-500/20 transition-colors duration-300 active:scale-[0.97]",
   outline:
-    "rounded-full border border-white/[0.12] text-white/70 hover:text-white hover:border-white/25 transition-all duration-200 focus-visible:outline-white/60",
+    "rounded-full border border-white/[0.12] text-white/70 hover:text-white hover:border-white/25 transition-all duration-200",
 };
 
 const sizes: Record<Size, string> = {
@@ -58,7 +65,7 @@ export default function Button({
   className = "",
 }: Props) {
   const classes = cn(
-    "inline-flex items-center justify-center whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2",
+    "inline-flex items-center justify-center whitespace-nowrap",
     base,
     variants[variant],
     sizes[size],

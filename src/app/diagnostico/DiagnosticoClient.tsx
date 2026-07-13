@@ -179,7 +179,7 @@ export default function DiagnosticoClient() {
               <button
                 key={opcion.id}
                 onClick={() => elegir(opcion)}
-                className="w-full text-left px-5 py-3.5 rounded-2xl border border-white/[0.09] bg-white/[0.02] hover:border-orange-500/40 hover:bg-orange-500/[0.06] transition-all duration-200 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400"
+                className="w-full text-left px-5 py-3.5 rounded-2xl border border-white/[0.09] bg-white/[0.02] hover:border-orange-500/40 hover:bg-orange-500/[0.06] transition-all duration-200 cursor-pointer outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               >
                 <span className="block font-bold text-sm text-white/85">{opcion.etiqueta}</span>
                 {opcion.descripcion && (
