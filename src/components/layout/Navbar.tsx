@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowRight, Close, Menu } from "@/components/brand/icons";
 import Button from "@/components/brand/Button";
+import { Drawer, DrawerContent, DrawerTitle } from "@/components/brand/Drawer";
 
 const navLinks = [
   { href: "/bps", label: "El Método" },
@@ -73,9 +74,10 @@ export default function Navbar() {
       </nav>
 
       {/* Mobile menu */}
-      {open && (
-        <div className="md:hidden border-t border-white/[0.06] bg-slate-950/95 backdrop-blur-2xl">
-          <div className="max-w-6xl mx-auto px-4 py-4 flex flex-col gap-1">
+      <Drawer direction="right" open={open} onOpenChange={setOpen}>
+        <DrawerContent className="bg-slate-950/95 backdrop-blur-2xl">
+          <DrawerTitle className="sr-only">Menú de navegación</DrawerTitle>
+          <div className="px-4 py-6 flex flex-col gap-1">
             {navLinks.map(({ href, label }) => {
               const active = pathname === href || (href !== "/" && pathname.startsWith(href));
               return (
@@ -98,8 +100,8 @@ export default function Navbar() {
               <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
             </Button>
           </div>
-        </div>
-      )}
+        </DrawerContent>
+      </Drawer>
     </header>
   );
 }
