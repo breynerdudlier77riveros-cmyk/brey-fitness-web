@@ -120,7 +120,7 @@ export default function BPSPage() {
               <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
             </Button>
             <Button href="/sistemas" variant="outline" size="md" className="px-7 py-3.5">
-              Ver los 5 ecosistemas
+              Ver los 5 Sistemas
             </Button>
           </div>
         </div>
