@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { TooltipProvider } from "@/components/brand/Tooltip";
 import { SITE_URL } from "@/lib/site";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -35,9 +36,11 @@ export default function RootLayout({
       <body
         className={`${inter.className} min-h-full flex flex-col bg-slate-950 text-white antialiased`}
       >
-        <Navbar />
-        <div className="flex-1">{children}</div>
-        <Footer />
+        <TooltipProvider>
+          <Navbar />
+          <div className="flex-1">{children}</div>
+          <Footer />
+        </TooltipProvider>
         {plausibleDomain && (
           <script
             defer
