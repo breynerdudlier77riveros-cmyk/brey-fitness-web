@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { MotionConfig } from "motion/react";
 import "./globals.css";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
+import SiteChrome from "@/components/layout/SiteChrome";
 import { TooltipProvider } from "@/components/brand/Tooltip";
 import { Toaster } from "@/components/brand/Toast";
 import { SITE_URL } from "@/lib/site";
@@ -43,9 +42,7 @@ export default function RootLayout({
             componente individual necesita llamar useReducedMotion(). */}
         <MotionConfig reducedMotion="user">
           <TooltipProvider>
-            <Navbar />
-            <div className="flex-1">{children}</div>
-            <Footer />
+            <SiteChrome>{children}</SiteChrome>
           </TooltipProvider>
           <Toaster />
         </MotionConfig>
