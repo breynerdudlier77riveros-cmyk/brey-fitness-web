@@ -31,6 +31,11 @@ export function ArrowRight(props: IconProps) {
   return <StrokeIcon d="m8.25 4.5 7.5 7.5-7.5 7.5" {...props} />;
 }
 
+/** Chevron hacia la izquierda — enlaces "volver". */
+export function ArrowLeft(props: IconProps) {
+  return <StrokeIcon d="m15.75 19.5-7.5-7.5 7.5-7.5" {...props} />;
+}
+
 /** Flecha larga hacia la derecha — botón de compra. */
 export function ArrowLong(props: IconProps) {
   return <StrokeIcon d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" {...props} />;
@@ -141,6 +146,42 @@ export function UserIcon(props: IconProps) {
   return (
     <StrokeIcon
       d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+      {...props}
+    />
+  );
+}
+
+/** Diana — paso "Objetivo" del flujo del Diagnóstico. */
+export function Target({ className = "w-4 h-4", strokeWidth = 1.75 }: IconProps) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" strokeWidth={strokeWidth} viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" />
+      <circle cx="12" cy="12" r="5" />
+      <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+/** Reloj — paso "Tiempo disponible" del flujo del Diagnóstico. */
+export function Clock(props: IconProps) {
+  return <StrokeIcon d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" {...props} />;
+}
+
+/** Llama — calculadora de calorías (TDEE). */
+export function Flame(props: IconProps) {
+  return (
+    <StrokeIcon
+      d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.048 8.287 8.287 0 0 0 9 9.6a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z"
+      {...props}
+    />
+  );
+}
+
+/** Corazón — calculadora de frecuencia cardíaca. */
+export function Heart(props: IconProps) {
+  return (
+    <StrokeIcon
+      d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
       {...props}
     />
   );

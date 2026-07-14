@@ -20,7 +20,7 @@ export default function CheckoutButton({ href, label, className = "" }: Props) {
         {label}
         <ArrowLong className="w-5 h-5 shrink-0" strokeWidth={2.5} />
       </Button>
-      <p className="text-slate-400 text-[11px] tracking-[0.18em] uppercase">
+      <p className="text-white/50 text-[11px] tracking-[0.18em] uppercase">
         Pago 100% seguro · Encriptación SSL · Garantía 30 días
       </p>
     </div>

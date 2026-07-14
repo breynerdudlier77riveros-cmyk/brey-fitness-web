@@ -16,6 +16,11 @@ import { Check } from "@/components/brand/icons";
 // al montar — animando scaleY (transform), nunca height, así que el
 // contenedor nunca cambia de tamaño y no hay CLS. "use client" porque
 // Motion necesita ejecutar en el navegador.
+//
+// BREY v3.0 (Fase 2, skeleton loading): breve estado de carga antes del
+// contenido real — comunica "esto es software real trayendo tus datos",
+// no un mockup estático. Los contenedores del skeleton comparten alto y
+// estructura con el contenido real, así que el swap no produce CLS.
 
 const sesion = [
   { nombre: "Press banca",     esquema: "4 × 5",     intensidad: "RPE 8", hecho: true },
@@ -49,6 +54,86 @@ const diaEstilo: Record<(typeof dias)[number]["estado"], string> = {
 // — se ve el número ya en su valor final apenas aparece, no contando.
 const REVEAL_DELAY = 0.6;
 
+// El skeleton se retira a los 450ms — después de que la tarjeta terminó de
+// asentarse visualmente (~400-600ms) pero antes de que el conteo/barras
+// arranquen (600ms), para que el orden se sienta como: aparece → carga → cuenta.
+const SKELETON_MS = 450;
+
+/** Bloque de carga — mismo alto que el texto real que reemplaza. */
+function SkeletonBar({ className = "" }: { className?: string }) {
+  return <div className={`rounded-full bg-white/[0.06] animate-pulse motion-reduce:animate-none ${className}`} />;
+}
+
+/** Mantiene la forma exacta del dashboard real mientras "carga". */
+function DashboardSkeleton() {
+  return (
+    <>
+      <div className="flex items-start justify-between gap-4 mb-4">
+        <div className="flex-1 space-y-2.5">
+          <SkeletonBar className="h-2.5 w-24" />
+          <SkeletonBar className="h-4 w-32" />
+          <SkeletonBar className="h-2.5 w-40" />
+        </div>
+        <div className="flex flex-col items-end gap-2 flex-shrink-0">
+          <SkeletonBar className="h-3 w-10" />
+          <div className="w-16 h-1 rounded-full bg-white/[0.06] animate-pulse motion-reduce:animate-none" />
+        </div>
+      </div>
+
+      <SkeletonBar className="h-2.5 w-48 mb-5" />
+
+      <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] divide-y divide-white/[0.06] mb-4">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="flex items-center gap-3 px-4 py-3">
+            <div className="w-5 h-5 rounded-full bg-white/[0.06] animate-pulse motion-reduce:animate-none flex-shrink-0" />
+            <SkeletonBar className="h-3 flex-1" />
+            <SkeletonBar className="h-3 w-8" />
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-4">
+          <SkeletonBar className="h-2.5 w-20 mb-3" />
+          <div className="flex items-end gap-1.5 h-12 mb-2">
+            {tonelaje.map((h, i) => (
+              <div
+                key={i}
+                style={{ height: `${h}%` }}
+                className="flex-1 rounded-sm bg-white/[0.06] animate-pulse motion-reduce:animate-none"
+              />
+            ))}
+          </div>
+          <SkeletonBar className="h-2.5 w-24" />
+        </div>
+        <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-4 flex flex-col justify-between">
+          <div>
+            <SkeletonBar className="h-2.5 w-20 mb-3" />
+            <div className="flex items-center justify-between">
+              {dias.map((_, i) => (
+                <div key={i} className="w-2 h-2 rounded-full bg-white/[0.06] animate-pulse motion-reduce:animate-none" />
+              ))}
+            </div>
+          </div>
+          <SkeletonBar className="h-2.5 w-20 mt-3" />
+        </div>
+      </div>
+    </>
+  );
+}
+
+/** true una vez pasado el breve estado de carga (instantáneo si reduced-motion). */
+function useSkeletonReady(delay = SKELETON_MS) {
+  const shouldReduceMotion = useReducedMotion();
+  const [ready, setReady] = useState(!!shouldReduceMotion);
+  useEffect(() => {
+    if (shouldReduceMotion) return;
+    const t = setTimeout(() => setReady(true), delay);
+    return () => clearTimeout(t);
+  }, [shouldReduceMotion, delay]);
+  return ready;
+}
+
 /**
  * Cuenta de 0 al valor objetivo una sola vez al montar.
  * animate() es imperativo — a diferencia de motion.div, no lee el
@@ -73,6 +158,7 @@ function useCountUp(target: number, duration = 1.1, delay = REVEAL_DELAY) {
 
 export default function DashboardPreview({ className = "" }: { className?: string }) {
   const progreso = useCountUp(44);
+  const ready = useSkeletonReady();
 
   return (
     <div className={`relative mx-auto w-full max-w-md ${className}`}>
@@ -86,7 +172,10 @@ export default function DashboardPreview({ className = "" }: { className?: strin
 
       {/* Marco de la app */}
       <div className="relative rounded-3xl border border-white/10 bg-slate-900/70 backdrop-blur-xl shadow-2xl shadow-black/50 p-5 sm:p-6">
-
+        {!ready ? (
+          <DashboardSkeleton />
+        ) : (
+          <>
         {/* Cabecera: hoy entrenas */}
         <div className="flex items-start justify-between gap-4 mb-4">
           <div>
@@ -181,7 +270,8 @@ export default function DashboardPreview({ className = "" }: { className?: strin
             </p>
           </div>
         </div>
-
+          </>
+        )}
       </div>
     </div>
   );

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { sistemas } from "@/data/sistemas";
 import ScrollReveal from "@/components/ScrollReveal";
-import Button from "@/components/brand/Button";
+import DiagnosticoCTA from "@/components/DiagnosticoCTA";
 import { cardStyles } from "@/components/brand/Card";
 import Badge from "@/components/brand/Badge";
 import { ArrowRight, Check } from "@/components/brand/icons";
@@ -37,26 +37,7 @@ export default function SistemasPage() {
       {/* ── Encuentra tu Camino — CTA principal ── */}
       <section className="max-w-4xl mx-auto px-4 md:px-6 pb-16">
         <ScrollReveal>
-          <div className="relative overflow-hidden rounded-3xl border border-orange-500/25 bg-orange-500/[0.05] p-8 md:p-12 text-center">
-            <div aria-hidden className="absolute -top-24 left-1/2 -translate-x-1/2 w-[400px] h-[200px] bg-orange-600/10 blur-[80px] rounded-full pointer-events-none" />
-            <div className="relative">
-              <h2 className="font-black text-3xl sm:text-4xl text-white mb-4">
-                Encuentra tu Camino
-              </h2>
-              <p className="text-white/60 leading-relaxed max-w-lg mx-auto mb-8">
-                No necesitas adivinar qué Sistema elegir. El Diagnóstico BPS analiza tus
-                objetivos, experiencia y disponibilidad para recomendarte el Sistema — y el
-                nivel — más adecuado para ti.
-              </p>
-              <Button href="/diagnostico" size="lg">
-                Iniciar Diagnóstico BPS
-                <ArrowRight className="w-5 h-5" strokeWidth={2.5} />
-              </Button>
-              <p className="text-white/40 text-[11px] tracking-[0.18em] uppercase mt-5">
-                2 minutos · Sin registro · Gratis
-              </p>
-            </div>
-          </div>
+          <DiagnosticoCTA variant="sistemas" />
         </ScrollReveal>
       </section>
 
@@ -84,6 +65,9 @@ export default function SistemasPage() {
                         <h2 className="font-black text-2xl md:text-3xl text-white leading-snug">
                           {s.nombre}
                         </h2>
+                        {s.duracion && (
+                          <p className="text-white/50 text-xs mt-1">{s.duracion}</p>
+                        )}
                       </div>
                     </div>
                     {s.disponible ? (

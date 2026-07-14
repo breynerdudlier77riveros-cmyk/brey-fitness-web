@@ -75,7 +75,7 @@ export const ejercicios: Exercise[] = [
       "Corrección de desbalances bilaterales al trabajar cada brazo de forma independiente",
       "Menor estrés articular en muñeca y codo vs barra",
     ],
-    sistemasVinculados: ["hipertrofia", "hipertrofia", "hibrido"],
+    sistemasVinculados: ["hipertrofia", "hibrido"],
   },
   {
     slug: "fondos-paralelas",
@@ -224,7 +224,7 @@ export const ejercicios: Exercise[] = [
       "Ideal como transición hacia las dominadas",
       "Excelente para volumen de acumulación sin fatiga del sistema nervioso central",
     ],
-    sistemasVinculados: ["hipertrofia", "hipertrofia"],
+    sistemasVinculados: ["hipertrofia"],
   },
 
   // ── HOMBROS ───────────────────────────────────────────────────────────────
@@ -299,7 +299,7 @@ export const ejercicios: Exercise[] = [
       "Construcción de la apariencia de hombros anchos independientemente del peso manejado en press",
       "Bajo riesgo de lesión si se ejecuta con carga apropiada",
     ],
-    sistemasVinculados: ["hipertrofia", "hipertrofia", "hibrido"],
+    sistemasVinculados: ["hipertrofia", "hibrido"],
   },
 
   // ── PIERNAS ───────────────────────────────────────────────────────────────
@@ -412,7 +412,7 @@ export const ejercicios: Exercise[] = [
       "Desarrollo específico del glúteo sin fatiga excesiva de cuádriceps o espalda",
       "Transferencia a rendimiento atlético en sprint y salto",
     ],
-    sistemasVinculados: ["hipertrofia", "hipertrofia", "hibrido"],
+    sistemasVinculados: ["hipertrofia", "hibrido"],
   },
   {
     slug: "romanian-deadlift",
@@ -485,7 +485,7 @@ export const ejercicios: Exercise[] = [
       "Prevención de dolor lumbar",
       "Accesible sin equipamiento para principiantes",
     ],
-    sistemasVinculados: ["hipertrofia", "calistenia", "hipertrofia"],
+    sistemasVinculados: ["hipertrofia", "calistenia"],
   },
   {
     slug: "crunch-cable",
@@ -665,7 +665,7 @@ export const ejercicios: Exercise[] = [
       "Desarrollo de grosor en el brazo",
       "Fortalecimiento del tendón del bíceps",
     ],
-    sistemasVinculados: ["hipertrofia", "hipertrofia", "hibrido"],
+    sistemasVinculados: ["hipertrofia", "hibrido"],
   },
   {
     slug: "extension-triceps-cable",
@@ -700,7 +700,7 @@ export const ejercicios: Exercise[] = [
       "Bajo riesgo de lesión articular",
       "Excelente para trabajo de acumulación de volumen",
     ],
-    sistemasVinculados: ["hipertrofia", "hipertrofia"],
+    sistemasVinculados: ["hipertrofia"],
   },
 ];
 

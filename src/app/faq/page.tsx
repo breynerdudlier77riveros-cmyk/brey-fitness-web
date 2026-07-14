@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { faqs } from "@/data/faq";
 import SectionLabel from "@/components/layout/SectionLabel";
-import { ArrowRight } from "@/components/brand/icons";
+import { ArrowRight, Plus } from "@/components/brand/icons";
+import Button from "@/components/brand/Button";
 
 export const metadata: Metadata = {
   title: "Preguntas Frecuentes",
@@ -50,15 +50,10 @@ export default function FaqPage() {
                 <span className="font-bold text-sm text-white/80 leading-snug">
                   {f.pregunta}
                 </span>
-                <svg
+                <Plus
                   className="w-4 h-4 text-white/55 flex-shrink-0 transition-transform duration-200 group-open:rotate-45"
-                  fill="none"
-                  stroke="currentColor"
                   strokeWidth={2}
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
+                />
               </summary>
               <p className="px-5 pb-5 text-sm text-white/60 leading-relaxed">
                 {f.respuesta}
@@ -71,13 +66,10 @@ export default function FaqPage() {
           <p className="text-white/50 text-sm mb-4">
             ¿Todavía no sabes qué Sistema es para ti?
           </p>
-          <Link
-            href="/diagnostico"
-            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-orange-500 hover:bg-orange-400 text-white font-bold text-sm transition-all"
-          >
+          <Button href="/diagnostico" size="lg">
             Empezar mi diagnóstico
             <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
-          </Link>
+          </Button>
         </div>
       </div>
     </main>

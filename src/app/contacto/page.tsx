@@ -45,7 +45,7 @@ export default function ContactoPage() {
         <div className="relative max-w-6xl mx-auto px-4 md:px-6 pt-16 pb-20 md:pt-20 md:pb-24">
           <SectionLabel>Contacto</SectionLabel>
 
-          <div className="grid lg:grid-cols-[1fr_1.1fr] gap-12 lg:gap-16 items-start">
+          <div className="grid md:grid-cols-[1fr_1.1fr] gap-12 lg:gap-16 items-start">
 
             {/* Información */}
             <div>

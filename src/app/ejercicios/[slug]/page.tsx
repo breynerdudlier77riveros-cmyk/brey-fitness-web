@@ -3,7 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ejercicios, getEjercicioBySlug } from "@/data/exercises";
 import type { ExerciseLevel, ExerciseType } from "@/lib/types";
-import { ArrowRight, Close } from "@/components/brand/icons";
+import { ArrowRight, ArrowLeft, Check, Close } from "@/components/brand/icons";
+import Button from "@/components/brand/Button";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -133,9 +134,7 @@ export default async function EjercicioPage({ params }: Props) {
             <div className="space-y-2.5">
               {e.beneficios.map((b, i) => (
                 <div key={i} className="flex gap-3 p-4 rounded-xl border border-emerald-500/10 bg-emerald-500/[0.03]">
-                  <svg className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                  </svg>
+                  <Check className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" strokeWidth={2} />
                   <p className="text-sm text-white/50 leading-relaxed">{b}</p>
                 </div>
               ))}
@@ -165,7 +164,7 @@ export default async function EjercicioPage({ params }: Props) {
                 Sistemas que incluyen este ejercicio
               </h3>
               <div className="space-y-2">
-                {e.sistemasVinculados.map((slug) => (
+                {Array.from(new Set(e.sistemasVinculados)).map((slug) => (
                   <Link
                     key={slug}
                     href={`/sistemas/${slug}`}
@@ -187,13 +186,10 @@ export default async function EjercicioPage({ params }: Props) {
             <h3 className="font-black text-white text-sm mb-3 leading-snug">
               El diagnóstico de 2 min te recomienda el ecosistema exacto.
             </h3>
-            <Link
-              href="/diagnostico"
-              className="inline-flex w-full items-center justify-center gap-2 px-4 py-3 rounded-xl bg-orange-500 hover:bg-orange-400 text-white font-bold text-xs transition-all"
-            >
+            <Button href="/diagnostico" size="sm" className="w-full">
               Empezar el diagnóstico
               <ArrowRight className="w-3.5 h-3.5" strokeWidth={2.5} />
-            </Link>
+            </Button>
           </div>
         </aside>
       </div>
@@ -204,9 +200,7 @@ export default async function EjercicioPage({ params }: Props) {
           href="/ejercicios"
           className="inline-flex items-center gap-2 text-sm text-white/55 hover:text-white/90 transition-colors"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-          </svg>
+          <ArrowLeft className="w-4 h-4" strokeWidth={2} />
           Volver a la biblioteca
         </Link>
       </div>

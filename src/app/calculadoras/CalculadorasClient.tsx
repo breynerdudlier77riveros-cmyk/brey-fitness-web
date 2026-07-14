@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/brand/Tabs";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/brand/Tooltip";
+import { Bolt, Flame, UserIcon, ChartBar, Heart, TrendingUp } from "@/components/brand/icons";
 
 /* ─── shared input ─────────────────────────────────────── */
 function Field({
@@ -534,8 +536,21 @@ function CalcVolumen() {
     <div>
       <div className="flex items-start justify-between mb-6 gap-4 flex-wrap">
         <p className="text-xs text-white/55 leading-relaxed max-w-lg">
-          Basado en MEV (Volumen Mínimo Efectivo) y MRV (Volumen Máximo Recuperable) según Israetel et al., 2019.
-          Ajusta las series directas semanales por grupo muscular.
+          Basado en{" "}
+          <Tooltip>
+            <TooltipTrigger className="underline decoration-dotted underline-offset-2 cursor-help">
+              MEV
+            </TooltipTrigger>
+            <TooltipContent>Volumen Mínimo Efectivo — el mínimo de series semanales para seguir progresando.</TooltipContent>
+          </Tooltip>{" "}
+          y{" "}
+          <Tooltip>
+            <TooltipTrigger className="underline decoration-dotted underline-offset-2 cursor-help">
+              MRV
+            </TooltipTrigger>
+            <TooltipContent>Volumen Máximo Recuperable — el techo de series que tu cuerpo aún puede recuperar en la semana.</TooltipContent>
+          </Tooltip>{" "}
+          según Israetel et al., 2019. Ajusta las series directas semanales por grupo muscular.
         </p>
         <div className="rounded-xl border border-orange-500/20 bg-orange-500/[0.06] px-4 py-2 text-right flex-shrink-0">
           <p className="text-[10px] text-white/55 uppercase tracking-widest">Total semanal</p>
@@ -552,17 +567,19 @@ function CalcVolumen() {
             <div key={g.id} className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-4">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-sm font-bold text-white">{g.label}</span>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1">
                   <button
                     onClick={() => update(g.id, v - 1)}
-                    className="w-6 h-6 rounded-md border border-white/[0.1] text-white/60 hover:text-white hover:border-white/20 text-sm font-bold transition-all"
+                    aria-label={`Restar serie — ${g.label}`}
+                    className="w-8 h-8 flex items-center justify-center rounded-md border border-white/[0.1] text-white/60 hover:text-white hover:border-white/20 text-sm font-bold transition-all"
                   >
                     −
                   </button>
                   <span className="text-white font-black text-base tabular-nums w-6 text-center">{v}</span>
                   <button
                     onClick={() => update(g.id, v + 1)}
-                    className="w-6 h-6 rounded-md border border-white/[0.1] text-white/60 hover:text-white hover:border-white/20 text-sm font-bold transition-all"
+                    aria-label={`Sumar serie — ${g.label}`}
+                    className="w-8 h-8 flex items-center justify-center rounded-md border border-white/[0.1] text-white/60 hover:text-white hover:border-white/20 text-sm font-bold transition-all"
                   >
                     +
                   </button>
@@ -588,12 +605,12 @@ function CalcVolumen() {
 
 /* ─── Main hub ─────────────────────────────────────────── */
 const tabs = [
-  { id: "1rm", label: "1RM", sub: "Fuerza máxima", icon: "🏋" },
-  { id: "tdee", label: "TDEE", sub: "Calorías", icon: "🔥" },
-  { id: "imc", label: "IMC", sub: "Índice corporal", icon: "📏" },
-  { id: "macros", label: "Macros", sub: "Nutrición", icon: "🥩" },
-  { id: "fc", label: "Frecuencia Cardíaca", sub: "Zonas", icon: "❤" },
-  { id: "volumen", label: "Volumen Semanal", sub: "Series", icon: "📊" },
+  { id: "1rm", label: "1RM", sub: "Fuerza máxima", icon: Bolt },
+  { id: "tdee", label: "TDEE", sub: "Calorías", icon: Flame },
+  { id: "imc", label: "IMC", sub: "Índice corporal", icon: UserIcon },
+  { id: "macros", label: "Macros", sub: "Nutrición", icon: ChartBar },
+  { id: "fc", label: "Frecuencia Cardíaca", sub: "Zonas", icon: Heart },
+  { id: "volumen", label: "Volumen Semanal", sub: "Series", icon: TrendingUp },
 ];
 
 export default function CalculadorasClient() {
@@ -605,7 +622,7 @@ export default function CalculadorasClient() {
       <TabsList className="pb-2 mb-8">
         {tabs.map((t) => (
           <TabsTrigger key={t.id} value={t.id}>
-            <span className="text-lg leading-none">{t.icon}</span>
+            <t.icon className="w-5 h-5" strokeWidth={1.75} />
             <span className="mt-1.5">{t.label}</span>
             <span className="text-[10px] font-normal opacity-60">{t.sub}</span>
           </TabsTrigger>

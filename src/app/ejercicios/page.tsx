@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ejercicios } from "@/data/exercises";
 import type { MuscleGroup, ExerciseLevel, ExerciseType } from "@/lib/types";
 import { ArrowRight } from "@/components/brand/icons";
+import Button from "@/components/brand/Button";
 
 export const metadata: Metadata = {
   title: "Biblioteca de Ejercicios — técnica, errores y variantes",
@@ -107,15 +108,10 @@ export default function EjerciciosPage() {
                     <h3 className="font-bold text-sm text-white leading-snug group-hover:text-orange-100 transition-colors">
                       {e.nombre}
                     </h3>
-                    <svg
+                    <ArrowRight
                       className="w-4 h-4 text-white/50 group-hover:text-white/90 flex-shrink-0 mt-0.5 transition-colors"
-                      fill="none"
-                      stroke="currentColor"
                       strokeWidth={2}
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                    </svg>
+                    />
                   </div>
                   {e.nombreIngles && (
                     <p className="text-[11px] text-white/50">{e.nombreIngles}</p>
@@ -149,13 +145,10 @@ export default function EjerciciosPage() {
         <p className="text-white/55 text-sm max-w-md mx-auto mb-8">
           Nuevos ejercicios, filtros avanzados por equipamiento y Sistema, y videos demostrativos están en camino.
         </p>
-        <Link
-          href="/diagnostico"
-          className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-orange-500 hover:bg-orange-400 text-white font-bold text-sm transition-all"
-        >
+        <Button href="/diagnostico" size="lg">
           Encontrar mi Sistema
           <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
-        </Link>
+        </Button>
       </section>
     </main>
   );

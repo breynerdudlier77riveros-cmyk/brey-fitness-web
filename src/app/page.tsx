@@ -10,7 +10,8 @@ import Badge from "@/components/brand/Badge";
 import DashboardPreview from "@/components/DashboardPreview";
 import FounderSection from "@/components/FounderSection";
 import EvolucionSection from "@/components/EvolucionSection";
-import DiagnosticoFlow from "@/components/DiagnosticoFlow";
+import DiagnosticoCTA from "@/components/DiagnosticoCTA";
+import RetencionFlow from "@/components/RetencionFlow";
 import { HeroStagger, HeroItem, HeroPreviewItem } from "@/components/HeroEntrance";
 
 // ── Acto 2 · Manifiesto ─────────────────────────────────────────────────────
@@ -199,24 +200,7 @@ export default function HomePage() {
 
         {/* Encuentra tu Camino — CTA principal antes de los Sistemas */}
         <ScrollReveal>
-          <div className="relative overflow-hidden rounded-3xl border border-orange-500/25 bg-orange-500/[0.05] p-8 md:p-12 text-center mb-12">
-            <div aria-hidden className="absolute -top-24 left-1/2 -translate-x-1/2 w-[400px] h-[200px] bg-orange-600/10 blur-[80px] rounded-full pointer-events-none" />
-            <div className="relative">
-              <h2 className="font-black text-3xl sm:text-4xl md:text-5xl text-white mb-4">
-                Encuentra tu Camino
-              </h2>
-              <p className="text-white/60 leading-relaxed max-w-lg mx-auto mb-10">
-                No necesitas adivinar qué Sistema elegir. El Diagnóstico BPS analiza tus
-                objetivos, experiencia y disponibilidad para recomendarte el Sistema — y el
-                nivel — más adecuado para ti.
-              </p>
-              <DiagnosticoFlow />
-              <Button href="/diagnostico" size="lg">
-                Iniciar Diagnóstico BPS
-                <ArrowRight className="w-5 h-5" strokeWidth={2.5} />
-              </Button>
-            </div>
-          </div>
+          <DiagnosticoCTA variant="home" className="mb-12" />
         </ScrollReveal>
 
         {/* Los 5 Sistemas — CTA secundario */}
@@ -245,12 +229,18 @@ export default function HomePage() {
                   <h3 className="font-black text-base text-white group-hover:text-orange-400 transition-colors duration-300 mb-1">
                     {s.nombre}
                   </h3>
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="flex items-center gap-2 mb-2 flex-wrap">
                     <p className={`text-[11px] font-semibold ${s.color.accent}`}>{s.objetivo}</p>
                     {s.niveles.length > 0 && (
                       <>
                         <span aria-hidden className="text-white/25">·</span>
                         <p className="text-[11px] text-white/50">{s.niveles.length} niveles</p>
+                      </>
+                    )}
+                    {s.duracion && (
+                      <>
+                        <span aria-hidden className="text-white/25">·</span>
+                        <p className="text-[11px] text-white/50">{s.duracion}</p>
                       </>
                     )}
                   </div>
@@ -298,6 +288,26 @@ export default function HomePage() {
               <ArrowRight className="w-4 h-4 text-white/55 group-hover:text-orange-400 transition-colors" strokeWidth={2.5} />
             </Link>
           </ScrollReveal>
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════
+          ACTO 5 · RETENCIÓN — Así se ve tu progreso
+          Responde: ¿por qué voy a volver mañana?
+      ════════════════════════════════════════ */}
+      <section className="border-t border-white/[0.05]">
+        <div className="max-w-4xl mx-auto px-4 md:px-6 py-20 md:py-28">
+          <ScrollReveal>
+            <SectionLabel>Retención, no rutina</SectionLabel>
+            <h2 className="font-black text-3xl sm:text-4xl md:text-5xl text-white mb-4">
+              Así se ve tu progreso.
+            </h2>
+            <p className="text-white/60 leading-relaxed max-w-xl mb-14">
+              No es una rutina que terminas. Es un ciclo que se repite cada semana —
+              y que mejora cada vez que se repite.
+            </p>
+          </ScrollReveal>
+          <RetencionFlow />
         </div>
       </section>
 

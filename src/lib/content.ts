@@ -21,6 +21,25 @@ export interface Video {
   youtubeId?: string; // añade el ID de YouTube cuando tengas la URL
 }
 
+// ─── Colores compartidos (única fuente — BlogGrid y blog/[slug] la consumen) ──
+export const categoryColor: Record<Category, string> = {
+  Entrenamiento: "text-emerald-400",
+  Nutrición: "text-violet-400",
+  Mentalidad: "text-yellow-400",
+};
+
+/** Insignia pill de categoría, para la página de detalle del artículo. */
+export const categoryBadge: Record<Category, string> = {
+  Entrenamiento: "text-emerald-400 border-emerald-500/20 bg-emerald-500/10",
+  Nutrición: "text-violet-400 border-violet-500/20 bg-violet-500/10",
+  Mentalidad: "text-yellow-400 border-yellow-500/20 bg-yellow-500/10",
+};
+
+export const typeBadge: Record<ContentType, { label: string; className: string }> = {
+  Lectura: { label: "Lectura", className: "text-sky-400 border-sky-500/20 bg-sky-500/[0.07]" },
+  Video: { label: "Video", className: "text-orange-400 border-orange-500/20 bg-orange-500/[0.07]" },
+};
+
 // ─── BLOG POSTS ──────────────────────────────────────────────────────────────
 // Para añadir un nuevo artículo, copia un objeto del array y edita los campos.
 export const posts: Post[] = [

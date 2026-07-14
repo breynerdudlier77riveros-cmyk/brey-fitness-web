@@ -2,20 +2,10 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { posts, type Category, type ContentType } from "@/lib/content";
+import { posts, categoryColor, typeBadge } from "@/lib/content";
+import { cardStyles } from "@/components/brand/Card";
 
 const CATEGORIES = ["Todos", "Entrenamiento", "Nutrición", "Mentalidad"] as const;
-
-const typeBadge: Record<ContentType, { label: string; className: string }> = {
-  Lectura: { label: "Lectura", className: "text-sky-400 border-sky-500/20 bg-sky-500/[0.07]" },
-  Video:   { label: "Video",   className: "text-orange-400 border-orange-500/20 bg-orange-500/[0.07]" },
-};
-
-const categoryColor: Record<Category, string> = {
-  Entrenamiento: "text-emerald-400",
-  Nutrición:     "text-violet-400",
-  Mentalidad:    "text-yellow-400",
-};
 
 export default function BlogGrid() {
   const [active, setActive] = useState<string>("Todos");
@@ -50,7 +40,7 @@ export default function BlogGrid() {
             <Link
               key={post.slug}
               href={`/blog/${post.slug}`}
-              className="group flex flex-col justify-between p-7 rounded-3xl border border-slate-700/50 bg-slate-900/80 backdrop-blur-sm hover:border-slate-600/60 hover:bg-slate-900 transition-all duration-500 min-h-[220px]"
+              className={`${cardStyles.base} ${cardStyles.interactive} group flex flex-col justify-between p-7 min-h-[220px]`}
             >
               {/* Badges */}
               <div className="flex items-center gap-2 mb-5">

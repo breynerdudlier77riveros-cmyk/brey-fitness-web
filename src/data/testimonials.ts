@@ -10,6 +10,10 @@
 // BREY v2.1 — "Casos reales": se extiende el tipo (tiempo, progreso, foto)
 // para mostrar más que una cita — sin inventar nada nuevo, cada campo sigue
 // exigiendo un dato real cuando llegue el primer testimonio.
+//
+// BREY v3.0 — "Transformación": par de fotos antes/después, opcional y
+// distinto del avatar (`foto`). Solo se muestra si el atleta aporta AMBAS
+// fotos reales — nunca una sola mitad del par, y nunca stock.
 
 export interface Testimonial {
   nombre: string;
@@ -24,6 +28,11 @@ export interface Testimonial {
   progreso?: number[];
   /** Foto real opcional — sin ella, se usan las iniciales como avatar (nunca una foto de stock). */
   foto?: { src: string; alt: string };
+  /** Par de fotos antes/después — opcional, solo si el atleta aporta ambas. */
+  transformacion?: {
+    antes: { src: string; alt: string };
+    despues: { src: string; alt: string };
+  };
 }
 
 export const testimonios: Testimonial[] = [];
