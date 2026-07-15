@@ -5,12 +5,23 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Bolt, Calendar, TrendingUp, Clock, Menu } from "@/components/brand/icons";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/brand/Drawer";
+import { signOut } from "@/lib/supabase/actions";
 
-// ── Navegación del Dashboard (BREY v1.1) ────────────────────────────────────
+// ── Navegación del Dashboard (BREY v1.1 + backend) ──────────────────────────
 // Sidebar fija en desktop, top bar + Drawer en mobile — mismo componente
 // Drawer que ya usa Navbar.tsx, para no introducir un segundo patrón de
 // menú móvil. Objetivo no tiene ítem propio: vive como contexto siempre
 // visible dentro de "Hoy", no como una sección a la que se navega.
+//
+// nombre/email/sistemaActual vienen del layout del servidor (app/app/layout.tsx),
+// que ya verificó la sesión y trajo el perfil real — este componente ya no
+// inventa un "Atleta demo" hardcodeado.
+
+interface Props {
+  nombre: string;
+  email: string;
+  sistemaActual: string | null;
+}
 
 const navItems = [
   { href: "/app", label: "Hoy", icon: Bolt },
@@ -18,6 +29,12 @@ const navItems = [
   { href: "/app/progreso", label: "Progreso", icon: TrendingUp },
   { href: "/app/historial", label: "Historial", icon: Clock },
 ] as const;
+
+function iniciales(nombre: string) {
+  const partes = nombre.trim().split(/\s+/).filter(Boolean);
+  if (partes.length === 0) return "?";
+  return partes.slice(0, 2).map((p) => p[0].toUpperCase()).join("");
+}
 
 function NavLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
   return (
@@ -55,7 +72,31 @@ function BrandMark() {
   );
 }
 
-export default function AppSidebar() {
+function UserBlock({ nombre, email, sistemaActual }: Props) {
+  return (
+    <div>
+      <div className="flex items-center gap-3 px-2 mb-3">
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-600 to-amber-700 flex items-center justify-center flex-shrink-0">
+          <span className="text-white font-black text-[10px]">{iniciales(nombre)}</span>
+        </div>
+        <div className="min-w-0">
+          <p className="text-xs font-bold text-white truncate">{nombre}</p>
+          <p className="text-[10px] text-white/50 truncate">{sistemaActual ?? email}</p>
+        </div>
+      </div>
+      <form action={signOut}>
+        <button
+          type="submit"
+          className="w-full text-left px-2 py-1.5 rounded-lg text-xs font-semibold text-white/45 hover:text-white/80 hover:bg-white/[0.04] transition-colors cursor-pointer"
+        >
+          Cerrar sesión
+        </button>
+      </form>
+    </div>
+  );
+}
+
+export default function AppSidebar({ nombre, email, sistemaActual }: Props) {
   const pathname = usePathname() ?? "/app";
   const [open, setOpen] = useState(false);
 
@@ -68,15 +109,7 @@ export default function AppSidebar() {
         </Link>
         <NavLinks pathname={pathname} />
         <div className="mt-auto pt-6 border-t border-white/[0.06]">
-          <div className="flex items-center gap-3 px-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-600 to-amber-700 flex items-center justify-center flex-shrink-0">
-              <span className="text-white font-black text-[10px]">JD</span>
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-bold text-white truncate">Atleta demo</p>
-              <p className="text-[10px] text-white/50 truncate">Sistema de Hipertrofia</p>
-            </div>
-          </div>
+          <UserBlock nombre={nombre} email={email} sistemaActual={sistemaActual} />
         </div>
       </aside>
 
@@ -97,8 +130,11 @@ export default function AppSidebar() {
       <Drawer direction="right" open={open} onOpenChange={setOpen}>
         <DrawerContent className="bg-slate-950/95 backdrop-blur-2xl">
           <DrawerTitle className="sr-only">Menú del Dashboard</DrawerTitle>
-          <div className="px-4 py-6">
+          <div className="px-4 py-6 flex flex-col gap-6">
             <NavLinks pathname={pathname} onNavigate={() => setOpen(false)} />
+            <div className="pt-4 border-t border-white/[0.06]">
+              <UserBlock nombre={nombre} email={email} sistemaActual={sistemaActual} />
+            </div>
           </div>
         </DrawerContent>
       </Drawer>
