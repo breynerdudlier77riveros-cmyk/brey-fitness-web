@@ -6,6 +6,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import Button from "@/components/brand/Button";
 import Input from "@/components/brand/Input";
+import PasswordInput from "@/components/brand/PasswordInput";
 import { toast } from "@/components/brand/Toast";
 
 export default function LoginForm() {
@@ -27,6 +28,7 @@ export default function LoginForm() {
 
     if (signInError) {
       setError("Email o contraseña incorrectos.");
+      toast.error("No se pudo iniciar sesión.");
       return;
     }
 
@@ -61,9 +63,8 @@ export default function LoginForm() {
             ¿Olvidaste tu contraseña?
           </Link>
         </div>
-        <Input
+        <PasswordInput
           id="password"
-          type="password"
           required
           autoComplete="current-password"
           value={password}

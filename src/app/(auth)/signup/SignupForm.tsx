@@ -5,11 +5,17 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import Button from "@/components/brand/Button";
 import Input from "@/components/brand/Input";
+import PasswordInput from "@/components/brand/PasswordInput";
+import { toast } from "@/components/brand/Toast";
 import { SITE_URL } from "@/lib/site";
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
 export default function SignupForm() {
+  const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmar, setConfirmar] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [enviado, setEnviado] = useState(false);
@@ -18,8 +24,20 @@ export default function SignupForm() {
     e.preventDefault();
     setError(null);
 
+    if (nombre.trim().length < 2) {
+      setError("Escribe tu nombre.");
+      return;
+    }
+    if (!EMAIL_RE.test(email)) {
+      setError("Ese email no parece válido.");
+      return;
+    }
     if (password.length < 8) {
       setError("La contraseña debe tener al menos 8 caracteres.");
+      return;
+    }
+    if (password !== confirmar) {
+      setError("Las contraseñas no coinciden.");
       return;
     }
 
@@ -28,16 +46,26 @@ export default function SignupForm() {
     const { error: signUpError } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: `${SITE_URL}/auth/confirm?next=/app` },
+      options: {
+        // raw_user_meta_data.nombre — el trigger de public.profiles lo lee
+        // para nombrar el perfil real (ver supabase/schema.sql).
+        data: { nombre: nombre.trim() },
+        emailRedirectTo: `${SITE_URL}/auth/confirm?next=/app`,
+      },
     });
     setLoading(false);
 
     if (signUpError) {
       setError(signUpError.message);
+      toast.error("No se pudo crear la cuenta.");
       return;
     }
 
-    // Mismo mensaje siempre, exista o no la cuenta ya — evita enumeración de emails.
+    // Mismo mensaje siempre, exista o no la cuenta ya — evita enumeración
+    // de emails. No inicia sesión automáticamente: si el proyecto exige
+    // confirmación por correo (por defecto en Supabase), signUp() no
+    // devuelve una sesión utilizable todavía.
+    toast.success("Cuenta creada — revisa tu correo.");
     setEnviado(true);
   }
 
@@ -54,6 +82,21 @@ export default function SignupForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label htmlFor="nombre" className="block text-xs font-semibold text-white/60 mb-1.5">
+          Nombre
+        </label>
+        <Input
+          id="nombre"
+          type="text"
+          required
+          autoComplete="name"
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+          placeholder="Tu nombre"
+        />
+      </div>
+
       <div>
         <label htmlFor="email" className="block text-xs font-semibold text-white/60 mb-1.5">
           Email
@@ -73,15 +116,28 @@ export default function SignupForm() {
         <label htmlFor="password" className="block text-xs font-semibold text-white/60 mb-1.5">
           Contraseña
         </label>
-        <Input
+        <PasswordInput
           id="password"
-          type="password"
           required
           autoComplete="new-password"
           minLength={8}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Mínimo 8 caracteres"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="confirmar" className="block text-xs font-semibold text-white/60 mb-1.5">
+          Confirmar contraseña
+        </label>
+        <PasswordInput
+          id="confirmar"
+          required
+          autoComplete="new-password"
+          value={confirmar}
+          onChange={(e) => setConfirmar(e.target.value)}
+          placeholder="Repite tu contraseña"
         />
       </div>
 

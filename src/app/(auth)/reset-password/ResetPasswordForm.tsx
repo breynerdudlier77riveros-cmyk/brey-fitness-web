@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import Button from "@/components/brand/Button";
 import Input from "@/components/brand/Input";
+import { toast } from "@/components/brand/Toast";
 import { SITE_URL } from "@/lib/site";
 
 export default function ResetPasswordForm() {
@@ -23,6 +24,7 @@ export default function ResetPasswordForm() {
 
     setLoading(false);
     // Mismo mensaje exista o no la cuenta — evita enumeración de emails.
+    toast.success("Link de recuperación enviado.");
     setEnviado(true);
   }
 

@@ -18,6 +18,15 @@ import Footer from "@/components/layout/Footer";
 // moviendo las rutas de marketing a su propio route group porque la
 // landing sigue congelada (instrucción explícita del fundador) y eso
 // sería un refactor de mucho mayor radio sobre rutas ya shipeadas.
+//
+// Navbar consulta la sesión del lado del cliente (no aquí, no en
+// layout.tsx raíz): probarlo con un fetch server-side aquí convirtió las
+// ~35 páginas de marketing de estáticas (○) a dinámicas (ƒ) — leer
+// cookies() en el layout raíz fuerza renderizado dinámico en todo el
+// árbol de rutas debajo, sin excepción. El costo (un parpadeo breve de
+// "Entrar/Crear cuenta" antes de que se resuelva la sesión real en
+// componentes que ya se hidrataron) es el trade-off estándar y aceptado
+// para un navbar con estado de sesión sobre un sitio mayormente estático.
 const SIN_CHROME_MARKETING = ["/app", "/login", "/signup", "/reset-password", "/update-password"];
 
 export default function SiteChrome({ children }: { children: React.ReactNode }) {

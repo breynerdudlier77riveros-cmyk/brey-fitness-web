@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Bolt, Calendar, TrendingUp, Clock, Menu } from "@/components/brand/icons";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/brand/Drawer";
 import { signOut } from "@/lib/supabase/actions";
+import { iniciales } from "@/lib/utils";
 
 // ── Navegación del Dashboard (BREY v1.1 + backend) ──────────────────────────
 // Sidebar fija en desktop, top bar + Drawer en mobile — mismo componente
@@ -29,12 +30,6 @@ const navItems = [
   { href: "/app/progreso", label: "Progreso", icon: TrendingUp },
   { href: "/app/historial", label: "Historial", icon: Clock },
 ] as const;
-
-function iniciales(nombre: string) {
-  const partes = nombre.trim().split(/\s+/).filter(Boolean);
-  if (partes.length === 0) return "?";
-  return partes.slice(0, 2).map((p) => p[0].toUpperCase()).join("");
-}
 
 function NavLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
   return (
@@ -84,6 +79,12 @@ function UserBlock({ nombre, email, sistemaActual }: Props) {
           <p className="text-[10px] text-white/50 truncate">{sistemaActual ?? email}</p>
         </div>
       </div>
+      <Link
+        href="/app/perfil"
+        className="block px-2 py-1.5 rounded-lg text-xs font-semibold text-white/45 hover:text-white/80 hover:bg-white/[0.04] transition-colors"
+      >
+        Mi Perfil
+      </Link>
       <form action={signOut}>
         <button
           type="submit"

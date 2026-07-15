@@ -4,12 +4,13 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import Button from "@/components/brand/Button";
-import Input from "@/components/brand/Input";
+import PasswordInput from "@/components/brand/PasswordInput";
 import { toast } from "@/components/brand/Toast";
 
 export default function UpdatePasswordForm() {
   const router = useRouter();
   const [password, setPassword] = useState("");
+  const [confirmar, setConfirmar] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -21,6 +22,10 @@ export default function UpdatePasswordForm() {
       setError("La contraseña debe tener al menos 8 caracteres.");
       return;
     }
+    if (password !== confirmar) {
+      setError("Las contraseñas no coinciden.");
+      return;
+    }
 
     setLoading(true);
     const supabase = createClient();
@@ -29,6 +34,7 @@ export default function UpdatePasswordForm() {
 
     if (updateError) {
       setError(updateError.message);
+      toast.error("No se pudo actualizar la contraseña.");
       return;
     }
 
@@ -43,15 +49,28 @@ export default function UpdatePasswordForm() {
         <label htmlFor="password" className="block text-xs font-semibold text-white/60 mb-1.5">
           Nueva contraseña
         </label>
-        <Input
+        <PasswordInput
           id="password"
-          type="password"
           required
           autoComplete="new-password"
           minLength={8}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Mínimo 8 caracteres"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="confirmar" className="block text-xs font-semibold text-white/60 mb-1.5">
+          Confirmar nueva contraseña
+        </label>
+        <PasswordInput
+          id="confirmar"
+          required
+          autoComplete="new-password"
+          value={confirmar}
+          onChange={(e) => setConfirmar(e.target.value)}
+          placeholder="Repite tu contraseña"
         />
       </div>
 
