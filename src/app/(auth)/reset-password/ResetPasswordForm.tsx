@@ -13,28 +13,42 @@ export default function ResetPasswordForm() {
   const [loading, setLoading] = useState(false);
   const [enviado, setEnviado] = useState(false);
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
+  // Compartida entre el envío inicial y "reenviar" — resetPasswordForEmail()
+  // ya es su propio mecanismo de reenvío, a diferencia de signUp(), así que
+  // no hace falta un método distinto: solo exponer un botón que la vuelva
+  // a llamar con el mismo email.
+  async function enviarLink() {
     setLoading(true);
-
     const supabase = createClient();
     await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${SITE_URL}/auth/confirm?next=/update-password`,
     });
-
     setLoading(false);
     // Mismo mensaje exista o no la cuenta — evita enumeración de emails.
     toast.success("Link de recuperación enviado.");
     setEnviado(true);
   }
 
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    await enviarLink();
+  }
+
   if (enviado) {
     return (
       <div className="rounded-2xl border border-orange-500/20 bg-orange-500/[0.05] p-5 text-center">
         <p className="text-white font-bold text-sm mb-1">Revisa tu correo</p>
-        <p className="text-white/55 text-xs leading-relaxed">
+        <p className="text-white/55 text-xs leading-relaxed mb-4">
           Si <span className="text-white">{email}</span> tiene una cuenta, te enviamos un link para restablecer tu contraseña.
         </p>
+        <button
+          type="button"
+          onClick={enviarLink}
+          disabled={loading}
+          className="text-xs font-semibold text-orange-400 hover:text-orange-300 transition-colors disabled:opacity-50 cursor-pointer"
+        >
+          {loading ? "Reenviando…" : "¿No te llegó? Reenviar correo"}
+        </button>
       </div>
     );
   }

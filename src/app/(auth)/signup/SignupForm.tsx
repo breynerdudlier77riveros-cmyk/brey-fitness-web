@@ -19,6 +19,7 @@ export default function SignupForm() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [enviado, setEnviado] = useState(false);
+  const [reenviando, setReenviando] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -69,13 +70,41 @@ export default function SignupForm() {
     setEnviado(true);
   }
 
+  async function handleResend() {
+    setReenviando(true);
+    const supabase = createClient();
+    // resend() es la vía correcta para "no me llegó el correo" — volver a
+    // llamar signUp() con el mismo email tiene un comportamiento ambiguo
+    // (no siempre reenvía) y además está sujeto al mismo rate limit.
+    const { error: resendError } = await supabase.auth.resend({
+      type: "signup",
+      email,
+      options: { emailRedirectTo: `${SITE_URL}/auth/confirm?next=/app` },
+    });
+    setReenviando(false);
+
+    if (resendError) {
+      toast.error(resendError.message);
+      return;
+    }
+    toast.success("Correo reenviado.");
+  }
+
   if (enviado) {
     return (
       <div className="rounded-2xl border border-orange-500/20 bg-orange-500/[0.05] p-5 text-center">
         <p className="text-white font-bold text-sm mb-1">Revisa tu correo</p>
-        <p className="text-white/55 text-xs leading-relaxed">
+        <p className="text-white/55 text-xs leading-relaxed mb-4">
           Si <span className="text-white">{email}</span> es válido, te enviamos un link de confirmación. Ábrelo para activar tu cuenta.
         </p>
+        <button
+          type="button"
+          onClick={handleResend}
+          disabled={reenviando}
+          className="text-xs font-semibold text-orange-400 hover:text-orange-300 transition-colors disabled:opacity-50 cursor-pointer"
+        >
+          {reenviando ? "Reenviando…" : "¿No te llegó? Reenviar correo"}
+        </button>
       </div>
     );
   }
