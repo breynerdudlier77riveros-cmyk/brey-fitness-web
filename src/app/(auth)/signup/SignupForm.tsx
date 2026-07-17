@@ -72,22 +72,37 @@ export default function SignupForm() {
 
   async function handleResend() {
     setReenviando(true);
-    const supabase = createClient();
-    // resend() es la vía correcta para "no me llegó el correo" — volver a
-    // llamar signUp() con el mismo email tiene un comportamiento ambiguo
-    // (no siempre reenvía) y además está sujeto al mismo rate limit.
-    const { error: resendError } = await supabase.auth.resend({
-      type: "signup",
-      email,
-      options: { emailRedirectTo: `${SITE_URL}/auth/confirm?next=/app` },
-    });
-    setReenviando(false);
+    try {
+      const supabase = createClient();
+      // resend() es la vía correcta para "no me llegó el correo" — volver a
+      // llamar signUp() con el mismo email tiene un comportamiento ambiguo
+      // (no siempre reenvía) y además está sujeto al mismo rate limit.
+      const response = await supabase.auth.resend({
+        type: "signup",
+        email,
+        options: { emailRedirectTo: `${SITE_URL}/auth/confirm?next=/app` },
+      });
+      console.log("RESEND RESPONSE:", response);
+      const { error: resendError } = response;
 
-    if (resendError) {
-      toast.error(resendError.message);
-      return;
+      if (resendError) {
+        toast.error(resendError.message);
+        return;
+      }
+      toast.success("Correo reenviado.");
+    } catch (err) {
+      console.error("RESEND EXCEPTION:", err);
+      // resend() puede RELANZAR una excepción real (no solo devolver
+      // {error}) cuando el fallo no es un AuthError conocido de Supabase
+      // — ej. sin conexión a internet (ver GoTrueClient.resend() en
+      // @supabase/auth-js, catch interno: `if (isAuthError(error)) return
+      // ...; throw error;`). Sin este catch, esa excepción se escapaba sin
+      // control: setReenviando(false) nunca corría y el botón se quedaba
+      // atascado en "Reenviando…" para siempre, sin mostrar ningún error.
+      toast.error(err instanceof Error ? err.message : "No se pudo reenviar el correo.");
+    } finally {
+      setReenviando(false);
     }
-    toast.success("Correo reenviado.");
   }
 
   if (enviado) {
