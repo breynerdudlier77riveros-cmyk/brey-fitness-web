@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import AppSidebar from "@/components/app/AppSidebar";
+import AppShell from "@/components/app/AppShell";
+import Sidebar from "@/components/app/Sidebar";
+import Header from "@/components/app/Header";
 import { createClient } from "@/lib/supabase/server";
 import { getUser } from "@/lib/supabase/user";
 
-// ── Shell del Dashboard (BREY v1.1 + backend) ────────────────────────────────
+// ── Shell del Core Product (App Shell real, no el mockup de v1.1) ──────────
 // Deliberadamente SIN Navbar/Footer de marketing (ver SiteChrome.tsx) — esto
 // debe sentirse como una aplicación, no como una página. noindex: es una
 // herramienta interna, no contenido público.
@@ -14,12 +16,17 @@ import { getUser } from "@/lib/supabase/user";
 // guard es la segunda capa, no la única: src/proxy.ts ya redirige antes de
 // llegar aquí en la mayoría de los casos, pero por el Partial Rendering de
 // Next.js este layout NO se re-ejecuta en cada navegación cliente entre
-// /app, /app/calendario, etc. — solo en la carga inicial. Es aceptable hoy
-// porque esas páginas siguen leyendo mockDashboard.ts (nada sensible que
-// proteger todavía); el día que lean datos reales de Supabase, cada una
-// debe reverificar sesión cerca de su propia fuente de datos, no asumir
-// que este layout ya la cubrió. La barrera de seguridad real siempre es
-// Row Level Security en Postgres, no esta verificación.
+// páginas de /app — solo en la carga inicial. Cada página que lee datos
+// reales reverifica sesión cerca de su propia fuente de datos (ver
+// src/lib/supabase/user.ts) — este layout no es la barrera de seguridad,
+// Row Level Security en Postgres sí lo es.
+//
+// Sidebar/Header se construyen AQUÍ (Server) y se pasan a AppShell como
+// props ya armados, no como JSX inline dentro de AppShell — así el estado
+// de colapso del sidebar (que vive en AppShell, un Client Component) solo
+// re-renderiza lo que de verdad depende de él (Sidebar), nunca Header, que
+// no lee ese contexto. Es la respuesta concreta al pedido de "no renders
+// innecesarios".
 
 export const metadata: Metadata = {
   title: { default: "Dashboard", template: "%s · Dashboard | Brey" },
@@ -49,18 +56,17 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     profile = created;
   }
 
+  const navUser = {
+    nombre: profile?.nombre ?? "Atleta",
+    email: user.email ?? "",
+  };
+
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col md:flex-row">
-      <AppSidebar
-        nombre={profile?.nombre ?? "Atleta"}
-        email={user.email ?? ""}
-        sistemaActual={profile?.sistema_actual ?? null}
-      />
-      <main className="flex-1 min-w-0">
-        <div className="max-w-5xl mx-auto px-4 md:px-8 py-6 md:py-10">
-          {children}
-        </div>
-      </main>
-    </div>
+    <AppShell
+      sidebar={<Sidebar nombre={navUser.nombre} email={navUser.email} sistemaActual={profile?.sistema_actual ?? null} />}
+      header={<Header user={navUser} />}
+    >
+      {children}
+    </AppShell>
   );
 }

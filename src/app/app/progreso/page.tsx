@@ -1,102 +1,88 @@
-"use client";
-
-import { motion } from "motion/react";
-import { progresoSemanal, recordsRecientes } from "@/data/mockDashboard";
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { getUser } from "@/lib/supabase/user";
+import { createClient } from "@/lib/supabase/server";
+import { fechaISOLocal } from "@/lib/utils";
+import PageHeader from "@/components/app/PageHeader";
+import DashboardCard from "@/components/app/DashboardCard";
+import MetricCard from "@/components/app/MetricCard";
+import EmptyState from "@/components/app/EmptyState";
+import ProgresoChart from "@/components/app/ProgresoChart";
 import { TrendingUp } from "@/components/brand/icons";
 
-// ── Progreso semanal (BREY v1.1) ─────────────────────────────────────────────
+export const metadata: Metadata = { title: "Progreso" };
 
-const primera = progresoSemanal[0].tonelaje;
-const ultima = progresoSemanal[progresoSemanal.length - 1].tonelaje;
-const tendencia = Math.round(((ultima - primera) / primera) * 100);
-const promedio = Math.round(
-  progresoSemanal.reduce((acc, p) => acc + p.tonelaje, 0) / progresoSemanal.length
-);
+const SEMANAS = 8;
 
-export default function ProgresoPage() {
-  return (
-    <div className="space-y-8">
+function inicioSemana(d: Date) {
+  const dia = d.getDay() === 0 ? 7 : d.getDay(); // 1=lunes..7=domingo
+  const inicio = new Date(d);
+  inicio.setDate(inicio.getDate() - (dia - 1));
+  inicio.setHours(0, 0, 0, 0);
+  return inicio;
+}
+
+export default async function ProgresoPage() {
+  const user = await getUser();
+  if (!user) redirect("/login");
+
+  const inicioActual = inicioSemana(new Date());
+  const inicioRango = new Date(inicioActual);
+  inicioRango.setDate(inicioRango.getDate() - (SEMANAS - 1) * 7);
+
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("workout_logs")
+    .select("fecha, volumen_total_kg")
+    .eq("user_id", user.id)
+    .gte("fecha", fechaISOLocal(inicioRango));
+
+  const logs = (data ?? []) as { fecha: string; volumen_total_kg: number | null }[];
+
+  if (logs.length === 0) {
+    return (
       <div>
-        <p className="text-white/50 text-sm">Últimas {progresoSemanal.length} semanas</p>
-        <h1 className="font-black text-2xl sm:text-3xl text-white mt-1">Progreso semanal</h1>
+        <PageHeader title="Progreso" description="Tonelaje semanal a lo largo del tiempo." />
+        <DashboardCard>
+          <EmptyState
+            icon={TrendingUp}
+            title="Aún no tienes datos de progreso"
+            description="Cuando completes tus primeros entrenamientos, tu tonelaje semanal aparecerá aquí."
+          />
+        </DashboardCard>
+      </div>
+    );
+  }
+
+  const semanas = Array.from({ length: SEMANAS }, (_, i) => {
+    const inicio = new Date(inicioRango);
+    inicio.setDate(inicio.getDate() + i * 7);
+    const fin = new Date(inicio);
+    fin.setDate(fin.getDate() + 6);
+    const inicioISO = fechaISOLocal(inicio);
+    const finISO = fechaISOLocal(fin);
+    const kg = logs
+      .filter((l) => l.fecha >= inicioISO && l.fecha <= finISO)
+      .reduce((acc, l) => acc + (l.volumen_total_kg ?? 0), 0);
+    return { etiqueta: `S${i + 1}`, kg: Math.round(kg) };
+  });
+
+  const primera = semanas[0].kg || 1;
+  const ultima = semanas[semanas.length - 1].kg;
+  const tendencia = Math.round(((ultima - primera) / primera) * 100);
+  const promedio = Math.round(semanas.reduce((acc, s) => acc + s.kg, 0) / semanas.length);
+
+  return (
+    <div>
+      <PageHeader title="Progreso" description={`Últimas ${SEMANAS} semanas`} />
+
+      <div className="grid grid-cols-3 gap-3 mb-8">
+        <MetricCard label="Tendencia" value={`${tendencia >= 0 ? "+" : ""}${tendencia}%`} />
+        <MetricCard label="Promedio semanal" value={`${promedio} kg`} />
+        <MetricCard label="Semana actual" value={`${ultima} kg`} />
       </div>
 
-      {/* Stat tiles */}
-      <div className="grid grid-cols-3 gap-3">
-        {[
-          { label: "Tendencia", value: `+${tendencia}%`, accent: true },
-          { label: "Promedio semanal", value: `${promedio}%` },
-          { label: "Semana actual", value: `${ultima}%` },
-        ].map((s) => (
-          <div key={s.label} className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-4">
-            <p className="text-[10px] font-bold tracking-[0.14em] uppercase text-white/50 mb-2">
-              {s.label}
-            </p>
-            <p className={`font-black text-xl sm:text-2xl tabular-nums ${s.accent ? "text-emerald-400" : "text-white"}`}>
-              {s.value}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      {/* Chart */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-5 md:p-7"
-      >
-        <p className="text-[10px] font-bold tracking-[0.18em] uppercase text-white/50 mb-6">
-          Tonelaje relativo por semana
-        </p>
-        <div className="flex items-end gap-3 h-40 mb-3">
-          {progresoSemanal.map((p, i) => (
-            <div key={p.etiqueta} className="flex-1 flex flex-col items-center gap-2">
-              <span className="font-mono text-[10px] text-white/50 tabular-nums">{p.tonelaje}%</span>
-              <motion.div
-                style={{ height: `${p.tonelaje}%` }}
-                className={`w-full rounded-t-md origin-bottom ${
-                  i === progresoSemanal.length - 1 ? "bg-orange-400" : "bg-orange-400/25"
-                }`}
-                initial={{ scaleY: 0 }}
-                animate={{ scaleY: 1 }}
-                transition={{ duration: 0.5, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
-              />
-            </div>
-          ))}
-        </div>
-        <div className="flex gap-3">
-          {progresoSemanal.map((p) => (
-            <p key={p.etiqueta} className="flex-1 text-center text-[10px] text-white/40">
-              {p.etiqueta}
-            </p>
-          ))}
-        </div>
-      </motion.div>
-
-      {/* PRs */}
-      <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-5 md:p-7">
-        <div className="flex items-center gap-2 mb-5">
-          <TrendingUp className="w-4 h-4 text-emerald-400" strokeWidth={2} />
-          <p className="text-[10px] font-bold tracking-[0.18em] uppercase text-white/50">
-            Récords personales recientes
-          </p>
-        </div>
-        <div className="divide-y divide-white/[0.06]">
-          {recordsRecientes.map((r) => (
-            <div key={r.ejercicio} className="flex items-center justify-between gap-4 py-3.5 first:pt-0 last:pb-0">
-              <div>
-                <p className="text-sm font-bold text-white">{r.ejercicio}</p>
-                <p className="text-white/45 text-xs mt-0.5">{r.fecha}</p>
-              </div>
-              <div className="text-right">
-                <p className="font-mono text-sm text-white tabular-nums">{r.valor}</p>
-                <p className="text-emerald-400 text-xs font-semibold mt-0.5">{r.mejora}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <ProgresoChart semanas={semanas} />
     </div>
   );
 }

@@ -109,3 +109,52 @@ export interface Exercise {
 // ── Blog types (la fuente de verdad vive en lib/content.ts) ────────────────
 
 export type { Category as BlogCategory, ContentType } from './content';
+
+// ── Tipos de Entrenamientos (backend real — supabase/schema.sql) ───────────
+// Espejan las tablas workouts/workout_logs. Hoy toda query contra ellas
+// devuelve cero filas para cualquier usuario (no existe todavía un
+// escritor — Motor BPS y Workout Player quedan para otro sprint), pero
+// las queries de /app quedan tipadas en vez de `any` mientras tanto.
+
+export type WorkoutEstado = 'planificado' | 'completado' | 'perdido';
+
+/** Forma de cada entrada en el jsonb `ejercicios` de una fila de workouts (el plan). */
+export interface EjercicioPlan {
+  nombre: string;
+  series: number;
+  reps: string;
+  peso?: number;
+  intensidad?: string;
+}
+
+/** Igual que EjercicioPlan, más si ese set se marcó como hecho — jsonb de workout_logs. */
+export interface EjercicioLog extends EjercicioPlan {
+  completado: boolean;
+}
+
+export interface Workout {
+  id: string;
+  user_id: string;
+  system_slug: SistemaSlug | null;
+  nombre: string;
+  semana: number | null;
+  semana_total: number | null;
+  /** date de Postgres — string ISO yyyy-mm-dd. */
+  fecha_planificada: string;
+  duracion_estimada_min: number | null;
+  ejercicios: EjercicioPlan[];
+  estado: WorkoutEstado;
+  created_at: string;
+}
+
+export interface WorkoutLog {
+  id: string;
+  user_id: string;
+  workout_id: string | null;
+  fecha: string;
+  duracion_real_min: number | null;
+  volumen_total_kg: number | null;
+  ejercicios: EjercicioLog[];
+  completado: boolean;
+  created_at: string;
+}

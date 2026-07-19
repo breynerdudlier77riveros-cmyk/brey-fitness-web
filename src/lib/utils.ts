@@ -11,3 +11,12 @@ export function iniciales(nombre: string) {
   if (partes.length === 0) return "?";
   return partes.slice(0, 2).map((p) => p[0].toUpperCase()).join("");
 }
+
+/**
+ * yyyy-mm-dd en hora LOCAL (no `date.toISOString()`, que usa UTC y puede
+ * apuntar al día equivocado cerca de medianoche) — para comparar contra
+ * columnas `date` de Postgres (workouts.fecha_planificada, etc.).
+ */
+export function fechaISOLocal(d: Date = new Date()) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}

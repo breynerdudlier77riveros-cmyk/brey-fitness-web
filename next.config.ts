@@ -14,6 +14,9 @@ const nextConfig: NextConfig = {
       // Start ya no es un producto: el nivel lo asigna el Diagnóstico.
       { source: "/programas/performance-start", destination: "/diagnostico", permanent: true },
       { source: "/programas/:slug", destination: "/sistemas", permanent: true },
+      // Core Product: Calendario/Historial se anidaron bajo Entrenamientos.
+      { source: "/app/calendario", destination: "/app/entrenamientos/calendario", permanent: true },
+      { source: "/app/historial", destination: "/app/entrenamientos/historial", permanent: true },
     ];
   },
 };

@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { APP_PREFIX, AUTH_ROUTES } from "@/lib/site";
 
 // ── Chrome condicional: Navbar/Footer de marketing vs. Dashboard/Auth ──────
 // BREY v1.1 (Dashboard): /app es una aplicación, no una página — no lleva
@@ -13,8 +14,7 @@ import Footer from "@/components/layout/Footer";
 //
 // Backend (auth): las páginas de /login, /signup, /reset-password y
 // /update-password tampoco llevan chrome de marketing (tienen su propio
-// layout minimalista en app/(auth)/layout.tsx). Esta es una lista de
-// prefijos mantenida a mano — limitación conocida, no se resuelve ahora
+// layout minimalista en app/(auth)/layout.tsx). No se resuelve ahora
 // moviendo las rutas de marketing a su propio route group porque la
 // landing sigue congelada (instrucción explícita del fundador) y eso
 // sería un refactor de mucho mayor radio sobre rutas ya shipeadas.
@@ -27,7 +27,7 @@ import Footer from "@/components/layout/Footer";
 // "Entrar/Crear cuenta" antes de que se resuelva la sesión real en
 // componentes que ya se hidrataron) es el trade-off estándar y aceptado
 // para un navbar con estado de sesión sobre un sitio mayormente estático.
-const SIN_CHROME_MARKETING = ["/app", "/login", "/signup", "/reset-password", "/update-password"];
+const SIN_CHROME_MARKETING = [APP_PREFIX, ...AUTH_ROUTES];
 
 export default function SiteChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
