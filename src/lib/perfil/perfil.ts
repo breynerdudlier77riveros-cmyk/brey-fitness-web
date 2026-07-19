@@ -83,3 +83,41 @@ export function validarPerfil(values: PerfilFormValues): PerfilErrores {
 
   return errores;
 }
+
+/** Forma que recibe `profiles.update(...)` — mismos 14 campos editables de PerfilFormValues, ya parseados. */
+export interface ProfileUpdateInput {
+  nombre: string;
+  avatar_url: string | null;
+  edad: number | null;
+  sexo: string | null;
+  peso_kg: number | null;
+  altura_cm: number | null;
+  objetivo: string | null;
+  nivel_experiencia: string | null;
+  lugar_entrenamiento: string | null;
+  dias_por_semana: number | null;
+  duracion_sesion_min: number | null;
+  experiencia: string | null;
+  lesiones: string | null;
+  observaciones: string | null;
+}
+
+/** Conversión pura string→number/null — se asume ya validado (llamar después de validarPerfil sin errores). */
+export function buildUpdatePayload(values: PerfilFormValues): ProfileUpdateInput {
+  return {
+    nombre: values.nombre.trim(),
+    avatar_url: values.avatar_url.trim() || null,
+    edad: values.edad ? Number(values.edad) : null,
+    sexo: values.sexo || null,
+    peso_kg: values.peso_kg ? Number(values.peso_kg) : null,
+    altura_cm: values.altura_cm ? Number(values.altura_cm) : null,
+    objetivo: values.objetivo || null,
+    nivel_experiencia: values.nivel_experiencia || null,
+    lugar_entrenamiento: values.lugar_entrenamiento || null,
+    dias_por_semana: values.dias_por_semana ? Number(values.dias_por_semana) : null,
+    duracion_sesion_min: values.duracion_sesion_min ? Number(values.duracion_sesion_min) : null,
+    experiencia: values.experiencia || null,
+    lesiones: values.lesiones.trim() || null,
+    observaciones: values.observaciones.trim() || null,
+  };
+}

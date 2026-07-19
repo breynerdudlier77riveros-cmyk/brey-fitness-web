@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getUser } from "@/lib/supabase/user";
 import { createClient } from "@/lib/supabase/server";
+import { getWorkoutLogsEnRango } from "@/lib/workouts/repository";
 import { fechaISOLocal } from "@/lib/utils";
 import PageHeader from "@/components/app/PageHeader";
 import DashboardCard from "@/components/app/DashboardCard";
@@ -31,13 +32,11 @@ export default async function ProgresoPage() {
   inicioRango.setDate(inicioRango.getDate() - (SEMANAS - 1) * 7);
 
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("workout_logs")
-    .select("fecha, volumen_total_kg")
-    .eq("user_id", user.id)
-    .gte("fecha", fechaISOLocal(inicioRango));
-
-  const logs = (data ?? []) as { fecha: string; volumen_total_kg: number | null }[];
+  // getWorkoutLogsEnRango pasa volumen_total_kg por numOrNull() — antes de
+  // este Sprint, este reduce() sumaba el string que devuelve PostgREST para
+  // columnas `numeric` (coerción de `+` de JS: 0 + "1000" = "01000", no
+  // 1000), un bug real que ya no puede reproducirse desde aquí.
+  const logs = await getWorkoutLogsEnRango(supabase, user.id, fechaISOLocal(inicioRango));
 
   if (logs.length === 0) {
     return (

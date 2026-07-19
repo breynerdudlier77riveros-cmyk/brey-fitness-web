@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { updateProfile } from "@/lib/profile/repository";
 import DashboardCard from "@/components/app/DashboardCard";
 import Button from "@/components/brand/Button";
 import Input from "@/components/brand/Input";
@@ -17,6 +18,7 @@ import {
   LUGAR_OPCIONES,
   EXPERIENCIA_OPCIONES,
   validarPerfil,
+  buildUpdatePayload,
   type PerfilFormValues,
   type PerfilErrores,
 } from "@/lib/perfil/perfil";
@@ -26,9 +28,8 @@ import type { Profile } from "@/lib/types";
 // estado) — sin useActionState: no hay precedente de eso en el repo y este
 // Sprint pide seguir exactamente la arquitectura existente. La escritura va
 // directo al cliente-browser de Supabase (mismo camino que LoginForm/
-// SignupForm) porque RLS ya es la barrera real y los CHECK constraints de
-// Postgres son la barrera real de integridad — no hace falta un Server
-// Action solo para revalidar lo que la base de datos ya revalida.
+// SignupForm) vía el repositorio de perfil — RLS ya es la barrera real y
+// los CHECK constraints de Postgres son la barrera real de integridad.
 
 interface Props {
   profile: Profile;
@@ -64,10 +65,6 @@ interface FieldProps {
   children: React.ReactNode;
 }
 
-// htmlFor es opcional a propósito: brand/Select (Radix) no expone un id
-// programático que un <label htmlFor> pueda apuntar de verdad — para esos
-// campos se omite (el aria-label del propio Select es lo que da el nombre
-// accesible) en vez de dejar un htmlFor apuntando a un id que no existe.
 function Field({ label, htmlFor, error, children }: FieldProps) {
   return (
     <div>
@@ -100,32 +97,10 @@ export default function PerfilForm({ profile, onCancel, onSaved }: Props) {
 
     setEstado("guardando");
 
-    const payload = {
-      nombre: values.nombre.trim(),
-      avatar_url: values.avatar_url.trim() || null,
-      edad: values.edad ? Number(values.edad) : null,
-      sexo: values.sexo || null,
-      peso_kg: values.peso_kg ? Number(values.peso_kg) : null,
-      altura_cm: values.altura_cm ? Number(values.altura_cm) : null,
-      objetivo: values.objetivo || null,
-      nivel_experiencia: values.nivel_experiencia || null,
-      lugar_entrenamiento: values.lugar_entrenamiento || null,
-      dias_por_semana: values.dias_por_semana ? Number(values.dias_por_semana) : null,
-      duracion_sesion_min: values.duracion_sesion_min ? Number(values.duracion_sesion_min) : null,
-      experiencia: values.experiencia || null,
-      lesiones: values.lesiones.trim() || null,
-      observaciones: values.observaciones.trim() || null,
-    };
-
     const supabase = createClient();
-    const { data, error } = await supabase
-      .from("profiles")
-      .update(payload)
-      .eq("id", profile.id)
-      .select("*")
-      .single();
+    const actualizado = await updateProfile(supabase, profile.id, buildUpdatePayload(values));
 
-    if (error || !data) {
+    if (!actualizado) {
       setEstado("error");
       toast.error("No se pudo guardar tu perfil.");
       return;
@@ -137,13 +112,13 @@ export default function PerfilForm({ profile, onCancel, onSaved }: Props) {
     // Component ya cacheado) — refresh() los sincroniza también, no solo
     // esta página (que ya se actualiza vía onSaved, sin esperar la red).
     router.refresh();
-    onSaved(data as Profile);
+    onSaved(actualizado);
   }
 
   const guardando = estado === "guardando";
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+    <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid sm:grid-cols-2 gap-4">
         <DashboardCard title="Información personal">
           <div className="space-y-4">
@@ -160,17 +135,11 @@ export default function PerfilForm({ profile, onCancel, onSaved }: Props) {
               />
             </Field>
             <Field label="Edad" htmlFor="edad">
-              <Input
-                id="edad"
-                type="number"
-                min={1}
-                max={119}
-                value={values.edad}
-                onChange={(e) => set("edad", e.target.value)}
-              />
+              <Input id="edad" type="number" value={values.edad} onChange={(e) => set("edad", e.target.value)} />
             </Field>
-            <Field label="Sexo">
+            <Field label="Sexo" htmlFor="sexo">
               <Select
+                id="sexo"
                 value={values.sexo}
                 onValueChange={(v) => set("sexo", v)}
                 options={[...SEXO_OPCIONES]}
@@ -206,8 +175,9 @@ export default function PerfilForm({ profile, onCancel, onSaved }: Props) {
 
         <DashboardCard title="Información deportiva" className="sm:col-span-2">
           <div className="grid sm:grid-cols-2 gap-4">
-            <Field label="Objetivo">
+            <Field label="Objetivo" htmlFor="objetivo">
               <Select
+                id="objetivo"
                 value={values.objetivo}
                 onValueChange={(v) => set("objetivo", v)}
                 options={[...OBJETIVO_OPCIONES]}
@@ -215,8 +185,9 @@ export default function PerfilForm({ profile, onCancel, onSaved }: Props) {
                 aria-label="Objetivo"
               />
             </Field>
-            <Field label="Nivel">
+            <Field label="Nivel" htmlFor="nivel_experiencia">
               <Select
+                id="nivel_experiencia"
                 value={values.nivel_experiencia}
                 onValueChange={(v) => set("nivel_experiencia", v)}
                 options={[...NIVEL_OPCIONES]}
@@ -224,8 +195,9 @@ export default function PerfilForm({ profile, onCancel, onSaved }: Props) {
                 aria-label="Nivel"
               />
             </Field>
-            <Field label="Lugar de entrenamiento">
+            <Field label="Lugar de entrenamiento" htmlFor="lugar_entrenamiento">
               <Select
+                id="lugar_entrenamiento"
                 value={values.lugar_entrenamiento}
                 onValueChange={(v) => set("lugar_entrenamiento", v)}
                 options={[...LUGAR_OPCIONES]}
@@ -233,8 +205,9 @@ export default function PerfilForm({ profile, onCancel, onSaved }: Props) {
                 aria-label="Lugar de entrenamiento"
               />
             </Field>
-            <Field label="Experiencia">
+            <Field label="Experiencia" htmlFor="experiencia">
               <Select
+                id="experiencia"
                 value={values.experiencia}
                 onValueChange={(v) => set("experiencia", v)}
                 options={[...EXPERIENCIA_OPCIONES]}
@@ -246,8 +219,6 @@ export default function PerfilForm({ profile, onCancel, onSaved }: Props) {
               <Input
                 id="dias_por_semana"
                 type="number"
-                min={1}
-                max={7}
                 value={values.dias_por_semana}
                 onChange={(e) => set("dias_por_semana", e.target.value)}
               />
@@ -256,7 +227,6 @@ export default function PerfilForm({ profile, onCancel, onSaved }: Props) {
               <Input
                 id="duracion_sesion_min"
                 type="number"
-                min={1}
                 value={values.duracion_sesion_min}
                 onChange={(e) => set("duracion_sesion_min", e.target.value)}
               />

@@ -3,6 +3,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getUser } from "@/lib/supabase/user";
 import { createClient } from "@/lib/supabase/server";
+import { getProfile } from "@/lib/profile/repository";
+import { getWorkoutDelDia, getWorkoutLogs } from "@/lib/workouts/repository";
 import { getSistemaBySlug } from "@/data/sistemas";
 import { fechaISOLocal } from "@/lib/utils";
 import Section from "@/components/app/Section";
@@ -10,7 +12,6 @@ import DashboardCard from "@/components/app/DashboardCard";
 import EmptyState from "@/components/app/EmptyState";
 import Button from "@/components/brand/Button";
 import { Flag, Bolt, Target, TrendingUp, ArrowRight } from "@/components/brand/icons";
-import type { Workout, WorkoutLog } from "@/lib/types";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
@@ -20,32 +21,14 @@ export default async function DashboardPage() {
 
   const supabase = await createClient();
 
-  const [{ data: profile }, { data: workoutHoy }, { data: actividad }] = await Promise.all([
-    supabase.from("profiles").select("nombre, sistema_actual").eq("id", user.id).single(),
-    supabase
-      .from("workouts")
-      .select("id, nombre, semana, semana_total, duracion_estimada_min, ejercicios")
-      .eq("user_id", user.id)
-      .eq("fecha_planificada", fechaISOLocal())
-      .maybeSingle(),
-    supabase
-      .from("workout_logs")
-      .select("id, fecha, duracion_real_min, volumen_total_kg, completado")
-      .eq("user_id", user.id)
-      .order("fecha", { ascending: false })
-      .limit(5),
+  const [profile, hoy, logs] = await Promise.all([
+    getProfile(supabase, user.id),
+    getWorkoutDelDia(supabase, user.id, fechaISOLocal()),
+    getWorkoutLogs(supabase, user.id, { limit: 5 }),
   ]);
 
   const nombre = profile?.nombre ?? user.email?.split("@")[0] ?? "Atleta";
   const sistema = profile?.sistema_actual ? getSistemaBySlug(profile.sistema_actual) : undefined;
-  const hoy = workoutHoy as Pick<
-    Workout,
-    "id" | "nombre" | "semana" | "semana_total" | "duracion_estimada_min" | "ejercicios"
-  > | null;
-  const logs = (actividad ?? []) as Pick<
-    WorkoutLog,
-    "id" | "fecha" | "duracion_real_min" | "volumen_total_kg" | "completado"
-  >[];
 
   const fechaLarga = new Date().toLocaleDateString("es-CO", {
     weekday: "long",

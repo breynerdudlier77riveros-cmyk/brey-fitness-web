@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getUser } from "@/lib/supabase/user";
 import { createClient } from "@/lib/supabase/server";
+import { getWorkoutLogs } from "@/lib/workouts/repository";
 import DashboardCard from "@/components/app/DashboardCard";
 import EmptyState from "@/components/app/EmptyState";
 import { Check, Close, Clock } from "@/components/brand/icons";
-import type { WorkoutLog } from "@/lib/types";
 
 export const metadata: Metadata = { title: "Historial" };
 
@@ -14,17 +14,7 @@ export default async function HistorialPage() {
   if (!user) redirect("/login");
 
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("workout_logs")
-    .select("id, fecha, duracion_real_min, volumen_total_kg, completado")
-    .eq("user_id", user.id)
-    .order("fecha", { ascending: false })
-    .limit(30);
-
-  const sesiones = (data ?? []) as Pick<
-    WorkoutLog,
-    "id" | "fecha" | "duracion_real_min" | "volumen_total_kg" | "completado"
-  >[];
+  const sesiones = await getWorkoutLogs(supabase, user.id, { limit: 30 });
   const completadas = sesiones.filter((s) => s.completado).length;
 
   if (sesiones.length === 0) {

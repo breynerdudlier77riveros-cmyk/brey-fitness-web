@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getUser } from "@/lib/supabase/user";
 import { createClient } from "@/lib/supabase/server";
+import { getProfile } from "@/lib/profile/repository";
 import { getSistemaBySlug } from "@/data/sistemas";
 import PageHeader from "@/components/app/PageHeader";
 import DashboardCard from "@/components/app/DashboardCard";
@@ -21,11 +22,7 @@ export default async function MiSistemaPage() {
   if (!user) redirect("/login");
 
   const supabase = await createClient();
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("sistema_actual, nivel_actual")
-    .eq("id", user.id)
-    .single();
+  const profile = await getProfile(supabase, user.id);
 
   const sistema = profile?.sistema_actual ? getSistemaBySlug(profile.sistema_actual) : undefined;
 

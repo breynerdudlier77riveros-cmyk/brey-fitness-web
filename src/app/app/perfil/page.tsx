@@ -2,26 +2,24 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getUser } from "@/lib/supabase/user";
 import { createClient } from "@/lib/supabase/server";
+import { getProfile } from "@/lib/profile/repository";
 import PerfilClient from "./PerfilClient";
 import type { Profile } from "@/lib/types";
 
 export const metadata: Metadata = { title: "Mi Perfil" };
 
-// Server puro: una sola query trae la fila completa (antes solo 3 columnas)
-// y se hidrata UNA VEZ hacia PerfilClient — nada de useEffect para cargar
-// datos que ya llegan del servidor. app/app/layout.tsx ya garantiza que el
-// perfil existe (upsert defensivo) antes de que cualquier página de /app
-// se renderice, así que aquí no se repite esa lógica.
+// Server puro: una sola query trae la fila completa y se hidrata UNA VEZ
+// hacia PerfilClient — nada de useEffect para cargar datos que ya llegan
+// del servidor. app/app/layout.tsx ya garantiza que el perfil existe
+// (getOrCreateProfile) antes de que cualquier página de /app se renderice
+// — el fallback de abajo es un segundo cinturón de seguridad, no la vía
+// principal.
 export default async function PerfilPage() {
   const user = await getUser();
   if (!user) redirect("/login");
 
   const supabase = await createClient();
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single();
+  const profile = await getProfile(supabase, user.id);
 
   const perfil: Profile =
     profile ?? {

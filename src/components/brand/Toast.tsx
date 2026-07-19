@@ -3,9 +3,10 @@ import { toast } from "sonner";
 
 // ── Toast del sistema (sobre sonner — la solución de shadcn desde que
 // deprecó su Toast/Toaster/useToast original basado en Radix) ─────────────
-// Sin call site hoy — listo para el Dashboard (confirmaciones de guardado,
-// errores de red, etc.). La CLI lo confirma: "toast" ya no existe como
-// item independiente en este registro, sonner es su reemplazo oficial.
+// Call sites reales desde Sprint 4: LoginForm, SignupForm, PerfilForm
+// (confirmaciones de guardado, errores de red). La CLI lo confirma en su
+// momento: "toast" ya no existe como item independiente en este registro,
+// sonner es su reemplazo oficial.
 //
 // El primitivo generado (ui/sonner.tsx) usa next-themes para detectar el
 // tema claro/oscuro del sistema operativo del visitante — este sitio no

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getUser } from "@/lib/supabase/user";
 import { createClient } from "@/lib/supabase/server";
+import { getWorkoutsEnRango } from "@/lib/workouts/repository";
 import { fechaISOLocal } from "@/lib/utils";
 import CalendarioGrid, { type CeldaDia, type EstadoDia } from "@/components/app/CalendarioGrid";
 
@@ -42,15 +43,10 @@ export default async function CalendarioPage() {
   const { semanas: fechas, inicio, fin } = construirSemanas(hoy);
 
   const supabase = await createClient();
-  const { data: workouts } = await supabase
-    .from("workouts")
-    .select("fecha_planificada, nombre, estado")
-    .eq("user_id", user.id)
-    .gte("fecha_planificada", fechaISOLocal(inicio))
-    .lte("fecha_planificada", fechaISOLocal(fin));
+  const workouts = await getWorkoutsEnRango(supabase, user.id, fechaISOLocal(inicio), fechaISOLocal(fin));
 
   const porFecha = new Map<string, { nombre: string; estado: EstadoDia }>(
-    (workouts ?? []).map((w) => [w.fecha_planificada as string, { nombre: w.nombre as string, estado: w.estado as EstadoDia }])
+    workouts.map((w) => [w.fecha_planificada, { nombre: w.nombre, estado: w.estado as EstadoDia }])
   );
 
   const semanas: CeldaDia[][] = fechas.map((fila) =>

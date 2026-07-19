@@ -5,6 +5,7 @@ import Sidebar from "@/components/app/Sidebar";
 import Header from "@/components/app/Header";
 import { createClient } from "@/lib/supabase/server";
 import { getUser } from "@/lib/supabase/user";
+import { getOrCreateProfile } from "@/lib/profile/repository";
 
 // ── Shell del Core Product (App Shell real, no el mockup de v1.1) ──────────
 // Deliberadamente SIN Navbar/Footer de marketing (ver SiteChrome.tsx) — esto
@@ -38,32 +39,19 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (!user) redirect("/login");
 
   const supabase = await createClient();
-  let { data: profile } = await supabase
-    .from("profiles")
-    .select("nombre, sistema_actual")
-    .eq("id", user.id)
-    .single();
-
-  // Respaldo defensivo: el perfil normalmente ya existe (trigger en
-  // auth.users), pero si por alguna razón no se creó, no dejamos al
-  // usuario sin sidebar — lo creamos aquí antes de renderizar.
-  if (!profile) {
-    const { data: created } = await supabase
-      .from("profiles")
-      .upsert({ id: user.id, email: user.email, nombre: user.email?.split("@")[0] ?? "Atleta" })
-      .select("nombre, sistema_actual")
-      .single();
-    profile = created;
-  }
+  const profile = await getOrCreateProfile(supabase, user.id, {
+    email: user.email ?? null,
+    nombre: user.email?.split("@")[0] ?? "Atleta",
+  });
 
   const navUser = {
-    nombre: profile?.nombre ?? "Atleta",
+    nombre: profile.nombre ?? "Atleta",
     email: user.email ?? "",
   };
 
   return (
     <AppShell
-      sidebar={<Sidebar nombre={navUser.nombre} email={navUser.email} sistemaActual={profile?.sistema_actual ?? null} />}
+      sidebar={<Sidebar nombre={navUser.nombre} email={navUser.email} sistemaActual={profile.sistema_actual} />}
       header={<Header user={navUser} />}
     >
       {children}

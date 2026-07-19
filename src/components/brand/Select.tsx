@@ -34,6 +34,8 @@ interface Props {
   placeholder?: string;
   className?: string;
   "aria-label"?: string;
+  /** Opcional: permite que un <label htmlFor> externo apunte de verdad al trigger (Sprint 4.1, PerfilForm). Sin id, el nombre accesible sigue viniendo de aria-label como antes. */
+  id?: string;
 }
 
 export default function Select({
@@ -43,10 +45,12 @@ export default function Select({
   placeholder,
   className,
   "aria-label": ariaLabel,
+  id,
 }: Props) {
   return (
     <ShadcnSelect value={value} onValueChange={onValueChange}>
       <SelectTrigger
+        id={id}
         aria-label={ariaLabel}
         className={cn(
           // data-[size=default]:h-auto (no h-auto a secas) porque el

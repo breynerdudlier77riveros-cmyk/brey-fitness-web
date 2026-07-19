@@ -90,7 +90,7 @@ create table public.profiles (
   nivel_actual text,
 
   -- Información personal
-  edad int,
+  edad int check (edad is null or (edad > 0 and edad < 120)),
   sexo text check (sexo in ('Masculino', 'Femenino', 'Prefiero no decirlo')),
 
   -- Información física
