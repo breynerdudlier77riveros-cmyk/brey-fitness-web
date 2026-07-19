@@ -158,3 +158,32 @@ export interface WorkoutLog {
   completado: boolean;
   created_at: string;
 }
+
+// ── Perfil (backend real — supabase/migration_perfil_persistente.sql) ──────
+// sistema_actual/nivel_actual los asigna el Diagnóstico BPS (no son parte
+// del formulario de Sprint 4). nivel_experiencia es autorreportado por el
+// usuario y una columna completamente distinta de nivel_actual — ver
+// comentario en el archivo de migración.
+
+export interface Profile {
+  id: string;
+  email: string | null;
+  nombre: string | null;
+  avatar_url: string | null;
+  sistema_actual: SistemaSlug | null;
+  nivel_actual: string | null;
+  edad: number | null;
+  sexo: string | null;
+  peso_kg: number | null;
+  altura_cm: number | null;
+  objetivo: string | null;
+  nivel_experiencia: string | null;
+  lugar_entrenamiento: string | null;
+  dias_por_semana: number | null;
+  duracion_sesion_min: number | null;
+  experiencia: string | null;
+  lesiones: string | null;
+  observaciones: string | null;
+  created_at: string;
+  updated_at: string;
+}

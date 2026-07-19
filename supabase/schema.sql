@@ -72,6 +72,14 @@ insert into public.systems (slug, nombre, objetivo, tagline, duracion_semanas, d
 -- Un perfil por usuario. Se crea automáticamente vía el trigger al final
 -- de este archivo (no por código de la app) — garantizado que exista
 -- antes de que cualquier sesión autenticada sea usable.
+--
+-- Columnas de personal/física/deportiva añadidas en Sprint 4 (Perfil
+-- Persistente) — ver supabase/migration_perfil_persistente.sql, el archivo
+-- que de verdad se pegó sobre el proyecto en producción; este schema.sql
+-- solo se mantiene en paralelo para que un proyecto nuevo desde cero nazca
+-- ya con el estado actual. sistema_actual/nivel_actual son del Diagnóstico
+-- BPS, no de este Sprint — nivel_experiencia es autorreportado y una
+-- columna completamente distinta, no lo confundas con nivel_actual.
 
 create table public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
@@ -80,6 +88,29 @@ create table public.profiles (
   avatar_url text,
   sistema_actual text references public.systems(slug),
   nivel_actual text,
+
+  -- Información personal
+  edad int,
+  sexo text check (sexo in ('Masculino', 'Femenino', 'Prefiero no decirlo')),
+
+  -- Información física
+  peso_kg numeric check (peso_kg > 20),
+  altura_cm numeric check (altura_cm > 80),
+
+  -- Información deportiva (etiquetas calcadas del Diagnóstico BPS,
+  -- src/lib/diagnostico/preguntas.ts, para un solo vocabulario en toda la app)
+  objetivo text check (objetivo in (
+    'Ganar músculo y masa', 'Perder grasa y definir', 'Ganar fuerza máxima',
+    'Dominar habilidades de peso corporal', 'Transformación completa'
+  )),
+  nivel_experiencia text check (nivel_experiencia in ('Principiante', 'Intermedio', 'Avanzado')),
+  lugar_entrenamiento text check (lugar_entrenamiento in ('Gym', 'Casa o parque', 'Ambos')),
+  dias_por_semana int check (dias_por_semana between 1 and 7),
+  duracion_sesion_min int check (duracion_sesion_min > 0),
+  experiencia text check (experiencia in ('Menos de 1 año', '1 – 3 años', 'Más de 3 años')),
+  lesiones text,
+  observaciones text,
+
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

@@ -2,10 +2,16 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getUser } from "@/lib/supabase/user";
 import { createClient } from "@/lib/supabase/server";
-import { iniciales } from "@/lib/utils";
+import PerfilClient from "./PerfilClient";
+import type { Profile } from "@/lib/types";
 
 export const metadata: Metadata = { title: "Mi Perfil" };
 
+// Server puro: una sola query trae la fila completa (antes solo 3 columnas)
+// y se hidrata UNA VEZ hacia PerfilClient — nada de useEffect para cargar
+// datos que ya llegan del servidor. app/app/layout.tsx ya garantiza que el
+// perfil existe (upsert defensivo) antes de que cualquier página de /app
+// se renderice, así que aquí no se repite esa lógica.
 export default async function PerfilPage() {
   const user = await getUser();
   if (!user) redirect("/login");
@@ -13,49 +19,39 @@ export default async function PerfilPage() {
   const supabase = await createClient();
   const { data: profile } = await supabase
     .from("profiles")
-    .select("nombre, sistema_actual, nivel_actual")
+    .select("*")
     .eq("id", user.id)
     .single();
 
-  const nombre = profile?.nombre ?? user.email?.split("@")[0] ?? "Atleta";
+  const perfil: Profile =
+    profile ?? {
+      id: user.id,
+      email: user.email ?? null,
+      nombre: user.email?.split("@")[0] ?? "Atleta",
+      avatar_url: null,
+      sistema_actual: null,
+      nivel_actual: null,
+      edad: null,
+      sexo: null,
+      peso_kg: null,
+      altura_cm: null,
+      objetivo: null,
+      nivel_experiencia: null,
+      lugar_entrenamiento: null,
+      dias_por_semana: null,
+      duracion_sesion_min: null,
+      experiencia: null,
+      lesiones: null,
+      observaciones: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
 
   return (
-    <div className="space-y-8 max-w-lg">
-      <div>
-        <p className="text-white/50 text-sm">Tu cuenta</p>
-        <h1 className="font-black text-2xl sm:text-3xl text-white mt-1">Mi Perfil</h1>
-      </div>
-
-      <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-6 flex items-center gap-4">
-        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-orange-600 to-amber-700 flex items-center justify-center flex-shrink-0">
-          <span className="text-white font-black text-lg">{iniciales(nombre)}</span>
-        </div>
-        <div className="min-w-0">
-          <p className="font-black text-white text-lg truncate">{nombre}</p>
-          <p className="text-white/50 text-sm truncate">{user.email}</p>
-        </div>
-      </div>
-
-      <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] divide-y divide-white/[0.06]">
-        <div className="flex items-center justify-between px-5 py-4">
-          <span className="text-white/50 text-sm">Sistema actual</span>
-          <span className="text-white text-sm font-semibold">{profile?.sistema_actual ?? "Sin asignar"}</span>
-        </div>
-        <div className="flex items-center justify-between px-5 py-4">
-          <span className="text-white/50 text-sm">Nivel</span>
-          <span className="text-white text-sm font-semibold">{profile?.nivel_actual ?? "Sin asignar"}</span>
-        </div>
-        <div className="flex items-center justify-between px-5 py-4">
-          <span className="text-white/50 text-sm">Email verificado</span>
-          <span className={`text-sm font-semibold ${user.email_confirmed_at ? "text-emerald-400" : "text-white/50"}`}>
-            {user.email_confirmed_at ? "Sí" : "No"}
-          </span>
-        </div>
-      </div>
-
-      <p className="text-white/40 text-xs">
-        Edición de perfil (nombre, foto) llega en una próxima iteración — hoy es solo lectura.
-      </p>
-    </div>
+    <PerfilClient
+      profile={perfil}
+      email={user.email ?? ""}
+      emailConfirmado={Boolean(user.email_confirmed_at)}
+    />
   );
 }

@@ -261,3 +261,8 @@ export function Lock(props: IconProps) {
     />
   );
 }
+
+/** Arco de carga — aplicar `animate-spin` en el call site (PerfilForm, botón Guardar). */
+export function Spinner(props: IconProps) {
+  return <StrokeIcon d="M12 3a9 9 0 1 0 9 9" {...props} />;
+}
