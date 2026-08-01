@@ -317,32 +317,15 @@ body {
     margin: 0 !important;
   }
 
-  /* SectionCard renderiza dos variantes (tarjeta en ≥md, acordeón en móvil).
-     El viewport de impresión con márgenes cae por debajo del breakpoint md,
-     así que sin esto se imprimiría la variante de acordeón. */
-  .reporte-print .print-seccion {
-    display: block !important;
-  }
-
-  .reporte-print .print-seccion-movil {
-    display: none !important;
-  }
-
-  /* El histórico usa acordeones cerrados por defecto: en pantalla es correcto,
-     en un reporte impreso ocultaría todo el detalle. Radix marca el contenido
-     cerrado con [hidden] y animaciones de altura. */
-  .reporte-print [data-slot="accordion-content"] {
-    display: block !important;
-    height: auto !important;
-    overflow: visible !important;
-    animation: none !important;
-  }
-
-  .reporte-print [data-slot="accordion-content"][hidden] {
-    display: block !important;
-  }
-
-  .reporte-print [data-slot="accordion-trigger-icon"] {
+  /* Ningún control interactivo llega al papel. SectionCard ya no monta un
+     acordeón (Sprint 3.0) y el histórico es una línea de tiempo abierta, así
+     que no queda nada colapsado que forzar: basta con retirar los controles
+     que sí existen dentro del documento. */
+  .reporte-print button,
+  .reporte-print input,
+  .reporte-print select,
+  .reporte-print textarea,
+  .reporte-print [role="button"] {
     display: none !important;
   }
 
