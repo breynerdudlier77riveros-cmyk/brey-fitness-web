@@ -10,16 +10,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/brand/Car
 //
 // title (Sprint 4, Perfil Persistente): opcional y retrocompatible — sin
 // title, idéntico a como era antes (CardHeader ni se monta).
+//
+// interactive (Sprint I-02): pasa directo a brand/Card, que ya trae el
+// hover completo (borde + elevación + escala) — evita que las tarjetas
+// clicables del Dashboard (Mi Sistema, Entrenamiento de hoy) reinventen un
+// tercer patrón de hover además de cardStyles.interactive y este mismo.
 
 interface Props {
   children: React.ReactNode;
   className?: string;
   title?: string;
+  interactive?: boolean;
 }
 
-export default function DashboardCard({ children, className, title }: Props) {
+export default function DashboardCard({ children, className, title, interactive }: Props) {
   return (
-    <Card className={className}>
+    <Card className={className} interactive={interactive}>
       {title && (
         <CardHeader>
           <CardTitle>{title}</CardTitle>

@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>12 · Progression Engine — Exercise Taxonomy Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="progression-engine" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 12 · Relaciones</p>
+<h1>Relación con el Progression Engine</h1>
+<p class="lede">La cadena como unidad de avance, la bifurcación que decide si un ejercicio progresa por carga o por dificultad de patrón, y las cuatro reglas estructurales que toda cadena debe cumplir para ser válida.</p>
+
+<h2 id="cadena">La cadena de progresión</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Cadena</div>
+  <p>"La cadena de progresión <strong>ordena una familia de ejercicios por dificultad</strong>: flexión de rodillas → flexión estándar → flexión pies elevados → flexión a un brazo."</p>
+</div>
+<p>Es el único mecanismo del ecosistema que relaciona ejercicios <strong>entre sí</strong>. Todos los demás ejes clasifican un ejercicio contra un vocabulario; la cadena lo posiciona respecto de sus hermanos.</p>
+
+<h2 id="reglas">Las cuatro reglas de la cadena</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Regla</th><th>Consecuencia estructural</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>"Toda cadena vive DENTRO de un patrón y de un conjunto de roles compatibles — <strong>un eslabón nunca cruza de patrón</strong>"</td><td>Una cadena que cruce patrón es inválida; el avance de eslabón nunca cambia qué slot llena el ejercicio</td></tr>
+<tr><td>2</td><td>"La cadena es <strong>lineal en v1</strong> (un anterior, un siguiente). Ramificaciones = dos cadenas separadas que comparten un eslabón raíz"</td><td><code>cadena</code> es <code>{anterior?, siguiente?}</code>, nunca listas</td></tr>
+<tr><td>3</td><td>"Avanzar/retroceder de eslabón es decisión del Progression Engine; <strong>la cadena solo declara el orden</strong>"</td><td>El catálogo no decide progresión — declara la secuencia posible</td></tr>
+<tr><td>4</td><td>"El orden lo autoriza criterio de entrenador (P14) — la estructura la valida ingeniería (<strong>sin ciclos, sin huecos de nivel</strong>)"</td><td>Dos validaciones distintas: contenido humano, estructura automática</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">"Sin huecos de nivel" — criterio no operacionalizado</div>
+  <p>La regla 4 exige que la validación estructural detecte "huecos de nivel", pero ninguna fuente define qué constituye un hueco: ¿que dos eslabones consecutivos salten de <code>principiante</code> a <code>avanzado</code>? ¿Que falte un eslabón intermedio? Se documenta la exigencia sin inventar el criterio — <a href="../16-preguntas-abiertas/index.html">TX-Q24</a>.</p>
+</div>
+
+<h2 id="bifurcacion">La bifurcación PE-003 — carga externa vs. patrón corporal</h2>
+<p>El Progression Engine trata dos familias de ejercicio de forma distinta, y la distinción es un atributo <strong>implícito</strong> del ejercicio que ninguna fuente nombra como campo:</p>
+<div class="diagram">
+<div class="diagram-label">Qué ocurre al alcanzar el techo de repeticiones con RPE bajo objetivo</div>
+<pre class="mermaid">
+flowchart TD
+  T["Techo de repeticiones alcanzado<br/>con RPE bajo objetivo"] --> Q{"¿Qué tipo de Slot?"}
+  Q -->|"carga externa"| PE1["PE-001 · Sube la carga"]
+  Q -->|"patrón corporal"| PE3["PE-003 · Avanza eslabón de cadena"]
+  PE3 --> Q2{"¿Hay eslabón siguiente?"}
+  Q2 -->|Sí| NEXT["Siguiente eslabón"]
+  Q2 -->|No| Q3{"¿El ejercicio admite<br/>carga añadida?"}
+  Q3 -->|Sí| DEG["Se degrada a PE-001<br/>dentro del mismo eslabón"]
+  Q3 -->|No| SOS["Sostiene"]
+</pre>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Un atributo que se usa pero no está declarado</div>
+  <p>PE-003 exige distinguir "un Slot de carga externa" de "una progresión de patrón corporal", y su contraejemplo añade una segunda distinción: si el ejercicio en el tope de cadena "admite carga añadida". <strong>Ninguno de los dos datos figura en la tabla de atributos del Ejercicio</strong> del Architecture Handbook 04.</p>
+  <p>El candidato más cercano es <code>tipo</code> (<code>compuesto</code>·<code>aislamiento</code>·<code>peso-corporal</code>), pero no es equivalente: <code>peso-corporal</code> describe el implemento, no si el ejercicio progresa por dificultad de patrón; y un ejercicio de peso corporal puede admitir lastre. Registrado como <a href="../16-preguntas-abiertas/index.html">TX-Q25</a> y como contradicción en la <a href="../17-autoauditoria/index.html">autoauditoría</a>.</p>
+</div>
+
+<h2 id="consumo">Qué lee el Progression Engine de la taxonomía</h2>
+<p>El contrato del Architecture Handbook 04 con sus cinco consumidores es explícito para este motor: "<strong>Cadenas</strong> (unidad de avance/retroceso), <strong>capacidades</strong>, <strong>roles</strong> (peso de la señal)".</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Atributo</th><th>Para qué lo usa</th><th>Regla</th></tr></thead>
+<tbody>
+<tr><td><code>cadena</code></td><td>Unidad de avance y retroceso de ejercicio</td><td>PE-003 (avance), PE-031 escalón 3 (retroceso de eslabón)</td></tr>
+<tr><td><code>capacidadesRequeridas[]</code></td><td>Gate de elegibilidad al avanzar</td><td>Vocabulario de capacidades — módulo <a href="../09-capacidades-fisicas/index.html">09</a></td></tr>
+<tr><td><code>rolesPosibles[]</code></td><td>"Peso de la señal" — la fuente no detalla más</td><td><strong>No operacionalizado</strong> en ninguna regla PE concreta</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">"Roles (peso de la señal)" no se operacionaliza</div>
+  <p>El contrato de consumidores promete que el Progression Engine usa el rol como peso de señal, pero ninguna de las 39 reglas PE-001..039 hace referencia al rol del slot. Es una promesa de contrato sin implementación documental. Registrado en <a href="../16-preguntas-abiertas/index.html">TX-Q26</a>.</p>
+</div>
+
+<h2 id="retroceso">Retroceso de eslabón ≠ retroceso de escalón</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th></th><th>Retroceso de <strong>eslabón</strong></th><th>Retroceso de <strong>escalón</strong></th></tr></thead>
+<tbody>
+<tr><td>Qué mueve</td><td>La posición del usuario en una cadena de ejercicios</td><td>El puntero en la jerarquía Microciclo→Mesociclo→Bloque→Nivel</td></tr>
+<tr><td>Regla</td><td>PE-031, escalón 3 de la escalera de estancamiento</td><td>PE-017, por incumplimiento sostenido</td></tr>
+<tr><td>Alcance</td><td>Un Slot concreto</td><td>Todo el programa del usuario</td></tr>
+<tr><td>Relación</td><td colspan="2">"Retroceso de escalón macro completo (PE-017) — <strong>nunca es una acción de esta escalera</strong>, son mecanismos independientes"</td></tr>
+</tbody>
+</table>
+</div>
+<p>Para la taxonomía la distinción importa porque solo el primero toca el catálogo: retroceder de eslabón significa que el slot se resolverá a un ejercicio distinto — el anterior de la cadena. Retroceder de escalón no cambia ningún ejercicio, cambia la plantilla vigente.</p>
+
+<h2 id="fronteras">Lo que el Progression Engine ignora deliberadamente</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Dato</th><th>Tratamiento</th></tr></thead>
+<tbody>
+<tr><td>Fatiga, dolor y sueño crudos</td><td>"Ignorados por completo — el motor solo ve el Veredicto ya resuelto de Recovery" (PE-023/024/025)</td></tr>
+<tr><td><code>nivel_experiencia</code> autoreportado</td><td>"Ignorado — no es un dato algorítmico en ningún motor de BREY"</td></tr>
+<tr><td>Objetivo del usuario</td><td>"Ignorado aquí — ya fue resuelto aguas arriba en la construcción del programa"</td></tr>
+<tr><td>Track y Sistema</td><td>PE-018: exclusión explícita — nunca produce recomendación de cambiarlos</td></tr>
+</tbody>
+</table>
+</div>
+<p>La última fila explica por qué "compatibilidad con objetivos" no es un atributo del ejercicio (<a href="../16-preguntas-abiertas/index.html">TX-Q11</a>): el objetivo se resuelve en la construcción del programa, muy por encima de la capa 9, y para cuando un ejercicio llena un slot ya no queda ninguna decisión de objetivo que tomar.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../11-workout-generator/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 11 · Workout Generator</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../13-knowledge-base/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">13 · Knowledge Base →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

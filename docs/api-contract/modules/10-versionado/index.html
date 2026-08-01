@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10 · Versionado — BREY API Contract Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="versionado" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 10 · Operación</p>
+<h1>Versionado</h1>
+<p class="lede">Este contrato es v1 en su totalidad. Sin esquema <code>/api/v1/</code> explícito hoy — extiende la misma postura ya adoptada por el Engineering Handbook (06), no la contradice.</p>
+
+<h2 id="v1">v1 — sin prefijo de versión en la ruta</h2>
+<p>Ninguna ruta del catálogo (07) lleva <code>/v1/</code>. Es una decisión válida mientras el único consumidor de este contrato sea el propio frontend de BREY, desplegado atómicamente junto con su backend (Engineering Handbook, 06) — no hay forma de que un cliente quede desincronizado de una versión antigua del contrato, porque no existe un cliente distinto del desplegado junto con el cambio.</p>
+
+<h2 id="compatibilidad">Compatibilidad — evolución aditiva</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Cambio</th><th>¿Versiona?</th></tr></thead>
+<tbody>
+<tr><td>Agregar un campo opcional a un Output DTO</td><td>No — aditivo dentro de v1</td></tr>
+<tr><td>Agregar un endpoint nuevo</td><td>No</td></tr>
+<tr><td>Agregar un valor nuevo a un catálogo de error o de evento (<code>tipo</code>, <code>origen</code>)</td><td>No, mientras sea aditivo al CHECK existente (ver 09-domain-events, Engineering Handbook)</td></tr>
+<tr><td>Cambiar el significado de un campo ya publicado</td><td>Sí — es breaking, ver abajo</td></tr>
+<tr><td>Eliminar un campo o cambiar su tipo</td><td>Sí — es breaking</td></tr>
+<tr><td>Cambiar el nombre de un campo (<code>si</code> → <code>procede</code>, como en el caso ya resuelto del Veredicto de Recovery)</td><td>Sí — es breaking, incluso si el significado no cambia</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="breaking-changes">Breaking changes</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Regla — contrato nuevo junto al viejo, nunca mutación in-place</div>
+  <p>Un cambio breaking nunca muta un contrato ya publicado. Se introduce como un contrato nuevo, nombrado explícitamente (ej. <code>evaluarProgresionV2</code>), documentado junto al anterior, con un API-ADR (15) que registre la razón y una fecha de deprecación para el contrato viejo. Regla heredada literalmente del Architecture Handbook (11) — este documento la extiende a todo el catálogo, no solo a la API Interna original.</p>
+</div>
+
+<h2 id="deprecacion">Deprecación</h2>
+<p>Un contrato deprecado sigue respondiendo — nunca se retira en el mismo cambio que introduce su sucesor. Se marca con <span class="tag tag--futuro">futuro</span> invertido conceptualmente (deprecado, no futuro) en su tabla de origen, con una nota explícita de qué contrato lo reemplaza y desde cuándo. Ningún contrato de este catálogo está deprecado hoy — v1 es la primera versión de todos ellos.</p>
+
+<h2 id="sunset">Sunset</h2>
+<p>Un contrato deprecado se retira (sunset) solo después de que ningún consumidor conocido lo siga invocando — verificable hoy por observabilidad (14) si existiera instrumentación de uso por endpoint, algo que ningún handbook especifica todavía (ver 16). Mientras BREY no tenga un consumidor externo real, el sunset de un contrato interno es una decisión de release (Implementation Handbook), no de este documento.</p>
+
+<h2 id="jsonb-versionado">Caso especial — formas jsonb con discriminador de versión</h2>
+<p>Las formas jsonb de <code>workouts.ejercicios</code> y <code>workout_logs.ejercicios</code> versionan con un campo discriminador <code>v</code> (Architecture Handbook, 10) — los mappers de la capa de repositorio absorben la compatibilidad entre versiones, y todo endpoint de este catálogo que las expone (07) siempre devuelve la forma vigente ya normalizada, nunca la forma jsonb cruda con su discriminador visible al consumidor final.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../09-errores/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 09 · Errores</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../11-idempotencia/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">11 · Idempotencia →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

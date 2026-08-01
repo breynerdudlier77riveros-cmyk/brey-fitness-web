@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>14 · Glosario — BREY Architecture Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="glosario" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 14 · Gobernanza</p>
+<h1>Glosario</h1>
+<p class="lede">Normativo, no informativo (P12): cada concepto tiene exactamente un término canónico; los sinónimos se registran como sinónimos; las confusiones frecuentes se marcan. Un término nuevo en código o UI sin entrada aquí es un cambio incompleto.</p>
+
+<h2 id="confusiones">⚠ Las confusiones más peligrosas — leer primero</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">nivel_actual ≠ nivel_experiencia</div>
+  <p><strong><code>nivel_actual</code></strong>: asignado por el Diagnóstico, mutado por el Progression Engine, acoplado al Sistema (ej. "Skills" solo existe en Calistenia). Los motores lo leen. <strong><code>nivel_experiencia</code></strong>: autopercibido por el usuario en su Perfil, genérico, sin uso algorítmico jamás (ADR-003). Mezclarlos es el error más probable del dominio.</p>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">DOMS ≠ dolor</div>
+  <p><strong>DOMS</strong>: molestia muscular difusa post-entrenamiento — no bloquea nada. <strong>Dolor</strong> (articular/agudo/punzante): bandera roja — sustitución, restricción de zona, recomendación profesional (06). El Player pregunta la distinción; nunca clasifica solo por intensidad.</p>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Plantilla ≠ instancia · Sesión ≠ log</div>
+  <p>La <strong>Sesión</strong> (fila de <code>workouts</code>) es el plan instanciado e inmutable. El <strong>Workout Log</strong> es lo que realmente ocurrió. Editar "la sesión de ayer" no existe: el plan no se toca y el log cerrado tampoco (P3/P5).</p>
+</div>
+
+<h2 id="a-c">A–C</h2>
+<p><strong>Adherencia</strong> — sesiones completadas / programadas en una ventana. Señal de 05 y 06.</p>
+<p><strong>ADR</strong> — Architecture Decision Record: contexto → decisión → alternativas descartadas → consecuencias (módulo 12). Si no está ahí, no está decidido.</p>
+<p><strong>Autorregulación</strong> — ajustar la carga por el esfuerzo real reportado (RPE/RIR), no por número fijo. Dueño: Progression Engine.</p>
+<p><strong>Bloque</strong> — período con énfasis fisiológico (capa 4 de 03). Sinónimo legacy: <em>fase</em> (el catálogo actual usa <code>fases[]</code>).</p>
+<p><strong>Bounded context</strong> — región del sistema con responsabilidad y vocabulario propios, comunicada solo por contratos (02).</p>
+<p><strong>BPS / Brey Performance System</strong> — la metodología: 4 pilares + 5 principios de producto, cada uno con dueño técnico (02).</p>
+<p><strong>Cadena de progresión</strong> — familia de ejercicios ordenada por dificultad dentro de un patrón; unidad atómica de avance/retroceso de ejercicio (04/05).</p>
+<p><strong>Capacidad</strong> — prerequisito demostrable para que un ejercicio sea elegible (gates de calistenia) (04).</p>
+<p><strong>Catálogo</strong> — categoría de dato (P9): contenido autorizado por humanos, versionado, de cambio infrecuente.</p>
+<p><strong>Ciclo semanal</strong> — la rutina del orquestador (07): Recovery → Progression → transiciones → Generator.</p>
+
+<h2 id="d-i">D–I</h2>
+<p><strong>Descarga</strong> — semana con volumen ×0.6 y RPE −1; programada (del Mesociclo) o reactiva (del índice de fatiga). Sinónimo registrado: <em>deload</em>.</p>
+<p><strong>Determinismo</strong> — misma entrada → misma salida (P1). Propiedad obligatoria de todo motor.</p>
+<p><strong>Doble progresión</strong> — llenar el rango de reps al RPE objetivo, luego subir carga y volver al piso del rango (05).</p>
+<p><strong>DOMS</strong> — dolor muscular de aparición tardía. Ver confusiones.</p>
+<p><strong>DTO</strong> — forma tipada de datos que cruza una frontera de contrato (11).</p>
+<p><strong>Ejercicio</strong> — movimiento concreto del catálogo con ficha de ontología completa (capa 9; atributos en 04).</p>
+<p><strong>Equivalencia (tabla de)</strong> — conversión autorizada dinámico↔isométrico. Sin entrada → <code>EQUIVALENCIA_FALTANTE</code>, jamás fórmula inventada (04).</p>
+<p><strong>Estancamiento</strong> — 3 apariciones consecutivas de un ejercicio sin mejora a RPE igual o mayor <span class="ev ev--producto">decisión de producto</span> (05).</p>
+<p><strong>Evento (de dominio)</strong> — en v1: fila de <code>progression_events</code> o entrada de la cola local del Player. No hay bus (ADR-013).</p>
+<p><strong>Fallo visible</strong> — P6: sin información suficiente, error tipado con detalle — nunca default silencioso.</p>
+<p><strong>Historial</strong> — categoría de dato (P9): hechos inmutables con marca de tiempo.</p>
+<p><strong>Índice de fatiga</strong> — 0.5·RPE + 0.3·adherencia + 0.2·duración, umbral 0.65 <span class="ev ev--producto">decisión de producto</span> (06).</p>
+<p><strong>Instancia</strong> — lo generado para un usuario concreto; inmutable ante ediciones de plantilla (P5).</p>
+<p><strong>Intensidad</strong> — esfuerzo objetivo en RPE/RIR (capa 12 de 03).</p>
+
+<h2 id="m-r">M–R</h2>
+<p><strong>Macro-progresión</strong> — avance/sostiene/retrocede de Mesociclo/Bloque/Nivel, por ventana móvil, nunca por sesión (05).</p>
+<p><strong>Máquina de estados del usuario</strong> — los 8 estados del ciclo de vida (07): sin_diagnostico → … → sistema_completado.</p>
+<p><strong>Mesociclo</strong> — sub-tramo del Bloque con progresión de carga definida, cierra en descarga o test (capa 5).</p>
+<p><strong>Micro-ajuste</strong> — ajuste de carga por ejercicio tras cada sesión (05). Cadencia distinta de la macro.</p>
+<p><strong>Microciclo</strong> — la semana: plantilla de sesiones × roles (capa 6). Última capa de plantilla.</p>
+<p><strong>Motor BPS</strong> — el orquestador (07). No genera ni progresa: activa, verifica gates, coordina y transiciona.</p>
+<p><strong>Nivel</strong> — punto de entrada/progresión dentro del Track (capa 3). Ver confusiones (≠ nivel_experiencia).</p>
+<p><strong>Notas</strong> — capa 15: canal humano→humano. Invariante: ningún motor la parsea.</p>
+<p><strong>Patrón de movimiento</strong> — unidad biomecánica de programación (P7); 7 activos + 2 reservados (04).</p>
+<p><strong>Perfil</strong> — dato de usuario vivo; se lee fresco en cada generación, jamás congelado al activar.</p>
+<p><strong>Plantilla</strong> — lo diseñado por contenido (Sistema→Microciclo, catálogo). Ver confusiones.</p>
+<p><strong>PostgREST</strong> — la capa REST de Supabase. Trampa conocida: <code>numeric</code> llega como string (ADR-007).</p>
+<p><strong>Progression Engine</strong> — motor de sobrecarga y autorregulación (05). Subordinado a Recovery (P8).</p>
+<p><strong>Readiness</strong> — disposición diaria a entrenar; señal v2 vía check-in <span class="ev ev--hipotesis">hipótesis</span> (06).</p>
+<p><strong>Recovery Engine</strong> — motor de gestión de fatiga (06). Precedencia absoluta sobre Progression.</p>
+<p><strong>Regla de Activación</strong> — Diagnóstico recomienda; la compra confirmada activa (ADR-002, R-M1).</p>
+<p><strong>Repositorio</strong> — única puerta de acceso a una tabla (11); recibe el cliente como parámetro; devuelve DTOs mapeados.</p>
+<p><strong>RIR</strong> — Reps in Reserve: repeticiones que quedaban antes del fallo. <strong>RPE</strong> — esfuerzo percibido 1–10; en fuerza, RPE ≈ 10 − RIR. Herramienta validada con menor precisión en novatos <span class="ev ev--moderada">evidencia moderada</span>.</p>
+<p><strong>RLS</strong> — Row Level Security de Postgres: la frontera de seguridad real (ADR-008).</p>
+<p><strong>Rol</strong> — función del ejercicio en la secuencia de sesión: activacion · principal · accesorio · core-final · metabolico (04).</p>
+
+<h2 id="s-z">S–Z</h2>
+<p><strong>Serie</strong> — un set. La unidad atómica del historial es <code>serie_registrada</code> {peso, reps|segundos, rpe} (09).</p>
+<p><strong>Sesión</strong> — el plan de un día, instanciado (capa 7; fila de <code>workouts</code>). Ver confusiones (≠ log).</p>
+<p><strong>Sistema</strong> — producto comercial y dominio de objetivo (capa 1): Hipertrofia, Calistenia, Híbrido, Fuerza, Elite.</p>
+<p><strong>Slot</strong> — posición de una sesión: siempre Patrón × Rol (03/04).</p>
+<p><strong>Slug</strong> — identificador estable que nunca se renombra ni reutiliza (P15).</p>
+<p><strong>Sustitución</strong> — resolución de un ejercicio alternativo preservando Patrón+Rol+intención de intensidad (04). <em>En vivo</em>: la del Player con el Track vigente (09).</p>
+<p><strong>Tempo</strong> — cadencia excéntrica-pausa-concéntrica-pausa (capa 14); default "controlado", explícito solo con énfasis técnico.</p>
+<p><strong>Track</strong> — variante de contexto/equipo del Sistema: gym · casa · ambos (capa 2, ADR-005).</p>
+<p><strong>Ventana móvil</strong> — el período (2 semanas por defecto) sobre el que evalúan 05/06 <span class="ev ev--producto">decisión de producto</span>.</p>
+<p><strong>Workout Generator</strong> — el ensamblador plantilla→instancia (08).</p>
+<p><strong>Workout Log</strong> — el registro inmutable de lo ejecutado (fila de <code>workout_logs</code>). Ver confusiones.</p>
+<p><strong>Workout Player</strong> — la superficie de ejecución en tiempo real y única fuente de verdad de lo ocurrido (09).</p>
+<p><strong>Zona de riesgo articular</strong> — eje de seguridad: rodilla · cadera · lumbar · hombro · codo-muneca · tobillo, con intensidad alto/medio/bajo (04).</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../13-roadmap/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 13 · Roadmap</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../00-introduccion/index.html">
+    <div class="pagenav__dir">Volver al inicio</div>
+    <div class="pagenav__title">00 · Introducción →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

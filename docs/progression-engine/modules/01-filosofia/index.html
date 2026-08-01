@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>01 · Filosofía — Progression Engine Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="filosofia" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 01 · Fundamentos</p>
+<h1>Filosofía</h1>
+<p class="lede">Los principios heredados del Architecture Handbook, traducidos a su consecuencia exacta dentro del Progression Engine — más un principio propio de este dominio: la separación entre <em>cadencia de señal</em> y <em>cadencia de decisión</em>.</p>
+
+<h2 id="determinismo">Determinismo (P1)</h2>
+<p>Mismo (ventana de historial + prescripción vigente + veredicto de Recovery + fecha del ciclo) → misma decisión, siempre. El motor no contiene ningún generador aleatorio ni consulta un modelo generativo. Un umbral puede cambiar de versión a versión del catálogo de reglas, pero dentro de una misma versión, el resultado es una función pura.</p>
+
+<h2 id="explicabilidad">Explicabilidad (P2)</h2>
+<p>Toda salida del motor (ajuste de carga, avance, sostiene, retrocede, detección de estancamiento) lleva una razón construida con los valores reales que la produjeron — nunca una plantilla vacía tipo "por rendimiento". El contexto persistido (14) es lo que permite reconstruir, meses después, exactamente por qué se tomó cada decisión.</p>
+
+<h2 id="una-capa-una-decision">Una capa, una decisión (P4)</h2>
+<p>El motor decide progresión — nunca Sistema, nunca Track, nunca fatiga. Estas fronteras se resuelven con evidencia arquitectónica explícita en los módulos 09 y 10 (no son suposiciones de este documento, son consecuencia directa de ADR-005/ADR-010 del Architecture Handbook).</p>
+
+<h2 id="fallo-visible">Fallo visible (P6)</h2>
+<p>Sin ventana suficiente, el motor no inventa una tendencia — declara <code>VENTANA_INSUFICIENTE</code> y la decisión es <code>sostiene</code> con esa razón explícita. Nunca extrapola desde una sola sesión.</p>
+
+<h2 id="patron-sobre-ejercicio">Patrón sobre ejercicio (P7)</h2>
+<p>El motor ajusta prescripciones a nivel de Patrón×Rol y de eslabón de cadena — nunca "sabe" que un ejercicio específico se llama "press banca". Esto es lo que permite que la misma lógica de progresión sirva a Track Gym y Track Casa sin duplicarse.</p>
+
+<h2 id="seguridad-precede">Seguridad antes que progreso (P8)</h2>
+<p>El principio con más consecuencias prácticas en este handbook. Se detalla en profundidad en el módulo 10 (Autorregulación): el motor no interpreta señales de fatiga/dolor/sueño — las recibe ya resueltas del Recovery Engine, y ese veredicto es terminal, sin ponderación posible.</p>
+
+<h2 id="evidencia-marcada">Evidencia marcada (P11)</h2>
+<p>Ya introducido en el módulo 00. Se aplica con especial disciplina en 08–12, donde vive la mayor densidad de afirmaciones fisiológicas de todo el sistema BREY.</p>
+
+<h2 id="cadencias">Principio propio — separación de cadencias de señal y de decisión</h2>
+<p>No heredado directamente; es la formalización, específica de este motor, de una distinción que el Motor BPS Handbook ya insinuaba (micro vs. macro) pero no nombraba como principio. Se declara aquí como principio de primer orden porque gobierna la arquitectura entera de los módulos 08–12:</p>
+<div class="callout callout--regla">
+  <div class="callout__label">Principio de cadencias separadas</div>
+  <p>Toda señal de entrenamiento tiene una cadencia natural de emisión (por serie, por sesión, por semana) y una cadencia correcta de decisión, que no tienen por qué coincidir. Reaccionar a una señal en su cadencia de emisión cuando su cadencia de decisión correcta es más lenta produce sobre-reacción (ej. subir/bajar peso por una sola serie con RPE atípico). Reaccionar más lento de lo debido produce sub-reacción (ej. no notar 3 sesiones seguidas de estancamiento porque se evalúa solo mensualmente). Cada regla PE-XXX declara explícitamente su cadencia de señal Y su cadencia de decisión — nunca se asume que son la misma.</p>
+</div>
+
+<h2 id="precedencia-general">Precedencia entre principios de este motor</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Conflicto</th><th>Gana</th></tr></thead>
+<tbody>
+<tr><td>Progresar rápido vs. seguridad (Recovery)</td><td>Seguridad — sin excepción (P8)</td></tr>
+<tr><td>Reaccionar rápido vs. evitar sobre-reacción</td><td>Cadencia correcta declarada por la regla, nunca la más rápida disponible</td></tr>
+<tr><td>Simplicidad del umbral vs. presentarlo como ciencia</td><td>Honestidad de clasificación (P11) — un umbral simple marcado 🟠 es preferible a uno complejo marcado falsamente 🟢</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../00-introduccion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 00 · Introducción</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../02-arquitectura/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">02 · Arquitectura →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

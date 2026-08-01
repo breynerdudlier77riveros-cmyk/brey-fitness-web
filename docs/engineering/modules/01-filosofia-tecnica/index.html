@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>01 · Filosofía Técnica — Engineering Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="filosofia-tecnica" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 01 · Fundamentos</p>
+<h1>Filosofía Técnica</h1>
+<p class="lede">Trece principios técnicos, cada uno con definición, motivación, ejemplo real, contraejemplo, sus conflictos conocidos con otros principios, y su prioridad relativa cuando compiten.</p>
+
+<h2 id="precedencia">Precedencia general cuando dos principios compiten</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Nivel</th><th>Principios</th></tr></thead>
+<tbody>
+<tr><td>1 — innegociable</td><td>Fail Visible, SSoT</td></tr>
+<tr><td>2 — estructural</td><td>Arquitectura por dominio, Separación de responsabilidades, Determinismo</td></tr>
+<tr><td>3 — operacional</td><td>Idempotencia, Observabilidad, Explicabilidad, Backward Compatibility</td></tr>
+<tr><td>4 — calidad de diseño</td><td>Bajo acoplamiento, Alta cohesión, Inmutabilidad donde aplique</td></tr>
+<tr><td>5 — verificación</td><td>Testabilidad</td></tr>
+</tbody>
+</table>
+</div>
+<p>Un nivel superior nunca se sacrifica por uno inferior. Testabilidad nunca justifica romper Determinismo; Bajo acoplamiento nunca justifica ocultar un fallo (Fail Visible).</p>
+
+<h2 id="principios">Los trece principios</h2>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">FT-01</span><span class="speccard__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>SSoT (Single Source of Truth)</h3>
+<dl>
+<dt>Definición</dt><dd>Todo dato o regla tiene exactamente un lugar de origen — nunca se duplica ni se deriva en dos sitios de forma independiente.</dd>
+<dt class="half">Motivación</dt><dd class="half">Dos fuentes de verdad divergen con el tiempo; una sola no puede contradecirse a sí misma.</dd>
+<dt class="half">Ejemplo real</dt><dd class="half"><code>numOrNull()</code> (<code>src/lib/database/parsers.ts</code>) es la única función que coerciona <code>numeric</code> de PostgREST — ningún otro sitio del código debe escribir <code>Number(row.algo)</code> a mano</dd>
+<dt class="half">Contraejemplo</dt><dd class="half">Copiar la lista de columnas de <code>workout_logs</code> en dos archivos distintos (deuda real detectada y corregida en Sprint 4.1)</dd>
+<dt class="half">Conflictos</dt><dd class="half">Con Bajo acoplamiento cuando centralizar crea una dependencia compartida entre módulos — se resuelve a favor de SSoT (nivel 1)</dd>
+<dt>Prioridad</dt><dd>1</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">FT-02</span><span class="speccard__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>Arquitectura por dominio</h3>
+<dl>
+<dt>Definición</dt><dd>El código se organiza por concepto de negocio (perfil, workouts, diagnóstico), no por tipo técnico de archivo.</dd>
+<dt class="half">Motivación</dt><dd class="half">Un cambio de regla de negocio debe tocar una carpeta, no dispersarse por todo el árbol.</dd>
+<dt class="half">Ejemplo real</dt><dd class="half"><code>src/lib/profile/</code>, <code>src/lib/workouts/</code>, <code>src/lib/diagnostico/</code> — cada uno con su propio repositorio/lógica</dd>
+<dt class="half">Contraejemplo</dt><dd class="half">Una carpeta <code>src/lib/repositories/</code> genérica que mezcle profile+workouts+diagnóstico sin fronteras de dominio</dd>
+<dt class="half">Conflictos</dt><dd class="half">Con Bajo acoplamiento cuando dos dominios comparten un concepto real (ver 03, dependencias permitidas)</dd>
+<dt>Prioridad</dt><dd>2</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">FT-03</span><span class="speccard__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>Determinismo</h3>
+<dl>
+<dt>Definición</dt><dd>Las mismas entradas producen siempre la misma salida — sin aleatoriedad ni dependencia oculta del reloj del sistema.</dd>
+<dt class="half">Motivación</dt><dd class="half">Heredado de P1 del Architecture Handbook — indispensable para auditar y reproducir decisiones de los motores.</dd>
+<dt class="half">Ejemplo real</dt><dd class="half">El motor de Diagnóstico BPS (<code>src/lib/diagnostico/motor.ts</code>) es una función pura sobre las respuestas del usuario</dd>
+<dt class="half">Contraejemplo</dt><dd class="half">Un motor futuro que llame <code>Date.now()</code> internamente en vez de recibir la fecha como parámetro (prohibido explícitamente por BPS-022, Motor BPS Handbook)</dd>
+<dt class="half">Conflictos</dt><dd class="half">Con Performance (09) cuando cachear un resultado no determinista parece más rápido — Determinismo gana</dd>
+<dt>Prioridad</dt><dd>2</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">FT-04</span><span class="speccard__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>Idempotencia</h3>
+<dl>
+<dt>Definición</dt><dd>Repetir la misma operación produce el mismo resultado final que ejecutarla una vez.</dd>
+<dt class="half">Motivación</dt><dd class="half">Reintentos de red, webhooks duplicados y dobles clics son inevitables en producción.</dd>
+<dt class="half">Ejemplo real</dt><dd class="half">El trigger <code>handle_new_user()</code> (<code>supabase/schema.sql</code>) usa <code>ON CONFLICT (id) DO NOTHING</code> — crear el mismo usuario dos veces no falla ni duplica</dd>
+<dt class="half">Contraejemplo</dt><dd class="half">Un endpoint de "registrar medición" (BCS Handbook) que cree dos Mediciones si el cliente reintenta tras un timeout de red</dd>
+<dt class="half">Conflictos</dt><dd class="half">Con Performance cuando la verificación de idempotencia añade una consulta extra — se acepta el costo</dd>
+<dt>Prioridad</dt><dd>3</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">FT-05</span><span class="speccard__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>Fail Visible</h3>
+<dl>
+<dt>Definición</dt><dd>Un fallo se declara explícitamente — nunca se enmascara con un valor por defecto silencioso.</dd>
+<dt class="half">Motivación</dt><dd class="half">Heredado de P6 del Architecture Handbook — un error oculto hoy es un bug irreproducible mañana.</dd>
+<dt class="half">Ejemplo real</dt><dd class="half"><code>updateProfile()</code> (<code>src/lib/profile/repository.ts</code>) devuelve <code>null</code> explícito en error — el call site debe manejarlo, no puede ignorarlo silenciosamente</dd>
+<dt class="half">Contraejemplo</dt><dd class="half">Un <code>catch {}</code> vacío que trague un error de Supabase sin loguearlo (11)</dd>
+<dt class="half">Conflictos</dt><dd class="half">Con UX percibida ("no quiero mostrarle un error al usuario") — se resuelve separando el fallo interno (siempre visible en logs, 11) de su presentación (puede ser amigable)</dd>
+<dt>Prioridad</dt><dd>1</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">FT-06</span><span class="speccard__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>Explicabilidad</h3>
+<dl>
+<dt>Definición</dt><dd>Toda decisión automática (de un motor, de una validación) es trazable a su causa exacta.</dd>
+<dt class="half">Motivación</dt><dd class="half">Heredado de P2 del Architecture Handbook.</dd>
+<dt class="half">Ejemplo real</dt><dd class="half">Las columnas <code>razones</code>/<code>notas</code> (jsonb) de <code>diagnoses</code> registran por qué el Diagnóstico BPS llegó a su recomendación</dd>
+<dt class="half">Contraejemplo</dt><dd class="half">Un futuro Coach IA que sugiera un cambio de rutina sin registrar qué datos lo motivaron</dd>
+<dt class="half">Conflictos</dt><dd class="half">Con Performance cuando registrar el razonamiento completo añade payload — se acepta el costo en cualquier decisión con impacto sobre el usuario</dd>
+<dt>Prioridad</dt><dd>3</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">FT-07</span><span class="speccard__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>Observabilidad</h3>
+<dl>
+<dt>Definición</dt><dd>El estado interno del sistema es inspeccionable desde fuera sin necesitar releer el código fuente.</dd>
+<dt class="half">Motivación</dt><dd class="half">Un sistema con múltiples motores autónomos (Motor BPS, Progression Engine) que no se puede observar es indebugueable en producción.</dd>
+<dt class="half">Ejemplo real</dt><dd class="half">Los catálogos de eventos ya especificados en Motor BPS Handbook (13) y Progression Engine Handbook (14) — <span class="tag tag--especificado">especificado</span>, ver 07 y 11</dd>
+<dt class="half">Contraejemplo</dt><dd class="half">Un motor que solo actualiza un puntero de estado sin dejar rastro de la decisión que lo produjo</dd>
+<dt class="half">Conflictos</dt><dd class="half">Con Performance (volumen de logs) — se resuelve con niveles de log (11), no con logging nulo</dd>
+<dt>Prioridad</dt><dd>3</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">FT-08</span><span class="speccard__badges"><span class="tag tag--especificado">especificado</span></span></div>
+<h3>Testabilidad</h3>
+<dl>
+<dt>Definición</dt><dd>Toda lógica de negocio no trivial es ejecutable en aislamiento, sin desplegar la aplicación completa.</dd>
+<dt class="half">Motivación</dt><dd class="half">Los motores (Motor BPS, Progression Engine) son funciones puras por diseño (Determinismo, FT-03) — eso ya las hace testeables sin infraestructura.</dd>
+<dt class="half">Ejemplo real</dt><dd class="half">El motor de Diagnóstico BPS es una función pura invocable con solo un array de respuestas — no requiere base de datos para probarse</dd>
+<dt class="half">Contraejemplo</dt><dd class="half">Una función que mezcle lectura de Supabase y cálculo de negocio en el mismo bloque, imposible de probar sin una base de datos real</dd>
+<dt class="half">Conflictos</dt><dd class="half">Con velocidad de entrega a corto plazo — se resuelve exigiendo pureza en el dominio (10), no exigiendo cobertura de tests aún inexistente</dd>
+<dt>Prioridad</dt><dd>5</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">FT-09</span><span class="speccard__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>Inmutabilidad donde aplique</h3>
+<dl>
+<dt>Definición</dt><dd>Un registro histórico nunca se sobrescribe — se corrige añadiendo un registro nuevo y anulando el anterior.</dd>
+<dt class="half">Motivación</dt><dd class="half">Auditoría y replay (11) son imposibles si el pasado puede reescribirse.</dd>
+<dt class="half">Ejemplo real</dt><dd class="half">El mecanismo de corrección de Medición del BCS Handbook (UC-06): nunca edita en sitio, anula y crea</dd>
+<dt class="half">Contraejemplo</dt><dd class="half">Un <code>UPDATE</code> directo sobre una fila de <code>workout_logs</code> ya registrada para "corregir" un valor</dd>
+<dt class="half">Conflictos</dt><dd class="half">Con simplicidad de esquema (más filas, más JOIN) — se acepta el costo en cualquier tabla con valor de auditoría; no aplica a catálogos (<code>systems</code>)</dd>
+<dt>Prioridad</dt><dd>4</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">FT-10</span><span class="speccard__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>Bajo acoplamiento</h3>
+<dl>
+<dt>Definición</dt><dd>Un módulo depende del contrato de otro, nunca de su implementación interna.</dd>
+<dt class="half">Motivación</dt><dd class="half">Permite que el Progression Engine cambie su algoritmo interno sin que el Motor BPS necesite cambiar una sola línea, mientras el contrato (Decisión, Veredicto) no cambie.</dd>
+<dt class="half">Ejemplo real</dt><dd class="half">Los repositorios (<code>profile/repository.ts</code>, <code>workouts/repository.ts</code>) reciben el <code>SupabaseClient</code> como parámetro — no lo construyen — para servir tanto a Server Components como a Client Components sin acoplarse al contexto de ejecución</dd>
+<dt class="half">Contraejemplo</dt><dd class="half">Un componente de UI que haga <code>supabase.from("profiles")</code> directamente en vez de pasar por el repositorio (03/04)</dd>
+<dt class="half">Conflictos</dt><dd class="half">Con SSoT cuando desacoplar exige duplicar un tipo pequeño — SSoT gana si el tipo es realmente compartido</dd>
+<dt>Prioridad</dt><dd>4</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">FT-11</span><span class="speccard__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>Alta cohesión</h3>
+<dl>
+<dt>Definición</dt><dd>Todo lo que cambia por la misma razón vive en el mismo lugar.</dd>
+<dt class="half">Motivación</dt><dd class="half">Reduce el número de archivos que un solo cambio de negocio necesita tocar.</dd>
+<dt class="half">Ejemplo real</dt><dd class="half"><code>src/lib/perfil/perfil.ts</code> concentra <code>PerfilFormValues</code>, <code>validarPerfil()</code>, <code>ProfileUpdateInput</code> y <code>buildUpdatePayload()</code> — todo lo relacionado con la validación de un perfil, en un solo archivo</dd>
+<dt class="half">Contraejemplo</dt><dd class="half">Separar la validación de un formulario de sus tipos en dos archivos sin relación de importación clara</dd>
+<dt class="half">Conflictos</dt><dd class="half">Con Bajo acoplamiento cuando la cohesión crea un archivo que otros módulos deben importar completo — se acepta si el conjunto es genuinamente indivisible</dd>
+<dt>Prioridad</dt><dd>4</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">FT-12</span><span class="speccard__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>Backward Compatibility</h3>
+<dl>
+<dt>Definición</dt><dd>Un cambio de contrato (tabla, evento, API interna) nunca rompe a un consumidor existente sin una migración explícita.</dd>
+<dt class="half">Motivación</dt><dd class="half">BREY ya tiene datos reales en producción (Sprint 4/4.1) — un cambio de esquema sin migración pierde datos de usuarios reales.</dd>
+<dt class="half">Ejemplo real</dt><dd class="half"><code>migration_perfil_integridad.sql</code> se creó como archivo nuevo en vez de editar <code>migration_perfil_persistente.sql</code> ya aplicado — precisamente para no asumir el estado de un script que quizás ya corrió en producción</dd>
+<dt class="half">Contraejemplo</dt><dd class="half">Renombrar una columna existente sin una migración que preserve los datos ya almacenados</dd>
+<dt class="half">Conflictos</dt><dd class="half">Con Alta cohesión/limpieza de esquema — se resuelve con deuda técnica documentada (15) en vez de romper compatibilidad</dd>
+<dt>Prioridad</dt><dd>3</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">FT-13</span><span class="speccard__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>Separación de responsabilidades</h3>
+<dl>
+<dt>Definición</dt><dd>Presentación, aplicación, dominio e infraestructura son capas distintas que nunca se mezclan en el mismo archivo (02).</dd>
+<dt class="half">Motivación</dt><dd class="half">Heredado de P4 del Architecture Handbook ("una capa, una decisión"), generalizado aquí a todo el ecosistema técnico.</dd>
+<dt class="half">Ejemplo real</dt><dd class="half"><code>AppShell.tsx</code> (presentación/layout) nunca hace fetch de datos — recibe <code>sidebar</code>/<code>header</code> ya construidos desde el Server Component padre</dd>
+<dt class="half">Contraejemplo</dt><dd class="half">Un componente de React que contenga lógica de validación de negocio Y renderizado Y acceso directo a Supabase en el mismo archivo</dd>
+<dt class="half">Conflictos</dt><dd class="half">Con velocidad de prototipado — nunca se sacrifica en código destinado a producción (nivel 2)</dd>
+<dt>Prioridad</dt><dd>2</dd>
+</dl>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../00-introduccion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 00 · Introducción</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../02-arquitectura-general/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">02 · Arquitectura General →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10 · Training Framework — Exercise Taxonomy Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="training-framework" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 10 · Relaciones</p>
+<h1>Relación con el Training Framework</h1>
+<p class="lede">Dónde vive exactamente el Ejercicio dentro de las quince capas, qué capas tienen prohibido nombrarlo, y la frontera plantilla/instancia que decide cuándo su clasificación deja de poder cambiar.</p>
+
+<h2 id="ubicacion">Ubicación en la jerarquía</h2>
+<p>El Ejercicio es la <strong>capa 9</strong> de quince. Por encima está el slot que lo invoca; por debajo, las seis hojas de prescripción que él nunca decide.</p>
+<div class="diagram">
+<div class="diagram-label">Las 15 capas, con la frontera plantilla/instancia y la posición del Ejercicio</div>
+<pre class="mermaid">
+graph TD
+  A["1 · Sistema"] --> B["2 · Track"] --> C["3 · Nivel"] --> D["4 · Bloque"] --> E["5 · Mesociclo"] --> F["6 · Microciclo"]
+  F --> G["7 · Sesión"] --> H["8 · Slot: Patrón × Rol"] --> I["9 · EJERCICIO"]
+  I --> J["10 · Series"]
+  I --> K["11 · Repeticiones"]
+  I --> L["12 · Intensidad"]
+  I --> M["13 · Descanso"]
+  I --> N["14 · Tempo"]
+  I --> O["15 · Notas"]
+  subgraph PL["PLANTILLA · capas 1-6 · autorizada por humanos"]
+    A; B; C; D; E; F
+  end
+  subgraph IN["INSTANCIA · capas 7-15 · inmutable (P5)"]
+    G; H; I; J; K; L; M; N; O
+  end
+</pre>
+</div>
+
+<h2 id="r3">R-3 · Ninguna capa superior nombra ejercicios</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Regla de Patrón</div>
+  <p>"Ninguna capa por encima del slot referencia ejercicios por nombre (P7). La preferencia editorial se expresa vía cadenas de progresión y Notas."</p>
+</div>
+<p>Es la regla que hace posible que exista un catálogo separado. Sin ella, cambiar un ejercicio obligaría a editar plantillas; con ella, las capas 1–6 se escriben una vez en términos de patrón y rol, y el catálogo evoluciona debajo sin tocarlas.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Capa</th><th>¿Puede nombrar un ejercicio?</th><th>Qué usa en su lugar</th></tr></thead>
+<tbody>
+<tr><td>1 · Sistema</td><td>No</td><td>Objetivo general y universo de Tracks</td></tr>
+<tr><td>2 · Track</td><td>No</td><td>Conjunto de equipo elegible</td></tr>
+<tr><td>3 · Nivel</td><td>No</td><td>Techo/piso de complejidad de movimiento</td></tr>
+<tr><td>4 · Bloque</td><td>No</td><td>Énfasis fisiológico</td></tr>
+<tr><td>5 · Mesociclo</td><td>No</td><td>Patrón de progresión semanal</td></tr>
+<tr><td>6 · Microciclo</td><td>No</td><td>Rol/carácter de cada sesión</td></tr>
+<tr><td>7 · Sesión</td><td>Indirectamente — ya materializada</td><td>Lista ordenada de slots resueltos</td></tr>
+<tr><td>8 · Slot</td><td><strong>No</strong> — abre la posición</td><td>Patrón × Rol</td></tr>
+<tr><td>9 · Ejercicio</td><td>Es el ejercicio</td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="frontera">La frontera plantilla/instancia</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">R-2 · Regla de Inmutabilidad</div>
+  <p>"Editar plantillas nunca altera instancias generadas (P5). El cambio de catálogo aplica desde la siguiente generación."</p>
+</div>
+<p>Aplicado a la taxonomía: si mañana se corrige el <code>patronPrimario</code> de un ejercicio, todos los Workouts ya generados conservan la resolución que se hizo con la clasificación anterior. No hay migración retroactiva y no debe haberla — lo generado es historia.</p>
+<div class="diagram">
+<div class="diagram-label">Qué se congela y cuándo</div>
+<pre class="mermaid">
+sequenceDiagram
+  participant CAT as Catálogo
+  participant GEN as Generator
+  participant WK as Workout (fila)
+  CAT->>GEN: ficha completa del ejercicio elegido
+  GEN->>WK: copia desnormalizada<br/>(slug + nombre + modalidad)
+  Note over WK: A partir de aquí la fila<br/>es inmutable (P5 / I-W2)
+  CAT-->>CAT: se corrige la clasificación<br/>+ nueva versión de catálogo
+  CAT--xWK: NO se propaga (R-2)
+  Note over CAT,WK: La corrección aplica<br/>desde la próxima generación
+</pre>
+</div>
+
+<h2 id="prescripcion">Lo que el Ejercicio nunca decide</h2>
+<p class="matrix-note">Las seis hojas de prescripción cuelgan del Ejercicio en el árbol, pero ninguna es atributo suyo. Esta tabla resuelve la pregunta "¿qué pertenece al ejercicio y qué a la prescripción?".</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Capa</th><th>Qué fija</th><th>Quién la decide</th><th>¿El ejercicio la declara?</th></tr></thead>
+<tbody>
+<tr><td>10 · Series</td><td>Volumen de la entrada</td><td>Mesociclo/Nivel × multiplicador vigente</td><td>No</td></tr>
+<tr><td>11 · Repeticiones</td><td>Rango objetivo o duración</td><td>Prescripción; la <em>unidad</em> la declara la modalidad del ejercicio</td><td>Solo la unidad, vía modalidad</td></tr>
+<tr><td>12 · Intensidad</td><td>RPE/RIR objetivo</td><td>Bloque + Progression Engine</td><td>No</td></tr>
+<tr><td>13 · Descanso</td><td>Segundos entre series</td><td>Default por <strong>Rol</strong>, modulado por énfasis del Bloque</td><td>No</td></tr>
+<tr><td>14 · Tempo</td><td>Cadencia</td><td>El programa; default "controlado"</td><td>No</td></tr>
+<tr><td>15 · Notas</td><td>Instrucción humana libre</td><td>Contenido editorial</td><td>No — y ningún motor la parsea jamás</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Por qué el descanso cuelga del Rol y no del Ejercicio</div>
+  <p>Es el ejemplo más limpio de TX-07 (un eje, una pregunta): el tiempo de recuperación entre series depende de la <em>función</em> del ejercicio en la sesión, no de cuál ejercicio sea. El mismo movimiento como <code>principal</code> pide 120–180 s y como <code>accesorio</code> 60–120 s. Si el descanso fuera atributo del ejercicio, esa distinción sería inexpresable.</p>
+</div>
+
+<h2 id="frecuencia">R-1 y el ejercicio</h2>
+<p>La Regla de Frecuencia (<code>mín(ideal, dias_por_semana)</code>) opera sobre el número de sesiones, no sobre ejercicios. Su efecto sobre la taxonomía es indirecto pero real: menos sesiones significa menos slots, y menos slots significa que patrones enteros pueden no aparecer en una semana. La fuente exige que el volumen se redistribuya y que la extensión del Bloque se comunique — <strong>nunca</strong> que se rellenen días con volumen no autorizado: "los días extra NO se rellenan con volumen no autorizado (P14)".</p>
+
+<h2 id="elite">Sistemas sin jerarquía</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Elite no entra a esta taxonomía</div>
+  <p>Elite "declara explícitamente jerarquía vacía" y su entrada al pipeline de generación es un caso <strong>inválido</strong> con rechazo explícito (<code>SISTEMA_SIN_JERARQUIA</code>, ADR-012). Ningún ejercicio necesita declarar compatibilidad con Elite: el Sistema entero queda fuera del flujo de resolución de slots.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../09-capacidades-fisicas/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 09 · Capacidades Físicas</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../11-workout-generator/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">11 · Workout Generator →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

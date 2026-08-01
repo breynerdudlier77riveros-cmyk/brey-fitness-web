@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>05 · Convenciones de Requests — BREY API Contract Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="convenciones-requests" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 05 · Convenciones</p>
+<h1>Convenciones de Requests</h1>
+<p class="lede">Cómo se recibe una entrada en cualquier endpoint de este catálogo — query params, path params, body, y la frontera exacta entre "campo ausente" y "campo inválido".</p>
+
+<h2 id="path-params">Path params</h2>
+<p>Identifican el recurso direccionado por su <code>id</code> real (Aggregate Root, Domain Model Handbook 08) o por un identificador de negocio estable cuando el recurso es catálogo (<code>slug</code> de Sistema) o de acceso público (<code>token</code> de EnlacePúblico). Nunca se anida un path param de un contexto dentro de otro que el dominio no permite navegar — <code>GET /clientes/{id}/workouts</code> no existe porque esa navegación está explícitamente prohibida (Domain Model Handbook, 09; ver 02).</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Path param</th><th>Identifica</th><th>Ejemplo</th></tr></thead>
+<tbody>
+<tr><td><code>{slug}</code></td><td>Un Sistema del catálogo — estable, legible, nunca un UUID</td><td><code>GET /sistemas/{slug}</code></td></tr>
+<tr><td><code>{id}</code></td><td>Un Aggregate Root real — UUID (Workout, Cliente, Medición, EnlacePúblico, etc.)</td><td><code>GET /bcs/clientes/{id}</code></td></tr>
+<tr><td><code>{token}</code></td><td>El token opaco de un EnlacePúblico — nunca el <code>id</code> interno del recurso (BCS Handbook, 10, IN-A2)</td><td><code>GET /reportes/{token}</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="query-params">Query params</h2>
+<p>Filtran o acotan una Query — nunca cambian el efecto de una operación de escritura. La única convención de paginación real del ecosistema es por rango de fecha, no por offset/límite genérico (Performance Handbook, Engineering 09; BCS Handbook, 12 — ver 06 para el DTO de paginación).</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Query param</th><th>Uso</th><th>Ejemplo</th></tr></thead>
+<tbody>
+<tr><td><code>fecha_desde</code>, <code>fecha_hasta</code></td><td>Acotar una lista por rango de fecha — reemplaza <code>getXEnRango</code> de la capa de repositorio</td><td><code>GET /workouts?fecha_desde=2026-07-01&amp;fecha_hasta=2026-07-31</code></td></tr>
+<tr><td><code>tipo</code>, <code>origen</code></td><td>Filtrar el timeline de <code>progression_events</code> por el CHECK de tipo/origen (09-domain-events, Engineering)</td><td><code>GET /motor-bps/eventos?origen=recovery_engine</code></td></tr>
+<tr><td><code>cursor</code></td><td>Continuación de paginación cuando el volumen supera el umbral especificado (BCS Handbook, 12: &gt;50 Mediciones)</td><td><code>GET /bcs/clientes/{id}/mediciones?cursor=…</code></td></tr>
+<tr><td><code>estado</code></td><td>Filtrar por estado de máquina cuando el recurso lo tiene (ej. Clientes activos vs. archivados)</td><td><code>GET /bcs/clientes?estado=activo</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="body">Body</h2>
+<p>JSON, <code>snake_case</code> (01). Todo body de escritura corresponde a un Input DTO nombrado en 08 — nunca un objeto ad-hoc definido solo dentro de un endpoint. Un DTO de entrada nunca es idéntico al DTO de salida del mismo recurso: acepta solo los campos que el actor puede fijar, nunca campos gestionados por el sistema (<code>id</code>, <code>created_at</code>, <code>estado</code> derivado) — regla ya real en <code>ProfileUpdateInput</code> frente a <code>Profile</code> (Engineering Handbook, 06).</p>
+
+<h2 id="validacion">Validación — dos capas, dos catálogos de error distintos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Capa</th><th>Qué valida</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>Forma (sintáctica)</td><td>JSON parseable, tipos básicos correctos, campos obligatorios presentes</td><td>400</td></tr>
+<tr><td>Regla de negocio (semántica)</td><td>Rangos físicos válidos (Medición), gates de Perfil completos, transición de estado permitida</td><td>422 o 409 según el caso — ver 09</td></tr>
+</tbody>
+</table>
+</div>
+<p>La ausencia de un campo opcional nunca es un error — es un caso de negocio explícito (ej. Prescripción nula para un Slot nuevo no es <code>ENTRADA_INVALIDA</code>, Motor BPS Handbook, 03). Confundir "ausente" con "inválido" es exactamente el error que el propio Motor BPS Handbook corrige con su regla V-2.</p>
+
+<h2 id="campos">Campos opcionales vs. obligatorios — cómo se documentan</h2>
+<p>En las tablas de DTO (08), un campo obligatorio se lista sin marca; uno opcional se marca con <code>?</code> tras su nombre, siguiendo la misma notación ya usada en los DTO originales de Motor BPS Handbook y Architecture Handbook (ej. <code>{si, tipo?: programada|reactiva, razon?}</code>). Un campo puede ser condicionalmente obligatorio (obligatorio solo si otro campo tiene cierto valor) — esos casos se documentan en prosa junto al DTO, nunca solo con la notación <code>?</code>, para no perder la condición.</p>
+
+<h2 id="naming-requests">Naming — consistencia con el dominio</h2>
+<p>Todo campo de un body de request usa exactamente el término del Lenguaje Ubicuo (Domain Model Handbook, 01) que le corresponde — nunca un sinónimo prohibido. Un request de Diagnóstico nunca llama <code>quiz</code> a lo que el dominio llama <code>Diagnóstico</code>; un request de BCS nunca llama <code>usuario</code> a lo que el dominio llama <code>Cliente</code> (el error de lenguaje que el propio Domain Model Handbook califica como "el más peligroso del ecosistema").</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../04-convenciones-http/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 04 · Convenciones HTTP</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../06-convenciones-responses/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">06 · Convenciones de Responses →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

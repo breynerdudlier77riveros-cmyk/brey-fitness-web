@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>16 · Anti-patterns — Exercise Catalog</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="anti-patterns" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 16 · Gobernanza</p>
+<h1>Anti-patterns del Catálogo</h1>
+<p class="lede">Doce formas de corromper un catálogo. Se distinguen de los del Tagging Handbook en su objeto: aquellos son errores al <em>asignar</em> un atributo; estos son errores al <em>gestionar el conjunto</em>. Prefijo <code>CTA-</code>.</p>
+
+<h2 id="catalogo">Catálogo</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>ID</th><th>Anti-patrón</th><th>Severidad</th><th>Regla violada</th></tr></thead>
+<tbody>
+<tr><td><code>CTA-01</code></td><td>Publicar una entrada con atributos obligatorios incompletos</td><td><span class="severity severity--critica">crítica</span></td><td>CT-01 · CT-03</td></tr>
+<tr><td><code>CTA-02</code></td><td>Borrar una entrada del catálogo</td><td><span class="severity severity--critica">crítica</span></td><td>CT-07 · P3 · integridad de cadena</td></tr>
+<tr><td><code>CTA-03</code></td><td>Tratar la ausencia de <code>zonasRiesgo</code> como lista vacía</td><td><span class="severity severity--critica">crítica</span></td><td>CT-ADR-04 · filtro no removible</td></tr>
+<tr><td><code>CTA-04</code></td><td>Modificar una entrada sin generar versión de catálogo</td><td><span class="severity severity--alta">alta</span></td><td>CT-06 · BPS-023</td></tr>
+<tr><td><code>CTA-05</code></td><td>Renombrar un <code>slug</code></td><td><span class="severity severity--alta">alta</span></td><td>P15 · rompe cadenas, Workouts históricos y desempate</td></tr>
+<tr><td><code>CTA-06</code></td><td>Propagar una corrección a Workouts ya generados</td><td><span class="severity severity--alta">alta</span></td><td>R-2 · P5 — falsifica el historial</td></tr>
+<tr><td><code>CTA-07</code></td><td>Poblar <code>cadena</code> parseando <code>variantes[]</code></td><td><span class="severity severity--critica">crítica</span></td><td>Invariante de la capa 15 — el texto libre nunca se parsea</td></tr>
+<tr><td><code>CTA-08</code></td><td>Guardar datos de usuario en una entrada</td><td><span class="severity severity--critica">crítica</span></td><td>CT-05 · la KB no conoce usuarios</td></tr>
+<tr><td><code>CTA-09</code></td><td>Declarar prescripción (series, reps, intensidad) en una entrada</td><td><span class="severity severity--alta">alta</span></td><td>CT-04 · capa 9 "nunca decide su prescripción"</td></tr>
+<tr><td><code>CTA-10</code></td><td>Ampliar un vocabulario cerrado al crear una entrada</td><td><span class="severity severity--alta">alta</span></td><td>Los vocabularios se publican en handbooks</td></tr>
+<tr><td><code>CTA-11</code></td><td>Dejar una cadena rota tras publicar o retirar una entrada</td><td><span class="severity severity--alta">alta</span></td><td>Integridad referencial · C-07 del checklist</td></tr>
+<tr><td><code>CTA-12</code></td><td>Considerar el catálogo completo por número de entradas</td><td><span class="severity severity--media">media</span></td><td>La métrica es la cobertura por combinación, no el recuento</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="detalle">Los cinco críticos, en detalle</h2>
+
+<div class="callout callout--riesgo">
+  <div class="callout__label">CTA-01 · Publicar una entrada incompleta</div>
+  <p><strong>Forma:</strong> "los 19 ejercicios ya tienen ficha educativa, publiquémoslos y completamos la clasificación después". <strong>Por qué falla:</strong> viola las cuatro condiciones de existencia y, sin estados, una entrada incompleta es indistinguible de una aprobada. <strong>Consecuencia:</strong> el catálogo aparenta tener contenido utilizable que la resolución de slots no puede usar. <strong>Alternativa:</strong> permanecen como candidatos hasta completar el tagging.</p>
+</div>
+
+<div class="callout callout--riesgo">
+  <div class="callout__label">CTA-02 · Borrar una entrada</div>
+  <p><strong>Forma:</strong> eliminar el registro de un ejercicio que ya no se quiere ofrecer. <strong>Por qué falla:</strong> hay Workouts históricos con su copia desnormalizada, eventos que lo referencian y cadenas de otras entradas que lo enlazan. <strong>Consecuencia:</strong> historial irreconstruible y cadenas rotas. <strong>Alternativa:</strong> dejar de ofrecerlo conservando la entrada — <span class="tag tag--futuro">sin mecanismo declarado</span>, lo que convierte este anti-patrón en la deuda más urgente del módulo <a href="../11-estados/index.html">11</a>.</p>
+</div>
+
+<div class="callout callout--riesgo">
+  <div class="callout__label">CTA-03 · Ausencia tratada como lista vacía</div>
+  <p><strong>Forma:</strong> normalizar <code>zonasRiesgo</code> ausente a <code>[]</code> al cargar el catálogo. <strong>Por qué falla:</strong> convierte "sin evaluar" en la afirmación "no carga ninguna articulación en riesgo". <strong>Consecuencia:</strong> las 19 entradas sin evaluar pasarían el filtro de seguridad de cualquier usuario con lesión declarada. <strong>Alternativa:</strong> preservar la distinción — la ausencia excluye.</p>
+</div>
+
+<div class="callout callout--riesgo">
+  <div class="callout__label">CTA-07 · Poblar la cadena desde el texto libre</div>
+  <p><strong>Forma:</strong> "<code>variantes[]</code> ya lista las progresiones en orden, convirtámoslo a <code>cadena</code>". <strong>Por qué falla:</strong> es leer texto libre para producir un dato decidible, prohibido sin excepción; y el orden de la cadena exige autorización de entrenador, no extracción. <strong>Consecuencia:</strong> el usuario avanza a un eslabón que nadie aprobó. <strong>Alternativa:</strong> el texto puede ser insumo para la persona que etiqueta; nunca fuente para un proceso.</p>
+</div>
+
+<div class="callout callout--riesgo">
+  <div class="callout__label">CTA-08 · Datos de usuario en el catálogo</div>
+  <p><strong>Forma:</strong> añadir a la entrada campos como "usuarios que pueden ejecutarlo" o "veces prescrito". <strong>Por qué falla:</strong> invierte la dependencia — el catálogo pasaría a conocer usuarios, y la elegibilidad dejaría de calcularse en cada consulta. <strong>Consecuencia:</strong> el catálogo se convierte en dato personal y su versionado deja de tener sentido. <strong>Alternativa:</strong> la elegibilidad se calcula con valores de entrada; nunca se persiste.</p>
+</div>
+
+<h2 id="raiz">Las dos raíces</h2>
+<div class="diagram">
+<div class="diagram-label">Casi todos los anti-patrones del catálogo nacen de una de dos tentaciones</div>
+<pre class="mermaid">
+graph TD
+  R1["RAÍZ A: tener catálogo<br/>antes de tenerlo"]
+  R1 --> A1["CTA-01 · publicar incompleto"]
+  R1 --> A7["CTA-07 · derivar cadena del texto"]
+  R1 --> A10["CTA-10 · ampliar vocabulario"]
+  R1 --> A3["CTA-03 · ausencia como vacío"]
+  R2["RAÍZ B: tratar el catálogo<br/>como datos mutables"]
+  R2 --> A2["CTA-02 · borrar entradas"]
+  R2 --> A4["CTA-04 · cambiar sin versión"]
+  R2 --> A5["CTA-05 · renombrar slug"]
+  R2 --> A6["CTA-06 · propagar al pasado"]
+  A1 --> C1["Catálogo inauditable"]
+  A2 --> C2["Historial irreconstruible"]
+</pre>
+</div>
+
+<h2 id="deteccion">Detectabilidad</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Detectable por máquina</th><th>Detectable solo por revisión</th></tr></thead>
+<tbody>
+<tr><td><code>CTA-01</code> · atributos obligatorios ausentes</td><td><code>CTA-03</code> · una lista vacía es estructuralmente perfecta</td></tr>
+<tr><td><code>CTA-02</code> · entrada que desaparece entre versiones</td><td><code>CTA-07</code> · una cadena derivada es idéntica a una etiquetada</td></tr>
+<tr><td><code>CTA-04</code> · cambio sin versión nueva</td><td><code>CTA-12</code> · exige juicio sobre qué cobertura es suficiente</td></tr>
+<tr><td><code>CTA-05</code> · slug que cambia</td><td>—</td></tr>
+<tr><td><code>CTA-06</code> · Workout alterado retroactivamente</td><td>—</td></tr>
+<tr><td><code>CTA-08</code> · campos ajenos al modelo de 21</td><td>—</td></tr>
+<tr><td><code>CTA-09</code> · atributos de prescripción en la entrada</td><td>—</td></tr>
+<tr><td><code>CTA-10</code> · valor fuera de vocabulario</td><td>—</td></tr>
+<tr><td><code>CTA-11</code> · referencia de cadena colgante</td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Proporción favorable, con dos excepciones caras</div>
+  <p>Nueve de doce son detectables automáticamente — mucho mejor que en el etiquetado, donde la mayoría de los errores críticos solo los ve una persona. Las dos excepciones (<code>CTA-03</code> y <code>CTA-07</code>) son precisamente las que producen datos <em>plausibles y falsos</em>, que es la clase de error que ningún sistema detecta solo.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../15-adr/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 15 · ADR</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../17-roadmap/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">17 · Roadmap y Auditoría →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

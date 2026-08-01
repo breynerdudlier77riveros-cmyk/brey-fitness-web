@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>09 · Cadena — Exercise Tagging Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="cadena" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 09 · Reglas por atributo</p>
+<h1>Reglas de Etiquetado — Cadena</h1>
+<p class="lede">El atributo que mejor ilustra TG-05: cuatro reglas estructurales completamente verificables por máquina, sobre un orden que solo un entrenador puede autorizar. La fuente separa ambas responsabilidades en una sola frase.</p>
+
+<h2 id="separacion">La separación de responsabilidades, textual</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Regla 4 de la cadena</div>
+  <p>"El orden lo <strong>autoriza criterio de entrenador (P14)</strong> — la estructura la <strong>valida ingeniería</strong> (sin ciclos, sin huecos de nivel)."</p>
+</div>
+<p>Es el enunciado más explícito de todo el ecosistema sobre el reparto de autoridad en el etiquetado. Este handbook lo generaliza como principio TG-05 y lo aplica a todos los ejes.</p>
+
+<h2 id="reglas">Las cuatro reglas estructurales</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Regla publicada</th><th>Verificable por máquina</th><th>Efecto al etiquetar</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>"Toda cadena vive DENTRO de un patrón y de un conjunto de roles compatibles — <strong>un eslabón nunca cruza de patrón</strong>"</td><td>Sí</td><td>Solo se puede encadenar con ejercicios del mismo <code>patronPrimario</code></td></tr>
+<tr><td>2</td><td>"La cadena es <strong>lineal en v1</strong> (un anterior, un siguiente). Ramificaciones = dos cadenas separadas que comparten un eslabón raíz"</td><td>Sí</td><td><code>cadena</code> es <code>{anterior?, siguiente?}</code>, nunca listas</td></tr>
+<tr><td>3</td><td>"Avanzar/retroceder de eslabón es decisión del Progression Engine; <strong>la cadena solo declara el orden</strong>"</td><td>—</td><td>El etiquetado no decide progresión: declara la secuencia posible</td></tr>
+<tr><td>4</td><td>"El orden lo autoriza criterio de entrenador — la estructura la valida ingeniería (sin ciclos, sin huecos de nivel)"</td><td>Parcial</td><td>Ciclos: verificable. "Huecos de nivel": <strong>sin definir</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="orden-etiquetado">Por qué la cadena se etiqueta al final</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Dependencia del paso 1</div>
+  <p>La regla 1 hace imposible situar un ejercicio en una cadena antes de conocer su patrón primario. Por eso el proceso oficial coloca este paso en la posición 6, después de patrón, roles, modalidad, equipamiento y restricciones: encadenar antes obligaría a rehacer el trabajo si el patrón cambia.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Qué debe estar decidido antes de encadenar</div>
+<pre class="mermaid">
+flowchart LR
+  P["patronPrimario<br/>paso 1"] --> C["Cadena<br/>paso 6"]
+  R["rolesPosibles<br/>paso 2"] --> C
+  C --> V1["Verificar: mismo patrón<br/>en todos los eslabones"]
+  C --> V2["Verificar: roles compatibles"]
+  C --> V3["Verificar: sin ciclos"]
+  C --> V4["Verificar: lineal<br/>(un anterior, un siguiente)"]
+</pre>
+</div>
+
+<h2 id="hueco">El "hueco de nivel" no está definido</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Una validación exigida sin criterio</div>
+  <p>La regla 4 obliga a que la validación estructural detecte "huecos de nivel", pero <strong>ninguna fuente define qué constituye un hueco</strong>. ¿Que dos eslabones consecutivos salten de <code>principiante</code> a <code>avanzado</code> sin pasar por <code>intermedio</code>? ¿Que falte un escalón de dificultad percibida? ¿Que el salto sea demasiado grande según algún criterio?</p>
+  <p>Sin la definición, la mitad de la validación estructural de cadenas no es implementable. Deuda <a href="../17-auditoria/index.html">TG-D08</a>.</p>
+</div>
+
+<h2 id="ramificaciones">Ramificaciones</h2>
+<p>La regla 2 resuelve por adelantado el caso que en la práctica más confunde: una familia de ejercicios que se bifurca. La solución publicada no es permitir listas, sino <strong>declarar dos cadenas separadas que comparten un eslabón raíz</strong>. Al etiquetar, esto significa que un ejercicio raíz tendrá un único <code>siguiente</code> en su propia cadena; la segunda rama es otra cadena cuyo primer eslabón apunta al mismo ejercicio como <code>anterior</code>.</p>
+<div class="callout callout--nota">
+  <div class="callout__label">Consecuencia no declarada</div>
+  <p>Si dos cadenas comparten raíz, el eslabón raíz tiene <strong>un</strong> <code>siguiente</code> pero es <code>anterior</code> de <strong>dos</strong> ejercicios. La estructura <code>{anterior?, siguiente?}</code> lo admite (cada ejercicio declara sus propios vecinos), pero ninguna fuente declara cómo el Progression Engine elige rama al avanzar. No es problema de etiquetado — se registra por completitud.</p>
+</div>
+
+<h2 id="que-no-decide">Lo que el etiquetado de cadena NO decide</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Decisión</th><th>De quién es</th><th>Fuente</th></tr></thead>
+<tbody>
+<tr><td>Cuándo avanzar de eslabón</td><td>Progression Engine</td><td>PE-003 · regla 3 de la cadena</td></tr>
+<tr><td>Cuándo retroceder de eslabón</td><td>Progression Engine</td><td>PE-031, escalón 3 de la escalera de estancamiento</td></tr>
+<tr><td>Qué eslabón está vigente para un usuario</td><td>Estado del usuario</td><td>Paso 1 de la resolución de slots</td></tr>
+<tr><td>Qué eslabón se elige si el vigente no es elegible</td><td>Generator (paso 2: "el más cercano al vigente")</td><td>AH04, reglas de sustitución</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="validaciones">Validaciones aplicables</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Validación</th><th>Capa</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>Todos los eslabones comparten <code>patronPrimario</code></td><td>Estructural</td><td><span class="tag tag--implementado">verificable</span></td></tr>
+<tr><td>No existe ciclo (A→B→A)</td><td>Estructural</td><td><span class="tag tag--implementado">verificable</span> — caso inválido publicado</td></tr>
+<tr><td>La cadena es lineal (un anterior, un siguiente)</td><td>Estructural</td><td><span class="tag tag--implementado">verificable</span></td></tr>
+<tr><td>Los eslabones referenciados existen en el catálogo</td><td>Estructural</td><td><span class="tag tag--especificado">derivada</span></td></tr>
+<tr><td>Sin "huecos de nivel"</td><td>Estructural</td><td><span class="tag tag--futuro">no implementable</span> — criterio sin definir</td></tr>
+<tr><td>El orden refleja dificultad creciente real</td><td><strong>Contenido</strong></td><td>Autorización de entrenador (regla 4)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../08-zonas-riesgo/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 08 · Zonas de Riesgo</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../10-capacidades-nivel/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">10 · Capacidades y Nivel →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

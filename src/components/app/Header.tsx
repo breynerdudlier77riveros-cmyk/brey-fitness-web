@@ -25,7 +25,7 @@ interface Props {
 // dentro de /app.
 export default function Header({ user }: Props) {
   return (
-    <header className="sticky top-0 z-30 hidden md:flex items-center justify-between gap-4 h-16 px-6 border-b border-white/[0.06] bg-slate-950/70 backdrop-blur-xl">
+    <header className="print:hidden sticky top-0 z-30 hidden md:flex items-center justify-between gap-4 h-16 px-6 border-b border-white/[0.06] bg-slate-950/70 backdrop-blur-xl">
       <Breadcrumb />
 
       <div className="flex items-center gap-1.5 flex-shrink-0">

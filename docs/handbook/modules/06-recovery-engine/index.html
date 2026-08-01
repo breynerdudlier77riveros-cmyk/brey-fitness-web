@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>06 · Recovery Engine — BREY Architecture Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="recovery-engine" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 06 · Motores</p>
+<h1>Recovery Engine</h1>
+<p class="lede">El dueño técnico de la Gestión Científica de la Fatiga. Reconoce cuándo el usuario necesita hacer menos — incluso cuando sus números de rendimiento todavía se ven bien — y tiene precedencia absoluta sobre el Progression Engine (P8). Recomienda con fuerza; nunca bloquea (P10).</p>
+
+<div class="meta-row">
+  <span class="chip">Precedencia sobre Progression (P8)</span>
+  <span class="chip">Descarga programada + reactiva</span>
+  <span class="chip">Dolor ≠ DOMS</span>
+</div>
+
+<h2 id="objetivo">Objetivo, alcance, dependencias, invariantes</h2>
+<p><strong>Objetivo:</strong> proteger la adaptación gestionando fatiga antes de que se convierta en caída de rendimiento o lesión. <strong>Alcance:</strong> índice de fatiga, descargas (programada/reactiva), respuesta a dolor reportado, restricciones temporales por zona. <strong>Fuera de alcance:</strong> el contenido del programa (03/08), la sustitución concreta (04), diagnóstico clínico (nunca — ver dolor). <strong>Depende de:</strong> 03 (descarga programada del Mesociclo), 04 (zonas de riesgo). <strong>Invariantes:</strong> I-R1 la descarga programada se ejecuta aunque el índice sea 0 — es preventiva por diseño; I-R2 <code>exigeDescarga()</code> es la única salida que Progression consulta y es booleana + razón, sin matices ponderables (P8); I-R3 el motor recomienda y registra, nunca impide (P10); I-R4 función pura sobre el historial (P1).</p>
+
+<h2 id="modelo">Modelo de fatiga — qué mide y qué no</h2>
+<p>La fatiga acumulada suele preceder a la caída de rendimiento, no coincidir con ella — por eso un motor optimizado para reconocer progreso (05) no puede a la vez proteger del exceso. <span class="ev ev--moderada">evidencia moderada</span> El modelo v1 usa exclusivamente señales que el Player ya captura por diseño — cero fricción nueva. <span class="ev ev--producto">decisión de producto</span></p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Señal v1</th><th>Qué indica</th><th>Peso en el índice</th><th>Base</th></tr></thead>
+<tbody>
+<tr><td>Tendencia RPE (real − objetivo, últimas 3 apariciones por ejercicio)</td><td>El mismo trabajo cuesta más</td><td>0.5</td><td>El RPE ascendente a carga constante es indicador razonable de fatiga <span class="ev ev--moderada">evidencia moderada</span>; el peso 0.5 <span class="ev ev--producto">decisión de producto</span></td></tr>
+<tr><td>Caída de adherencia vs. promedio del Bloque</td><td>Evitación conductual</td><td>0.3</td><td>Señal indirecta y contaminable (logística) <span class="ev ev--hipotesis">hipótesis</span></td></tr>
+<tr><td>Desviación de duración real vs. estimada</td><td>Descansos alargados, sesión cuesta arriba</td><td>0.2</td><td>Indirecta <span class="ev ev--hipotesis">hipótesis</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Señal v2 (Roadmap)</th><th>Base</th></tr></thead>
+<tbody>
+<tr><td>Check-in subjetivo diario (sueño, energía, dolor muscular) — cuestionarios de bienestar simples detectan fatiga con validez razonable, y el sueño insuficiente degrada recuperación y rendimiento</td><td><span class="ev ev--solida">consenso sólido</span> (sueño) · <span class="ev ev--moderada">evidencia moderada</span> (cuestionarios)</td></tr>
+<tr><td>HRV/wearables — validez heterogénea entre dispositivos y protocolos</td><td><span class="ev ev--hipotesis">hipótesis</span> como señal de producto</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="doms-dolor">DOMS vs. dolor — la distinción de seguridad</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th></th><th>DOMS (agujetas)</th><th>Dolor articular / agudo / punzante</th></tr></thead>
+<tbody>
+<tr><td><strong>Qué es</strong></td><td>Dolor muscular difuso 24–72h post-entrenamiento, bilateral en lo entrenado</td><td>Localizado, articular, agudo, o que empeora durante la ejecución</td></tr>
+<tr><td><strong>Significado</strong></td><td>Daño muscular transitorio; mal proxy de entrenamiento productivo; entrenar con DOMS no impide la adaptación aunque el rendimiento agudo baje <span class="ev ev--moderada">evidencia moderada</span></td><td>Bandera roja — fuera del dominio del motor</td></tr>
+<tr><td><strong>Respuesta del sistema</strong></td><td>No bloquea nada; puede reducir volumen del patrón afectado esa sesión (activación extendida) <span class="ev ev--producto">decisión de producto</span></td><td>Sustitución inmediata del ejercicio (04), restricción temporal de la zona (14 días, renovable), y recomendación explícita de evaluación profesional. El sistema NO diagnostica ni trata <span class="ev ev--producto">decisión de producto informada por práctica clínica</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Regla de dolor — sin heroísmo</div>
+  <p>Dolor articular/agudo reportado en el Player → ese ejercicio termina ahí (se ofrece sustituto u omisión), la zona queda restringida temporalmente en <code>alto</code>, y el evento se registra con razón. Si el reporte se repite en 2+ sesiones sobre la misma zona, el sistema recomienda evaluación profesional en lenguaje directo. Nunca "aguanta una serie más".</p>
+</div>
+
+<h2 id="descargas">Las dos descargas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th></th><th>Programada</th><th>Reactiva</th></tr></thead>
+<tbody>
+<tr><td><strong>Origen</strong></td><td>Diseñada en el Mesociclo (semana final)</td><td>Disparada por el índice de fatiga</td></tr>
+<tr><td><strong>¿Se ejecuta con índice bajo?</strong></td><td>Sí, siempre (I-R1)</td><td>No aplica — solo existe si el índice la dispara</td></tr>
+<tr><td><strong>Contenido</strong></td><td>Multiplicador de volumen 0.6 y −1 RPE objetivo, mismos patrones <span class="ev ev--producto">decisión de producto</span> (la descarga como práctica de gestión de fatiga es estándar; su prescripción óptima carece de evidencia directa <span class="ev ev--hipotesis">hipótesis</span>)</td><td>Igual que la programada</td></tr>
+<tr><td><strong>Frecuencia esperada</strong></td><td>Cada Mesociclo (3–6 semanas)</td><td>Rara si la programación es correcta — su frecuencia alta es señal de plantillas mal calibradas y se reporta a contenido</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="algoritmo">Pseudocódigo</h2>
+<pre class="codeblock">
+<span class="kw">FUNCIÓN</span> calcularIndiceFatiga(ventana):
+  tRPE <span class="kw">←</span> pendientePromedio(rpeReal <span class="kw">−</span> rpeObjetivo, por ejercicio repetido, últimas 3 apariciones)
+  cAdh <span class="kw">←</span> max(0, adherencia(promedioBloque) <span class="kw">−</span> adherencia(semanaActual))
+  dDur <span class="kw">←</span> max(0, (duracionReal <span class="kw">−</span> duracionEstimada) / duracionEstimada)
+  <span class="kw">RETORNAR</span> 0.5·normalizar(tRPE) <span class="kw">+</span> 0.3·normalizar(cAdh) <span class="kw">+</span> 0.2·normalizar(dDur)   <span class="cm">// pesos calibrables (producto)</span>
+
+<span class="kw">FUNCIÓN</span> exigeDescarga(mesociclo, ventana):
+  <span class="kw">SI</span> mesociclo.semanaActual.esDescargaProgramada <span class="kw">ENTONCES</span>
+    <span class="kw">RETORNAR</span> {si: verdadero, tipo: <span class="str">"programada"</span>, razon: <span class="str">"Semana de descarga del Mesociclo"</span>}
+  indice <span class="kw">←</span> calcularIndiceFatiga(ventana)
+  <span class="kw">SI</span> indice <span class="kw">&gt;</span> UMBRAL(0.65) <span class="kw">ENTONCES</span>          <span class="cm">// calibrable (producto)</span>
+    <span class="kw">RETORNAR</span> {si: verdadero, tipo: <span class="str">"reactiva"</span>, razon: <span class="str">"Índice {indice}: RPE {tRPE}, adherencia {cAdh}, duración {dDur}"</span>}
+  <span class="kw">RETORNAR</span> {si: falso}
+
+<span class="kw">FUNCIÓN</span> reportarDolor(zona, ejercicioEnCurso):
+  restringirZonaTemporal(zona, dias: 14, renovable)      <span class="cm">// eleva la zona a "alto" para el filtro de 04</span>
+  <span class="kw">EMITIR</span> evento(tipo: <span class="str">"dolor_reportado"</span>, zona, ejercicio, razon)
+  <span class="kw">SI</span> reportesZona(zona, ventana: 14d) <span class="kw">&gt;=</span> 2 <span class="kw">ENTONCES</span> recomendarEvaluacionProfesional(zona)
+  <span class="kw">RETORNAR</span> Player.sustituirEnVivo(ejercicioEnCurso) <span class="kw">O</span> Player.ofrecerOmitir()
+</pre>
+
+<h2 id="flujo">Flujo de señales</h2>
+<div class="diagram">
+<div class="diagram-label">Señales → índice → decisión → consumidores</div>
+<pre class="mermaid">
+graph TD
+  A["Tendencia RPE (0.5)"] --> IDX["Índice de fatiga"]
+  B["Caída adherencia (0.3)"] --> IDX
+  C["Desviación duración (0.2)"] --> IDX
+  D["Descarga programada<br/>del Mesociclo"] --> DEC{exigeDescarga}
+  IDX -->|"&gt; 0.65"| DEC
+  DOL["Dolor reportado<br/>(Player)"] --> ZR["Restricción temporal<br/>de zona (04)"]
+  DEC -->|sí| PE["Progression Engine<br/>pausa evaluación (P8)"]
+  DEC -->|sí| WG["Workout Generator<br/>multiplicador 0.6, −1 RPE"]
+  DEC -->|no| OK["Semana normal"]
+</pre>
+</div>
+
+<h2 id="casos">Casos normales, límite e inválidos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Tipo</th><th>Comportamiento</th></tr></thead>
+<tbody>
+<tr><td>Semana 4 de Mesociclo de 4</td><td>Normal</td><td>Descarga programada, independiente del índice (I-R1).</td></tr>
+<tr><td>RPE +1.4 sostenido, adherencia −0.15, duración +18%</td><td>Normal</td><td>Índice ≈ 0.78 &gt; 0.65 → descarga reactiva con desglose en la razón.</td></tr>
+<tr><td>Usuario ignora la descarga y entrena la versión completa</td><td>Límite</td><td>Permitido (P10); el override queda en el log. Overrides repetidos = señal futura (v2).</td></tr>
+<tr><td>Dolor agudo de hombro en mitad de una serie</td><td>Límite</td><td><code>reportarDolor</code>: fin del ejercicio, sustituto u omisión, zona restringida 14d, evento registrado.</td></tr>
+<tr><td>Caída de adherencia por viaje (no fatiga)</td><td>Límite</td><td>Falso positivo conocido — el motor no distingue causas en v1; limitación documentada, mitigada por el peso menor (0.3) y por el check-in de v2.</td></tr>
+<tr><td>DOMS fuerte reportado como "dolor"</td><td>Límite</td><td>El Player pregunta la distinción (muscular difuso vs. articular/agudo) antes de clasificar — nunca clasifica solo por intensidad.</td></tr>
+<tr><td>Descargas reactivas 2+ veces en un mismo Bloque</td><td>Límite</td><td>Además de descargar: evento a cola editorial — la plantilla probablemente prescribe de más.</td></tr>
+<tr><td>Índice calculado sin datos de RPE (usuario Inicial)</td><td>Límite</td><td>La señal 0.5 se renormaliza sobre las otras dos; el índice opera degradado y lo declara en la razón.</td></tr>
+<tr><td>Bloquear el registro de una sesión por fatiga</td><td>Inválido</td><td>Prohibido (P10/I-R3).</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="tradeoffs">Trade-offs y decisiones descartadas</h2>
+<div class="callout callout--tradeoff">
+  <div class="callout__label">Señales indirectas vs. check-in diario en v1</div>
+  <p>El check-in es mejor señal pero agrega fricción diaria que ningún flujo actual tiene. v1 opera con datos ya capturados; precisión menor, fricción cero. El check-in entra en v2 como señal adicional del mismo índice.</p>
+</div>
+<div class="callout callout--descartado">
+  <div class="callout__label">Wearables como requisito de v1</div>
+  <p>Descartado: dependencia externa que bloquearía el motor completo, sobre señal de validez heterogénea.</p>
+</div>
+<div class="callout callout--descartado">
+  <div class="callout__label">Fusionar con Progression</div>
+  <p>Descartado (ADR-010) — misma razón que en 05: la precedencia explícita es auditable; la ponderación interna no.</p>
+</div>
+
+<h2 id="riesgos">Riesgos, deuda y extensiones</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Mismo bloqueante que 05</div>
+  <p>Sin RPE real por serie, la señal de mayor peso (0.5) no existe y el índice opera degradado desde el día uno.</p>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Los pesos del índice son inventados con criterio, no derivados</div>
+  <p>Declarado sin ambigüedad (P11): 0.5/0.3/0.2 y el umbral 0.65 son puntos de partida de producto que exigen calibración con datos reales. Presentarlos como "ciencia" sería una violación de P11.</p>
+</div>
+<div class="callout callout--escala">
+  <div class="callout__label">Extensiones</div>
+  <p>Check-in diario y HRV entran como términos adicionales de <code>calcularIndiceFatiga()</code> con pesos propios — el contrato de salida (<code>{si, tipo, razon}</code>) no cambia. Overrides repetidos como señal es candidata v2.</p>
+</div>
+
+<h2 id="preguntas">Preguntas abiertas</h2>
+<ul>
+  <li>¿La restricción temporal de zona (14 días) la puede levantar el usuario manualmente antes de tiempo, o solo expira? Tensión P10 vs. seguridad — sin decidir, Roadmap H2.</li>
+  <li>Redacción exacta de la recomendación de evaluación profesional (tono, no alarmista, no diagnóstico) — contenido, con revisión sensible.</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../05-progression-engine/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 05 · Progression Engine</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../07-motor-bps/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">07 · Motor BPS →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,19 +1,25 @@
 import type { Metadata } from "next";
-import PageHeader from "@/components/app/PageHeader";
-import DashboardCard from "@/components/app/DashboardCard";
-import EmptyState from "@/components/app/EmptyState";
-import { Settings } from "@/components/brand/icons";
+import { redirect } from "next/navigation";
+import { getUser } from "@/lib/supabase/user";
+import { createClient } from "@/lib/supabase/server";
+import { getProfile } from "@/lib/profile/repository";
+import ConfiguracionClient from "./ConfiguracionClient";
 
 export const metadata: Metadata = { title: "Configuración" };
 
-// Sin getUser(): igual que Biblioteca, sin fuente de datos propia todavía.
-export default function ConfiguracionPage() {
+export default async function ConfiguracionPage() {
+  const user = await getUser();
+  if (!user) redirect("/login");
+
+  const supabase = await createClient();
+  const profile = await getProfile(supabase, user.id);
+
   return (
-    <div>
-      <PageHeader title="Configuración" description="Preferencias de tu cuenta." />
-      <DashboardCard>
-        <EmptyState icon={Settings} title="Próximamente" description="Las preferencias de cuenta llegan en un próximo Sprint." />
-      </DashboardCard>
-    </div>
+    <ConfiguracionClient
+      email={user.email ?? ""}
+      emailConfirmado={Boolean(user.email_confirmed_at)}
+      pesoKg={profile?.peso_kg ?? null}
+      alturaCm={profile?.altura_cm ?? null}
+    />
   );
 }

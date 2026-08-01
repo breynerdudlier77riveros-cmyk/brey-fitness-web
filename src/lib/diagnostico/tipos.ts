@@ -54,6 +54,25 @@ export interface TurnoCoach {
   progreso: number;
 }
 
+// ── Fila de la tabla `diagnoses` (backend real — supabase/schema.sql) ───────
+// Espeja la tabla diagnoses (Database Handbook 04). Distinta de `Resultado`
+// (la salida del motor, sin identidad ni user_id): esta es el registro
+// persistido e inmutable (P3) — un Usuario puede tener varios en el tiempo,
+// retomar siempre crea uno nuevo (DM-ADR-07). `razones`/`notas`/`respuestas`
+// son jsonb; sus formas ya están tipadas por los contratos de arriba.
+export interface Diagnostico {
+  id: string;
+  user_id: string;
+  sistema_recomendado: SistemaSlug;
+  /** null = individualizado (Elite). */
+  nivel_entrada: string | null;
+  disponible: boolean;
+  razones: string[];
+  notas: string[];
+  respuestas: Respuesta[];
+  created_at: string;
+}
+
 /**
  * Contrato del motor de diagnóstico (decisión D6 · camino A).
  *

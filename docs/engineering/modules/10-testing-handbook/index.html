@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10 · Testing Handbook — Engineering Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="testing-handbook" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 10 · Calidad y operación</p>
+<h1>Testing Handbook</h1>
+<p class="lede">Cero infraestructura de testing existe hoy — sin Jest, Vitest, Playwright ni Testing Library en <code>package.json</code>. Este módulo no finge lo contrario: especifica la estrategia exacta para cuando se introduzca, aprovechando que el dominio ya se diseñó para ser testeable (FT-08) desde antes de tener un test runner.</p>
+
+<div class="callout callout--riesgo">
+  <div class="callout__label">Estado real, sin excepciones</div>
+  <p>Verificado contra <code>package.json</code>: 0 dependencias de testing, 0 archivos <code>*.test.ts</code>/<code>*.spec.ts</code> en el repositorio. Cualquier afirmación de cobertura de este módulo es una especificación de objetivo, nunca una medición actual.</p>
+</div>
+
+<h2 id="por-que-testeable">Por qué el dominio ya es testeable sin test runner</h2>
+<p>FT-08 (Testabilidad) y FT-03 (Determinismo) ya obligan a que los motores de dominio (<code>lib/diagnostico/motor.ts</code>, y los futuros Motor BPS/Progression Engine) sean funciones puras — sin import de Supabase, sin <code>Date.now()</code> implícito. Esto significa que, el día que se instale un test runner, la mayoría de la lógica crítica de BREY ya es testeable sin mocks de base de datos: entrada in, salida out. Decisión formal en ENG-ADR-06 (14).</p>
+
+<h2 id="niveles">Los tres niveles</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Nivel</th><th>Qué cubre</th><th>Prioridad de introducción</th></tr></thead>
+<tbody>
+<tr><td>Unit</td><td>Motores de dominio puros (<code>lib/diagnostico/motor.ts</code>, futuros Motor BPS/Progression Engine), funciones de validación (<code>validarPerfil</code>), parsers (<code>numOrNull</code>)</td><td>1 — máximo valor, mínimo esfuerzo (sin mocks)</td></tr>
+<tr><td>Integration</td><td>Repositorios contra una base de datos Supabase de test real (no mockeada — un mock de Supabase divergería de RLS real)</td><td>2</td></tr>
+<tr><td>E2E</td><td>Flujos completos de usuario (registro → perfil → primer entrenamiento)</td><td>3 — el más costoso de mantener, se introduce último</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="factories-fixtures-mocks">Factories, Fixtures y Mocks</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Concepto</th><th>Regla especificada</th></tr></thead>
+<tbody>
+<tr><td>Factories</td><td>Una función <code>build&lt;Entidad&gt;(overrides?)</code> por DTO de dominio (06) — nunca un objeto literal repetido en cada test</td></tr>
+<tr><td>Fixtures</td><td>Datos de referencia estables (ej. las respuestas completas de un Diagnóstico que produce un resultado conocido) — versionados junto al test, nunca generados aleatoriamente</td></tr>
+<tr><td>Mocks</td><td>Nunca se mockea Supabase completo para tests de Integration (arriba) — se mockea solo en tests de Unit que prueban una Server Action de forma aislada, y siempre mediante inyección del <code>SupabaseClient</code> como parámetro (FT-10 ya lo permite sin trabajo adicional)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="cobertura">Cobertura</h2>
+<p>Sin objetivo numérico de cobertura global — un 100% en <code>lib/utils.ts</code> vale menos que un 60% bien dirigido a los motores de decisión. Regla: todo motor de dominio nuevo (Motor BPS, Progression Engine cuando se implementen) requiere cobertura de sus casos límite documentados en su propio handbook (ej. Motor BPS Handbook 10, Progression Engine Handbook cada regla PE-XXX con "ejemplo inválido") antes de considerarse listo para producción — esa lista de casos límite ya escrita es, en la práctica, el plan de pruebas.</p>
+
+<h2 id="casos-criticos">Casos críticos que nunca deben romperse</h2>
+<ul>
+  <li>La coerción numérica de <code>numOrNull()</code> — un regreso silencioso al bug de concatenación de strings (Sprint 4.1) es el ejemplo canónico de qué probar primero.</li>
+  <li>Idempotencia de <code>handle_new_user()</code> — un usuario nuevo nunca debe fallar su registro por una carrera de triggers.</li>
+  <li>Cualquier CHECK de rango físico (05) debe tener su contraparte de test en la validación de TypeScript — ambas capas deben rechazar exactamente los mismos valores inválidos, nunca divergir.</li>
+</ul>
+
+<h2 id="casos-borde">Casos borde obligatorios</h2>
+<p>Todo motor de dominio prueba explícitamente: entrada vacía/mínima, valores en el límite exacto de un CHECK, y el caso de "ventana insuficiente" (P6/FT-05, Fail Visible) — un motor que no declara cómo se comporta sin datos suficientes no está listo para su primer test, mucho menos para producción.</p>
+
+<h2 id="que-nunca-romperse">Qué nunca debe romperse — la lista roja</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Los tres invariantes que ningún cambio de código puede violar, con o sin tests</div>
+  <p>(1) Ninguna Medición/Log histórico se edita en sitio (FT-09, Inmutabilidad) — cualquier PR que haga un <code>UPDATE</code> directo sobre una fila de historial debe rechazarse en revisión, con o sin test que lo cubra. (2) RLS activo en toda tabla nueva (08) — verificación manual obligatoria hasta que exista un test de integración automatizado que lo confirme. (3) Ningún secreto de servidor con prefijo <code>NEXT_PUBLIC_</code> (08).</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../09-performance-handbook/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 09 · Performance Handbook</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../11-observability-handbook/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">11 · Observability Handbook →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

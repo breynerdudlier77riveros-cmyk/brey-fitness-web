@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>14 · Impacto Aguas Abajo — Content Lifecycle</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="impacto" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 14 · Garantías</p>
+<h1>Impacto Aguas Abajo</h1>
+<p class="lede">Preguntas 28, 29 y 30. Las tres tienen respuesta completa y la misma: <strong>un cambio de catálogo no afecta a nada ya generado y aplica desde la siguiente generación</strong>. Es la parte del ciclo con la semántica más clara de todo el ecosistema.</p>
+
+<h2 id="regla">La regla que gobierna las tres respuestas</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">R-2 · Regla de Inmutabilidad</div>
+  <p>"Editar plantillas nunca altera instancias generadas (P5). <strong>El cambio de catálogo aplica desde la siguiente generación.</strong>"</p>
+</div>
+
+<h2 id="programas">Pregunta 28 · ¿Cómo afecta a programas existentes?</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Elemento del programa</th><th>Efecto de un cambio de catálogo</th><th>Fuente</th></tr></thead>
+<tbody>
+<tr><td>Workouts ya generados</td><td><strong>Ninguno</strong> — conservan la copia desnormalizada del ejercicio</td><td>R-2 · I-G2</td></tr>
+<tr><td>Workouts ejecutados y sus logs</td><td><strong>Ninguno</strong> — el log es inmutable tras el cierre</td><td>I-W3</td></tr>
+<tr><td>El plan de la semana en curso</td><td><strong>Ninguno</strong> — "las sesiones ya generadas se conservan"</td><td>P5 · BPS-017</td></tr>
+<tr><td>La siguiente generación</td><td><strong>Usa el catálogo nuevo</strong></td><td>R-2 · BPS-017</td></tr>
+<tr><td>El eslabón vigente del usuario</td><td>No se recalcula retroactivamente</td><td>Derivado — la cadena declara orden, el motor decide avance</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">La regla se enuncia tres veces con formulaciones distintas</div>
+  <p>R-2 ("el cambio aplica desde la siguiente generación"), BPS-017 ("cambios de Perfil aplican desde la próxima generación… jamás regeneran retroactivamente") y P5 (la instancia es inmutable). Tres fuentes independientes convergen en el mismo comportamiento — es de las afirmaciones mejor respaldadas del ecosistema.</p>
+</div>
+
+<h2 id="generator">Pregunta 29 · ¿Cómo afecta al Workout Generator?</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Aspecto</th><th>Efecto</th></tr></thead>
+<tbody>
+<tr><td>Universo de candidatos</td><td>Cambia inmediatamente: el paso 0 filtra sobre el catálogo vigente en el momento de resolver</td></tr>
+<tr><td>Resolución de slots ya materializados</td><td>Ninguno — el Generator no revisita lo generado</td></tr>
+<tr><td>Si una entrada deja de ser elegible</td><td>Los siguientes slots que la habrían elegido resuelven a otra candidata; si no hay ninguna, <code>CATALOGO_INSUFICIENTE</code></td></tr>
+<tr><td>Si una entrada nueva pasa a ser elegible</td><td>Entra al universo de candidatos y puede ganar por el orden estable (nivel asc, luego slug asc)</td></tr>
+<tr><td>Determinismo</td><td>Se conserva: I-G3 exige "misma entrada → misma semana generada, byte a byte" — la <em>entrada</em> incluye la versión de catálogo</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Un cambio de catálogo puede alterar el desempate</div>
+  <p>El desempate documentado es "nivel ascendente, luego <strong>slug ascendente</strong>". Añadir una entrada cuyo slug ordene antes que la habitual cambia qué ejercicio gana en slots donde antes había empate — sin que nada lo señale. Es una consecuencia legítima del diseño y no una anomalía; se registra porque no es evidente y ninguna fuente la advierte.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Qué se recalcula y qué no tras un cambio de catálogo</div>
+<pre class="mermaid">
+graph TD
+  CAM["Cambio de catálogo<br/>+ versión nueva"] --> GEN["Workout Generator"]
+  GEN --> SIG["Siguiente generación<br/>✅ usa el catálogo nuevo"]
+  CAM -.->|"❌ R-2: no se propaga"| YA["Workouts ya generados"]
+  CAM -.->|"❌ I-W3: inmutable"| LOG["Workout Logs"]
+  CAM -.->|"❌ P5: se conservan"| SEM["Semana en curso"]
+  SIG --> DES["⚠ puede cambiar el desempate<br/>nivel asc → slug asc"]
+</pre>
+</div>
+
+<h2 id="tf">Pregunta 30 · ¿Cómo afecta al Training Framework?</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">R-3 · Ninguna capa por encima del slot referencia ejercicios</div>
+  <p>"Ninguna capa por encima del slot referencia ejercicios por nombre (P7). La preferencia editorial se expresa vía cadenas de progresión y Notas."</p>
+</div>
+<p>De aquí se sigue la respuesta más limpia de las tres: <strong>un cambio de catálogo no afecta al Training Framework en absoluto</strong>. Las plantillas (Sistema → Track → Nivel → Bloque → Mesociclo → Microciclo) se escriben en términos de <strong>Patrón × Rol</strong>, nunca de ejercicios. El catálogo puede reemplazarse entero sin tocar una sola plantilla.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Capa del Training Framework</th><th>¿Referencia ejercicios?</th><th>¿Le afecta un cambio de catálogo?</th></tr></thead>
+<tbody>
+<tr><td>1 · Sistema · 2 · Track · 3 · Nivel</td><td>No</td><td>No</td></tr>
+<tr><td>4 · Bloque · 5 · Mesociclo · 6 · Microciclo</td><td>No</td><td>No</td></tr>
+<tr><td>7 · Sesión</td><td>Indirectamente — ya materializada</td><td>No (P5)</td></tr>
+<tr><td>8 · Slot</td><td><strong>No</strong> — abre la posición (Patrón × Rol)</td><td>No</td></tr>
+<tr><td>9 · Ejercicio</td><td>Es el ejercicio</td><td>Sí — desde la siguiente generación</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">R-3 es lo que hace posible el ciclo de vida del catálogo</div>
+  <p>Sin la Regla de Patrón, cambiar un ejercicio obligaría a editar plantillas, y el ciclo de vida del catálogo estaría acoplado al del programa. R-3 los desacopla por completo: es la decisión de diseño que permite que el catálogo evolucione con independencia.</p>
+</div>
+
+<h2 id="motores">Efecto sobre los demás motores</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Motor</th><th>Qué lee del catálogo</th><th>Efecto de un cambio</th></tr></thead>
+<tbody>
+<tr><td><strong>Progression Engine</strong></td><td>Cadenas, capacidades, roles</td><td>Un cambio de cadena altera a qué eslabón se avanza en la siguiente evaluación; no revisa avances pasados</td></tr>
+<tr><td><strong>Recovery Engine</strong></td><td>Zonas de riesgo</td><td>Un cambio de zona altera qué se excluye en la siguiente resolución</td></tr>
+<tr><td><strong>Workout Player</strong></td><td>Modalidad, contenido educativo</td><td>La sesión en curso conserva su copia; el contenido educativo se lee del catálogo por <code>slug</code></td></tr>
+<tr><td><strong>Motor BPS</strong></td><td>Nada — no decide contenido</td><td>Ninguno (BPS-021)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="brecha">La brecha: no se puede saber a quién afectó</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">CL-D12 — el impacto es correcto pero no rastreable</div>
+  <p>La semántica del impacto está bien definida: nada retroactivo, todo desde la siguiente generación. Lo que <strong>no</strong> existe es la capacidad de responder "¿qué usuarios recibieron una prescripción basada en la versión defectuosa de esta entrada?". Requeriría versionado por entrada (CL-D07) para saber cuándo cambió, y una consulta sobre eventos de generación para cruzarlo.</p>
+  <p>Para un cambio de <em>mejora</em> la pregunta es irrelevante. Para un cambio que <em>corrige un error de seguridad</em> —una zona de riesgo mal etiquetada— es la única pregunta que importa, y hoy no tiene respuesta.</p>
+</div>
+
+<h2 id="resumen">Resumen</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Pregunta</th><th>Respuesta</th><th>Respaldo</th></tr></thead>
+<tbody>
+<tr><td><strong>28 ·</strong> Programas existentes</td><td>No se ven afectados; el cambio aplica desde la siguiente generación</td><td>R-2 · P5 · BPS-017 — triple respaldo</td></tr>
+<tr><td><strong>29 ·</strong> Workout Generator</td><td>Su universo de candidatos cambia de inmediato; no revisita lo generado</td><td>R-2 · I-G3</td></tr>
+<tr><td><strong>30 ·</strong> Training Framework</td><td><strong>No le afecta</strong> — ninguna capa por encima del slot referencia ejercicios</td><td>R-3 · P7</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../13-evidencia-cientifica/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 13 · Evidencia Científica</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../15-matriz/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">15 · Matriz del Ciclo →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

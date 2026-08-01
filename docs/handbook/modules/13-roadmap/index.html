@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>13 · Roadmap — BREY Architecture Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="roadmap" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 13 · Gobernanza</p>
+<h1>Roadmap</h1>
+<p class="lede">El corte normativo: qué pertenece a v1 (sin esto, el handbook no está implementado), qué pertenece a v2 (extensiones con punto de entrada ya diseñado), y qué NUNCA pertenecerá al sistema. Más las preguntas abiertas consolidadas de todos los módulos.</p>
+
+<h2 id="v1">v1 — el sistema mínimo que honra este handbook</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Entregable</th><th>Módulo</th><th>Naturaleza</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Workout Player con captura {peso, reps, RPE} por serie, cola local y cierre inmutable — el constructor del dato que desbloquea todo</td><td>09</td><td>Ingeniería</td></tr>
+<tr><td>2</td><td>Ontología del catálogo: patrón, roles, modalidad, zonas de riesgo, cadenas, equivalencias — etiquetado con criterio de entrenador</td><td>04</td><td><strong>Contenido</strong></td></tr>
+<tr><td>3</td><td>Plantillas reales de Bloque/Mesociclo/Microciclo por Sistema×Track×Nivel</td><td>03</td><td><strong>Contenido</strong></td></tr>
+<tr><td>4</td><td>Tabla <code>progression_events</code> + máquina de estados persistida + migración de endurecimiento RLS + índices</td><td>10</td><td>Ingeniería</td></tr>
+<tr><td>5</td><td>Motor BPS: activación (R-M1/2/3), ciclo semanal orquestador</td><td>07</td><td>Ingeniería</td></tr>
+<tr><td>6</td><td>Progression + Recovery v1 (funciones puras, umbrales declarados calibrables)</td><td>05/06</td><td>Ingeniería</td></tr>
+<tr><td>7</td><td>Workout Generator con fallo visible y evento de generación</td><td>08</td><td>Ingeniería</td></tr>
+<tr><td>8</td><td><code>profiles.zonas_riesgo</code> estructurado + conexión del Diagnóstico autenticado a <code>diagnoses</code></td><td>10</td><td>Ingeniería</td></tr>
+<tr><td>9</td><td>Regla de lint de imports por capa (enforcement de I-1/I-2)</td><td>02/11</td><td>Ingeniería</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Dependencia dura</div>
+  <p>Los ítems 2 y 3 (contenido) bloquean al 6 y 7 tanto como el código: un motor sin catálogo etiquetado solo puede fallar visiblemente (P6). La cola editorial es camino crítico, no tarea paralela.</p>
+</div>
+
+<h2 id="v2">v2 — extensiones con punto de entrada ya diseñado</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Extensión</th><th>Punto de entrada previsto</th><th>Módulo</th></tr></thead>
+<tbody>
+<tr><td>Check-in diario de readiness (sueño/energía/dolor)</td><td>Término nuevo del índice de fatiga, mismo contrato de salida</td><td>06</td></tr>
+<tr><td>Wearables / HRV</td><td>Ídem — señal adicional con peso propio</td><td>06</td></tr>
+<tr><td>Prescripción por %1RM</td><td>Señal alternativa en <code>microAjuste()</code>; activa <code>peso_kg</code>/<code>altura_cm</code></td><td>05</td></tr>
+<tr><td>Evento de corrección post-cierre</td><td>Evento nuevo referenciando al log — I-W3 intacto</td><td>09/10</td></tr>
+<tr><td>Panel del entrenador (y superficie real de Elite)</td><td>Séptimo bounded context; <code>override_coach</code> en la máquina del 07</td><td>02/07/12</td></tr>
+<tr><td>Plantillas de catálogo en DB (edición sin deploy)</td><td>Transición prevista en ADR-009 — contratos intactos</td><td>10/12</td></tr>
+<tr><td>Tipos generados de Supabase</td><td>Complemento de la capa de mappers</td><td>10</td></tr>
+<tr><td>Generación multi-semana / Mesociclo completo visible</td><td>Frecuencia de invocación del Generator</td><td>08</td></tr>
+<tr><td>Notificaciones / analytics → bus de eventos</td><td>Exige ADR nuevo (ADR-013)</td><td>11/12</td></tr>
+<tr><td>Motor de Diagnóstico asistido por IA</td><td>Detrás del contrato <code>MotorDiagnostico</code>, con validación determinista (ADR-001)</td><td>07/12</td></tr>
+<tr><td>Dueño técnico de Nutrición Periodizada</td><td>Gap declarado en 02 — requiere diseño propio</td><td>02</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="nunca">Nunca — fuera del sistema por diseño</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Nunca</th><th>Por qué (principio)</th></tr></thead>
+<tbody>
+<tr><td>Caja negra generativa decidiendo prescripciones sin trazabilidad</td><td>P1/P2 — ADR-001 lo permite solo DETRÁS de contratos con validación determinista</td></tr>
+<tr><td>Datos simulados, contadores inflados, métricas de ejemplo</td><td>P16</td></tr>
+<tr><td>Edición retroactiva del historial</td><td>P3 — la corrección es evento nuevo</td></tr>
+<tr><td>Bloqueo duro del usuario durante una sesión en vivo</td><td>P10</td></tr>
+<tr><td>Programación automática para Elite</td><td>ADR-012 — es coaching humano o no es Elite</td></tr>
+<tr><td>Rellenar vacíos de catálogo con contenido inventado por el motor</td><td>P6/P14</td></tr>
+<tr><td>Diagnóstico o tratamiento clínico de lesiones</td><td>Fuera del dominio — el sistema restringe y recomienda evaluación profesional (06)</td></tr>
+<tr><td>Multi-sistema activo en paralelo</td><td>Un Sistema a la vez es el modelo comercial y de datos (<code>sistema_actual</code> escalar); cambiarlo exigiría ADR mayor</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="abiertas">Preguntas abiertas consolidadas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Pregunta</th><th>Módulo</th><th>Tipo</th></tr></thead>
+<tbody>
+<tr><td><strong>¿Existe un sexto Sistema?</strong> El brief original dijo "6"; el catálogo real tiene 5. La discrepancia más antigua del proyecto — corregir este handbook si aparece el sexto</td><td>00</td><td>Producto</td></tr>
+<tr><td>Mapeo exacto equipo→Track (¿kettlebell = casa?)</td><td>04</td><td>Contenido</td></tr>
+<tr><td>Separación mínima entre sesiones del mismo patrón (horas vs. días)</td><td>03</td><td>Contenido</td></tr>
+<tr><td>¿Expiran las capacidades demostradas sin uso?</td><td>04</td><td>Contenido</td></tr>
+<tr><td>¿Avance manual solicitado por el usuario (con fricción + evento)?</td><td>05</td><td>Producto</td></tr>
+<tr><td>¿La restricción temporal de zona es levantable por el usuario antes de expirar?</td><td>06</td><td>Producto (tensión P10 vs. seguridad)</td></tr>
+<tr><td>Fin de Sistema: ¿renovación re-entra o re-diagnostica?</td><td>07</td><td>Producto</td></tr>
+<tr><td>¿La pausa voluntaria pausa la vigencia comercial?</td><td>07</td><td>Negocio</td></tr>
+<tr><td>¿"Regenerar semana" disponible para el usuario?</td><td>08</td><td>Producto</td></tr>
+<tr><td>¿Overrides repetidos escalan a intervención humana?</td><td>01/06</td><td>Producto</td></tr>
+<tr><td>Calibración de todos los umbrales <span class="ev ev--producto">decisión de producto</span> con los primeros cohortes</td><td>05/06/09</td><td>Proceso</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../12-adr/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 12 · Decisiones (ADR)</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../14-glosario/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">14 · Glosario →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>07 · Objetos de Valor — Domain Model Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="objetos-valor" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 07 · Entidades</p>
+<h1>Objetos de Valor</h1>
+<p class="lede">Trece value objects — sin identidad propia, definidos enteramente por su valor. Ninguno introduce una métrica fisiológica nueva; todos citan el handbook donde ya fueron validados.</p>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">VO-01</span></div>
+<h3>Peso</h3>
+<dl>
+<dt class="half">Representa</dt><dd class="half">Masa corporal total</dd>
+<dt class="half">Unidades</dt><dd class="half">Kilogramos (kg)</dd>
+<dt class="half">Comparabilidad</dt><dd class="half">Totalmente ordenable, con magnitud — permite delta absoluto y relativo</dd>
+<dt class="half">Validación conceptual</dt><dd class="half">20–300 kg (BCS Handbook, 03) — nota: el <code>peso_kg</code> del Perfil de Core Product usa un chequeo más laxo (&gt;20) por ser un dato de contexto general, no de seguimiento clínico</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">VO-02</span></div>
+<h3>Altura</h3>
+<dl>
+<dt class="half">Representa</dt><dd class="half">Estatura del Usuario/Cliente</dd>
+<dt class="half">Unidades</dt><dd class="half">Centímetros (cm)</dd>
+<dt class="half">Comparabilidad</dt><dd class="half">Ordenable, relativamente estable en el tiempo para un adulto</dd>
+<dt class="half">Validación conceptual</dt><dd class="half">100–230 cm (BCS Handbook, 03)</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">VO-03</span></div>
+<h3>PorcentajeGrasa</h3>
+<dl>
+<dt class="half">Representa</dt><dd class="half">Proporción del peso correspondiente a masa grasa</dd>
+<dt class="half">Unidades</dt><dd class="half">Porcentaje (%)</dd>
+<dt class="half">Comparabilidad</dt><dd class="half">Ordenable — nunca comparable entre dispositivos distintos sin advertencia (BCS Handbook, 03: 🏭 depende del fabricante)</dd>
+<dt class="half">Validación conceptual</dt><dd class="half">3–60% (BCS Handbook, 03)</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">VO-04</span></div>
+<h3>MasaMuscular</h3>
+<dl>
+<dt class="half">Representa</dt><dd class="half">Peso estimado de tejido muscular esquelético</dd>
+<dt class="half">Unidades</dt><dd class="half">Kilogramos (kg)</dd>
+<dt class="half">Comparabilidad</dt><dd class="half">Ordenable — cambia lento, una variación grande en poco tiempo es sospechosa (BCS Handbook, 03)</dd>
+<dt class="half">Validación conceptual</dt><dd class="half">10–90 kg (BCS Handbook, 03)</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">VO-05</span></div>
+<h3>IMC</h3>
+<dl>
+<dt class="half">Representa</dt><dd class="half">Relación Peso/Altura² — proxy poblacional de adiposidad</dd>
+<dt class="half">Unidades</dt><dd class="half">kg/m²</dd>
+<dt class="half">Comparabilidad</dt><dd class="half">Ordenable, pero su clasificación no está validada para población de alta masa muscular (BCS Handbook, 03, 06 — 🔬)</dd>
+<dt class="half">Validación conceptual</dt><dd class="half">10–80 kg/m² (BCS Handbook, 03) — value object derivado, nunca capturado directamente</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">VO-06</span></div>
+<h3>ÁnguloFase</h3>
+<dl>
+<dt class="half">Representa</dt><dd class="half">Ángulo derivado de resistencia/reactancia de la impedancia</dd>
+<dt class="half">Unidades</dt><dd class="half">Grados (°)</dd>
+<dt class="half">Comparabilidad</dt><dd class="half">Ordenable como tendencia únicamente — sin clasificación de salud aplicada (BCS Handbook, 03: 🏭)</dd>
+<dt class="half">Validación conceptual</dt><dd class="half">2–12° orientativo (BCS Handbook, 03)</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">VO-07</span></div>
+<h3>RPE</h3>
+<dl>
+<dt class="half">Representa</dt><dd class="half">Esfuerzo percibido reportado en una Serie</dd>
+<dt class="half">Unidades</dt><dd class="half">Escala 0–10</dd>
+<dt class="half">Comparabilidad</dt><dd class="half">Ordenable dentro de una banda de tolerancia ±1 respecto al objetivo (Progression Engine Handbook, PE-007)</dd>
+<dt class="half">Validación conceptual</dt><dd class="half">Mutuamente excluyente con RIR dentro del mismo Slot (PE-ADR-05)</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">VO-08</span></div>
+<h3>RIR</h3>
+<dl>
+<dt class="half">Representa</dt><dd class="half">Repeticiones en reserva estimadas al fallo</dd>
+<dt class="half">Unidades</dt><dd class="half">Entero ≥0</dd>
+<dt class="half">Comparabilidad</dt><dd class="half">Ordenable dentro de banda ±1 (Progression Engine Handbook, PE-008)</dd>
+<dt class="half">Validación conceptual</dt><dd class="half">Mutuamente excluyente con RPE dentro del mismo Slot</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">VO-09</span></div>
+<h3>Dolor</h3>
+<dl>
+<dt class="half">Representa</dt><dd class="half">Señal cruda interpretada exclusivamente por Recovery Engine</dd>
+<dt class="half">Unidades</dt><dd class="half">Fuera de alcance de este handbook — Recovery Engine no tiene handbook de dominio propio (05, PR-05)</dd>
+<dt class="half">Comparabilidad</dt><dd class="half">Fuera de alcance</dd>
+<dt class="half">Validación conceptual</dt><dd class="half">Ningún otro contexto la recibe directamente (P8, LU-18)</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">VO-10</span></div>
+<h3>Fatiga</h3>
+<dl>
+<dt class="half">Representa</dt><dd class="half">Señal cruda interpretada exclusivamente por Recovery Engine</dd>
+<dt class="half">Unidades</dt><dd class="half">Fuera de alcance de este handbook</dd>
+<dt class="half">Comparabilidad</dt><dd class="half">Fuera de alcance</dd>
+<dt class="half">Validación conceptual</dt><dd class="half">Ídem VO-09 — ver LU-18 para la frontera exacta</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">VO-11</span></div>
+<h3>TiempoDescanso</h3>
+<dl>
+<dt class="half">Representa</dt><dd class="half">Descanso prescrito entre Series</dd>
+<dt class="half">Unidades</dt><dd class="half">Segundos</dd>
+<dt class="half">Comparabilidad</dt><dd class="half">Ordenable — se ajusta por RIR reportado, nunca por debajo de un piso de seguridad (Progression Engine Handbook, PE-006)</dd>
+<dt class="half">Validación conceptual</dt><dd class="half">Siempre &gt;0</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">VO-12</span></div>
+<h3>Tempo</h3>
+<dl>
+<dt class="half">Representa</dt><dd class="half">Ritmo de ejecución por fase de la repetición</dd>
+<dt class="half">Unidades</dt><dd class="half">Notación por fase (excéntrica-pausa-concéntrica-pausa)</dd>
+<dt class="half">Comparabilidad</dt><dd class="half">No ordenable de forma útil — es categórico, no una magnitud a comparar</dd>
+<dt class="half">Validación conceptual</dt><dd class="half">Inmutable por autorregulación — solo cambia por prescripción de programa (Progression Engine Handbook, PE-005)</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">VO-13</span></div>
+<h3>Duración</h3>
+<dl>
+<dt class="half">Representa</dt><dd class="half">Tiempo real u objetivo de una sesión</dd>
+<dt class="half">Unidades</dt><dd class="half">Minutos</dd>
+<dt class="half">Comparabilidad</dt><dd class="half">Ordenable — 3 sesiones consecutivas sobre-tiempo disparan reducción de volumen (Progression Engine Handbook, PE-009)</dd>
+<dt class="half">Validación conceptual</dt><dd class="half">Siempre &gt;0</dd>
+</dl>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../06-entidades-composicion-corporal/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 06 · Entidades de Composición Corporal</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../08-agregados-ownership/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">08 · Agregados y Ownership →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>16 · ADR — Exercise Tagging Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="adr" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 16 · Gobernanza</p>
+<h1>Decisiones de Arquitectura (ADR)</h1>
+<p class="lede">Siete decisiones. Todas son de <strong>proceso o de declaración</strong>; ninguna decide biomecánica, ninguna crea una regla de asignación y ninguna edita una fuente. Prefijo <code>TG-ADR-</code>.</p>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">TG-ADR-01</div>
+  <h3>El orden del proceso es fijo y se deriva de las dependencias entre ejes</h3>
+  <p><strong>Contexto:</strong> ninguna fuente publica un orden de etiquetado. Pero tres reglas crean dependencias reales: el rol se define "del patrón", la cadena "nunca cruza de patrón", y la validación de consistencia necesita todos los ejes asignados.</p>
+  <p><strong>Alternativas:</strong> (a) dejar el orden libre; (b) fijarlo por conveniencia; (c) derivarlo de las dependencias documentadas.</p>
+  <p><strong>Decisión:</strong> se adopta (c). El orden patrón → roles → modalidad → equipamiento → restricciones → cadena → validación es el único que no obliga a rehacer trabajo cuando un eje anterior cambia.</p>
+  <p><strong>Consecuencias:</strong> el orden es una derivación de este handbook, no una regla publicada. Si alguna fuente publicara otro orden, prevalecería el suyo.</p>
+</div>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">TG-ADR-02</div>
+  <h3>Ante duda en un eje de seguridad, el estado correcto es "sin etiquetar"</h3>
+  <p><strong>Contexto:</strong> la regla de exclusión por zona excluye solo lo etiquetado como <code>alto</code>. Un ejercicio con intensidad dudosa etiquetada como <code>medio</code> permanece elegible para un usuario lesionado.</p>
+  <p><strong>Problema:</strong> el valor aparentemente conservador (<code>medio</code>) es en realidad el permisivo; el único valor seguro ante duda es la ausencia, que excluye el ejercicio.</p>
+  <p><strong>Alternativas:</strong> (a) etiquetar siempre el valor más alto ante duda; (b) etiquetar el más bajo; (c) no etiquetar y escalar.</p>
+  <p><strong>Decisión:</strong> se adopta (c). La opción (a) sería inventar biomecánica conservadora y vaciaría el catálogo de forma injustificada; la (b) es directamente insegura.</p>
+  <p><strong>Consecuencias:</strong> es la causa directa de que hoy ningún ejercicio sea elegible, y es el comportamiento correcto — "el filtro es de seguridad y no removible".</p>
+</div>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">TG-ADR-03</div>
+  <h3>Ausencia y lista vacía son afirmaciones distintas en todos los ejes de lista</h3>
+  <p><strong>Contexto:</strong> la tabla de atributos declara <code>zonasRiesgo[]</code> obligatorio "(lista vacía válida)" sin distinguir el caso "sin evaluar".</p>
+  <p><strong>Decisión:</strong> <strong>lista vacía = evaluado, sin resultado positivo</strong>; <strong>ausencia = sin evaluar</strong>, y el segundo estado no es elegible. Se generaliza a todos los atributos de lista del etiquetado.</p>
+  <p><strong>Consecuencias:</strong> hace verificable por máquina (V-08) una distinción que de otro modo solo existiría en la intención del etiquetador. Coincide con TX-ADR-07 del Exercise Taxonomy Handbook — dependencia declarada, no decisión nueva.</p>
+</div>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">TG-ADR-04</div>
+  <h3>Un conflicto sin regla documentada se escala; no se resuelve al etiquetar</h3>
+  <p><strong>Contexto:</strong> el barrido encontró <strong>cero</strong> reglas de desempate para etiquetado. Los desempates existentes (orden estable del Generator, PE-012) operan sobre resolución y progresión, no sobre asignación.</p>
+  <p><strong>Problema:</strong> quien etiqueta necesita continuar, y la salida natural es decidir por cuenta propia.</p>
+  <p><strong>Alternativas:</strong> (a) permitir decisión local no registrada; (b) proponer un criterio por defecto en este handbook; (c) exigir escalado con registro.</p>
+  <p><strong>Decisión:</strong> se adopta (c). La (b) fue descartada explícitamente: un criterio "provisional" en el documento canónico se cita como definitivo en cuanto pasa el tiempo.</p>
+  <p><strong>Consecuencias:</strong> el proceso puede detenerse esperando autorización. Es preferible a producir precedentes no aprobados.</p>
+</div>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">TG-ADR-05</div>
+  <h3>La validación se separa en dos capas con dueños distintos</h3>
+  <p><strong>Contexto:</strong> la regla 4 de la cadena separa explícitamente "el orden lo autoriza criterio de entrenador" de "la estructura la valida ingeniería".</p>
+  <p><strong>Decisión:</strong> se generaliza esa separación a todo el etiquetado: capa estructural (automática, 17 validaciones) y capa de contenido (humana, 8 validaciones). Pasar la primera no implica corrección.</p>
+  <p><strong>Consecuencias:</strong> el checklist del módulo 14 queda partido en secciones A y B, y TGA-10 tipifica como anti-patrón crítico aceptar por la capa 1 sola.</p>
+</div>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">TG-ADR-06</div>
+  <h3>Este handbook no propone criterios biomecánicos, ni siquiera provisionales</h3>
+  <p><strong>Contexto:</strong> de los 19 puntos de decisión del etiquetado, ninguno tiene criterio de decisión plenamente documentado. Cerrar esos huecos con criterios razonables sería técnicamente sencillo.</p>
+  <p><strong>Problema:</strong> P14 reserva la autoría del contenido de entrenamiento a personas con criterio; un criterio escrito aquí adquiriría carácter oficial sin haber sido autorizado por nadie.</p>
+  <p><strong>Alternativas:</strong> (a) proponer criterios marcados como provisionales; (b) proponerlos como ejemplos; (c) declarar la ausencia y definir el escalado.</p>
+  <p><strong>Decisión:</strong> se adopta (c). La (b) es la más peligrosa: un ejemplo en el documento canónico del etiquetado se convierte en precedente al primer uso.</p>
+  <p><strong>Consecuencias:</strong> el módulo <a href="../17-auditoria/index.html">17</a> reporta un porcentaje bajo de proceso completamente especificado. Ese número es información honesta sobre el estado real, no una carencia de este documento.</p>
+</div>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">TG-ADR-07</div>
+  <h3>El protocolo de escalado se deriva del circuito de cola editorial existente</h3>
+  <p><strong>Contexto:</strong> TG-ADR-04 exige escalar, pero ninguna fuente publica un protocolo de escalado para etiquetado.</p>
+  <p><strong>Alternativas:</strong> (a) inventar un flujo de aprobación nuevo; (b) derivarlo de mecanismos ya existentes.</p>
+  <p><strong>Decisión:</strong> se adopta (b), combinando tres elementos vigentes: la <strong>cola editorial</strong> que el ecosistema ya define para los vacíos de catálogo, <strong>P14</strong> como autoridad de decisión, y el patrón documental de registrar lo no decidido como pregunta abierta.</p>
+  <p><strong>Consecuencias:</strong> el protocolo del módulo 11 es una derivación de proceso, explícitamente marcada como tal. No introduce roles, herramientas ni flujos nuevos.</p>
+</div>
+
+<h2 id="resumen">Resumen</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>ADR</th><th>Tipo</th><th>¿Decide biomecánica?</th><th>¿Edita una fuente?</th><th>¿Crea regla de asignación?</th></tr></thead>
+<tbody>
+<tr><td>TG-ADR-01</td><td>Derivación de proceso</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>TG-ADR-02</td><td>Declaración de política</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>TG-ADR-03</td><td>Declaración semántica</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>TG-ADR-04</td><td>Política de proceso</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>TG-ADR-05</td><td>Generalización de regla existente</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>TG-ADR-06</td><td>Política del handbook</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>TG-ADR-07</td><td>Derivación de proceso</td><td>No</td><td>No</td><td>No</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../15-anti-patterns/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 15 · Anti-patterns</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../17-auditoria/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">17 · Auditoría Final →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10 · Consistencia — BREY Database Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="consistencia" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 10 · Operación</p>
+<h1>Consistencia</h1>
+<p class="lede">Fuerte dentro del agregado, eventual entre agregados — nunca al revés. Lo que ya está garantizado, y lo que sigue siendo, honestamente, una brecha.</p>
+
+<h2 id="fronteras">Consistencia fuerte intra-agregado, eventual inter-agregado</h2>
+<p>Las reglas que nunca pueden violarse se protegen dentro de los límites de un único agregado — nunca se asume una transacción que abarque dos agregados distintos. Exigir consistencia fuerte entre agregados independientes (Cliente y Medición, por ejemplo) acoplaría su ciclo de vida exactamente donde el modelo de dominio decidió separarlos (BCS-ADR-01). Cada invariante debe clasificarse explícitamente como intra-agregado (garantizada) o inter-agregado (eventual, con ventana de reconciliación documentada donde aplique).</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Invariante</th><th>Clasificación</th></tr></thead>
+<tbody>
+<tr><td>Prescripción vigente + el EventoProgresión que la origina se actualizan atómicamente</td><td>Intra-agregado — misma transacción (Progression Engine Handbook, ID-2)</td></tr>
+<tr><td>Activación escribe <code>sistema_actual</code>+<code>nivel_actual</code> + emite evento <code>activacion</code></td><td>Intra-agregado — Motor BPS Handbook exige exactamente una transacción por activación</td></tr>
+<tr><td>Corrección de Medición (anula anterior + crea nueva vigente)</td><td>Intra-agregado — ambas filas de <code>bcs_mediciones</code> cambian en la misma operación (BCS-ADR-03)</td></tr>
+<tr><td>Eliminar un Cliente revoca en cascada sus EnlacesPúblicos</td><td>Inter-agregado — dos aggregate roots distintos (Cliente, EnlacePúblico); la consistencia es eventual pero garantizada por la misma operación de aplicación, no por una FK cascade automática (05)</td></tr>
+<tr><td>El Reporte refleja la última Medición vigente</td><td>Inter-agregado por definición — se computa on-demand, nunca desincronizado porque nunca se cachea (01, IN-D3)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="diagram">
+<div class="diagram-label">Frontera de consistencia — nunca una transacción cruza de Usuario a Cliente</div>
+<pre class="mermaid">
+graph LR
+  subgraph "Agregado: Usuario"
+    A1["Prescripción"] === A2["EventoProgresión<br/>(misma transacción, ID-2)"]
+  end
+  subgraph "Agregado: Cliente"
+    B1["Medición vigente"] === B2["Medición anulada<br/>(misma transacción, BCS-ADR-03)"]
+  end
+  A2 -.->|"eventual, nunca atómica"| B1
+</pre>
+</div>
+
+<h2 id="atomicidad">Atomicidad</h2>
+<p>Toda escritura de estado que representa una decisión de motor ocurre en la misma transacción que el evento que la explica — nunca un estado sin su evento, ni un evento sin el estado que debería producir (Architecture Handbook, P2; Motor BPS Handbook, 06). La activación es el caso mejor documentado: escribe <code>sistema_actual</code>+<code>nivel_actual</code> exactamente una vez por transacción confirmada, nunca de forma parcial.</p>
+
+<h2 id="idempotencia-db">Idempotencia — claves reales por operación</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Operación</th><th>Clave de idempotencia</th><th>Origen</th></tr></thead>
+<tbody>
+<tr><td>Activación de Sistema (escritura en <code>profiles</code> + evento <code>activacion</code>)</td><td><code>transaccion_id</code></td><td>Motor BPS Handbook, 06</td></tr>
+<tr><td>Generación de semana (<code>INSERT</code> en <code>workouts</code>)</td><td>Semana (Usuario + Microciclo) ya generada — devuelve la existente, <code>SEMANA_YA_GENERADA</code></td><td>Architecture Handbook, 11</td></tr>
+<tr><td>Sincronización de eventos del Workout Player (<code>INSERT</code> en <code>workout_logs</code>, indirecto)</td><td><code>device_id</code> + número de secuencia</td><td>Architecture Handbook, 09</td></tr>
+<tr><td><code>INSERT</code> en <code>progression_events</code></td><td><strong>No especificada por ningún handbook — gap real (AR-027)</strong></td><td>Ver 16, AP-03</td></tr>
+<tr><td><code>INSERT</code> en <code>bcs_clientes</code>/<code>bcs_mediciones</code>/<code>bcs_enlaces_publicos</code></td><td><strong>No especificada por ningún handbook</strong></td><td>Ver 16</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="concurrencia">Concurrencia — el caso mejor especificado del ecosistema</h2>
+<div class="diagram">
+<div class="diagram-label">Dos dispositivos, misma sesión de Workout Player — resolución 100% determinista (P1)</div>
+<pre class="mermaid">
+sequenceDiagram
+  participant D1 as Dispositivo A
+  participant D2 as Dispositivo B
+  participant DB as workout_logs
+  D1->>DB: sesion_iniciada (offline, ts=10:00)
+  D2->>DB: sesion_iniciada (offline, ts=10:03)
+  Note over D1,D2: Ambos offline — sin coordinación posible
+  D1->>DB: sincroniza al reconectar
+  D2->>DB: sincroniza al reconectar
+  DB-->>D1: gana — timestamp más temprano (10:00)
+  DB-->>D2: eventos archivados como sesion_duplicada
+</pre>
+</div>
+<p>Si dos dispositivos reclaman la misma sesión planificada mientras ambos tienen conexión, el primer <code>sesion_iniciada</code> en llegar al servidor gana — el segundo recibe "sesión en progreso en otro dispositivo" y pasa a modo solo-lectura (<code>SESION_EN_OTRO_DISPOSITIVO</code>). Si ambos estaban offline, al sincronizar gana el <code>timestamp</code> de inicio más temprano; los eventos del dispositivo perdedor se archivan como <code>sesion_duplicada</code> — visibles, nunca contados en adherencia (Architecture Handbook, 09).</p>
+
+<h2 id="locks">Locks</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Sin estrategia de locking explícita — gap, no una omisión de este documento</div>
+  <p>Ningún handbook especifica <code>SELECT ... FOR UPDATE</code>, advisory locks, ni ninguna otra primitiva de bloqueo a nivel de fila. La concurrencia real que sí está resuelta (Workout Player, arriba) se resuelve por comparación de <code>timestamp</code> en la capa de aplicación, no por locking de base de datos. Este documento no inventa una estrategia de locks donde ninguna se ha especificado.</p>
+</div>
+
+<h2 id="optimistic">Optimistic concurrency</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Sin columna de versión — no implementado en ninguna tabla</div>
+  <p>Ninguna de las 9 tablas tiene una columna <code>version</code>/<code>etag</code>/<code>updated_at</code>-como-guard para optimistic concurrency control a nivel de escritura. El único mecanismo funcionalmente equivalente es el <code>estado</code> de máquina de estados (Cliente, Medición, EnlacePúblico, Workout) — una transición inválida se rechaza por su propio CHECK/guard de aplicación, no por un conflicto de versión detectado. No se inventa una columna de versión aquí donde ningún handbook la pide.</p>
+</div>
+
+<h2 id="resumen-consistencia">Lo existente vs. lo pendiente</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Existente / especificado</th><th>Pendiente / gap real</th></tr></thead>
+<tbody>
+<tr><td>Atomicidad intra-agregado (Prescripción+Evento, Activación)</td><td>Idempotencia del <code>INSERT</code> de <code>progression_events</code> (AR-027)</td></tr>
+<tr><td>Idempotencia de activación (<code>transaccion_id</code>), generación (<code>SEMANA_YA_GENERADA</code>), sincronización (<code>device_id</code>+secuencia)</td><td>Idempotencia de creación en las 3 tablas del BCS</td></tr>
+<tr><td>Resolución determinista de concurrencia del Workout Player (dos dispositivos)</td><td>Estrategia de locks explícita a nivel de fila</td></tr>
+<tr><td>RLS como barrera de escritura por fila (09)</td><td>RLS/mecanismo de escritura por columna en <code>profiles</code> (09, brecha conocida)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../09-rls/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 09 · RLS</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../11-evolucion/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">11 · Evolución →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

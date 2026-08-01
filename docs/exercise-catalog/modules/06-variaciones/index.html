@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>06 · Variaciones — Exercise Catalog</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="variaciones" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 06 · Relaciones</p>
+<h1>Variaciones</h1>
+<p class="lede">El único atributo del modelo que está <strong>poblado en los 19 ejercicios y a la vez no tiene consumidor ni contrato definido</strong>. La fuente lo llama "precursor sin estructura" — y ahí termina toda su especificación.</p>
+
+<h2 id="estado">Qué es <code>variantes[]</code> hoy</h2>
+<div class="table-wrap">
+<table>
+<tbody>
+<tr><td><strong>Estatuto</strong></td><td>Opcional · atributo 18 del modelo</td></tr>
+<tr><td><strong>Tipo</strong></td><td>Lista de <strong>texto libre</strong></td></tr>
+<tr><td><strong>Estado en el catálogo</strong></td><td><span class="tag tag--implementado">poblado</span> en los 19 ejercicios</td></tr>
+<tr><td><strong>Consumidor documentado</strong></td><td><strong>Ninguno.</strong> No aparece en el contrato de los cinco consumidores del Architecture Handbook 04</td></tr>
+<tr><td><strong>Especificación</strong></td><td>Una sola frase: es el "precursor sin estructura" de <code>cadena</code></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">La frase completa de la fuente</div>
+  <p>En la tabla de atributos, la fila de <code>cadena</code> declara su estado en el catálogo actual como: "<strong>Falta — <code>variantes[]</code> texto libre es su precursor sin estructura</strong>".</p>
+</div>
+
+<h2 id="relacion">Cómo se relacionan variaciones y cadena</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">La relación está insinuada, no definida</div>
+  <p>"Precursor" implica que <code>variantes[]</code> contiene, en prosa, información que <code>cadena</code> expresará con estructura. Pero <strong>ninguna fuente define</strong>: si toda variante es un eslabón de cadena, si una variante puede no serlo, si el orden del texto tiene significado, ni qué ocurre con <code>variantes[]</code> cuando <code>cadena</code> se puebla.</p>
+  <p>Deuda <a href="../17-roadmap/index.html">CT-D06</a>.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th></th><th><code>variantes[]</code></th><th><code>cadena</code></th></tr></thead>
+<tbody>
+<tr><td>Forma</td><td>Texto libre, sin estructura</td><td><code>{anterior?, siguiente?}</code></td></tr>
+<tr><td>Ordenación</td><td>Sin semántica declarada</td><td>Por dificultad, lineal</td></tr>
+<tr><td>Restricción de patrón</td><td>Ninguna</td><td>Nunca cruza de patrón</td></tr>
+<tr><td>Consumidor</td><td>Ninguno documentado</td><td>Progression Engine</td></tr>
+<tr><td>Validable</td><td>No</td><td>Sí — sin ciclos, lineal, mismo patrón</td></tr>
+<tr><td>Estado en los 19</td><td>Poblado</td><td>Vacío</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="prohibicion">La prohibición que gobierna este atributo</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">El texto libre nunca se parsea</div>
+  <p>Aunque <code>variantes[]</code> contenga, en la práctica, los nombres de los eslabones de una futura cadena, <strong>convertirlo automáticamente está prohibido</strong>. El invariante de la capa 15 del Training Framework es explícito: "ningún motor parsea Notas jamás… si una nota contiene información que un motor necesitaría, el modelo de datos tiene un vacío que se resuelve con un campo nuevo, no leyendo texto libre".</p>
+  <p>Poblar <code>cadena</code> a partir de <code>variantes[]</code> es exactamente eso: leer texto libre para producir un dato decidible. La cadena se etiqueta con criterio de entrenador (regla 4 de la cadena), no se deriva de prosa preexistente.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">El camino prohibido y el camino correcto</div>
+<pre class="mermaid">
+flowchart LR
+  V["variantes[]<br/>texto libre"] -.->|"❌ PROHIBIDO<br/>parsear texto libre"| C["cadena<br/>{anterior, siguiente}"]
+  V -->|"puede servir de<br/>INSUMO al humano"| H["Autoridad de contenido<br/>criterio de entrenador"]
+  H -->|"✅ etiqueta con<br/>autorización"| C
+</pre>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Insumo sí, fuente no</div>
+  <p>Nada impide que una persona <em>lea</em> <code>variantes[]</code> al decidir la cadena — es información editorial escrita por alguien. Lo prohibido es que ese paso lo dé un proceso automático y el resultado se considere etiquetado. La diferencia no está en el contenido final, sino en si existe una autorización humana detrás (P14).</p>
+</div>
+
+<h2 id="futuro">Qué falta por definir</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Pregunta abierta</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>¿<code>variantes[]</code> se retira cuando <code>cadena</code> se puebla?</td><td>Sin declarar — no existe mecanismo de obsolescencia de atributos (CT-D01)</td></tr>
+<tr><td>¿Puede una variante no ser un eslabón de cadena?</td><td>Sin declarar</td></tr>
+<tr><td>¿Debe cada variante existir como entrada propia del catálogo?</td><td>Sin declarar — hoy son cadenas de texto, no referencias</td></tr>
+<tr><td>¿Tiene algún consumidor previsto?</td><td>No aparece en el contrato de los 5 consumidores</td></tr>
+</tbody>
+</table>
+</div>
+<p>Mientras estas preguntas no se respondan, el contrato del catálogo trata <code>variantes[]</code> como lo que la fuente dice que es: <strong>contenido educativo humano→humano, sin garantías estructurales y sin efecto sobre la elegibilidad</strong>.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../05-compatibilidades/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 05 · Compatibilidades</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../07-regresiones/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">07 · Regresiones →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

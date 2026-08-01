@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>08 · DTO Oficiales — BREY API Contract Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="dto-oficiales" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 08 · Contrato</p>
+<h1>DTO Oficiales</h1>
+<p class="lede">Todas las formas de datos que cruzan un endpoint del catálogo (07) — en tablas, nunca en un tipo de un lenguaje concreto. Cada forma cita el handbook que ya la especificó; ninguna se inventa aquí.</p>
+
+<div class="meta-row">
+  <span class="chip">28 DTO documentados</span>
+  <span class="chip">Solo tablas — cero código</span>
+</div>
+
+<h2 id="input-dto">Input DTO</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>DTO</th><th>Campos</th><th>Usado por</th><th>Origen</th></tr></thead>
+<tbody>
+<tr><td><code>ProfileUpdateInput</code></td><td><code>dias_por_semana</code> (1–7), <code>lugar_entrenamiento</code> (<code>Gym</code>|<code>Casa o parque</code>|<code>Ambos</code>, corregido en Sprint 0 contra <code>schema.sql</code>), <code>zonas_riesgo[]</code>, <code>duracion_sesion?</code>, <code>objetivo?</code></td><td><code>PATCH /perfil</code></td><td>Motor BPS Handbook (03); Engineering Handbook (06)</td></tr>
+<tr><td><code>DiagnosticoInput</code></td><td><code>respuestas[]</code> (cuestionario BPS completo)</td><td><code>POST /diagnosticos</code></td><td>Domain Model Handbook (04, 10)</td></tr>
+<tr><td><code>MotorBpsActivacionInput</code></td><td><code>sistema_slug</code>, <code>transaccion_id</code></td><td><code>POST /motor-bps/activacion</code></td><td>Motor BPS Handbook (06)</td></tr>
+<tr><td><code>MotorBpsPausaInput</code></td><td><code>motivo</code>: <code>lesion</code>|<code>voluntaria</code></td><td><code>POST /motor-bps/pausa</code></td><td>Motor BPS Handbook (05, T10)</td></tr>
+<tr><td><code>CicloSemanalInput</code></td><td><code>fecha_ciclo</code>, <code>version_catalogo</code></td><td><code>POST /motor-bps/ciclo-semanal</code></td><td>Motor BPS Handbook (03, BPS-022)</td></tr>
+<tr><td><code>ProgressionEvaluarInput</code></td><td><code>ventana_historial: Aparicion[]</code>, <code>prescripcion_vigente</code>, <code>veredicto_recovery</code>, <code>cadenas_capacidades</code>, <code>fecha_ciclo</code></td><td><code>POST /progression-engine/evaluar</code></td><td>Progression Engine Handbook (04)</td></tr>
+<tr><td><code>RecoveryEvaluarInput</code></td><td><code>mesociclo</code>, <code>ventana</code></td><td><code>POST /recovery-engine/evaluar</code></td><td>Architecture Handbook (06)</td></tr>
+<tr><td><code>WorkoutLogEventoInput</code></td><td><code>tipo</code> (<code>sesion_iniciada</code>, <code>serie_registrada</code>, etc.), <code>device_id</code>, <code>secuencia</code>, <code>timestamp</code>, payload específico del tipo</td><td><code>POST /workout-logs/eventos</code></td><td>Architecture Handbook (09)</td></tr>
+<tr><td><code>ClienteInput</code></td><td><code>nombre</code> (obligatorio), datos identificativos adicionales</td><td><code>POST /bcs/clientes</code>, <code>PATCH /bcs/clientes/{id}</code></td><td>BCS Handbook (02, UC-01/UC-02)</td></tr>
+<tr><td><code>MedicionInput</code></td><td>Subconjunto de las 25 columnas de <code>bcs_mediciones</code> (ver tabla de mapeo, Implementation Handbook 05) + <code>fecha</code> + <code>observaciones?</code> + <code>foto_url?</code></td><td><code>POST /bcs/clientes/{id}/mediciones</code>, <code>PATCH /bcs/mediciones/{id}</code></td><td>BCS Handbook (03, 13)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="output-dto">Output DTO</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>DTO</th><th>Forma (resumen)</th><th>Estado</th><th>Origen</th></tr></thead>
+<tbody>
+<tr><td><code>Sistema</code></td><td><code>{slug, nombre, descripcion}</code> — catálogo comercial, 5 valores fijos</td><td><span class="tag tag--implementado">implementado</span></td><td>Domain Model Handbook (01, LU-05)</td></tr>
+<tr><td><code>Profile</code></td><td>Las 20 columnas de <code>profiles</code>, numéricos ya coercionados</td><td><span class="tag tag--implementado">implementado</span></td><td>Engineering Handbook (06)</td></tr>
+<tr><td><code>Diagnostico</code> / <code>ResultadoDiagnostico</code></td><td><code>{sistema, nivelEntrada, disponible, razones[], respuestas[]}</code></td><td><span class="tag tag--especificado">especificado</span></td><td>Domain Model Handbook (04)</td></tr>
+<tr><td><code>Workout</code></td><td>Fila + <code>ejercicios</code> jsonb (Slot: patrón, rol, ejercicio, series, reps/duración, RPE objetivo, descanso, tempo)</td><td><span class="tag tag--implementado">implementado</span></td><td>Architecture Handbook (10); Engineering Handbook (05)</td></tr>
+<tr><td><code>WorkoutLog</code></td><td>Fila + <code>ejercicios</code> jsonb ejecutado, <code>volumen_total_kg</code></td><td><span class="tag tag--implementado">implementado</span></td><td>Architecture Handbook (10)</td></tr>
+<tr><td><code>EstadoUsuario</code></td><td>Enum: <code>sin_diagnostico</code>, <code>diagnosticado</code>, <code>pendiente_diagnostico</code>, <code>pendiente_perfil</code>, <code>activo</code>, <code>en_descarga</code>, <code>en_pausa</code>, <code>sistema_completado</code></td><td><span class="tag tag--especificado">especificado</span></td><td>Motor BPS Handbook (05)</td></tr>
+<tr><td><code>Prescripcion</code></td><td><code>{slot_id, peso, repeticiones, series, tempo, descanso, rpe_objetivo, rir, duracion, volumen, densidad}</code> — campos nulables si el Slot no los usa</td><td><span class="tag tag--especificado">especificado</span></td><td>Progression Engine Handbook (03, 04)</td></tr>
+<tr><td><code>DecisionProgresion</code></td><td><code>{accion: avanza|sostiene|retrocede|pausa-progresion, alcance?, razones, contexto}</code></td><td><span class="tag tag--especificado">especificado</span></td><td>Architecture Handbook (11)</td></tr>
+<tr><td><code>VeredictoRecovery</code></td><td>Ver DTO Recovery dedicado abajo — forma canónica reconciliada</td><td><span class="tag tag--especificado">especificado</span></td><td>Implementation Handbook (IMP-ADR-01)</td></tr>
+<tr><td><code>EventoProgresion</code></td><td>Ver DTO Evento dedicado abajo</td><td><span class="tag tag--especificado">especificado</span></td><td>Engineering Handbook (07)</td></tr>
+<tr><td><code>Cliente</code></td><td><code>{id, nombre, estado: activo|archivado|eliminado, created_at}</code></td><td><span class="tag tag--especificado">especificado</span></td><td>BCS Handbook (02)</td></tr>
+<tr><td><code>Medicion</code></td><td>Las 25 variables (08-dto, tabla de mapeo) + <code>{id, cliente_id, estado: vigente|anulada, fecha}</code></td><td><span class="tag tag--especificado">especificado</span></td><td>BCS Handbook (02, 03)</td></tr>
+<tr><td><code>EnlacePublico</code></td><td><code>{id, cliente_id, token, estado: activo|revocado, created_at}</code></td><td><span class="tag tag--especificado">especificado</span></td><td>BCS Handbook (02, 10)</td></tr>
+<tr><td><code>Reporte</code></td><td>Resumen ejecutivo, ficha de medición actual, comparación, histórico, gráficos de tendencia, barras de progreso, clasificaciones, fotografías — computado, nunca persistido (IN-D3)</td><td><span class="tag tag--especificado">especificado</span></td><td>BCS Handbook (04)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="error-dto">Error DTO</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Campo</th><th>Forma</th><th>Obligatorio</th></tr></thead>
+<tbody>
+<tr><td><code>ok</code></td><td><code>false</code></td><td>Sí</td></tr>
+<tr><td><code>error</code></td><td><code>string</code> — código corto (09)</td><td>Sí</td></tr>
+<tr><td><code>detalle</code></td><td>Objeto estructurado, forma libre por código de error — ej. <code>{campos_faltantes: string[]}</code> para <code>PERFIL_INCOMPLETO</code>, <code>{slot, patron, rol, track, nivel, exclusiones}</code> para <code>CATALOGO_INSUFICIENTE</code></td><td>Solo si el error de dominio lo requiere (P6)</td></tr>
+</tbody>
+</table>
+</div>
+<p class="matrix-note">Ver 09 para el catálogo completo de valores de <code>error</code> y su status HTTP.</p>
+
+<h2 id="pagination-dto">Pagination DTO</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Campo</th><th>Forma</th><th>Origen</th></tr></thead>
+<tbody>
+<tr><td><code>cursor_siguiente</code></td><td><code>string | null</code></td><td>BCS Handbook (12) — único umbral real: &gt;50 Mediciones</td></tr>
+<tr><td><code>tamano_pagina</code></td><td><code>number</code> — 20 por defecto</td><td>Performance Handbook (Engineering, 09)</td></tr>
+<tr><td><code>total_estimado</code></td><td><code>number | null</code></td><td>Este documento — opcional, solo si el repositorio ya lo calcula sin costo adicional</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="event-dto">Event DTO — <code>EventoProgresion</code></h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Campo</th><th>Tipo</th><th>Regla</th></tr></thead>
+<tbody>
+<tr><td><code>id</code></td><td>uuid</td><td>PK</td></tr>
+<tr><td><code>user_id</code></td><td>uuid</td><td>FK <code>auth.users</code>, obligatorio</td></tr>
+<tr><td><code>tipo</code></td><td>text</td><td>CHECK — 25 valores consolidados (Engineering Handbook, 07 + Domain Model Handbook, 11); solo 14 existen hoy en el CHECK real, ver API-ADR-03</td></tr>
+<tr><td><code>origen</code></td><td>text</td><td>CHECK ∈ <code>{motor_bps, progression_engine, recovery_engine, workout_generator, usuario, coach}</code> — <code>coach</code> reservado sin evento asociado (AR-011, API-ADR-04)</td></tr>
+<tr><td><code>razones</code></td><td>jsonb, obligatorio</td><td>Sin razón, ningún evento es válido (FT-06)</td></tr>
+<tr><td><code>contexto</code></td><td>jsonb</td><td>Métricas/umbrales al momento de la decisión — habilita replay; sin esquema fijo por tipo (AR-013, gap abierto, ver 16)</td></tr>
+<tr><td><code>workout_log_id</code></td><td>uuid, FK opcional</td><td>Referencia al log que originó la evaluación</td></tr>
+<tr><td><code>created_at</code></td><td>timestamptz</td><td>Orden cronológico, nunca reordenado retroactivamente</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="recovery-dto">Recovery DTO — forma canónica</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Forma adoptada por este documento — API-ADR-02</div>
+  <p>Este documento adopta la forma reconciliada del Implementation Handbook (IMP-ADR-01): <code>{procede: boolean, subtipo?: "programada" | "reactiva", razon: string}</code>. No es una forma nueva inventada aquí — es la que el nivel de mayor autoridad ya decidió para efectos de implementación (ver jerarquía, 00).</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Campo</th><th>Tipo</th><th>Obligatorio</th><th>Nota</th></tr></thead>
+<tbody>
+<tr><td><code>procede</code></td><td>boolean</td><td>Sí</td><td>Reemplaza el <code>si</code> de Motor BPS Handbook — booleano sin chequeo de nulidad adicional</td></tr>
+<tr><td><code>subtipo</code></td><td><code>"programada" | "reactiva"</code></td><td>Solo si <code>procede: true</code></td><td>Renombrado desde <code>tipo</code> (Motor BPS Handbook) para no colisionar con el <code>tipo</code> ya usado por Progression Engine Handbook para un eje semántico distinto</td></tr>
+<tr><td><code>razon</code></td><td>string</td><td>Sí, siempre</td><td>Obligatoria incluso cuando <code>procede: false</code> — más estricta que la forma opcional de Motor BPS Handbook</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Formas históricas no editadas — no son un error de este documento</div>
+  <p>Motor BPS Handbook (03) y el propio módulo de Recovery Engine del Architecture Handbook (06) siguen mostrando <code>{si, tipo?: programada|reactiva, razon?}</code>; Progression Engine Handbook (04) sigue mostrando <code>{procede: boolean, tipo: "normal"|"descarga", razon: string}</code>. Ninguno de los tres se edita desde aquí (AR-001) — este documento cita la forma canónica de implementación, no reescribe los handbooks de origen.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../07-catalogo-endpoints/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 07 · Catálogo de Endpoints</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../09-errores/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">09 · Errores →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

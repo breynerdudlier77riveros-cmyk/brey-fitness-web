@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>08 · Resolución de conflictos — Motor BPS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="conflictos" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 08 · Comportamiento</p>
+<h1>Resolución de conflictos</h1>
+<p class="lede">Cuando dos señales legítimas piden cosas incompatibles, el Motor no pondera: aplica un orden de precedencia fijo y registra qué ganó y por qué. Este módulo enumera cada conflicto conocido, su ganador y su justificación.</p>
+
+<h2 id="precedencia">El orden de precedencia</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Prioridad</th><th>Categoría</th><th>Justificación</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><strong>Seguridad</strong> (Recovery, dolor, lesión declarada)</td><td>P8 del marco — el costo de frenar tarde es asimétrico al de frenar temprano</td></tr>
+<tr><td>2</td><td><strong>Integridad de datos</strong> (gates, entradas válidas, idempotencia)</td><td>Decidir sobre datos incompletos/corruptos es peor que no decidir (P6)</td></tr>
+<tr><td>3</td><td><strong>Continuidad del plan</strong> (instancias inmutables — P5)</td><td>Lo ya generado/en curso se respeta; los cambios aplican hacia adelante</td></tr>
+<tr><td>4</td><td><strong>Progresión</strong></td><td>El avance es lo más valioso… de lo que puede esperarse una semana</td></tr>
+<tr><td>5</td><td><strong>Preferencia del usuario</strong> (no de seguridad)</td><td>Se respeta al final del orden — y en ejecución en vivo, sube por P10 (territorio del Player, no del Motor)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="tabla">Catálogo de conflictos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Conflicto</th><th>Gana</th><th>Resolución exacta</th><th>Precedencia</th></tr></thead>
+<tbody>
+<tr><td>C-01</td><td>Progression dice avanzar; Recovery dice descargar</td><td>Recovery</td><td>Descarga; la evaluación de progresión de ese ciclo no se calcula (paso 8 del pipeline)</td><td>1 &gt; 4</td></tr>
+<tr><td>C-02</td><td>Usuario cumple umbrales de avance; reporta dolor recurrente en la misma zona</td><td>Seguridad</td><td>Restricción de zona activa limita la generación; el avance procede solo si el Generator resuelve todos los slots con la restricción — si no, <code>CATALOGO_INSUFICIENTE</code>, nunca "avanzar ignorando la zona"</td><td>1 &gt; 4</td></tr>
+<tr><td>C-03</td><td>Usuario cambia objetivo del Perfil a mitad de Sistema</td><td>Continuidad</td><td>El objetivo del Perfil es informativo (03) — el Sistema NO cambia (BPS-012/IN-1). La UI puede sugerir re-diagnóstico; el cambio real exige decisión de compra</td><td>3 &gt; 5</td></tr>
+<tr><td>C-04</td><td>Usuario cambia disponibilidad (días) con semana ya generada</td><td>Continuidad</td><td>La semana en curso se conserva (P5); el nuevo <code>dias_por_semana</code> aplica desde la próxima generación (R-1 del marco)</td><td>3 &gt; 5</td></tr>
+<tr><td>C-05</td><td>Usuario falta una semana completa</td><td>—(no es conflicto: es señal)</td><td>La adherencia de la ventana cae → la macro-evaluación del próximo ciclo decide (sostiene/retrocede). El Motor no "castiga" — aplica el veredicto</td><td>—</td></tr>
+<tr><td>C-06</td><td>Usuario vuelve tras pausa &gt; 30 días</td><td>Seguridad (conservadurismo)</td><td>T13: retroceso de un Mesociclo PROPUESTO, ajustable por el usuario — recomendar con fuerza, no imponer (detraining real, magnitud variable <span class="ev ev--moderada">evidencia moderada</span>)</td><td>1 matizada por 5</td></tr>
+<tr><td>C-07</td><td>Usuario compra otro Sistema con uno activo</td><td>Integridad</td><td>Cierre ordenado del anterior (<code>sistema_completado</code>, motivo <code>reemplazado_por_compra</code>) + activación del nuevo — nunca dos activos (módulo 06)</td><td>2</td></tr>
+<tr><td>C-08</td><td>Usuario cambia de gimnasio / pierde acceso a equipo (Track)</td><td>Continuidad + sustitución en vivo</td><td>Track derivado del Perfil fresco aplica a generaciones futuras; las sesiones ya generadas se ejecutan con sustitución en vivo del Player (Track vigente) — dos mecanismos, cero regeneración retroactiva</td><td>3</td></tr>
+<tr><td>C-09</td><td>Usuario pierde acceso comercial (vencimiento/reembolso)</td><td>— sin especificar v1</td><td>Frontera comercial abierta (16). Regla provisional: el Motor NO desactiva por su cuenta; sin evento explícito de desactivación, el estado persiste</td><td>—</td></tr>
+<tr><td>C-10</td><td>Usuario hace MÁS sesiones de las programadas (ad-hoc)</td><td>Integridad de la señal</td><td>Los logs ad-hoc entran al historial (workout_id null) y cuentan para las señales de los motores; el plan de la semana NO se altera — la respuesta del sistema llega vía la evaluación del próximo ciclo</td><td>2</td></tr>
+<tr><td>C-11</td><td>Dos ciclos concurrentes (scheduler duplicado)</td><td>Idempotencia</td><td>Guards de transición + unicidad de semana → el segundo es no-op auditable (paso 12 del pipeline)</td><td>2</td></tr>
+<tr><td>C-12</td><td>Catálogo actualizado entre generación y ejecución</td><td>Continuidad</td><td>La instancia manda (P5); la versión nueva aplica desde la próxima generación — el evento <code>semana_generada</code> registra qué versión usó cada semana</td><td>3</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="meta-regla">La meta-regla</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Nunca ponderación, siempre precedencia</div>
+  <p>El Motor jamás resuelve un conflicto "sumando puntos" de ambos lados. Cada conflicto de esta tabla tiene un ganador categórico determinado por el orden de precedencia — y si aparece un conflicto nuevo sin fila en esta tabla, la respuesta correcta es NO improvisar: registrar el caso en el módulo 16, decidirlo, y agregar la fila. Un conflicto sin fila resuelto ad-hoc en código es un defecto de proceso aunque la resolución parezca razonable.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../07-pipeline/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 07 · Pipeline interno</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../09-reglas/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">09 · Reglas de negocio →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

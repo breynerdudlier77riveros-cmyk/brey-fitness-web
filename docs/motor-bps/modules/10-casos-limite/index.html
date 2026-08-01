@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10 · Casos límite — Motor BPS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="casos-limite" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 10 · Reglas</p>
+<h1>Casos límite</h1>
+<p class="lede">El catálogo de situaciones reales resueltas con las reglas de los módulos 05–09. Cada caso cita la regla/transición exacta que lo gobierna — si un caso nuevo no encaja en ninguna, va al módulo 16, no a la improvisación.</p>
+
+<h2 id="perfiles">Por perfil de usuario</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Resolución</th><th>Regla</th></tr></thead>
+<tbody>
+<tr><td><strong>Usuario nuevo, cero historial</strong></td><td>Semana 1 sale tal como la define la plantilla; Recovery/Progression devuelven "sin señal" (ventana insuficiente → sostiene). El sistema no finge conocerlo.</td><td>Pipeline paso 8 del onboarding; VENTANA_INSUFICIENTE del marco</td></tr>
+<tr><td><strong>Usuario avanzado que llega de fuera</strong></td><td>El Diagnóstico lo ubica (nivelEntrada alto); NO se salta gates ni capacidades — en Calistenia, los gates de capacidad se demuestran, no se declaran.</td><td>BPS-003/006; capacidades (marco 04)</td></tr>
+<tr><td><strong>Usuario lesionado al llegar</strong></td><td>Declara zonas en el gate (BPS-004); el Generator excluye <code>alto</code> en esas zonas; si el catálogo no alcanza → fallo visible, jamás contenido inseguro.</td><td>BPS-004/021; C-02</td></tr>
+<tr><td><strong>Usuario con exceso de fatiga sostenido</strong></td><td>Descargas reactivas repetidas; la 2ª+ en un mismo Bloque además reporta a cola editorial (plantilla probablemente sobre-prescribe).</td><td>C-01; regla de Recovery del marco</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="comportamiento">Por comportamiento</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Resolución</th><th>Regla</th></tr></thead>
+<tbody>
+<tr><td><strong>Abandona (deja de entrenar)</strong></td><td>Adherencia cae → retrocede (macro); a los 21 días sin log → auto-pausa con comunicación honesta.</td><td>C-05 → BPS-025/T11</td></tr>
+<tr><td><strong>Vuelve tras meses</strong></td><td>Reanudación &gt;30 días → propuesta de retroceso de un Mesociclo, ajustable.</td><td>T13/BPS-016; C-06</td></tr>
+<tr><td><strong>Pierde sesiones sueltas</strong></td><td>Nada inmediato — la señal entra a la ventana; el próximo ciclo decide (sostiene/retrocede).</td><td>C-05; I-P2 del marco (macro nunca por sesión)</td></tr>
+<tr><td><strong>Hace MÁS sesiones (ad-hoc)</strong></td><td>Se registran (workout_id null), alimentan las señales; el plan de la semana no muta.</td><td>C-10</td></tr>
+<tr><td><strong>Omite ejercicios dentro de sesiones</strong></td><td>Territorio del Player (omisión registrada); para el Motor es solo parte de la señal de la ventana del próximo ciclo.</td><td>Separación decisión/ejecución (01)</td></tr>
+<tr><td><strong>Modifica pesos respecto a lo prescrito</strong></td><td>Correcto por diseño — el Player captura lo real; el micro-ajuste de Progression reacciona la próxima aparición. El Motor no interviene.</td><td>BPS-019</td></tr>
+<tr><td><strong>Ignora la descarga (override)</strong></td><td>Permitido y registrado (P10); overrides repetidos = señal candidata v2.</td><td>Marco P10; evento <code>override_descarga</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="cambios">Por cambios de contexto</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Resolución</th><th>Regla</th></tr></thead>
+<tbody>
+<tr><td><strong>Cambia de objetivo</strong></td><td>Informativo; el Sistema no cambia; la UI puede sugerir re-diagnóstico.</td><td>C-03/BPS-012</td></tr>
+<tr><td><strong>Cambia disponibilidad (días)</strong></td><td>Aplica desde la próxima generación; la semana en curso se respeta.</td><td>C-04/BPS-017</td></tr>
+<tr><td><strong>Cambia de gimnasio / Track</strong></td><td>Generaciones futuras con Track nuevo; sesiones en curso vía sustitución en vivo del Player.</td><td>C-08/BPS-017</td></tr>
+<tr><td><strong>Cambia de Sistema (compra)</strong></td><td>Cierre ordenado + activación nueva; historial íntegro.</td><td>C-07/BPS-008</td></tr>
+<tr><td><strong>Borra un campo de gate del Perfil</strong></td><td>T7 al próximo ciclo → <code>pendiente_perfil</code> con detalle; semanas generadas se conservan.</td><td>T7/BPS-020</td></tr>
+<tr><td><strong>Reporta dolor recurrente</strong></td><td>Restricciones de zona apiladas por evento (expiran solas); 2+ reportes → recomendación de evaluación profesional.</td><td>BPS-024; Recovery del marco</td></tr>
+<tr><td><strong>Pierde acceso comercial</strong></td><td>Sin especificar v1 — el Motor NO desactiva sin evento explícito; pregunta abierta.</td><td>C-09 → módulo 16</td></tr>
+<tr><td><strong>Catálogo cambia a mitad de Bloque</strong></td><td>La instancia manda; versión nueva desde la próxima generación, registrada por semana.</td><td>C-12/BPS-023</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="sintesis">Síntesis — el patrón detrás de todos los casos</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Tres respuestas, siempre las mismas</div>
+  <p>Todo caso límite se resuelve con una de tres respuestas: (1) <strong>es señal</strong> → entra a la ventana y el próximo ciclo decide; (2) <strong>es cambio de contexto</strong> → aplica hacia adelante, lo materializado se respeta; (3) <strong>es vacío de especificación</strong> → módulo 16, jamás improvisación. Si al analizar un caso nuevo la respuesta no es ninguna de las tres, el caso está revelando una regla faltante — y eso es un hallazgo, no un problema.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../09-reglas/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 09 · Reglas de negocio</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../11-algoritmo/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">11 · Algoritmo conceptual →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

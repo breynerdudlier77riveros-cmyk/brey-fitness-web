@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03 · Modelo de Datos — BCS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="modelo-datos" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 03 · Dominio y datos</p>
+<h1>Modelo de Datos</h1>
+<p class="lede">El catálogo completo de variables de composición corporal: qué significa cada una, cómo se calcula, su origen, unidad, validaciones, valores imposibles y sospechosos, y qué ocurre si falta o cambia de nombre. Este es el módulo de mayor densidad de afirmaciones sobre el cuerpo humano de todo el sistema BREY — cada clasificación clínica lleva su etiqueta de procedencia sin excepción.</p>
+
+<div class="callout callout--nota">
+  <div class="callout__label">Hallazgo de consistencia — variables no listadas explícitamente pero estructuralmente necesarias</div>
+  <p>El encargo original enumera 19 variables de composición corporal más fecha/observaciones/fotografía. Tres variables adicionales son matemáticamente necesarias para calcular las que sí se pidieron: <strong>Altura</strong> (requerida por IMC y SMI) y <strong>Circunferencia de cintura</strong> + <strong>Circunferencia de cadera</strong> (requeridas por WHR). Se añaden aquí como BCS-V01, BCS-V19 y BCS-V20, marcadas explícitamente como extensión no solicitada literalmente pero indispensable — omitirlas habría dejado IMC, SMI y WHR sin forma de calcularse. Se registra también como supuesto en el informe final.</p>
+</div>
+
+<h2 id="convencion">Convención de lectura de cada ficha</h2>
+<p>Cada variable trae: qué significa, cómo se calcula (si es derivada), su badge de <strong>Origen</strong> (00), su unidad, el rango físicamente válido, un valor imposible de ejemplo, un valor sospechoso de ejemplo, qué ocurre si falta en una Medición, qué ocurre si el dispositivo la reporta con otro nombre, y su <strong>Interpretación</strong> — siempre con badge de procedencia, nunca presentada como diagnóstico.</p>
+
+<h2 id="antropometria">Antropometría y datos crudos base</h2>
+
+<div class="bcsvar">
+<div class="bcsvar__head"><span class="bcsvar__id">BCS-V01</span><span class="bcsvar__badges"><span class="prov prov--crudo">📟 crudo</span></span></div>
+<h3>Altura</h3>
+<dl>
+<dt>Significado</dt><dd>Estatura del cliente en posición vertical — dato relativamente estable en un adulto, se solicita una vez y se actualiza solo si cambia.</dd>
+<dt class="half">Origen</dt><dd class="half">Medición directa (cinta métrica/tallímetro) — vive en el Cliente, no en cada Medición individual</dd>
+<dt class="half">Unidad</dt><dd class="half">Centímetros (cm)</dd>
+<dt>Rango físico válido</dt><dd>100–230 cm en población adulta</dd>
+<dt class="half">Valor imposible</dt><dd class="half">0, negativo, o &gt;250 cm</dd>
+<dt class="half">Valor sospechoso</dt><dd class="half">Cambia más de 3 cm entre dos registros del mismo cliente adulto</dd>
+<dt class="half">Si falta</dt><dd class="half">IMC y SMI no se pueden calcular esa medición — el reporte los omite con nota explícita, nunca asume un valor</dd>
+<dt class="half">Si cambia de nombre</dt><dd class="half">n/a — dato de captura manual, no proviene de un dispositivo con nomenclatura variable</dd>
+</dl>
+</div>
+
+<div class="bcsvar">
+<div class="bcsvar__head"><span class="bcsvar__id">BCS-V02</span><span class="bcsvar__badges"><span class="prov prov--crudo">📟 crudo</span></span></div>
+<h3>Peso</h3>
+<dl>
+<dt>Significado</dt><dd>Masa corporal total en el momento de la medición.</dd>
+<dt class="half">Origen</dt><dd class="half">Báscula — dato crudo, base de casi todos los derivados</dd>
+<dt class="half">Unidad</dt><dd class="half">Kilogramos (kg)</dd>
+<dt>Rango físico válido</dt><dd>20–300 kg en población adulta</dd>
+<dt class="half">Valor imposible</dt><dd class="half">0, negativo, o &gt;400 kg</dd>
+<dt class="half">Valor sospechoso</dt><dd class="half">Variación &gt;10% respecto a la medición anterior del mismo cliente en menos de una semana</dd>
+<dt class="half">Si falta</dt><dd class="half">Ninguna variable derivada de peso (IMC, masa grasa, masa libre de grasa) puede calcularse esa medición</dd>
+<dt class="half">Si cambia de nombre</dt><dd class="half">Sinónimos aceptados en importación futura: "weight", "body_weight" — mapeo documentado en 13</dd>
+</dl>
+</div>
+
+<div class="bcsvar">
+<div class="bcsvar__head"><span class="bcsvar__id">BCS-V22</span><span class="bcsvar__badges"><span class="prov prov--crudo">📟 crudo</span></span></div>
+<h3>Impedancia</h3>
+<dl>
+<dt>Significado</dt><dd>Resistencia eléctrica del cuerpo al paso de una corriente de bajo voltaje — la medición física bruta de la que el analizador BIA deriva internamente casi todas las demás variables de esta lista.</dd>
+<dt class="half">Origen</dt><dd class="half">Analizador de bioimpedancia — la variable más cruda del catálogo</dd>
+<dt class="half">Unidad</dt><dd class="half">Ohmios (Ω)</dd>
+<dt>Rango físico válido</dt><dd>300–1200 Ω, orientativo — varía por frecuencia y fabricante (🏭 depende del fabricante)</dd>
+<dt class="half">Valor imposible</dt><dd class="half">0 o negativo</dd>
+<dt class="half">Valor sospechoso</dt><dd class="half">Fuera del rango típico del dispositivo específico usado</dd>
+<dt class="half">Si falta</dt><dd class="half">No bloquea el resto del reporte — es un dato de trazabilidad/auditoría del origen de la medición, no un insumo de cálculo de BREY</dd>
+<dt class="half">Si cambia de nombre</dt><dd class="half">Cada fabricante nombra distinto (Z, resistencia, impedance) — mapeo en 13</dd>
+</dl>
+</div>
+
+<h2 id="composicion">Composición corporal derivada</h2>
+
+<div class="bcsvar">
+<div class="bcsvar__head"><span class="bcsvar__id">BCS-V03</span><span class="bcsvar__badges"><span class="prov prov--derivado">🧮 derivado</span></span></div>
+<h3>IMC (Índice de Masa Corporal)</h3>
+<dl>
+<dt>Significado</dt><dd>Relación entre peso y altura, usada como proxy poblacional de adiposidad.</dd>
+<dt>Cálculo</dt><dd><code>IMC = peso(kg) / altura(m)²</code> — fórmula universal, sin variación entre fabricantes.</dd>
+<dt class="half">Origen</dt><dd class="half">Derivado de BCS-V01 + BCS-V02</dd>
+<dt class="half">Unidad</dt><dd class="half">kg/m²</dd>
+<dt>Rango físico válido</dt><dd>10–80 kg/m² en población adulta</dd>
+<dt class="half">Valor imposible</dt><dd class="half">0, negativo, o resultado de altura en cm sin convertir a metros</dd>
+<dt class="half">Valor sospechoso</dt><dd class="half">Cambia &gt;15% entre mediciones consecutivas sin cambio de altura ni peso reportado</dd>
+<dt class="half">Si falta</dt><dd class="half">Se omite del reporte con nota "requiere altura" (03, callout de arriba)</dd>
+<dt class="half">Si cambia de nombre</dt><dd class="half">n/a — siempre calculado por BREY, nunca importado</dd>
+<dt>Interpretación</dt><dd><span class="prov prov--validacion">🔬 pendiente de validación</span> — las categorías estándar (bajo peso/normal/sobrepeso/obesidad) son población general; conocidamente poco fiables en personas con alta masa muscular, población frecuente en BREY. El reporte (06) debe mostrar esta advertencia junto a la clasificación, nunca omitirla.</dd>
+</dl>
+</div>
+
+<div class="bcsvar">
+<div class="bcsvar__head"><span class="bcsvar__id">BCS-V04</span><span class="bcsvar__badges"><span class="prov prov--crudo">📟 crudo</span></span></div>
+<h3>Porcentaje de grasa corporal</h3>
+<dl>
+<dt>Significado</dt><dd>Proporción del peso total correspondiente a masa grasa.</dd>
+<dt>Cálculo</dt><dd>Entregado ya calculado por el analizador BIA mediante su algoritmo propietario a partir de la impedancia — BCS no lo deriva, lo recibe.</dd>
+<dt class="half">Origen</dt><dd class="half">Dato crudo del dispositivo (aunque el dispositivo internamente lo derive)</dd>
+<dt class="half">Unidad</dt><dd class="half">Porcentaje (%)</dd>
+<dt>Rango físico válido</dt><dd>3–60% en población adulta</dd>
+<dt class="half">Valor imposible</dt><dd class="half">0%, negativo, o &gt;70%</dd>
+<dt class="half">Valor sospechoso</dt><dd class="half">Variación &gt;5 puntos porcentuales en menos de 2 semanas</dd>
+<dt class="half">Si falta</dt><dd class="half">Masa grasa y masa libre de grasa no pueden derivarse esa medición</dd>
+<dt class="half">Si cambia de nombre</dt><dd class="half">"body fat %", "PBF" — mapeo en 13</dd>
+<dt>Interpretación</dt><dd><span class="prov prov--fabricante">🏭 depende del fabricante</span> — el algoritmo BIA exacto no es público; dos dispositivos distintos pueden reportar valores diferentes para la misma persona el mismo día. El reporte debe mostrar siempre qué dispositivo originó cada serie histórica cuando se conozca (03, observaciones).</dd>
+</dl>
+</div>
+
+<div class="bcsvar">
+<div class="bcsvar__head"><span class="bcsvar__id">BCS-V05</span><span class="bcsvar__badges"><span class="prov prov--derivado">🧮 derivado</span></span></div>
+<h3>Masa grasa</h3>
+<dl>
+<dt>Significado</dt><dd>Peso absoluto correspondiente a tejido graso.</dd>
+<dt>Cálculo</dt><dd><code>masaGrasa = peso × (%grasa / 100)</code></dd>
+<dt class="half">Origen</dt><dd class="half">Derivado de BCS-V02 + BCS-V04</dd>
+<dt class="half">Unidad</dt><dd class="half">Kilogramos (kg)</dd>
+<dt>Rango físico válido</dt><dd>1–150 kg</dd>
+<dt class="half">Valor imposible</dt><dd class="half">Negativo, o mayor que el Peso total</dd>
+<dt class="half">Valor sospechoso</dt><dd class="half">Suma con Masa libre de grasa que no reconstruye el Peso dentro de ±0.5 kg</dd>
+<dt class="half">Si falta</dt><dd class="half">Se omite; depende de BCS-V02 y BCS-V04</dd>
+<dt class="half">Si cambia de nombre</dt><dd class="half">n/a — siempre calculado por BREY</dd>
+</dl>
+</div>
+
+<div class="bcsvar">
+<div class="bcsvar__head"><span class="bcsvar__id">BCS-V06</span><span class="bcsvar__badges"><span class="prov prov--crudo">📟 crudo</span></span></div>
+<h3>Masa muscular</h3>
+<dl>
+<dt>Significado</dt><dd>Peso estimado de tejido muscular esquelético.</dd>
+<dt>Cálculo</dt><dd>Entregado ya calculado por el dispositivo BIA — no derivado por BREY.</dd>
+<dt class="half">Origen</dt><dd class="half">Dato crudo del dispositivo</dd>
+<dt class="half">Unidad</dt><dd class="half">Kilogramos (kg)</dd>
+<dt>Rango físico válido</dt><dd>10–90 kg</dd>
+<dt class="half">Valor imposible</dt><dd class="half">Negativo, o mayor que el Peso total</dd>
+<dt class="half">Valor sospechoso</dt><dd class="half">Variación &gt;3 kg en menos de 2 semanas (el músculo cambia lento comparado con el agua/glucógeno)</dd>
+<dt class="half">Si falta</dt><dd class="half">No bloquea otras variables — es independiente en su origen</dd>
+<dt class="half">Si cambia de nombre</dt><dd class="half">"skeletal muscle mass", "SMM" — mapeo en 13; ver también BCS-V18 (SMI, un índice distinto)</dd>
+<dt>Interpretación</dt><dd><span class="prov prov--fabricante">🏭 depende del fabricante</span> — mismo caveat de algoritmo propietario que BCS-V04.</dd>
+</dl>
+</div>
+
+<div class="bcsvar">
+<div class="bcsvar__head"><span class="bcsvar__id">BCS-V07</span><span class="bcsvar__badges"><span class="prov prov--derivado">🧮 derivado</span></span></div>
+<h3>Masa libre de grasa</h3>
+<dl>
+<dt>Significado</dt><dd>Todo el peso corporal que no es tejido graso: músculo, huesos, órganos, agua.</dd>
+<dt>Cálculo</dt><dd><code>masaLibreDeGrasa = peso − masaGrasa</code></dd>
+<dt class="half">Origen</dt><dd class="half">Derivado de BCS-V02 + BCS-V05</dd>
+<dt class="half">Unidad</dt><dd class="half">Kilogramos (kg)</dd>
+<dt>Rango físico válido</dt><dd>15–200 kg</dd>
+<dt class="half">Valor imposible</dt><dd class="half">Negativo, o mayor que el Peso total</dd>
+<dt class="half">Valor sospechoso</dt><dd class="half">Ver BCS-V05 (reconstrucción del Peso)</dd>
+<dt class="half">Si falta</dt><dd class="half">Depende de BCS-V05</dd>
+<dt class="half">Si cambia de nombre</dt><dd class="half">n/a</dd>
+</dl>
+</div>
+
+<div class="bcsvar">
+<div class="bcsvar__head"><span class="bcsvar__id">BCS-V13</span><span class="bcsvar__badges"><span class="prov prov--crudo">📟 crudo</span></span></div>
+<h3>Masa ósea</h3>
+<dl>
+<dt>Significado</dt><dd>Peso estimado del contenido mineral óseo.</dd>
+<dt>Cálculo</dt><dd>Entregado por el dispositivo — no todos los analizadores BIA la ofrecen.</dd>
+<dt class="half">Origen</dt><dd class="half">Dato crudo del dispositivo</dd>
+<dt class="half">Unidad</dt><dd class="half">Kilogramos (kg)</dd>
+<dt>Rango físico válido</dt><dd>1.5–5.5 kg en población adulta</dd>
+<dt class="half">Valor imposible</dt><dd class="half">0, negativo, o &gt;8 kg</dd>
+<dt class="half">Valor sospechoso</dt><dd class="half">Cualquier variación entre mediciones — la masa ósea cambia extremadamente lento; una variación notable sugiere error del dispositivo, no cambio real</dd>
+<dt class="half">Si falta</dt><dd class="half">Se omite del reporte — algunos dispositivos simplemente no la reportan (🏭)</dd>
+<dt class="half">Si cambia de nombre</dt><dd class="half">"bone mass", "bone mineral content" — mapeo en 13</dd>
+</dl>
+</div>
+
+<div class="bcsvar">
+<div class="bcsvar__head"><span class="bcsvar__id">BCS-V14</span><span class="bcsvar__badges"><span class="prov prov--crudo">📟 crudo</span></span></div>
+<h3>Grasa visceral</h3>
+<dl>
+<dt>Significado</dt><dd>Estimación de la grasa alrededor de órganos abdominales, expresada como índice (no como peso).</dd>
+<dt>Cálculo</dt><dd>Entregado por el dispositivo como un número de índice en una escala propietaria.</dd>
+<dt class="half">Origen</dt><dd class="half">Dato crudo del dispositivo</dd>
+<dt class="half">Unidad</dt><dd class="half">Índice adimensional — <strong>la escala en sí varía por fabricante</strong></dd>
+<dt>Rango físico válido</dt><dd>Depende enteramente de la escala del dispositivo — no existe un rango universal (🏭)</dd>
+<dt class="half">Valor imposible</dt><dd class="half">Negativo, o fuera del rango máximo publicado por el fabricante del dispositivo usado</dd>
+<dt class="half">Valor sospechoso</dt><dd class="half">Salto abrupto entre mediciones consecutivas sin cambio de peso proporcional</dd>
+<dt class="half">Si falta</dt><dd class="half">Se omite del reporte</dd>
+<dt class="half">Si cambia de nombre</dt><dd class="half">"visceral fat index", "VFI", "visceral fat level" — mapeo en 13</dd>
+<dt>Interpretación</dt><dd><span class="prov prov--fabricante">🏭 depende del fabricante</span> — distintas marcas usan escalas incompatibles entre sí (ej. 1–20 vs. 1–59). BREY nunca compara el índice de un cliente entre dos dispositivos distintos como si fueran la misma escala.</dd>
+</dl>
+</div>
+
+<div class="bcsvar">
+<div class="bcsvar__head"><span class="bcsvar__id">BCS-V15</span><span class="bcsvar__badges"><span class="prov prov--fabricante">🏭 depende del fabricante</span></span></div>
+<h3>Ángulo de fase</h3>
+<dl>
+<dt>Significado</dt><dd>Ángulo derivado de la relación entre resistencia y reactancia de la impedancia — usado en literatura clínica como marcador indirecto de integridad de membrana celular.</dd>
+<dt>Cálculo</dt><dd>Calculado internamente por el dispositivo a partir de la impedancia (BCS-V22) — no recalculado por BREY.</dd>
+<dt class="half">Origen</dt><dd class="half">Dato crudo del dispositivo</dd>
+<dt class="half">Unidad</dt><dd class="half">Grados (°)</dd>
+<dt>Rango físico válido</dt><dd>2–12° orientativo, varía por frecuencia del dispositivo y población</dd>
+<dt class="half">Valor imposible</dt><dd class="half">0, negativo, o &gt;20°</dd>
+<dt class="half">Valor sospechoso</dt><dd class="half">Cambio abrupto sin cambio proporcional en impedancia</dd>
+<dt class="half">Si falta</dt><dd class="half">No todos los dispositivos la reportan — se omite sin bloquear el resto</dd>
+<dt class="half">Si cambia de nombre</dt><dd class="half">"phase angle", "PhA" — mapeo en 13</dd>
+<dt>Interpretación</dt><dd><span class="prov prov--validacion">🔬 pendiente de validación</span> — existe literatura en poblaciones clínicas específicas, pero BREY no aplica clasificación de riesgo alguna sobre este valor; se muestra como dato de tendencia, nunca como indicador de salud celular certificado.</dd>
+</dl>
+</div>
+
+<h2 id="agua">Agua corporal</h2>
+
+<div class="bcsvar">
+<div class="bcsvar__head"><span class="bcsvar__id">BCS-V08</span><span class="bcsvar__badges"><span class="prov prov--crudo">📟 crudo</span></span></div>
+<h3>Agua corporal total</h3>
+<dl>
+<dt>Significado</dt><dd>Proporción del peso correspondiente a agua, sumando intracelular y extracelular.</dd>
+<dt class="half">Origen</dt><dd class="half">Dato crudo del dispositivo</dd>
+<dt class="half">Unidad</dt><dd class="half">Litros (L) o porcentaje del peso, según el dispositivo (🏭)</dd>
+<dt>Rango físico válido</dt><dd>35–75% del peso en población adulta</dd>
+<dt class="half">Valor imposible</dt><dd class="half">0%, o &gt;90%</dd>
+<dt class="half">Valor sospechoso</dt><dd class="half">No reconstruye aproximadamente la suma de BCS-V09 + BCS-V10 cuando ambas están disponibles</dd>
+<dt class="half">Si falta</dt><dd class="half">Se omite; no bloquea otras variables</dd>
+<dt class="half">Si cambia de nombre</dt><dd class="half">"TBW" (total body water) — mapeo en 13</dd>
+</dl>
+</div>
+
+<div class="bcsvar">
+<div class="bcsvar__head"><span class="bcsvar__id">BCS-V09</span><span class="bcsvar__badges"><span class="prov prov--crudo">📟 crudo</span></span></div>
+<h3>Agua intracelular</h3>
+<dl>
+<dt>Significado</dt><dd>Agua contenida dentro de las células.</dd>
+<dt class="half">Origen</dt><dd class="half">Dato crudo del dispositivo</dd>
+<dt class="half">Unidad</dt><dd class="half">Litros (L)</dd>
+<dt>Rango físico válido</dt><dd>Debe ser menor que BCS-V08 (Agua corporal total)</dd>
+<dt class="half">Valor imposible</dt><dd class="half">Negativo, o mayor que Agua corporal total</dd>
+<dt class="half">Valor sospechoso</dt><dd class="half">Proporción ICW/ECW muy distinta a la típica (~60/40) sin explicación clínica registrada en observaciones</dd>
+<dt class="half">Si falta</dt><dd class="half">Se omite; frecuente en dispositivos de gama básica que solo entregan el total</dd>
+<dt class="half">Si cambia de nombre</dt><dd class="half">"ICW" — mapeo en 13</dd>
+</dl>
+</div>
+
+<div class="bcsvar">
+<div class="bcsvar__head"><span class="bcsvar__id">BCS-V10</span><span class="bcsvar__badges"><span class="prov prov--crudo">📟 crudo</span></span></div>
+<h3>Agua extracelular</h3>
+<dl>
+<dt>Significado</dt><dd>Agua fuera de las células (plasma, líquido intersticial).</dd>
+<dt class="half">Origen</dt><dd class="half">Dato crudo del dispositivo</dd>
+<dt class="half">Unidad</dt><dd class="half">Litros (L)</dd>
+<dt>Rango físico válido</dt><dd>Debe ser menor que BCS-V08</dd>
+<dt class="half">Valor imposible</dt><dd class="half">Negativo, o mayor que Agua corporal total</dd>
+<dt class="half">Valor sospechoso</dt><dd class="half">Ver BCS-V09 — la razón ECW/ICW elevada puede ser dato real (retención) o error de contacto de electrodos; BREY no distingue automáticamente, solo lo marca para revisión del entrenador</dd>
+<dt class="half">Si falta</dt><dd class="half">Se omite</dd>
+<dt class="half">Si cambia de nombre</dt><dd class="half">"ECW" — mapeo en 13</dd>
+</dl>
+</div>
+
+<h2 id="quimica">Composición química</h2>
+
+<div class="bcsvar">
+<div class="bcsvar__head"><span class="bcsvar__id">BCS-V11</span><span class="bcsvar__badges"><span class="prov prov--crudo">📟 crudo</span></span></div>
+<h3>Proteína</h3>
+<dl>
+<dt>Significado</dt><dd>Masa estimada de proteína corporal total.</dd>
+<dt class="half">Origen</dt><dd class="half">Dato crudo del dispositivo</dd>
+<dt class="half">Unidad</dt><dd class="half">Kilogramos (kg) o porcentaje, según fabricante (🏭)</dd>
+<dt>Rango físico válido</dt><dd>2–25 kg orientativo</dd>
+<dt class="half">Valor imposible</dt><dd class="half">Negativo, o mayor que el Peso total</dd>
+<dt class="half">Valor sospechoso</dt><dd class="half">Variación abrupta entre mediciones cercanas en el tiempo</dd>
+<dt class="half">Si falta</dt><dd class="half">Se omite; no todos los dispositivos la reportan</dd>
+<dt class="half">Si cambia de nombre</dt><dd class="half">"protein mass" — mapeo en 13</dd>
+</dl>
+</div>
+
+<div class="bcsvar">
+<div class="bcsvar__head"><span class="bcsvar__id">BCS-V12</span><span class="bcsvar__badges"><span class="prov prov--crudo">📟 crudo</span></span></div>
+<h3>Minerales</h3>
+<dl>
+<dt>Significado</dt><dd>Masa estimada del contenido mineral corporal total (incluye, pero no se limita a, el mineral óseo).</dd>
+<dt class="half">Origen</dt><dd class="half">Dato crudo del dispositivo</dd>
+<dt class="half">Unidad</dt><dd class="half">Kilogramos (kg)</dd>
+<dt>Rango físico válido</dt><dd>1.5–6 kg orientativo</dd>
+<dt class="half">Valor imposible</dt><dd class="half">0, negativo, o &gt;10 kg</dd>
+<dt class="half">Valor sospechoso</dt><dd class="half">Variación notable entre mediciones cercanas — cambia lento igual que la masa ósea</dd>
+<dt class="half">Si falta</dt><dd class="half">Se omite</dd>
+<dt class="half">Si cambia de nombre</dt><dd class="half">"minerals" — mapeo en 13</dd>
+</dl>
+</div>
+
+<h2 id="metabolicos">Metabólicos e índices</h2>
+
+<div class="bcsvar">
+<div class="bcsvar__head"><span class="bcsvar__id">BCS-V16</span><span class="bcsvar__badges"><span class="prov prov--crudo">📟 crudo</span><span class="prov prov--derivado">🧮 derivado (fallback)</span></span></div>
+<h3>BMR (tasa metabólica basal)</h3>
+<dl>
+<dt>Significado</dt><dd>Energía estimada que el cuerpo consume en reposo absoluto durante 24 horas.</dd>
+<dt>Cálculo</dt><dd>Si el dispositivo lo entrega, se usa tal cual (crudo). Si no lo entrega, BREY puede ofrecer un cálculo de respaldo con la fórmula de Mifflin-St Jeor (requiere peso, altura, edad, sexo) — <strong>los dos valores no son intercambiables</strong> y el reporte debe indicar cuál origen tuvo cada cifra.</dd>
+<dt class="half">Origen</dt><dd class="half">Crudo si viene del dispositivo; derivado si BREY lo calcula por fallback</dd>
+<dt class="half">Unidad</dt><dd class="half">Kilocalorías/día (kcal/día)</dd>
+<dt>Rango físico válido</dt><dd>800–3500 kcal/día orientativo en población adulta</dd>
+<dt class="half">Valor imposible</dt><dd class="half">0, negativo, o &gt;5000 kcal/día</dd>
+<dt class="half">Valor sospechoso</dt><dd class="half">Salto &gt;300 kcal/día entre mediciones consecutivas sin cambio de peso proporcional</dd>
+<dt class="half">Si falta</dt><dd class="half">Se omite si tampoco hay datos suficientes para el fallback (edad, sexo)</dd>
+<dt class="half">Si cambia de nombre</dt><dd class="half">"RMR" (tasa metabólica en reposo) se trata como sinónimo aproximado, no idéntico — mapeo documentado y advertido en 13</dd>
+</dl>
+</div>
+
+<div class="bcsvar">
+<div class="bcsvar__head"><span class="bcsvar__id">BCS-V17</span><span class="bcsvar__badges"><span class="prov prov--validacion">🔬 pendiente de validación</span></span></div>
+<h3>Edad metabólica</h3>
+<dl>
+<dt>Significado</dt><dd>Cifra propietaria de cada fabricante que compara el BMR estimado del cliente contra un promedio poblacional por edad.</dd>
+<dt>Cálculo</dt><dd>Enteramente interno del dispositivo — fórmula no publicada, distinta por fabricante.</dd>
+<dt class="half">Origen</dt><dd class="half">Dato crudo del dispositivo</dd>
+<dt class="half">Unidad</dt><dd class="half">Años</dd>
+<dt>Rango físico válido</dt><dd>10–99 años, orientativo</dd>
+<dt class="half">Valor imposible</dt><dd class="half">0, negativo, o &gt;120</dd>
+<dt class="half">Valor sospechoso</dt><dd class="half">Salto &gt;10 años entre mediciones consecutivas</dd>
+<dt class="half">Si falta</dt><dd class="half">Se omite del reporte sin afectar nada más</dd>
+<dt class="half">Si cambia de nombre</dt><dd class="half">"metabolic age" — mapeo en 13</dd>
+<dt>Interpretación</dt><dd><span class="prov prov--validacion">🔬 pendiente de validación</span> — no es una métrica con respaldo fisiológico establecido de forma independiente; BREY la muestra únicamente como dato de tendencia propio del dispositivo, con una nota explícita de que no representa una edad biológica real.</dd>
+</dl>
+</div>
+
+<div class="bcsvar">
+<div class="bcsvar__head"><span class="bcsvar__id">BCS-V18</span><span class="bcsvar__badges"><span class="prov prov--derivado">🧮 derivado</span></span></div>
+<h3>SMI (Índice de Masa Muscular Esquelética)</h3>
+<dl>
+<dt>Significado</dt><dd>Masa muscular normalizada por altura al cuadrado — usado en literatura de sarcopenia.</dd>
+<dt>Cálculo</dt><dd><code>SMI = masaMuscular(kg) / altura(m)²</code> — existen fórmulas alternativas en la literatura sin consenso único sobre cuál usar.</dd>
+<dt class="half">Origen</dt><dd class="half">Derivado de BCS-V06 + BCS-V01</dd>
+<dt class="half">Unidad</dt><dd class="half">kg/m²</dd>
+<dt>Rango físico válido</dt><dd>4–15 kg/m² orientativo</dd>
+<dt class="half">Valor imposible</dt><dd class="half">0, negativo</dd>
+<dt class="half">Valor sospechoso</dt><dd class="half">Cambia &gt;15% sin cambio proporcional en masa muscular</dd>
+<dt class="half">Si falta</dt><dd class="half">Requiere Altura (BCS-V01) — se omite si falta</dd>
+<dt class="half">Si cambia de nombre</dt><dd class="half">n/a — siempre calculado por BREY</dd>
+<dt>Interpretación</dt><dd><span class="prov prov--validacion">🔬 pendiente de validación</span> — los puntos de corte de sarcopenia publicados varían entre consensos (EWGSOP, AWGS, entre otros) y ninguno fue desarrollado ni validado para población de entrenamiento de fuerza. BREY no aplica ninguno de estos puntos de corte por defecto.</dd>
+</dl>
+</div>
+
+<div class="bcsvar">
+<div class="bcsvar__head"><span class="bcsvar__id">BCS-V19</span><span class="bcsvar__badges"><span class="prov prov--crudo">📟 crudo</span></span></div>
+<h3>Circunferencia de cintura</h3>
+<dl>
+<dt>Significado</dt><dd>Perímetro abdominal a la altura del ombligo, con cinta métrica — variable añadida (ver callout superior) exclusivamente para poder calcular WHR.</dd>
+<dt class="half">Origen</dt><dd class="half">Medición manual directa</dd>
+<dt class="half">Unidad</dt><dd class="half">Centímetros (cm)</dd>
+<dt>Rango físico válido</dt><dd>40–200 cm orientativo</dd>
+<dt class="half">Valor imposible</dt><dd class="half">0, negativo, o &gt;250 cm</dd>
+<dt class="half">Valor sospechoso</dt><dd class="half">Variación &gt;10 cm entre mediciones cercanas</dd>
+<dt class="half">Si falta</dt><dd class="half">WHR no puede calcularse esa medición</dd>
+<dt class="half">Si cambia de nombre</dt><dd class="half">n/a — captura manual</dd>
+</dl>
+</div>
+
+<div class="bcsvar">
+<div class="bcsvar__head"><span class="bcsvar__id">BCS-V20</span><span class="bcsvar__badges"><span class="prov prov--crudo">📟 crudo</span></span></div>
+<h3>Circunferencia de cadera</h3>
+<dl>
+<dt>Significado</dt><dd>Perímetro en el punto de mayor circunferencia glútea — variable añadida exclusivamente para poder calcular WHR.</dd>
+<dt class="half">Origen</dt><dd class="half">Medición manual directa</dd>
+<dt class="half">Unidad</dt><dd class="half">Centímetros (cm)</dd>
+<dt>Rango físico válido</dt><dd>50–200 cm orientativo</dd>
+<dt class="half">Valor imposible</dt><dd class="half">0, negativo, o &gt;250 cm</dd>
+<dt class="half">Valor sospechoso</dt><dd class="half">Variación &gt;10 cm entre mediciones cercanas</dd>
+<dt class="half">Si falta</dt><dd class="half">WHR no puede calcularse esa medición</dd>
+<dt class="half">Si cambia de nombre</dt><dd class="half">n/a — captura manual</dd>
+</dl>
+</div>
+
+<div class="bcsvar">
+<div class="bcsvar__head"><span class="bcsvar__id">BCS-V21</span><span class="bcsvar__badges"><span class="prov prov--derivado">🧮 derivado</span></span></div>
+<h3>WHR (relación cintura-cadera)</h3>
+<dl>
+<dt>Significado</dt><dd>Proporción entre circunferencia de cintura y de cadera, usada como proxy de distribución de grasa.</dd>
+<dt>Cálculo</dt><dd><code>WHR = circunferenciaCintura / circunferenciaCadera</code></dd>
+<dt class="half">Origen</dt><dd class="half">Derivado de BCS-V19 + BCS-V20</dd>
+<dt class="half">Unidad</dt><dd class="half">Adimensional</dd>
+<dt>Rango físico válido</dt><dd>0.6–1.3 orientativo</dd>
+<dt class="half">Valor imposible</dt><dd class="half">0, negativo</dd>
+<dt class="half">Valor sospechoso</dt><dd class="half">Cambio abrupto sin cambio proporcional en ambas circunferencias</dd>
+<dt class="half">Si falta</dt><dd class="half">Depende de BCS-V19 y BCS-V20</dd>
+<dt class="half">Si cambia de nombre</dt><dd class="half">n/a — siempre calculado por BREY</dd>
+<dt>Interpretación</dt><dd><span class="prov prov--validacion">🔬 pendiente de validación</span> — existen categorías de riesgo publicadas por la OMS por sexo, pero no validadas específicamente para población de alto rendimiento; BREY las muestra como referencia general, nunca como evaluación de riesgo certificada.</dd>
+</dl>
+</div>
+
+<h2 id="metadatos">Metadatos de la medición</h2>
+
+<div class="bcsvar">
+<div class="bcsvar__head"><span class="bcsvar__id">BCS-V23</span><span class="bcsvar__badges"><span class="prov prov--producto">🟠 producto</span></span></div>
+<h3>Fecha</h3>
+<dl>
+<dt>Significado</dt><dd>Fecha calendario en la que se tomó la medición.</dd>
+<dt class="half">Origen</dt><dd class="half">Captura manual del entrenador</dd>
+<dt class="half">Unidad</dt><dd class="half">Fecha (sin hora)</dd>
+<dt>Rango físico válido</dt><dd>Nunca futura; no anterior a la fecha de alta del Cliente</dd>
+<dt class="half">Valor imposible</dt><dd class="half">Fecha futura</dd>
+<dt class="half">Valor sospechoso</dt><dd class="half">Fecha idéntica a otra Medición vigente del mismo Cliente</dd>
+<dt class="half">Si falta</dt><dd class="half">Bloqueante — obligatoria, la Medición no puede registrarse sin fecha (02, IN-D5 extendida)</dd>
+<dt class="half">Si cambia de nombre</dt><dd class="half">n/a</dd>
+</dl>
+</div>
+
+<div class="bcsvar">
+<div class="bcsvar__head"><span class="bcsvar__id">BCS-V24</span><span class="bcsvar__badges"><span class="prov prov--producto">🟠 producto</span></span></div>
+<h3>Observaciones</h3>
+<dl>
+<dt>Significado</dt><dd>Nota libre del entrenador sobre el contexto de la medición (ej. dispositivo usado, condición del cliente, hora del día).</dd>
+<dt class="half">Origen</dt><dd class="half">Captura manual del entrenador</dd>
+<dt class="half">Unidad</dt><dd class="half">Texto libre</dd>
+<dt>Rango físico válido</dt><dd>n/a</dd>
+<dt class="half">Valor imposible</dt><dd class="half">n/a</dd>
+<dt class="half">Valor sospechoso</dt><dd class="half">n/a</dd>
+<dt class="half">Si falta</dt><dd class="half">No bloquea nada — siempre opcional</dd>
+<dt class="half">Si cambia de nombre</dt><dd class="half">n/a</dd>
+</dl>
+</div>
+
+<div class="bcsvar">
+<div class="bcsvar__head"><span class="bcsvar__id">BCS-V25</span><span class="bcsvar__badges"><span class="prov prov--producto">🟠 producto</span></span></div>
+<h3>Fotografía (opcional)</h3>
+<dl>
+<dt>Significado</dt><dd>Imagen asociada a la medición (ej. fotografía de progreso físico).</dd>
+<dt class="half">Origen</dt><dd class="half">Captura manual del entrenador — subida de archivo</dd>
+<dt class="half">Unidad</dt><dd class="half">Referencia de almacenamiento (11)</dd>
+<dt>Rango físico válido</dt><dd>n/a</dd>
+<dt class="half">Valor imposible</dt><dd class="half">n/a</dd>
+<dt class="half">Valor sospechoso</dt><dd class="half">n/a</dd>
+<dt class="half">Si falta</dt><dd class="half">No bloquea nada — siempre opcional (dato sensible, ver 11)</dd>
+<dt class="half">Si cambia de nombre</dt><dd class="half">n/a</dd>
+</dl>
+</div>
+
+<h2 id="matriz-validaciones">Matriz de validaciones cruzadas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Validación cruzada</th><th>Variables</th><th>Tratamiento si falla</th></tr></thead>
+<tbody>
+<tr><td>Masa grasa + Masa libre de grasa ≈ Peso (±0.5 kg)</td><td>BCS-V05, BCS-V07, BCS-V02</td><td>Warning en observabilidad (08) — no bloquea el guardado</td></tr>
+<tr><td>Agua intracelular + Agua extracelular ≈ Agua corporal total</td><td>BCS-V09, BCS-V10, BCS-V08</td><td>Warning en observabilidad</td></tr>
+<tr><td>Masa grasa &lt; Peso; Masa muscular &lt; Peso; Masa ósea &lt; Peso</td><td>Todas las variables de masa absoluta</td><td>Error de validación — bloquea el guardado (imposible físicamente)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../02-modelo-dominio/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 02 · Modelo del Dominio</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../04-modelo-reporte/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">04 · Modelo del Reporte →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

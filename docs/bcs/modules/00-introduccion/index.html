@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>00 · Introducción — BCS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="introduccion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 00 · Fundamentos</p>
+<h1>Introducción</h1>
+<p class="lede">El Body Composition System (BCS) es la herramienta profesional con la que el entrenador registra, historiza y comunica mediciones de composición corporal de sus clientes presenciales. Este documento es su especificación de dominio completa — la única fuente de verdad. Si el código futuro lo contradice, el handbook es la verdad.</p>
+
+<div class="meta-row">
+  <span class="chip">Autoridad: handbook &gt; código</span>
+  <span class="chip">Sistema nuevo — sin handbook previo que profundizar</span>
+  <span class="chip">Especificación de dominio, no de implementación</span>
+</div>
+
+<h2 id="objetivo">Objetivo del sistema</h2>
+<p>Permitir que el entrenador administre un registro clínico-operativo (no médico) de composición corporal por cliente: crear y mantener clientes, registrar mediciones ilimitadas en el tiempo, generar un reporte profesional interpretable, y compartir ese reporte con el cliente mediante un enlace público de solo lectura — sin que el cliente necesite cuenta, contraseña, ni acceso a ningún dato de edición.</p>
+
+<h2 id="quien-es-quien">Quién es quién</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Rol</th><th>Puede</th><th>No puede</th></tr></thead>
+<tbody>
+<tr><td><strong>Entrenador (administrador único)</strong></td><td>Crear, editar y eliminar clientes; registrar y corregir mediciones; generar y revocar enlaces públicos; ver todos los reportes</td><td>Nada está vedado — es la única identidad con acceso de escritura de todo el sistema en v1 (12, ADR)</td></tr>
+<tr><td><strong>Cliente</strong></td><td>Visualizar su propio reporte a través de su enlace público</td><td>Editar cualquier dato, ver datos de otros clientes, acceder sin el enlace, autenticarse en el panel del entrenador</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="alcance">Alcance</h2>
+<ul>
+  <li>Gestión de clientes (crear, editar, archivar).</li>
+  <li>Registro de mediciones ilimitadas con historial completo por cliente (05).</li>
+  <li>Catálogo completo de variables de composición corporal con su procedencia, cálculo y validación (03).</li>
+  <li>Generación de un reporte profesional interpretable (04, 06, 07).</li>
+  <li>Enlaces públicos de solo lectura por cliente, sin autenticación (09, 10).</li>
+  <li>Seguridad, privacidad y consideraciones de escalabilidad de un sistema con datos de salud (08, 11, 12).</li>
+</ul>
+
+<h2 id="no-alcance">No alcance</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Fuera de este documento</th><th>Por qué</th></tr></thead>
+<tbody>
+<tr><td>Diagnóstico médico o clínico de cualquier tipo</td><td>El BCS registra e interpreta tendencias numéricas — nunca sustituye criterio médico ni emite diagnóstico (06)</td></tr>
+<tr><td>Integración con el dispositivo de bioimpedancia (driver, Bluetooth, protocolo del fabricante)</td><td>El BCS asume que el dato ya llegó al entrenador (lectura manual o exportación) — la captura automática desde el dispositivo es una extensión futura (14, 17)</td></tr>
+<tr><td>App o portal con login para el cliente</td><td>Decisión de producto explícita — el cliente nunca se autentica, ver 10</td></tr>
+<tr><td>Integración con el Motor BPS / Progression Engine / perfil de usuario del Core Product de BREY</td><td>El BCS es un sistema independiente en v1 — cualquier integración futura es candidata de roadmap (14), no una suposición de este documento</td></tr>
+<tr><td>Cualquier línea de código, tipo TypeScript, esquema SQL</td><td>No pertenece a ningún handbook de dominio — este documento se detiene en la especificación, nunca en la implementación</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="rol">Cómo leer las cinco etiquetas de procedencia del dato</h2>
+<p>Toda variable del catálogo (03) y toda interpretación derivada de ella (06) lleva exactamente una de estas cinco etiquetas — nunca se mezclan dos en la misma afirmación:</p>
+<p>
+<span class="prov prov--crudo">📟 Dato crudo</span>
+<span class="prov prov--derivado">🧮 Derivado</span>
+<span class="prov prov--fabricante">🏭 Depende del fabricante</span>
+<span class="prov prov--validacion">🔬 Pendiente de validación científica</span>
+<span class="prov prov--producto">🟠 Decisión de producto BREY</span>
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Etiqueta</th><th>Significa</th></tr></thead>
+<tbody>
+<tr><td>📟 Dato crudo</td><td>Viene directamente del dispositivo de medición (báscula/analizador de bioimpedancia), sin ningún cálculo adicional de BREY</td></tr>
+<tr><td>🧮 Derivado</td><td>Se calcula a partir de otros valores (crudos o derivados) mediante una fórmula — la fórmula se documenta explícitamente en 03</td></tr>
+<tr><td>🏭 Depende del fabricante</td><td>El valor o su rango de referencia varía entre dispositivos/algoritmos comerciales — no existe un estándar único de la industria</td></tr>
+<tr><td>🔬 Pendiente de validación científica</td><td>La interpretación o clasificación que BREY aplica a ese valor no tiene consenso clínico establecido — se presenta como orientativa, nunca como diagnóstico</td></tr>
+<tr><td>🟠 Decisión de producto BREY</td><td>Un umbral, formato o comportamiento elegido por BREY sin pretensión clínica (ej. cuántas mediciones mostrar en un gráfico)</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Regla no negociable de este handbook</div>
+  <p>Ningún rango clínico se inventa. Donde exista un rango de referencia, se cita marcado como 🏭 o 🔬 según corresponda — nunca presentado como si fuera un consenso médico establecido por BREY. Esta regla se aplica sin excepción en los módulos 03 y 06, que son los de mayor densidad de afirmaciones sobre el cuerpo humano de todo el sistema BREY. Decisión formal en BCS-ADR-06 (16).</p>
+</div>
+
+<h2 id="relacion">Relación con el resto de BREY</h2>
+<div class="diagram">
+<div class="diagram-label">El BCS como sistema independiente</div>
+<pre class="mermaid">
+graph TD
+  BCS["Body Composition System<br/>(este handbook)"] -.->|"sin dependencia en v1"| CORE["Core Product BREY<br/>(Motor BPS, Progression Engine, perfil)"]
+  ENT["Entrenador"] -->|"administra"| BCS
+  BCS -->|"genera"| LINK["Enlace público de solo lectura"]
+  LINK -->|"visualiza"| CLI["Cliente"]
+</pre>
+</div>
+<p>El BCS no depende de ningún otro handbook de BREY para funcionar — es deliberadamente standalone en v1.0. Una integración futura con el perfil de usuario del Core Product (para que un cliente con cuenta en BREY vea su propio historial de composición corporal dentro de la app, no solo vía enlace) es una extensión candidata, no una suposición de este documento (14, 17).</p>
+
+<div class="pagenav">
+  <div></div>
+  <a class="pagenav__item pagenav__item--next" href="../01-arquitectura/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">01 · Arquitectura →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

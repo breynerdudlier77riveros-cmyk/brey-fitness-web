@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>02 · Jerarquía de Reglas — Exercise Tagging Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="jerarquia-reglas" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 02 · El proceso</p>
+<h1>Jerarquía de Reglas</h1>
+<p class="lede">Qué gana cuando dos reglas de etiquetado entran en conflicto — y qué ocurre, que es el caso frecuente, cuando ninguna de las dos existe.</p>
+
+<h2 id="escalera">La escalera de precedencia</h2>
+<p>El ecosistema resuelve conflictos por <strong>precedencia explícita, nunca por ponderación</strong>. El Progression Engine lo enuncia como regla de diseño no negociable: un sistema de pesos numéricos "es indebugueable: nadie puede predecir el resultado sin ejecutar el sistema". La misma lógica se aplica al etiquetado.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Nivel</th><th>Categoría</th><th>Qué contiene</th><th>Ejemplo</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><strong>Seguridad</strong></td><td>Las reglas que protegen el filtro de exclusión por zona</td><td>Ante duda sobre la intensidad de carga articular, no se etiqueta (TG-08)</td></tr>
+<tr><td>2</td><td><strong>Estructura</strong></td><td>Cardinalidades y formas obligatorias del modelo</td><td>Exactamente un patrón primario; cadena lineal sin ciclos</td></tr>
+<tr><td>3</td><td><strong>Vocabulario</strong></td><td>Los valores admisibles de cada eje</td><td>Solo los 9 patrones, los 5 roles, las 6 zonas publicadas</td></tr>
+<tr><td>4</td><td><strong>Consistencia</strong></td><td>Coherencia entre atributos del mismo ejercicio</td><td>La cadena no cruza de patrón; el eslabón comparte roles compatibles</td></tr>
+<tr><td>5</td><td><strong>Criterio de contenido</strong></td><td>El juicio biomecánico autorizado</td><td>Cuál de dos patrones plausibles es el primario</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Un nivel superior es terminal sobre los inferiores</div>
+  <p>Un nivel superior nunca se "combina" con uno inferior. Si el nivel 2 exige que solo haya un patrón primario, ningún criterio de contenido puede introducir dos. Si el nivel 1 exige no etiquetar ante duda de seguridad, ningún argumento de consistencia lo revierte.</p>
+</div>
+
+<h2 id="diagrama">Orden de evaluación</h2>
+<div class="diagram">
+<div class="diagram-label">Cada nivel es un gate, no un voto</div>
+<pre class="mermaid">
+flowchart TD
+  A["¿La etiqueta compromete<br/>el filtro de seguridad?"] -- Sí --> Z1["No etiquetar<br/>TG-08 · nivel 1"]
+  A -- No --> B["¿Respeta las cardinalidades<br/>del modelo?"]
+  B -- No --> Z2["RECHAZO estructural<br/>nivel 2"]
+  B -- Sí --> C["¿El valor pertenece al<br/>vocabulario cerrado?"]
+  C -- No --> Z3["RECHAZO de vocabulario<br/>nivel 3"]
+  C -- Sí --> D["¿Es coherente con los demás<br/>atributos del ejercicio?"]
+  D -- No --> Z4["RECHAZO de consistencia<br/>nivel 4"]
+  D -- Sí --> E{"¿Hay una única etiqueta<br/>defendible?"}
+  E -- Sí --> OK["Etiqueta aceptada<br/>con justificación registrada"]
+  E -- No --> ESC["ESCALAR a autoridad<br/>de contenido · TG-07"]
+</pre>
+</div>
+
+<h2 id="autoridad">Jerarquía de autoridad documental</h2>
+<p>Cuando dos <em>documentos</em> se contradicen sobre una regla de etiquetado, el orden vigente del ecosistema decide:</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Orden</th><th>Documento</th><th>Autoridad sobre el etiquetado</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Architecture Review</td><td>Máxima — sus hallazgos son correcciones vinculantes</td></tr>
+<tr><td>2</td><td>Implementation Handbook</td><td>Resuelve contratos ambiguos entre handbooks</td></tr>
+<tr><td>3</td><td>Domain Model Handbook</td><td>Entidades, estados y relaciones</td></tr>
+<tr><td>4</td><td>Architecture Handbook 04 · Knowledge Base</td><td><strong>Fuente primaria del etiquetado</strong> — vocabularios y reglas</td></tr>
+<tr><td>5</td><td>Resto de handbooks de dominio</td><td>Consumo del etiquetado y sus consecuencias</td></tr>
+<tr><td>6</td><td>Exercise Taxonomy Handbook</td><td>Consolidación de atributos — dependencia declarada de este documento</td></tr>
+<tr><td>7</td><td>Este handbook</td><td>El más bajo — consolida proceso, nunca redefine una regla superior</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="ausencia">El caso frecuente — ninguna regla existe</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">La jerarquía no resuelve lo que nadie escribió</div>
+  <p>El barrido documental encontró <strong>cero reglas de desempate para etiquetado</strong> en todo el repositorio. Los desempates que sí existen (orden estable "nivel ascendente, luego slug ascendente" del Generator; PE-012 del Progression Engine) operan sobre <em>resolución de slots</em> y <em>progresión</em> — nunca sobre la asignación de un atributo a un ejercicio.</p>
+  <p>Por tanto, en el nivel 5 de la escalera la jerarquía <strong>no dirime</strong>: activa TG-07 y escala. El protocolo de escalado está en el módulo <a href="../11-hibridos-conflictos/index.html">11</a>.</p>
+</div>
+
+<h2 id="tabla-conflictos">Conflictos tipificados y su resolución</h2>
+<p class="matrix-note">Cada fila indica si la resolución está documentada o si el conflicto activa escalado.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Conflicto</th><th>Nivel</th><th>Resolución</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>Dos patrones parecen igualmente primarios</td><td>5</td><td>Ninguna regla decide cuál gana</td><td><span class="tag tag--futuro">escalar</span></td></tr>
+<tr><td>Alguien propone dos patrones primarios</td><td>2</td><td>Prohibido: "un primario + 0..N secundarios"</td><td><span class="tag tag--implementado">documentada</span></td></tr>
+<tr><td>Un valor propuesto no está en el vocabulario</td><td>3</td><td>Rechazo — los vocabularios son cerrados</td><td><span class="tag tag--implementado">documentada</span></td></tr>
+<tr><td>La cadena propuesta cruza de patrón</td><td>4</td><td>Rechazo: "un eslabón nunca cruza de patrón"</td><td><span class="tag tag--implementado">documentada</span></td></tr>
+<tr><td>La cadena propuesta tiene un ciclo</td><td>2</td><td>Rechazo por validación estructural</td><td><span class="tag tag--implementado">documentada</span></td></tr>
+<tr><td>Duda sobre si una zona carga <code>alto</code> o <code>medio</code></td><td>1</td><td>No etiquetar (TG-08) y escalar</td><td><span class="tag tag--especificado">derivada</span></td></tr>
+<tr><td>Un ejercicio parece admitir todos los roles</td><td>5</td><td>Ninguna regla limita la cardinalidad de <code>rolesPosibles</code></td><td><span class="tag tag--futuro">escalar</span></td></tr>
+<tr><td>Dos ejercicios distintos con el mismo nombre</td><td>—</td><td>Ninguna fuente lo prohíbe; el nombre no es identidad</td><td><span class="tag tag--futuro">deuda</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../01-filosofia/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 01 · Filosofía del Etiquetado</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../03-proceso-oficial/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">03 · Proceso Oficial →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>06 · Engine Testing — BREY Testing Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="engine-testing" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 06 · Niveles</p>
+<h1>Engine Testing</h1>
+<p class="lede">Una suite por motor. Cuatro matrices de trazabilidad completas: Motor→Suite, Regla→Test, y los casos específicos de Recovery, Progression, Motor BPS y BCS.</p>
+
+<div class="meta-row">
+  <span class="chip">5 motores</span>
+  <span class="chip">39 reglas de Progression Engine trazadas por categoría</span>
+</div>
+
+<h2 id="matriz-motor-suite">Matriz Motor → Suite</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Motor</th><th>Nivel de suite</th><th>Qué recibe como entrada de prueba</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>Motor BPS</td><td><span class="level level--unit">unit</span> (gates, decisiones) + <span class="level level--integration">integration</span> (ciclo completo con repositorios reales)</td><td>Perfil, Diagnóstico, Veredicto Recovery, Decisión Progression — todos vía factory (03)</td><td><span class="tag tag--especificado">especificado</span></td></tr>
+<tr><td>Progression Engine</td><td><span class="level level--unit">unit</span> — 100% de su pipeline es puro (IN-P1)</td><td>Ventana de historial, Prescripción vigente, Veredicto Recovery, cadenas, fecha de ciclo</td><td><span class="tag tag--especificado">especificado</span></td></tr>
+<tr><td>Recovery Engine</td><td><span class="level level--unit">unit</span> — contrato mínimo (API Contract Handbook, 07)</td><td>Mesociclo, ventana</td><td><span class="tag tag--especificado">especificado</span> — lógica real pendiente de handbook propio (AR-006)</td></tr>
+<tr><td>Workout Generator</td><td><span class="level level--unit">unit</span> (ensamblado) + <span class="level level--integration">integration</span> (<code>INSERT</code> final)</td><td>Microciclo vigente, Perfil, Prescripción, Veredicto, catálogo</td><td><span class="tag tag--especificado">especificado</span></td></tr>
+<tr><td>Workout Player</td><td><span class="level level--integration">integration</span> (cola offline → sincronización) + <span class="level level--e2e">e2e</span> (sesión completa)</td><td>Secuencia de eventos locales (sesion_iniciada, serie_registrada…)</td><td><span class="tag tag--especificado">especificado</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="progression-engine">Progression Engine</h2>
+
+<h3 id="matriz-regla-test">Matriz Regla → Test (por categoría)</h3>
+<p>El catálogo completo de 39 reglas (Progression Engine Handbook, 07) ya incluye, para cada una, "Ejemplo válido" y "Ejemplo inválido" — esos dos campos son, literalmente, el caso de test positivo y negativo. Esta matriz traza por categoría, no fila por fila las 39 (esa tabla ya existe en su handbook de origen); replicarla aquí sería transcripción, no especificación de testing.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Categoría</th><th>Reglas</th><th>Patrón de test</th></tr></thead>
+<tbody>
+<tr><td>Microprogresión</td><td>PE-001–012</td><td>Una ventana con la señal exacta que activa la regla (ej. RPE reportado bajo umbral) → verificar la Prescripción resultante; una ventana sin esa señal → verificar que no cambia</td></tr>
+<tr><td>Macroprogresión</td><td>PE-013–018</td><td>Ventana de ≥4 apariciones en el patrón de avance/sostiene/retrocede → verificar la Decisión; PE-016 verifica que la salida es una <strong>recomendación</strong>, nunca una escritura directa de <code>nivel_actual</code> (05, ownership)</td></tr>
+<tr><td>Autorregulación</td><td>PE-019–026</td><td>Veredicto de Recovery con <code>procede: false</code> → verificar que ninguna otra regla del catálogo se evalúa ese ciclo (PE-026)</td></tr>
+<tr><td>Estancamiento</td><td>PE-027–032</td><td>Exactamente 3 apariciones sin avance consecutivas → verificar transición a "candidato"; una cuarta con avance → verificar reinicio</td></tr>
+<tr><td>Deload</td><td>PE-033–039</td><td>Veredicto <code>subtipo: "programada"</code> vs. <code>"reactiva"</code> → verificar el multiplicador de volumen correspondiente</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="callout callout--riesgo">
+  <div class="callout__label">PE-012 — caso de desempate sin definición operacional (AR-008, no resuelto aquí)</div>
+  <p>La Architecture Review ya identificó que "menor magnitud de cambio" no está operacionalizado entre unidades heterogéneas (kg vs. repeticiones). Este documento no resuelve esa ambigüedad — especifica que <strong>cualquier test de PE-012 debe fijar explícitamente qué criterio de comparación usa la implementación bajo prueba</strong>, y marcarlo <span class="level level--bloqueado">bloqueado</span> hasta que AR-008 se resuelva en Progression Engine Handbook, para no congelar en el test una interpretación que el propio handbook de origen todavía no decidió.</p>
+</div>
+
+<h3 id="progression-casos">Progression → Casos (representativos)</h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Entrada</th><th>Resultado esperado</th><th>Nivel</th></tr></thead>
+<tbody>
+<tr><td>Ventana insuficiente</td><td>3 apariciones</td><td><code>VENTANA_INSUFICIENTE</code> interno, decisión macro = "sostiene"</td><td><span class="level level--unit">unit</span></td></tr>
+<tr><td>Recovery bloquea el ciclo</td><td>Veredicto <code>procede: false</code></td><td>Ninguna regla de progresión se evalúa; solo se registra el hecho (PE-026)</td><td><span class="level level--unit">unit</span></td></tr>
+<tr><td>PE-018 — exclusión de Track/Sistema</td><td>Cualquier ventana</td><td>Ninguna salida relacionada con Track o Sistema, nunca — la ausencia de salida es el caso a verificar</td><td><span class="level level--unit">unit</span></td></tr>
+<tr><td>RPE/RIR mutuamente excluyentes por Slot (PE-ADR-05)</td><td>Slot con ambos sistemas presentes</td><td>Entrada inválida — el motor no decide cuál prevalece, la rechaza</td><td><span class="level level--unit">unit</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="recovery-engine">Recovery Engine — contrato mínimo</h2>
+<h3 id="recovery-casos">Recovery → Casos</h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Entrada</th><th>Salida esperada (forma canónica, API Contract Handbook 08)</th></tr></thead>
+<tbody>
+<tr><td>Descarga programada</td><td>Mesociclo en semana de descarga programada</td><td><code>{procede: true, subtipo: "programada", razon: "..."}</code></td></tr>
+<tr><td>Descarga reactiva</td><td>Ventana con índice de fatiga sobre umbral</td><td><code>{procede: true, subtipo: "reactiva", razon: "..."}</code></td></tr>
+<tr><td>Sin descarga</td><td>Ventana sin señales de alerta</td><td><code>{procede: false, razon: "..."}</code> — <code>razon</code> obligatoria incluso aquí (API-ADR-02)</td></tr>
+<tr><td><code>razon</code> ausente</td><td>Cualquier Veredicto sin <code>razon</code></td><td>Entrada/salida inválida — <code>razon</code> es obligatoria siempre, no solo cuando <code>procede: true</code></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Contrato mínimo, no lógica real — IMP-ADR-02 (citado desde API Contract Handbook, 07)</div>
+  <p>Estos casos prueban la <em>forma</em> del contrato, no si la decisión de "hay fatiga" es correcta fisiológicamente — esa lógica no existe todavía (AR-006). Un test de Recovery Engine hoy verifica que la forma de salida es la canónica, nunca que el umbral de fatiga sea el adecuado.</p>
+</div>
+
+<h2 id="motor-bps">Motor BPS</h2>
+<h3 id="bps-casos">BPS → Casos</h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Entrada</th><th>Resultado esperado</th></tr></thead>
+<tbody>
+<tr><td>Activación válida (R-M1/ADR-002)</td><td><code>compra_confirmada</code> con Diagnóstico vigente</td><td><code>sistema_actual</code>+<code>nivel_actual</code> escritos, evento <code>activacion</code>, transición T3</td></tr>
+<tr><td>Compra sin Diagnóstico (R-M2)</td><td><code>compra_confirmada</code> sin resultado vigente</td><td>Estado <code>pendiente_diagnostico</code>, sin punteros escritos (T4)</td></tr>
+<tr><td>Gate de Perfil incompleto (R-M3)</td><td>Activación sin los 3 campos de gate</td><td><code>PERFIL_INCOMPLETO</code> con la lista exacta de campos faltantes</td></tr>
+<tr><td>Reintento de activación (idempotencia)</td><td>Mismo <code>transaccion_id</code> dos veces</td><td>Segunda invocación no duplica ni re-ejecuta — completa solo lo faltante</td></tr>
+<tr><td>Diagnóstico expirado (MBPS-ADR-05)</td><td>Compra &gt;6 meses después del Diagnóstico</td><td><code>pendiente_diagnostico</code>, motivo <code>resultado_expirado</code></td></tr>
+<tr><td>Elite fuera del pipeline (ADR-012)</td><td>Sistema Elite en flujo de generación automática</td><td><code>SISTEMA_SIN_JERARQUIA</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="bcs-engine">BCS — los 9 casos de uso</h2>
+<h3 id="bcs-casos">BCS → Casos</h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso de uso</th><th>Caso de test principal</th><th>Nivel</th></tr></thead>
+<tbody>
+<tr><td>UC-01 CrearCliente</td><td>Nombre vacío → <code>NOMBRE_VACIO</code>; nombre válido → Cliente <code>activo</code></td><td><span class="level level--unit">unit</span></td></tr>
+<tr><td>UC-02 EditarCliente</td><td>Edición no toca Mediciones ni Enlaces (aislamiento de agregados, BCS-ADR-01)</td><td><span class="level level--integration">integration</span></td></tr>
+<tr><td>UC-03 ArchivarCliente</td><td>Activo→Archivado reversible; Archivado→Archivado idempotente (no error, no-op)</td><td><span class="level level--integration">integration</span></td></tr>
+<tr><td>UC-04 EliminarClientePermanentemente</td><td>Cascada de revocación de EnlacesPúblicos verificada (IN-29)</td><td><span class="level level--integration">integration</span></td></tr>
+<tr><td>UC-05 RegistrarMedición</td><td>Valor de masa &gt; <code>peso_kg</code> → <code>VALOR_FUERA_DE_RANGO_FISICO</code>; fecha futura → <code>FECHA_FUTURA</code></td><td><span class="level level--unit">unit</span></td></tr>
+<tr><td>UC-06 CorregirMedición</td><td>La anterior queda <code>anulada</code>, nunca editada — se verifica que ambas filas existen tras la corrección (BCS-ADR-03)</td><td><span class="level level--integration">integration</span></td></tr>
+<tr><td>UC-07 CrearEnlacePúblico</td><td>Un enlace activo previo se revoca automáticamente (09-IN-1)</td><td><span class="level level--integration">integration</span></td></tr>
+<tr><td>UC-08 RevocarEnlacePúblico</td><td>Revocado nunca reactiva (IN-28); revocar dos veces es idempotente, no error</td><td><span class="level level--integration">integration</span></td></tr>
+<tr><td>UC-09 VisualizarReportePúblico</td><td>Token inexistente y token revocado devuelven el mismo error indistinguible (BCS Handbook, 10)</td><td><span class="level level--integration">integration</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../05-domain-testing/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 05 · Domain Testing</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../07-fsm-testing/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">07 · FSM Testing →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

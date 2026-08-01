@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>00 · Introducción — BREY Database Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="introduccion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 00 · Empezar</p>
+<h1>Introducción</h1>
+<p class="lede">La especificación oficial de persistencia de BREY — qué tabla existe, quién la posee, qué columna tiene, qué la restringe. La única fuente de verdad de persistencia para cualquier esquema físico futuro. No escribe SQL, no genera migraciones, no crea tablas.</p>
+
+<div class="meta-row">
+  <span class="chip">Contrato de datos, nunca implementación</span>
+  <span class="chip">Sin SQL · sin Prisma · sin Drizzle · sin migraciones</span>
+  <span class="chip">Cero tablas/columnas/relaciones inventadas</span>
+</div>
+
+<h2 id="proposito">Propósito</h2>
+<p>Ocho handbooks ya especifican, cada uno desde su propio ángulo, un dato que alguien tendrá que persistir: un Perfil, un Diagnóstico, un EventoProgresión, una Medición. Ninguno responde, de forma unificada, las preguntas que preceden a cualquier esquema físico: <strong>¿qué tablas existen en total, quién es dueño de cada una, qué columna exacta tiene, qué la restringe, qué índice la sirve, y quién tiene prohibido tocarla?</strong> Este documento responde esas preguntas una sola vez, para todo el ecosistema, consolidando — nunca inventando — lo que los ocho documentos ya implican.</p>
+
+<h2 id="alcance">Alcance</h2>
+<ul>
+  <li>El mapa completo de tablas ya implícitas en los handbooks de dominio, motor y BCS — con su bounded context dueño y su aggregate root.</li>
+  <li>Cada columna ya especificada de cada tabla — tipo lógico, nullable, unidad, default, origen y consumidores.</li>
+  <li>Las relaciones (FK lógicas), índices, constraints y políticas de RLS ya implícitos o ya reales.</li>
+  <li>Cómo se persisten los eventos de dominio (<code>progression_events</code>), y qué garantiza su replay.</li>
+  <li>Consistencia, evolución de esquema, performance y seguridad de datos — lo ya decidido y lo honestamente pendiente.</li>
+  <li>La documentación explícita de toda discrepancia entre handbooks que afecte al modelo persistente, vía DB-ADR (15) — sin resolverla inventando una forma nueva no autorizada por ningún documento superior.</li>
+</ul>
+
+<h2 id="no-alcance">No alcance</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Fuera de este documento</th><th>Dónde vive / por qué</th></tr></thead>
+<tbody>
+<tr><td>Cualquier línea de SQL (<code>CREATE TABLE</code>, <code>ALTER TABLE</code>, DDL de cualquier tipo)</td><td>No pertenece a ningún handbook de especificación — el esquema físico real vive en <code>supabase/schema.sql</code> y las migraciones del repositorio</td></tr>
+<tr><td>Prisma, Drizzle, o cualquier ORM/query builder</td><td>Decisión de implementación, fuera del alcance de una especificación de persistencia</td></tr>
+<tr><td>Migraciones nuevas, backfills concretos</td><td>Implementation Handbook (05) — este documento formaliza el modelo que esas migraciones ya aplican o aplicarán, no escribe una migración nueva</td></tr>
+<tr><td>Tablas, columnas o relaciones nuevas no implícitas en los ocho handbooks</td><td>No se inventan aquí — si un handbook de dominio necesita una entidad nueva, se especifica allá primero</td></tr>
+<tr><td>La lógica de decisión completa de Recovery Engine</td><td>No existe un Recovery Engine Handbook propio (Architecture Review, AR-006) — este documento formaliza únicamente el contrato mínimo ya aceptado (IMP-ADR-01/02) y confirma que Recovery no tiene tabla propia (Domain Model Handbook, 13; DM-ADR-04)</td></tr>
+<tr><td>Diseño visual, componentes, tokens de marca</td><td>BCS Design System Handbook — sin relación con persistencia; este documento confirma explícitamente su ausencia de huella en el modelo de datos (02)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="jerarquia">Jerarquía documental</h2>
+<p>Este documento respeta, sin excepción, los ocho handbooks de BREY que sí tienen huella en el modelo persistente: Architecture Handbook, Domain Model Handbook, Engineering Handbook, API Contract Handbook, Motor BPS Handbook, Progression Engine Handbook, BCS Handbook y BCS Design System Handbook (sin huella de datos propia, ver 02). Recovery Engine Handbook no existe todavía (AR-006) — se cita como ausencia, no se completa por inferencia. Donde dos de ellos entran en conflicto sobre un mismo hecho de persistencia, la precedencia es:</p>
+
+<div class="diagram">
+<div class="diagram-label">Precedencia documental — de mayor a menor autoridad</div>
+<pre class="mermaid">
+graph TD
+  AR["Architecture Review v1.0<br/>(revisión crítica — sus hallazgos gobiernan, AR-016, AR-017, AR-018)"] --> IMP["Implementation Handbook<br/>(arbitra vía IMP-ADR, fija el orden real de migraciones)"]
+  IMP --> DM["Domain Model Handbook<br/>(entidades, agregados, ownership, persistencia/derivación)"]
+  DM --> RESTO["Resto de handbooks<br/>Architecture Handbook · Engineering Handbook · API Contract Handbook<br/>Motor BPS · Progression Engine · BCS · BCS Design System"]
+  RESTO --> ESTE["Este documento — Database Handbook<br/>consolida el modelo persistente de todos los anteriores"]
+</pre>
+</div>
+
+<p>Este handbook nunca contradice a ninguno de los tres niveles superiores. Donde el Architecture Handbook (10) y el Engineering Handbook (05) ya documentan el esquema real tal como existe, este documento los cita como <strong>evidencia</strong> de que una decisión ya se sostuvo en producción — nunca reescribe ese hecho, lo eleva a especificación formal con su razón explícita. Donde el Domain Model Handbook (13) clasifica una entidad como Persistente, Derivable o Efímera, este documento adopta esa clasificación sin re-decidirla (03). Donde una discrepancia real existe entre documentos (el gap del CHECK de <code>progression_events.tipo</code>, 14→25 valores; la ausencia de columnas ensambladas para las 25 variables del BCS, AR-017), este documento no la resuelve inventando — cita la resolución ya tomada por el nivel más alto que decidió algo al respecto (Implementation Handbook, IMP-ADR-06) o la declara abierta (16).</p>
+
+<h2 id="prioridad-implementacion">Prioridad sobre la implementación</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Regla de prioridad</div>
+  <p>Si un esquema físico futuro contradice lo que este documento especifica, el esquema está equivocado, no este documento. Frente a los ocho handbooks existentes, este documento no tiene autoridad para inventar una tabla, una columna o una relación que ningún documento anterior ya implique — solo para nombrarla, tiparla y formalizarla como especificación única.</p>
+</div>
+<p>Toda ficha, columna, constraint e índice de este documento cita su origen exacto (handbook y módulo). Donde esa razón no existe todavía, la pieza no se documenta como decidida — se documenta como pregunta abierta (16).</p>
+
+<h2 id="como-leer">Cómo leer este documento</h2>
+<p>Se reutiliza el sistema de etiquetas ya establecido por el Domain Model Handbook para el estado de cada tabla:</p>
+<p>
+<span class="tag tag--implementado">implementado</span>
+<span class="tag tag--especificado">especificado</span>
+<span class="tag tag--futuro">futuro</span>
+</p>
+<p>Y el vocabulario propio de este documento — la categoría de persistencia de cada entidad (Domain Model Handbook, 13), y el tipo de constraint que la protege (07):</p>
+<p>
+<span class="persist persist--persistente">persistente</span>
+<span class="persist persist--derivable">derivable</span>
+<span class="persist persist--efimera">efímera</span>
+</p>
+<p>
+<span class="constraint constraint--pk">PK</span>
+<span class="constraint constraint--fk">FK</span>
+<span class="constraint constraint--check">CHECK</span>
+<span class="constraint constraint--unique">UNIQUE</span>
+<span class="constraint constraint--notnull">NOT NULL</span>
+</p>
+
+<div class="pagenav">
+  <div></div>
+  <a class="pagenav__item pagenav__item--next" href="../01-filosofia-persistencia/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">01 · Filosofía de Persistencia →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>00 · Introducción — Exercise Catalog</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="introduccion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 00 · Empezar</p>
+<h1>Introducción</h1>
+<p class="lede">El tercer y último documento de la trilogía del catálogo. Taxonomy definió qué atributos existen; Tagging, cómo se asignan; este define <strong>qué es una entrada oficial del catálogo</strong> — y cuándo deja de serlo.</p>
+
+<div class="meta-row">
+  <span class="chip">Contrato del catálogo</span>
+  <span class="chip">Cero fichas</span>
+  <span class="chip">Cero reglas nuevas</span>
+</div>
+
+<h2 id="que-es">Qué es el catálogo</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Definición</div>
+  <p>El <strong>catálogo de ejercicios</strong> es el conjunto de entradas que el ecosistema reconoce como ejercicios oficiales: aquellas que tienen identidad estable, clasificación completa según la taxonomía, y que han superado el proceso de etiquetado y sus validaciones. Es la <strong>instancia</strong> de la ontología de la Knowledge Base — no la ontología.</p>
+</div>
+<p>Deriva directamente del Architecture Handbook 04: "El catálogo real de ejercicios es una instancia de esta ontología — no la ontología". Y del principio P14, que lo sitúa en un lugar muy concreto de la arquitectura: "<strong>El catálogo es la frontera de autoridad humana</strong>".</p>
+
+<h2 id="que-no-es">Qué NO es el catálogo</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>No es…</th><th>Porque…</th></tr></thead>
+<tbody>
+<tr><td>Un manual de técnica</td><td>La ficha educativa es contenido humano→humano; ningún motor la parsea, y este handbook no la evalúa</td></tr>
+<tr><td>Un programa de entrenamiento</td><td>Las plantillas (Bloque/Mesociclo/Microciclo) son del Training Framework — un catálogo no prescribe</td></tr>
+<tr><td>Una lista de ejercicios</td><td>Este documento define el <strong>contrato</strong>; las entradas concretas son trabajo editorial posterior</td></tr>
+<tr><td>La ontología</td><td>Los vocabularios cerrados los publica el Architecture Handbook 04 y los consolida Taxonomy</td></tr>
+<tr><td>El proceso de etiquetado</td><td>Los siete pasos, la jerarquía de reglas y el escalado los define el Tagging Handbook</td></tr>
+<tr><td>Una fuente de decisiones biomecánicas</td><td>Ninguna decisión de este tipo se toma aquí — P14 las reserva a autoridad humana</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Este handbook no contiene un solo ejercicio</div>
+  <p>Ni <em>pull up</em>, ni <em>push up</em>, ni <em>dip</em>, ni <em>squat</em>. Escribir aquí una ficha —aunque fuera solo como ejemplo— la convertiría en canónica por estar en el documento titulado "Source of Truth del catálogo", sin que ninguna autoridad de contenido la hubiera aprobado. El contrato primero; las entradas, después y por quien corresponda.</p>
+</div>
+
+<h2 id="trilogia">Posición en la trilogía</h2>
+<div class="diagram">
+<div class="diagram-label">Tres preguntas distintas, tres documentos, una sola cadena de dependencia</div>
+<pre class="mermaid">
+graph LR
+  AH["Architecture Handbook 04<br/>Knowledge Base<br/><i>fuente primaria</i>"] --> TX["Exercise Taxonomy<br/><b>¿QUÉ atributos existen?</b>"]
+  TX --> TG["Exercise Tagging<br/><b>¿CÓMO se asignan?</b>"]
+  TG --> CT["Exercise Catalog<br/><b>¿QUÉ es una entrada oficial?</b>"]
+  CT --> USO["Consumidores:<br/>Generator · Progression<br/>Recovery · Player"]
+</pre>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Handbook</th><th>Responde</th><th>Este handbook lo usa para…</th></tr></thead>
+<tbody>
+<tr><td>Exercise Taxonomy</td><td>Qué atributos existen y con qué estatuto</td><td>Enumerar los 21 atributos del modelo (módulo <a href="../02-modelo-exercise/index.html">02</a>)</td></tr>
+<tr><td>Exercise Tagging</td><td>Cómo se asignan y qué los invalida</td><td>Definir las condiciones de existencia y la integridad (módulos <a href="../01-filosofia/index.html">01</a>, <a href="../10-integridad/index.html">10</a>)</td></tr>
+<tr><td>Architecture Handbook 03/04</td><td>La ontología y la jerarquía de programa</td><td>Delegar la clasificación sin redefinirla (módulo <a href="../04-clasificacion/index.html">04</a>)</td></tr>
+<tr><td>Domain Model</td><td>Entidades y máquinas de estado</td><td>Verificar si Exercise tiene ciclo de vida formal (módulo <a href="../11-estados/index.html">11</a>)</td></tr>
+<tr><td>Implementation Handbook</td><td>Orden de construcción y bloqueantes</td><td>Situar el catálogo en el roadmap real (módulo <a href="../17-roadmap/index.html">17</a>)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="alcance">Alcance y no alcance</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Dentro</th><th>Fuera</th></tr></thead>
+<tbody>
+<tr><td>El modelo completo de Exercise y el estatuto de cada atributo</td><td>Los valores concretos de cualquier ejercicio</td></tr>
+<tr><td>Las condiciones de existencia de una entrada</td><td>El criterio biomecánico para cumplirlas</td></tr>
+<tr><td>Integridad, versionado y mantenimiento del catálogo</td><td>La implementación técnica de su almacenamiento</td></tr>
+<tr><td>El checklist de publicación de una entrada</td><td>Ejecutarlo sobre los 19 ejercicios existentes</td></tr>
+<tr><td>La medición de qué falta para publicar el primer catálogo</td><td>Producir ese catálogo</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="jerarquia">Jerarquía documental</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Este handbook es el último de la cadena</div>
+  <p>Ante discrepancia, <strong>gana siempre la fuente</strong>. El orden vigente es: Architecture Review &gt; Implementation Handbook &gt; Domain Model &gt; Architecture Handbook 04 &gt; resto de handbooks de dominio &gt; Exercise Taxonomy &gt; Exercise Tagging &gt; este documento. Un catálogo que contradijera a su propia ontología no sería una fuente de verdad, sino una cuarta versión del vocabulario compitiendo con las tres anteriores.</p>
+</div>
+
+<h2 id="regla-deuda">Regla de deuda documental</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Regla fundacional, heredada de los dos handbooks anteriores</div>
+  <p>Cuando este handbook debe definir algo que la documentación no respalda, <strong>declara la deuda con el resultado exacto del barrido</strong> en lugar de rellenarla. Los módulos <a href="../03-identidad/index.html">03</a> (alias, sinónimos, estado, versión), <a href="../05-compatibilidades/index.html">05</a> (nueve compatibilidades solicitadas) y <a href="../11-estados/index.html">11</a> (el ciclo de vida completo) son mayoritariamente declaraciones de ausencia — y esa es la información útil que aportan.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../../index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← Portada</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../01-filosofia/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">01 · Filosofía →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>00 · Introducción — Implementation Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="introduccion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 00 · Fundamentos</p>
+<h1>Introducción</h1>
+<p class="lede">Este documento responde exactamente una pregunta: ¿cómo se implementa BREY, paso por paso, sin que nadie tenga que tomar una decisión arquitectónica durante el desarrollo? No especifica dominio, no especifica diseño, no especifica arquitectura técnica — todo eso ya existe. Este documento orquesta.</p>
+
+<div class="meta-row">
+  <span class="chip">Autoridad: handbook &gt; código</span>
+  <span class="chip">Orquesta 6 handbooks — no reescribe ninguno</span>
+  <span class="chip">Sin código, sin TypeScript, sin SQL, sin React, sin Supabase</span>
+</div>
+
+<h2 id="objetivo">Objetivo</h2>
+<p>Que un equipo que nunca ha visto BREY pueda abrir este documento y saber, en cada momento, exactamente qué construir a continuación, en qué orden, con qué está bloqueado, y cuándo algo está listo para pasar a la siguiente etapa — sin tener que decidir nada que ya esté resuelto en otro documento.</p>
+
+<h2 id="documentos-de-entrada">Los siete documentos que este handbook asume</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Documento</th><th>Qué aporta a este handbook</th></tr></thead>
+<tbody>
+<tr><td>Architecture Handbook</td><td>Principios, jerarquía de entrenamiento, ontología, contratos de datos base</td></tr>
+<tr><td>Motor BPS Handbook</td><td>Especificación completa del orquestador</td></tr>
+<tr><td>Progression Engine Handbook</td><td>Especificación completa del motor de progresión</td></tr>
+<tr><td>Body Composition System Handbook</td><td>Especificación completa de dominio del BCS</td></tr>
+<tr><td>BCS Design System Handbook</td><td>Especificación visual completa del BCS</td></tr>
+<tr><td>Engineering Handbook</td><td>Cómo se construye técnicamente cualquier pieza — capas, base de datos, contratos, estándares</td></tr>
+<tr><td>Architecture Review v1.0</td><td>Los hallazgos que condicionan el orden real de construcción — no es uno de los "seis handbooks", pero sus bloqueantes (🔴/🟠) gobiernan directamente el Roadmap (03) y el Orden de construcción (04) de este documento</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="callout callout--nota">
+  <div class="callout__label">Corrección Sprint 0 — documentos construidos después de este handbook</div>
+  <p>API Contract Handbook, Database Handbook y Testing Handbook se construyeron después de este documento, citándolo fielmente — no son entrada de este handbook, sino capas de detalle adicionales sobre las superficies de API, persistencia y verificación respectivamente. Se referencian aquí para que un lector de este documento sepa que existen: el orden de migraciones de 05 es la fuente que Database Handbook formaliza; los pasos de 06-09 son la fuente que API Contract Handbook y Testing Handbook formalizan. Ninguno de los tres contradice el orden ya fijado aquí.</p>
+</div>
+
+<h2 id="alcance">Alcance</h2>
+<ul>
+  <li>El orden exacto de construcción, migraciones, despliegue, integración, testing y validación.</li>
+  <li>Qué puede construirse en paralelo y qué no, y por qué (citando el documento de dominio que lo determina).</li>
+  <li>El estado de cada pieza del sistema en un momento dado (12).</li>
+  <li>Los checklists operativos que gobiernan cada Pull Request, Merge y Release (13).</li>
+</ul>
+
+<h2 id="no-alcance">No alcance</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Fuera de este documento</th><th>Dónde vive</th></tr></thead>
+<tbody>
+<tr><td>Qué hace cada motor, qué regla de negocio aplica</td><td>El handbook de dominio correspondiente (Motor BPS, Progression Engine, BCS)</td></tr>
+<tr><td>Cómo se ve una pantalla, qué componente usar</td><td>BCS Design System Handbook</td></tr>
+<tr><td>Qué carpeta, qué patrón de repositorio, qué convención de naming</td><td>Engineering Handbook</td></tr>
+<tr><td>Redefinir cualquier contrato ya especificado en otro handbook</td><td>No ocurre aquí — donde un contrato es ambiguo entre dos handbooks (Architecture Review), este documento arbitra la implementación vía IMP-ADR (14) sin editar los documentos fuente</td></tr>
+<tr><td>Cualquier línea de código, migración SQL, componente React</td><td>No pertenece a ningún handbook de especificación</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="diagrama">Diagrama — este handbook en la familia completa</h2>
+<div class="diagram">
+<div class="diagram-label">Siete documentos de entrada, un documento de orquestación</div>
+<pre class="mermaid">
+graph TD
+  AH["Architecture Handbook"] --> IMP["Implementation Handbook<br/>(este documento)"]
+  MB["Motor BPS Handbook"] --> IMP
+  PE["Progression Engine Handbook"] --> IMP
+  BCS["BCS Handbook"] --> IMP
+  BCSD["BCS Design System Handbook"] --> IMP
+  ENG["Engineering Handbook"] --> IMP
+  REV["Architecture Review v1.0"] -->|"bloqueantes y riesgos"| IMP
+  IMP -->|"produce"| SEC["Secuencia de construcción ejecutable"]
+</pre>
+</div>
+
+<h2 id="como-leer">Cómo leer este documento</h2>
+<p>Se reutiliza el sistema de tres etiquetas del Engineering Handbook para referenciar el estado de cualquier pieza citada de otro documento:</p>
+<p>
+<span class="tag tag--implementado">implementado</span>
+<span class="tag tag--especificado">especificado</span>
+<span class="tag tag--futuro">futuro</span>
+</p>
+<p>Y se introduce un segundo sistema, propio de este documento, para el estado de <em>ejecución</em> de cada pieza de trabajo (12) — distinto del anterior porque mide progreso de construcción, no estado de especificación:</p>
+<p>
+<span class="status status--no-iniciado">no iniciado</span>
+<span class="status status--en-progreso">en progreso</span>
+<span class="status status--bloqueado">bloqueado</span>
+<span class="status status--implementado">implementado</span>
+<span class="status status--verificado">verificado</span>
+</p>
+
+<h2 id="regla-absoluta">Regla absoluta</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Prioridad de este documento</div>
+  <p>Si una implementación futura contradice este handbook, este handbook tiene prioridad. Esto no invalida a los seis documentos de dominio/diseño/ingeniería — este handbook nunca decide <em>qué</em> construir, solo <em>en qué orden</em> y <em>bajo qué condición de entrada/salida</em>. Cuando este documento y un handbook de dominio parecen contradecirse, la lectura correcta es que este documento está secuenciando, no redefiniendo.</p>
+  <p><strong>Corrección Sprint 0 — rango frente a Architecture Review y Domain Model Handbook:</strong> este documento se subordina a la Architecture Review v1.0 (sus hallazgos 🔴/🟠 condicionan el Roadmap y el Orden de construcción, arriba) y precede al Domain Model Handbook, escrito después — frente a este último, el mismo principio aplica en ambas direcciones: el Domain Model Handbook gana en su propio terreno (lenguaje, entidades, ownership), este documento gana en el suyo (orden y condición de entrada/salida).</p>
+</div>
+
+<div class="pagenav">
+  <div></div>
+  <a class="pagenav__item pagenav__item--next" href="../01-estrategia-general/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">01 · Estrategia general →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

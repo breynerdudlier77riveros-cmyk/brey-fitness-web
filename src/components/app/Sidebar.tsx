@@ -14,6 +14,7 @@ import {
   Menu,
   ArrowLeft,
   ArrowRight,
+  Scale,
 } from "@/components/brand/icons";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/brand/Drawer";
 import { signOut } from "@/lib/supabase/actions";
@@ -41,6 +42,7 @@ const navItems = [
   { href: "/app/entrenamientos", label: "Entrenamientos", icon: Calendar },
   { href: "/app/progreso", label: "Progreso", icon: TrendingUp },
   { href: "/app/biblioteca", label: "Biblioteca", icon: Book },
+  { href: "/app/composicion-corporal", label: "Composición Corporal", icon: Scale },
   { href: "/app/perfil", label: "Perfil", icon: UserIcon },
   { href: "/app/configuracion", label: "Configuración", icon: Settings },
 ] as const;
@@ -94,7 +96,7 @@ export default function Sidebar({ nombre, email, sistemaActual }: Props) {
     <>
       {/* Desktop */}
       <aside
-        className={`hidden md:flex md:flex-shrink-0 md:flex-col md:sticky md:top-0 md:h-screen border-r border-white/[0.06] bg-slate-950/60 px-3 py-6 transition-[width] duration-200 ${
+        className={`print:hidden hidden md:flex md:flex-shrink-0 md:flex-col md:sticky md:top-0 md:h-screen border-r border-white/[0.06] bg-slate-950/60 px-3 py-6 transition-[width] duration-200 ${
           collapsed ? "md:w-[4.5rem]" : "md:w-60"
         }`}
       >
@@ -137,7 +139,7 @@ export default function Sidebar({ nombre, email, sistemaActual }: Props) {
       </aside>
 
       {/* Mobile top bar */}
-      <header className="md:hidden sticky top-0 z-40 flex items-center justify-between px-4 h-14 border-b border-white/[0.06] bg-slate-950/90 backdrop-blur-xl">
+      <header className="print:hidden md:hidden sticky top-0 z-40 flex items-center justify-between px-4 h-14 border-b border-white/[0.06] bg-slate-950/90 backdrop-blur-xl">
         <Link href="/app">
           <BrandMark />
         </Link>

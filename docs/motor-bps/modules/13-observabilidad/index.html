@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>13 · Observabilidad — Motor BPS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="observabilidad" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 13 · Sistema</p>
+<h1>Observabilidad</h1>
+<p class="lede">Qué produce el Motor para que humanos lo entiendan: logs estructurados, métricas, eventos, errores, warnings y las auditorías ejecutables. Regla base: los eventos de dominio (04) son para el usuario y la auditoría; los logs son para ingeniería — nunca se mezclan.</p>
+
+<h2 id="logs">Logs estructurados</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Log</th><th>Cuándo</th><th>Campos mínimos</th><th>Nivel</th></tr></thead>
+<tbody>
+<tr><td><code>ciclo.inicio</code> / <code>ciclo.fin</code></td><td>Cada ejecución del ciclo</td><td>usuario, fechaCiclo, versión, estadoInicial/Final, duraciónMs, resultado</td><td>info</td></tr>
+<tr><td><code>ciclo.sin_efectos</code></td><td>Guard de estado no generativo (BPS-013)</td><td>usuario, estado</td><td>debug</td></tr>
+<tr><td><code>activacion.procesada</code> / <code>activacion.duplicada</code></td><td>Handler de compra</td><td>transaccionId, camino (T3/T4/T5), idempotente:sí/no</td><td>info</td></tr>
+<tr><td><code>gate.fallado</code></td><td>T7 o intento pre-gate</td><td>gate, faltantes</td><td>info</td></tr>
+<tr><td><code>anomalia.detectada</code></td><td>Estado imposible, entrada inválida de productor confiable, replay divergente</td><td>Diagnóstico completo</td><td><strong>error — alerta</strong></td></tr>
+<tr><td><code>catalogo.insuficiente</code></td><td>Propagación del Generator</td><td>Detalle del vacío</td><td>warn — alimenta cola editorial</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="metricas">Métricas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Métrica</th><th>Tipo</th><th>Qué revela</th></tr></thead>
+<tbody>
+<tr><td>Distribución de usuarios por estado FSM</td><td>gauge</td><td>Salud del funnel: cuánta gente atascada en <code>pendiente_perfil</code> = fricción de gate; en <code>diagnosticado</code> = fricción de compra</td></tr>
+<tr><td>Activaciones (por camino T3/T4/T5)</td><td>contador</td><td>Qué proporción compra sin diagnosticarse (R-M2 en acción)</td></tr>
+<tr><td>Descargas reactivas / programadas por Bloque</td><td>contador</td><td>Reactivas altas en un Bloque = plantilla sobre-prescribe → cola editorial (regla del marco)</td></tr>
+<tr><td>Decisiones macro (avanza/sostiene/retrocede)</td><td>contador</td><td>Umbrales mal calibrados se ven aquí (todo el mundo "sostiene" = umbral de avance muy alto)</td></tr>
+<tr><td><code>CATALOGO_INSUFICIENTE</code> por (patrón, rol, track, nivel)</td><td>contador etiquetado</td><td>El mapa exacto de los vacíos de contenido — la cola editorial priorizada</td></tr>
+<tr><td>Auto-pausas por inactividad (BPS-025)</td><td>contador</td><td>Señal de retención del producto — no del Motor</td></tr>
+<tr><td>Duración del ciclo</td><td>histograma</td><td>Regresiones de rendimiento del pipeline</td></tr>
+<tr><td>Anomalías</td><td>contador</td><td><strong>Objetivo: cero.</strong> Cada una es un bug con diagnóstico adjunto</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="warnings">Warnings definidos</h2>
+<ul>
+  <li><code>W-1</code> — descarga reactiva 2+ veces en el mismo Bloque (plantilla sospechosa).</li>
+  <li><code>W-2</code> — usuario con 3+ ciclos consecutivos en <code>sostiene</code> por <code>VENTANA_INSUFICIENTE</code> (registra poco pero no lo suficiente para auto-pausa — zona gris de señal).</li>
+  <li><code>W-3</code> — gate roto por edición de Perfil (T7) más de una vez por usuario (fricción o confusión de UI).</li>
+  <li><code>W-4</code> — compra en <code>pendiente_diagnostico</code> por más de 7 días (compró y no puede empezar — intervención de producto).</li>
+</ul>
+
+<h2 id="auditorias">Auditorías ejecutables</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Auditoría</th><th>Verifica</th><th>Frecuencia</th></tr></thead>
+<tbody>
+<tr><td><strong>Replay total</strong></td><td>IN-5: recomputarEstado(eventos) == puntero, para todo usuario. Divergencia = anomalía + reconstrucción</td><td>Programada + tras cada despliegue del Motor</td></tr>
+<tr><td><strong>Completitud de eventos</strong></td><td>IN-4: cada transición tiene exactamente un evento; cada generación tiene su <code>semana_generada</code> con versión (BPS-023)</td><td>Programada</td></tr>
+<tr><td><strong>Pureza de frontera</strong></td><td>El código del Motor no contiene umbrales fisiológicos, nombres de ejercicios ni lecturas de reloj ad-hoc (BPS-019/021/022) — auditable por inspección estática</td><td>En cada revisión de código</td></tr>
+<tr><td><strong>Determinismo de ciclo</strong></td><td>Re-ejecutar un ciclo histórico con sus entradas registradas reproduce sus decisiones</td><td>Muestral, programada</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="plantillas-razon">Plantillas de razón (P2 operacionalizado)</h2>
+<p>Cada tipo de evento tiene una plantilla de razón fija con huecos de datos — no prosa libre: <code>"Adherencia {a} y cumplimiento {c} sobre umbrales {ua}/{uc}"</code>, <code>"Índice de fatiga {i}: RPE {t}, adherencia {d}, duración {v}"</code>, <code>"Faltan: {campos}"</code>. Consistencia, traducibilidad y parseabilidad para métricas — sin sacrificar legibilidad humana.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../12-integracion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 12 · Integración</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../14-riesgos/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">14 · Riesgos →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10 · Links Públicos — BCS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="links-publicos" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 10 · Acceso y datos sensibles</p>
+<h1>Links Públicos</h1>
+<p class="lede">El diseño técnico del token de acceso: cómo se genera, qué expone exactamente la vista pública, y qué no expone jamás.</p>
+
+<h2 id="formato">Formato del enlace</h2>
+<p>Ejemplo de forma: <code>brey.fit/reportes/8Gd72hsQ</code> — un token opaco al final de una ruta fija, sin ningún segmento que identifique al cliente por nombre o id secuencial.</p>
+
+<h2 id="token">Diseño del token</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Propiedad</th><th>Especificación</th></tr></thead>
+<tbody>
+<tr><td>Generación</td><td>Aleatorio criptográficamente seguro — nunca derivado del <code>clienteId</code>, del nombre, ni de la fecha</td></tr>
+<tr><td>Alfabeto</td><td>Alfanumérico mixto (mayúsculas, minúsculas, dígitos)</td></tr>
+<tr><td>Longitud mínima</td><td>21 caracteres — <span class="prov prov--producto">🟠 decisión de producto</span>, mayor que el ejemplo ilustrativo de 8 caracteres del encargo original, elegida porque el modelo de seguridad de este enlace es enteramente "difícil de adivinar" (no hay contraseña ni rate-limiting garantizado en este documento, 08); un token corto sería vulnerable a enumeración por fuerza bruta a escala. Decisión formal en BCS-ADR-02 (16).</td></tr>
+<tr><td>Unicidad</td><td>Un token nunca se reutiliza, ni siquiera tras revocarse — un token revocado queda permanentemente inválido (IN-D4, 02)</td></tr>
+<tr><td>Indexabilidad</td><td>La ruta pública incluye <code>noindex</code> para motores de búsqueda — no aparece en resultados de Google ni similares</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="que-expone">Qué expone la vista pública</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Expone</th><th>No expone</th></tr></thead>
+<tbody>
+<tr><td>El Reporte completo (04) del Cliente dueño del token</td><td>Datos de contacto del cliente (teléfono, email, dirección) — el Reporte no los incluye por diseño</td></tr>
+<tr><td>Nombre del cliente (para confirmar "este es mi reporte")</td><td>El <code>clienteId</code> interno, ni ningún identificador de base de datos</td></tr>
+<tr><td>Historial completo de Mediciones vigentes de ese Cliente únicamente</td><td>Cualquier dato de cualquier otro Cliente del entrenador</td></tr>
+<tr><td>Fotografías asociadas a las Mediciones de ese Cliente (si existen)</td><td>Ningún control de edición, eliminación, ni generación/revocación de enlaces (08, IN-A1)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="expiracion">Sobre la expiración automática</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">No incluida en v1</div>
+  <p>Los enlaces no expiran automáticamente por tiempo — permanecen activos hasta revocación manual (09). Se consideró expiración automática (ej. 90 días) pero se descartó para v1 porque el caso de uso principal es que el cliente vuelva a consultar su progreso meses después con el mismo enlace, sin pedirle al entrenador uno nuevo cada pocos meses. Queda como candidato de configuración opcional en 14/17.</p>
+</div>
+
+<h2 id="casos-limite">Casos límite</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Comportamiento</th></tr></thead>
+<tbody>
+<tr><td>Token revocado (09) accedido después de la revocación</td><td>Página de "enlace no disponible" — nunca un error genérico de servidor, siempre un mensaje explícito y sin revelar si el token alguna vez existió o no (08, mismo tratamiento que token inexistente para no filtrar información)</td></tr>
+<tr><td>Cliente eliminado permanentemente (UC-04, 02) con un enlace aún activo</td><td>El enlace deja de resolver — se trata igual que un token inválido; eliminar un Cliente implica revocar en cascada cualquier EnlacePúblico asociado (16, invariante de integridad referencial)</td></tr>
+<tr><td>Cliente archivado (no eliminado) con enlace activo</td><td>El enlace sigue funcionando normalmente — archivar no es eliminar (02, 09)</td></tr>
+<tr><td>Alguien comparte la URL pública a un tercero no autorizado</td><td>Fuera del control del sistema por diseño — el modelo de seguridad de este enlace es equivalente a compartir un PDF: quien tiene la URL, tiene acceso de lectura. Se documenta como riesgo aceptado en 11/17, no como bug.</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="contraejemplos">Contraejemplos</h2>
+<ul>
+  <li>El token NUNCA se construye a partir del <code>clienteId</code>, nombre, ni ninguna secuencia predecible.</li>
+  <li>La vista pública NUNCA muestra un enlace o botón hacia el panel del entrenador ni hacia ningún otro Cliente.</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../09-comparticion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 09 · Compartición</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../11-privacidad/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">11 · Privacidad →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

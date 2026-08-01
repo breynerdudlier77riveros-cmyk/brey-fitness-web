@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>09 · Capacidades Físicas — Exercise Taxonomy Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="capacidades-fisicas" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 09 · Ejes de clasificación</p>
+<h1>Capacidades Físicas</h1>
+<p class="lede">El eje que responde "¿qué debe poder hacer ya el usuario para que este ejercicio sea elegible?". Y una advertencia terminológica de entrada: lo que BREY llama <em>capacidad</em> no es lo que la literatura llama <em>capacidad física</em>.</p>
+
+<h2 id="advertencia">Advertencia terminológica</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">"Capacidad" en BREY ≠ "capacidad física" en fisiología del entrenamiento</div>
+  <p>En la literatura, <em>capacidad física</em> designa una cualidad entrenable: fuerza, resistencia, velocidad, flexibilidad, potencia. En BREY, <strong>capacidad</strong> tiene un significado distinto y mucho más estrecho: un <strong>prerequisito demostrable</strong> que habilita la elegibilidad de un ejercicio concreto. Son conceptos diferentes con nombres casi idénticos.</p>
+  <p>El barrido documental no encuentra <strong>ninguna</strong> taxonomía de cualidades físicas en el ecosistema. Este módulo documenta la acepción que sí existe y registra la otra como deuda (<a href="../16-preguntas-abiertas/index.html">TX-Q21</a>). Colisión registrada en <a href="../15-adr/index.html">TX-ADR-05</a>.</p>
+</div>
+
+<h2 id="definicion">Definición oficial de Capacidad</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Capacidad</div>
+  <p>"Un <strong>prerequisito demostrable</strong> para que un ejercicio sea elegible, <strong>independiente del Nivel nominal</strong> — el mecanismo formal de los 'gates' de calistenia (ej. <code>muscle-up</code> exige capacidad <code>dominada-estricta-x8</code>)."</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Campo</th><th>Contenido</th></tr></thead>
+<tbody>
+<tr><td><code>slug</code></td><td>Identificador estable de la capacidad</td></tr>
+<tr><td><code>descripcion</code></td><td>Qué es la capacidad</td></tr>
+<tr><td><code>comoSeDemuestra</code></td><td>El criterio observable que la acredita</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="dos-lados">Los dos lados de la relación</h2>
+<div class="diagram">
+<div class="diagram-label">La capacidad vive en el ejercicio como requisito y en el usuario como logro</div>
+<pre class="mermaid">
+graph LR
+  subgraph CAT["CATÁLOGO — no conoce usuarios"]
+    EJ["Ejercicio"] -->|"declara"| CR["capacidadesRequeridas[]"]
+    CR --> CAP["Capacidad<br/>{slug, descripcion, comoSeDemuestra}"]
+  end
+  subgraph USR["USUARIO — historial"]
+    EV["Eventos (P3)"] -->|"acumula"| CD["capacidades demostradas"]
+  end
+  CD -->|"se pasa como VALOR<br/>a la resolución"| RES["resolverEjercicioParaSlot"]
+  CR --> RES
+  RES --> OK["elegible / no elegible"]
+</pre>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Lado</th><th>Qué almacena</th><th>Dueño</th></tr></thead>
+<tbody>
+<tr><td>Ejercicio</td><td><code>capacidadesRequeridas[]</code> — atributo <span class="persist persist--persistente">opcional</span>, hoy <span class="tag tag--futuro">falta</span> en el catálogo</td><td>Catálogo (P14)</td></tr>
+<tr><td>Usuario</td><td>Capacidades demostradas, "registradas como eventos (P3)"</td><td>Historial del usuario</td></tr>
+</tbody>
+</table>
+</div>
+<p>Esta separación es la que permite que la Knowledge Base no conozca usuarios: recibe la lista de capacidades cumplidas como un <strong>valor de entrada</strong>, nunca consulta un historial.</p>
+
+<h2 id="alcance-v1">Alcance en v1</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Vocabulario existente, uso restringido</div>
+  <p>"En v1 el vocabulario existe pero <strong>solo el Sistema de Calistenia lo usa</strong> — gym progresa por carga, no por gates." Es una decisión de producto explícita, no una limitación técnica.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Sistema</th><th>Usa capacidades como gate</th><th>Mecanismo de progresión</th></tr></thead>
+<tbody>
+<tr><td>Calistenia</td><td>Sí</td><td>Gates de capacidad + cadena de eslabones</td></tr>
+<tr><td>Hipertrofia, Fuerza, Híbrido</td><td>No en v1</td><td>Progresión por carga externa (PE-001)</td></tr>
+<tr><td>Elite</td><td>N/A</td><td>Coaching 1:1 — no entra al pipeline de generación</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="vs-nivel">Capacidad vs. Nivel — dos gates distintos</h2>
+<p class="matrix-note">Ambos restringen elegibilidad, pero son independientes: la capacidad es "independiente del Nivel nominal" por definición.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th></th><th>Nivel</th><th>Capacidad</th></tr></thead>
+<tbody>
+<tr><td>Qué expresa</td><td>Dificultad general del ejercicio</td><td>Un prerequisito concreto y demostrable</td></tr>
+<tr><td>Vocabulario</td><td><code>principiante</code>·<code>intermedio</code>·<code>avanzado</code></td><td>Abierto — cada capacidad tiene su slug</td></tr>
+<tr><td>Cómo se adquiere</td><td>Lo asigna el Diagnóstico; lo muta el Progression Engine</td><td>Se demuestra y queda registrada como evento</td></tr>
+<tr><td>Granularidad</td><td>Del usuario, global</td><td>Por habilidad específica</td></tr>
+<tr><td>Estado en catálogo</td><td><span class="tag tag--implementado">existe</span></td><td><span class="tag tag--futuro">falta</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Tres significados de "nivel" conviviendo</div>
+  <p>El ecosistema usa "nivel" para tres cosas distintas: (1) <code>Exercise.nivel</code> — dificultad del ejercicio; (2) <strong>Nivel</strong> (capa 3 del Training Framework) — el punto de progresión del usuario, que vive en <code>profiles.nivel_actual</code>; (3) <code>nivel_experiencia</code> — autopercibido, que P12 prohíbe usar algorítmicamente. La confusión entre (2) y (3) ya está declarada como prohibida por el Training Framework; la relación entre (1) y (2) — qué niveles de ejercicio admite un usuario de Nivel dado — <strong>no está especificada por ninguna fuente</strong>. Ver <a href="../16-preguntas-abiertas/index.html">TX-Q22</a> y <a href="../15-adr/index.html">TX-ADR-06</a>.</p>
+</div>
+
+<h2 id="expiracion">Expiración de capacidades</h2>
+<p>La fuente deja abierta explícitamente una pregunta que afecta a este eje: "¿Las capacidades demostradas expiran (ej. tras 6 meses sin entrenar)? Propuesta: sí, con re-validación ligera — sin decidir, Roadmap H3". Este handbook la traslada sin resolverla.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../08-equipamiento/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 08 · Equipamiento</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../10-training-framework/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">10 · Training Framework →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

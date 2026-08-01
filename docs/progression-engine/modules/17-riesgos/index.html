@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>17 · Riesgos — Progression Engine Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="riesgos" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 17 · Gobernanza</p>
+<h1>Riesgos</h1>
+<p class="lede">Lo que puede salir mal en este diseño, con probabilidad, impacto y mitigación — incluyendo los riesgos que la autoauditoría de este mismo handbook detectó (20 de este documento).</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr><th>Riesgo</th><th>Impacto</th><th>Mitigación</th></tr></thead>
+<tbody>
+<tr><td><strong>Deload preventivo (PE-035) resulta contraproducente en datos reales</strong></td><td>Alto — es el único mecanismo 🔴 del catálogo, afecta directamente adherencia y confianza del usuario</td><td>Marcado no vinculante desde el diseño (requiere confirmación); instrumentado explícitamente en 14 para validar/refutar antes de escalarlo</td></tr>
+<tr><td><strong>Umbrales de tolerancia macro (PE-014, "máximo 1 sostiene") sin calibrar contra uso real</strong></td><td>Medio — puede producir avances de Mesociclo demasiado permisivos o demasiado estrictos según el perfil de usuario real</td><td>Documentado como 🟠 explícito, no oculto tras apariencia de regla validada; candidato de calibración post-lanzamiento (18)</td></tr>
+<tr><td><strong>CHECK constraint de <code>progression_events</code> del Architecture Handbook no cubre los 9 tipos de evento nuevos de este documento</strong></td><td>Alto — bloquea implementación literal hasta extenderse; ya existía una brecha previa por el Motor BPS Handbook, esta la amplía</td><td>Documentado explícitamente en 15; extensión aditiva del CHECK es prerequisito de implementación, no ambigüedad de diseño</td></tr>
+<tr><td><strong>Recovery Engine Handbook aún no existe</strong></td><td>Medio — este documento depende de un contrato (Veredicto de Recovery) cuya especificación completa vive en un handbook futuro</td><td>El contrato mínimo usado aquí ({procede, tipo, razon}) es estable y ya usado por el Motor BPS Handbook — el riesgo es de completitud narrativa, no de incompatibilidad de contrato</td></tr>
+<tr><td><strong>Sistemas de esfuerzo mixtos (RPE y RIR en el mismo Slot) no soportados</strong></td><td>Bajo — limita flexibilidad de programación en v1, no genera decisiones incorrectas</td><td>Exclusión mutua documentada como decisión deliberada (PE-ADR-05), no como omisión; registrado como extensión futura (18/19)</td></tr>
+<tr><td><strong>Interpretación ambigua de "más conservador" en el desempate de nivel 5 (05)</strong></td><td>Medio — sin una definición operacional exacta, dos implementaciones podrían desempatar distinto ante el mismo caso</td><td>Requiere que la implementación defina "conservador" por variable (ej. menor incremento absoluto) antes de codificar — señalado como pregunta abierta (19)</td></tr>
+<tr><td><strong>Doble contabilización entre PE-004 (series por volumen) y PE-010 (techo de volumen) si se implementan como funciones independientes sin el orden documentado</strong></td><td>Medio — riesgo de implementación, no de diseño; el orden ya está especificado (07) pero es fácil de invertir accidentalmente</td><td>Matriz Regla→Pipeline (06) y ejemplos explícitos en 07 dejan el orden trazable; se recomienda test de regresión específico para este par</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="riesgos-transversales">Riesgos transversales heredados</h2>
+<p>Los riesgos ya documentados en el Architecture Handbook (13) y el Motor BPS Handbook (14) que afectan a este motor por herencia (ej. el propio gap de CHECK constraint original) no se duplican aquí en detalle — se citan por referencia cruzada donde corresponde (15, 16).</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../16-adr/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 16 · ADR</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../18-roadmap/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">18 · Roadmap →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

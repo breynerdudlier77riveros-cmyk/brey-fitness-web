@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>11 · Sistema de gráficos — BCS Design System Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="sistema-graficos" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 11 · Datos y visualización</p>
+<h1>Sistema de gráficos</h1>
+<p class="lede">Seis tipos de gráfico evaluados — solo tres entran en v1. Los otros tres se descartan con razón explícita, no por omisión.</p>
+
+<h2 id="que-usar">Qué usar en v1</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tipo</th><th>Cuándo usarlo</th></tr></thead>
+<tbody>
+<tr><td><strong>Línea</strong></td><td>Tendencia de una sola variable en el tiempo — el tipo dominante del sistema (09, mayoría de métricas)</td></tr>
+<tr><td><strong>Área apilada</strong></td><td>Exclusivamente para Agua corporal (09, VIZ-04), donde intracelular + extracelular componen visualmente el total</td></tr>
+<tr><td><strong>Barras horizontales de rango</strong></td><td>El Sistema de barras (10) — posición dentro de un rango de referencia citado</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="que-no-usar">Qué NO usar en v1</h2>
+<p>Decisión formal de excluir Radar y Scatter en BCSD-ADR-04 (20).</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tipo</th><th>Por qué se descarta</th></tr></thead>
+<tbody>
+<tr><td><strong>Radar</strong></td><td>Comprimir múltiples variables de escalas distintas (kg, %, índices adimensionales) en un mismo radar normalizado implica una decisión de ponderación entre ellas que este sistema no tiene base para tomar — crearía una impresión visual de "balance general" sin fundamento (BCS Handbook, 06). Candidato de v2 si se define una base rigurosa (19).</td></tr>
+<tr><td><strong>Columnas verticales</strong></td><td>Redundante con Línea para series temporales de una variable — Línea comunica tendencia con más claridad en el espacio angosto de una Metric Card. Columnas sí se usan puntualmente en Comparación (12) para contrastar exactamente 2 fechas lado a lado, no como tipo general.</td></tr>
+<tr><td><strong>Scatter (dispersión)</strong></td><td>Sugiere visualmente una correlación entre dos variables (ej. grasa visceral vs. IMC) que el BCS no tiene autoridad para afirmar — sería fabricar una relación estadística no validada, violando la misma regla que prohíbe inventar rangos clínicos (BCS Handbook, 00, 06).</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="reglas-comunes">Reglas comunes a todos los gráficos</h2>
+<ul>
+  <li>Ningún gráfico interpola entre dos puntos separados por un hueco de tiempo grande como si el dato fuera continuo (BCS Handbook, 07) — el segmento se dibuja con un patrón visual distinto (línea punteada) en vez de sólido.</li>
+  <li>Todo punto marcado como "valor sospechoso" (BCS Handbook, 03) se renderiza con un marcador distinto (borde de advertencia) sin ocultarse ni corregirse automáticamente.</li>
+  <li>Los ejes siempre muestran unidad — nunca un número sin contexto (04, 01 Claridad).</li>
+  <li>Ningún gráfico combina dos variables de unidades distintas en el mismo eje Y.</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../10-sistema-barras/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 10 · Sistema de barras</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../12-comparaciones/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">12 · Comparaciones →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

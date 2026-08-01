@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10 · Sistema de barras — BCS Design System Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="sistema-barras" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 10 · Datos y visualización</p>
+<h1>Sistema de barras</h1>
+<p class="lede">Inspirado en el lenguaje visual de analizadores de composición corporal comerciales (InBody, Tanita, Seca) — sin copiar su marca, su tipografía, ni su paleta. La barra de rango de referencia (10) es una extensión nueva sobre el <code>Progress</code> heredado (06).</p>
+
+<h2 id="por-que">Por qué una barra propia y no InBody/Tanita/Seca</h2>
+<p>Esas marcas usan colores, iconografía y proporciones registradas de su propia identidad. El BCS toma prestado el <em>concepto</em> — una barra horizontal con zonas y un marcador de posición actual — porque es el lenguaje visual que los clientes de BREY ya asocian con "reporte de composición corporal profesional", pero lo reconstruye enteramente con los tokens de marca de BREY (05). Decisión formal en BCSD-ADR-03 (20).</p>
+
+<h2 id="anatomia">Anatomía</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Elemento</th><th>Especificación</th></tr></thead>
+<tbody>
+<tr><td>Ancho</td><td>100% del contenedor de la Metric Card (fluido, nunca ancho fijo en px)</td></tr>
+<tr><td>Altura</td><td>10px — más gruesa que el <code>Progress</code> heredado de 2px (06), porque aquí la barra ES el contenido principal, no un indicador secundario</td></tr>
+<tr><td>Radio de esquina</td><td>Completamente redondeada (<code>rounded-full</code>) en los extremos de la pista; el marcador es circular</td></tr>
+<tr><td>Marcador de posición actual</td><td>Círculo de 16px de diámetro, borde blanco de 2px, con sombra sutil — se posiciona sobre la pista según el valor actual normalizado a la escala del rango</td></tr>
+<tr><td>Zonas</td><td>2 a 4 segmentos de color dentro de la pista, según el rango de referencia citado (BCS Handbook, 03/06) — cada zona lleva su propio tono, nunca más de 4 para no perder escaneabilidad (01)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="diagrama">Diagrama conceptual</h2>
+<div class="diagram">
+<div class="diagram-label">Estructura de una barra de rango — ejemplo IMC</div>
+<pre class="mermaid">
+graph LR
+  A["Zona 1<br/>Bajo peso"] --- B["Zona 2<br/>Normal"] --- C["Zona 3<br/>Sobrepeso"] --- D["Zona 4<br/>Obesidad"]
+  M(("●<br/>marcador")) -.->|"posicionado según valor actual"| B
+</pre>
+</div>
+
+<h2 id="escala-ticks">Escala y ticks</h2>
+<p>Los ticks numéricos se muestran únicamente en los límites entre zonas (ej. 18.5, 25, 30 para IMC) — nunca una regla completa con marcas cada unidad, que saturaría visualmente una tarjeta pensada para escaneo rápido (01). El valor actual se muestra como texto grande sobre la barra, no solo como posición del marcador (01, Accesibilidad: la posición sola no es suficiente).</p>
+
+<h2 id="etiquetas-leyenda">Etiquetas y leyenda</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Elemento</th><th>Especificación</th></tr></thead>
+<tbody>
+<tr><td>Etiqueta de zona</td><td>Texto de 10px debajo de cada segmento, solo en desktop/tablet — en mobile se omite y se confía en el color + el valor numérico grande</td></tr>
+<tr><td>Leyenda de procedencia</td><td>Badge de procedencia (BCS Handbook, 00) siempre visible junto al título de la barra, nunca solo en un tooltip</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="colores">Colores</h2>
+<p>Las zonas usan una escala secuencial de temperatura (azul-verde → amarillo → naranja/rojo) SOLO cuando el rango tiene una dirección de riesgo real y razonablemente establecida; cuando no la tiene (SMI, ángulo de fase — 09, VIZ-08/11), no se usa una barra de zonas en absoluto, solo línea de tendencia. Esto evita fabricar una gradiente de "riesgo" para una métrica sin evidencia suficiente (BCS Handbook, 06).</p>
+
+<h2 id="animacion">Animación</h2>
+<p>Al cargar, el marcador se desliza desde el extremo izquierdo hasta su posición real en 500ms ease-out (mismo ritmo que el resto del sitio, 16) — una única vez al montar, nunca se re-anima en cada re-render. Respeta <code>prefers-reduced-motion</code>: sin esa preferencia activa, el marcador aparece directamente en su posición final sin desplazamiento.</p>
+
+<h2 id="contraejemplos">Contraejemplos</h2>
+<ul>
+  <li>La barra NUNCA usa el logotipo o tipografía de InBody/Tanita/Seca.</li>
+  <li>La barra NUNCA se muestra para una métrica sin rango de referencia citado (09, VIZ-08 SMI, VIZ-11 Ángulo de fase) — para esas, solo línea de tendencia.</li>
+  <li>La barra NUNCA anima en cada actualización de datos en tiempo real — solo en la carga inicial de la pantalla.</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../09-visualizacion-metricas/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 09 · Visualización de métricas</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../11-sistema-graficos/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">11 · Sistema de gráficos →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

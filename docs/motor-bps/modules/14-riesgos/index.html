@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>14 · Riesgos — Motor BPS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="riesgos" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 14 · Gobernanza</p>
+<h1>Riesgos</h1>
+<p class="lede">Todos los riesgos conocidos del Motor, con su mitigación específica. Clasificación: <strong>Bloqueante</strong> (impide implementar), <strong>Operacional</strong> (impacta en producción), <strong>De producto</strong> (impacta la experiencia), <strong>De proceso</strong> (impacta la evolución).</p>
+
+<h2 id="tabla">Registro de riesgos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>ID</th><th>Riesgo</th><th>Clase</th><th>Mitigación</th></tr></thead>
+<tbody>
+<tr><td>R-01</td><td>Sin captura de RPE/peso/reps por serie, los veredictos de Recovery/Progression no tienen señal — el Motor orquesta motores ciegos</td><td>Bloqueante</td><td>El Player con captura por serie es el prerequisito #1 (Roadmap del marco). Mientras tanto, los motores devuelven "sin señal" honestamente (VENTANA_INSUFICIENTE), nunca fingen evaluar</td></tr>
+<tr><td>R-02</td><td>Sin contenido etiquetado (ontología + plantillas), el ciclo termina siempre en <code>CATALOGO_INSUFICIENTE</code></td><td>Bloqueante</td><td>La cola editorial es camino crítico declarado; la métrica de vacíos (13) la prioriza con datos, no con opiniones</td></tr>
+<tr><td>R-03</td><td>Estado y eventos escritos sin atomicidad real → punteros huérfanos</td><td>Operacional</td><td>BPS-010 exige atomicidad; la auditoría de replay (13) detecta cualquier divergencia; la reparación (05) recupera sin pérdida</td></tr>
+<tr><td>R-04</td><td>Webhooks de compra duplicados/perdidos</td><td>Operacional</td><td>Idempotencia por transaccionId (06); W-4 detecta compras huérfanas en <code>pendiente_diagnostico</code></td></tr>
+<tr><td>R-05</td><td>Scheduler duplicado o caído (ciclos dobles o ausentes)</td><td>Operacional</td><td>Dobles: no-op por idempotencia (C-11). Ausentes: el ciclo es re-ejecutable con fecha explícita (BPS-022) — un ciclo tardío produce el mismo resultado que uno puntual</td></tr>
+<tr><td>R-06</td><td>La activación en compra (no en diagnóstico) genera fricción percibida — "me diagnosticaron y no puedo empezar"</td><td>De producto</td><td>Heredado de ADR-002; la UI debe puentear la brecha. El Motor aporta el error accionable (BPS-020), no la solución de UX</td></tr>
+<tr><td>R-07</td><td>Auto-pausa (BPS-025) percibida como abandono del producto ("me desactivaron")</td><td>De producto</td><td>La comunicación del evento es parte de la regla, no un extra; el mensaje es de re-enganche, jamás de castigo. Umbral calibrable</td></tr>
+<tr><td>R-08</td><td>Umbrales de producto (21 días, 30 días, 6 meses de vigencia) sin calibrar con usuarios reales</td><td>De producto</td><td>Todos declarados <span class="ev ev--producto">decisión de producto</span> con revisión programada tras los primeros cohortes (16)</td></tr>
+<tr><td>R-09</td><td>Deriva handbook↔código: el código evoluciona y nadie actualiza la especificación</td><td>De proceso</td><td>Regla de gobernanza: cambio de comportamiento del Motor sin ADR/actualización es defecto de proceso; la auditoría de pureza de frontera (13) detecta las derivas más peligrosas</td></tr>
+<tr><td>R-10</td><td>La frontera comercial abierta (C-09: reembolsos/vencimientos) fuerza una improvisación bajo presión el día que ocurra</td><td>De proceso</td><td>Regla provisional explícita (el Motor no desactiva sin evento) + pregunta abierta priorizada (16) — la improvisación ya está prohibida por adelantado</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="meta">El meta-riesgo</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">El Motor parece simple — y esa es la trampa</div>
+  <p>Comparado con los motores de señal, el orquestador "solo coordina" — la tentación permanente será tomar atajos dentro de él ("ya que el Motor ve la adherencia, que decida esto de paso"). Cada atajo de ese tipo disuelve la frontera que hace auditable el sistema completo. La defensa no es técnica sino de gobernanza: BPS-019/021 y la auditoría de pureza existen exactamente para esto.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../13-observabilidad/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 13 · Observabilidad</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../15-adr/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">15 · Decisiones (ADR) →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

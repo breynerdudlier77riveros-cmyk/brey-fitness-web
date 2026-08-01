@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03 · Roles Editoriales — Editorial Standards</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="roles" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 03 · Gobierno</p>
+<h1>Roles Editoriales</h1>
+<p class="lede">Autor, Revisor, Aprobador, Administrador, Experto. El barrido devuelve <strong>cero respaldo para los cinco</strong>. Lo que sí existe son dos <em>actores</em> nominales y una autoridad — que no es lo mismo que un rol.</p>
+
+<h2 id="barrido">Resultado del barrido</h2>
+<p class="matrix-note">Búsqueda con límites de palabra donde el riesgo de subcadena era alto, excluyendo los tres handbooks previos de la trilogía.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Rol solicitado</th><th>Archivos</th><th>Qué son realmente las coincidencias</th><th>Veredicto</th></tr></thead>
+<tbody>
+<tr><td><strong>Autor</strong></td><td><strong>0</strong></td><td>Las 59 coincidencias brutas eran subcadenas de <em>autoriza</em> / <em>autoridad</em>. Como palabra completa: cero</td><td><span class="tag tag--futuro">no existe</span></td></tr>
+<tr><td><strong>Revisor</strong></td><td><strong>0</strong></td><td>—</td><td><span class="tag tag--futuro">no existe</span></td></tr>
+<tr><td><strong>Aprobador</strong></td><td><strong>0</strong></td><td>—</td><td><span class="tag tag--futuro">no existe</span></td></tr>
+<tr><td><strong>Administrador</strong></td><td>7</td><td>Todas técnicas. Engineering 08 lo declara explícitamente: <strong>"no existe un rol 'administrador global' distinto del propio entrenador"</strong></td><td><span class="tag tag--futuro">negado explícitamente</span></td></tr>
+<tr><td><strong>Experto</strong></td><td>1</td><td>"Zona de riesgo con <strong>criterio experto manual</strong>" — es una cualidad exigida a la decisión, no un rol con responsabilidades</td><td><span class="tag tag--especificado">cualidad, no rol</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Deuda editorial ED-D02 — no existe ningún rol editorial formal</div>
+  <p>Ninguno de los cinco roles solicitados tiene definición, responsabilidades ni límites documentados. Este handbook <strong>no los define</strong>: un rol inventado aquí produciría responsabilidad ficticia — alguien figuraría como aprobador de decisiones que nunca aceptó tomar.</p>
+</div>
+
+<h2 id="actores">Lo que sí existe: dos actores y una autoridad</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Actor</th><th>Naturaleza</th><th>Qué decide</th><th>Respaldo</th></tr></thead>
+<tbody>
+<tr><td><strong>Contenido</strong></td><td>Dueño nominal de trabajo en el Roadmap</td><td>El valor de todo atributo biomecánico: patrón, roles, modalidad, zonas, cadenas, equivalencias</td><td>Roadmap, bloqueante #2 — dueño declarado "Contenido"</td></tr>
+<tr><td><strong>Ingeniería</strong></td><td>Dueño nominal de trabajo en el Roadmap</td><td>La validación estructural del conocimiento</td><td>Regla 4 de la cadena — "la estructura la valida ingeniería"</td></tr>
+<tr><td><strong>"Persona con criterio de entrenador"</strong></td><td><strong>Autoridad</strong>, no rol</td><td>Autoriza el contenido de entrenamiento</td><td>P14 — mencionada en 4 archivos</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">La diferencia entre actor, autoridad y rol</div>
+  <p>Un <strong>actor</strong> es quien hace el trabajo (Contenido, Ingeniería). Una <strong>autoridad</strong> es quien tiene derecho a decidir (persona con criterio de entrenador). Un <strong>rol</strong> es un conjunto formal de responsabilidades, permisos y límites, con transiciones definidas entre quienes lo ocupan. El ecosistema tiene los dos primeros y ninguno del tercero — por eso puede decirse <em>quién debe decidir</em> pero no <em>quién aprobó esto</em>.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Lo que existe frente a lo que se solicitó</div>
+<pre class="mermaid">
+graph TD
+  subgraph EXISTE["EXISTE · documentado"]
+    A1["Contenido<br/><i>actor · Roadmap</i>"]
+    A2["Ingeniería<br/><i>actor · Roadmap</i>"]
+    A3["Persona con criterio<br/>de entrenador<br/><i>autoridad · P14</i>"]
+  end
+  subgraph FALTA["SOLICITADO · sin respaldo"]
+    R1["Autor"]
+    R2["Revisor"]
+    R3["Aprobador"]
+    R4["Administrador"]
+    R5["Experto"]
+  end
+  A3 -.->|"se ejerce a través de"| A1
+  FALTA -.->|"ED-D02"| D["Deuda editorial"]
+</pre>
+</div>
+
+<h2 id="responsabilidades">Responsabilidades realmente asignadas</h2>
+<p class="matrix-note">Doce decisiones editoriales, con su autoridad documentada. Es la base de la auditoría del módulo <a href="../17-roadmap/index.html">17</a>.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Decisión editorial</th><th>Autoridad</th><th>Respaldo</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Decidir el valor de un atributo biomecánico</td><td><strong>Contenido</strong></td><td><span class="tag tag--implementado">P14 · Roadmap #2</span></td></tr>
+<tr><td>2</td><td>Validar la estructura de una entrada</td><td><strong>Ingeniería</strong></td><td><span class="tag tag--implementado">Regla 4 de la cadena</span></td></tr>
+<tr><td>3</td><td>Ampliar un vocabulario cerrado</td><td><strong>Documentación</strong></td><td><span class="tag tag--implementado">Los vocabularios se publican en handbooks</span></td></tr>
+<tr><td>4</td><td>Generar la versión de catálogo</td><td>Consecuencia obligatoria</td><td><span class="tag tag--implementado">BPS-023 · ADR-009</span></td></tr>
+<tr><td>5</td><td>Aprobar la publicación de una entrada</td><td>—</td><td><span class="tag tag--futuro">sin autoridad</span></td></tr>
+<tr><td>6</td><td>Retirar una entrada</td><td>—</td><td><span class="tag tag--futuro">sin autoridad ni mecanismo</span></td></tr>
+<tr><td>7</td><td>Resolver un conflicto de etiquetado</td><td>"Autoridad de contenido"</td><td><span class="tag tag--especificado">parcial — sin persona ni proceso</span></td></tr>
+<tr><td>8</td><td>Decidir cuándo re-revisar una entrada</td><td>—</td><td><span class="tag tag--futuro">sin autoridad</span></td></tr>
+<tr><td>9</td><td>Fusionar entradas duplicadas</td><td>—</td><td><span class="tag tag--futuro">sin autoridad ni mecanismo</span></td></tr>
+<tr><td>10</td><td>Corregir un error detectado</td><td>Implícita — cola editorial</td><td><span class="tag tag--especificado">parcial — circuito sin destinatario</span></td></tr>
+<tr><td>11</td><td>Actualizar el handbook ante deriva</td><td><strong>Documentación</strong> vía ADR</td><td><span class="tag tag--implementado">"nunca por deriva silenciosa"</span></td></tr>
+<tr><td>12</td><td>Asignar el nivel de evidencia de una regla</td><td><strong>Documentación</strong></td><td><span class="tag tag--implementado">Sistema de 4 badges</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">6 asignadas · 2 ambiguas · 4 sin autoridad</div>
+  <p>Y un patrón revelador: <strong>las seis claramente asignadas son todas sobre documentación o estructura</strong> (vocabularios, versiones, ADR, niveles de evidencia, validación). Las cuatro sin autoridad son todas sobre <strong>el ciclo de vida del contenido</strong>: aprobar, retirar, re-revisar, fusionar. El ecosistema gobierna su documentación con precisión y su catálogo sin aparato.</p>
+</div>
+
+<h2 id="por-que">Por qué la ausencia es coherente, aunque sea un problema</h2>
+<p>Los roles editoriales no faltan por descuido: <strong>ningún catálogo existe todavía</strong>. El Roadmap sitúa el etiquetado como bloqueante #2 y el contenido real como bloqueante #1; una estructura de roles para gobernar cero entradas habría sido diseño prematuro. La deuda se vuelve urgente exactamente en el momento en que se etiqueta la primera entrada — que es también el momento en que P14 empieza a exigir trazabilidad real.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../02-ciclo-vida/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 02 · Ciclo de Vida</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../04-flujo/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">04 · Flujo Editorial →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

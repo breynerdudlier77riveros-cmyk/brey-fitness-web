@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>01 · Filosofía — Exercise Catalog</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="filosofia" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 01 · Empezar</p>
+<h1>Filosofía del Catálogo</h1>
+<p class="lede">Ocho principios sobre la existencia de una entrada de catálogo. El primero es el que da forma a todos los demás: <strong>un ejercicio no existe por estar escrito en alguna parte</strong>.</p>
+
+<h2 id="existencia">Las cuatro condiciones de existencia</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">CT-01 · Existencia condicional</div>
+  <p>Un ejercicio existe oficialmente en el ecosistema <strong>solo cuando cumple las cuatro condiciones simultáneamente</strong>:</p>
+  <ol>
+    <li>Tiene un <strong>slug</strong> estable y único</li>
+    <li>Tiene <strong>identidad única</strong> — ninguna otra entrada lo duplica</li>
+    <li>Ha completado el <strong>proceso de tagging</strong> — los siete pasos del Tagging Handbook</li>
+    <li>Ha superado <strong>todas las validaciones</strong> — estructurales y de contenido</li>
+  </ol>
+  <p>Faltando cualquiera, la entrada existe como <em>candidato</em>, no como ejercicio del catálogo, y ningún consumidor puede resolverla en un slot.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Las cuatro puertas — todas obligatorias, en orden</div>
+<pre class="mermaid">
+flowchart LR
+  C["Candidato"] --> G1{"1 · ¿slug<br/>estable?"}
+  G1 -- No --> X["NO EXISTE<br/>en el catálogo"]
+  G1 -- Sí --> G2{"2 · ¿identidad<br/>única?"}
+  G2 -- No --> X
+  G2 -- Sí --> G3{"3 · ¿tagging<br/>completo?"}
+  G3 -- No --> X
+  G3 -- Sí --> G4{"4 · ¿todas las<br/>validaciones?"}
+  G4 -- No --> X
+  G4 -- Sí --> OK["EJERCICIO OFICIAL<br/>elegible para slots"]
+</pre>
+</div>
+
+<h2 id="principios">Los ocho principios</h2>
+
+<div class="callout callout--regla">
+  <div class="callout__label">CT-02 · El catálogo es la frontera de autoridad humana</div>
+  <p>Ninguna entrada entra al catálogo sin que una persona con criterio de entrenador la haya autorizado. No es una recomendación de proceso: es la definición del catálogo dentro de la arquitectura.<br><strong>Deriva de:</strong> P14 — "El catálogo es la frontera de autoridad humana".</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">CT-03 · La entrada incompleta no degrada: se excluye</div>
+  <p>Un ejercicio al que le falta un atributo obligatorio no participa "parcialmente" en la generación. Queda fuera del universo elegible, y el slot que no encuentre candidatos falla de forma visible con detalle.<br><strong>Deriva de:</strong> P6 y del comportamiento declarado — "Con 19 ejercicios, combinaciones legítimas caerán en <code>CATALOGO_INSUFICIENTE</code>. Correcto por diseño".</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">CT-04 · El catálogo no prescribe</div>
+  <p>Ninguna entrada declara series, repeticiones, intensidad, descanso ni tempo. El ejercicio describe <em>qué es y qué admite</em>; la prescripción es de otra capa y otro dueño.<br><strong>Deriva de:</strong> Training Framework, capa 9 — "Nunca decide: su propia prescripción".</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">CT-05 · El catálogo no conoce usuarios</div>
+  <p>Ninguna entrada guarda datos de usuario, ni quién puede ejecutarla, ni quién la ha ejecutado. La elegibilidad se calcula en cada consulta a partir de la ficha y de valores externos; jamás se persiste en el catálogo.<br><strong>Deriva de:</strong> la separación KB/usuario del Architecture Handbook 04 — las capacidades demostradas viven en el historial del usuario, no en el ejercicio.</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">CT-06 · El catálogo es versionado e histórico</div>
+  <p>Cambiar una entrada produce una versión de catálogo nueva y <strong>no altera nada ya generado</strong>. Lo generado con la versión anterior sigue siendo correcto respecto de aquella.<br><strong>Deriva de:</strong> R-2 (Regla de Inmutabilidad) y BPS-023 — "Toda generación registra la versión de catálogo".</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">CT-07 · Una entrada nunca se borra</div>
+  <p>Retirar un ejercicio no puede realizarse eliminando su registro: hay Workouts históricos con su copia desnormalizada y eventos que lo referencian. La retirada correcta es dejar de ofrecerlo, conservando la entrada.<br><strong>Deriva de:</strong> P3 (el historial permanece) y de I-G2 — la instancia copia lo que necesita, pero el <code>slug</code> sigue siendo la vía para reconstruir la ficha.<br><span class="tag tag--futuro">⚠ Sin mecanismo declarado</span> — no existe atributo de estado que exprese "retirado". Ver módulo <a href="../11-estados/index.html">11</a>.</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">CT-08 · Ausencia declarada antes que contrato inventado</div>
+  <p>Cuando el contrato del catálogo requiere algo que ninguna fuente define, este handbook lo declara ausente en lugar de definirlo. Un contrato inventado es peor que un contrato incompleto: el incompleto se ve, el inventado se cumple sin que nadie lo haya acordado.<br><strong>Deriva de:</strong> P11 y de la política ya establecida en los dos handbooks anteriores de la trilogía.</p>
+</div>
+
+<h2 id="derivacion">Mapa de derivación</h2>
+<div class="diagram">
+<div class="diagram-label">Ningún principio del catálogo es original</div>
+<pre class="mermaid">
+graph LR
+  P14["P14 · El humano autoriza"] --> CT02["CT-02 Frontera de autoridad"]
+  P14 --> CT01["CT-01 Existencia condicional"]
+  P6["P6 · Sin defaults<br/>silenciosos"] --> CT03["CT-03 Se excluye, no degrada"]
+  C9["Capa 9 · nunca decide<br/>su prescripción"] --> CT04["CT-04 No prescribe"]
+  KB["KB no conoce usuarios"] --> CT05["CT-05 Sin datos de usuario"]
+  R2["R-2 · Inmutabilidad"] --> CT06["CT-06 Versionado"]
+  BPS["BPS-023 · Versión<br/>de catálogo"] --> CT06
+  P3["P3 · El historial<br/>permanece"] --> CT07["CT-07 Nunca se borra"]
+  P11["P11 · Honestidad<br/>de evidencia"] --> CT08["CT-08 Ausencia declarada"]
+</pre>
+</div>
+
+<h2 id="tensiones">Tensiones aceptadas</h2>
+<div class="callout callout--tradeoff">
+  <div class="callout__label">Un catálogo pequeño y correcto frente a uno grande y aproximado</div>
+  <p>Las cuatro condiciones de existencia hacen que hoy el catálogo oficial tenga <strong>cero entradas</strong>, pese a que existen 19 ejercicios documentados con su ficha educativa completa. Es el resultado correcto: ninguno ha completado el tagging. La alternativa —admitirlos con atributos inferidos— produciría un catálogo utilizable e inauditable.</p>
+</div>
+<div class="callout callout--tradeoff">
+  <div class="callout__label">Contrato completo sobre contenido inexistente</div>
+  <p>Este handbook especifica con detalle la forma de entradas que aún no existen. No es trabajo prematuro: el contrato es precisamente lo que permite que el trabajo editorial empiece sin tener que decidir estructura sobre la marcha, y lo que hace que la primera entrada sea revisable contra algo.</p>
+</div>
+<div class="callout callout--descartado">
+  <div class="callout__label">Descartado — admitir entradas "provisionales" en el catálogo</div>
+  <p>Sería la vía rápida para tener catálogo hoy: marcar los 19 ejercicios como provisionales y refinarlos después. Descartado por CT-03 y porque no existe atributo de estado que distinguiera lo provisional de lo definitivo (módulo <a href="../11-estados/index.html">11</a>) — en la práctica serían indistinguibles de entradas aprobadas.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../00-introduccion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 00 · Introducción</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../02-modelo-exercise/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">02 · Modelo de Exercise →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>04 · Convenciones HTTP — BREY API Contract Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="convenciones-http" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 04 · Convenciones</p>
+<h1>Convenciones HTTP</h1>
+<p class="lede">Cuándo usar cada método, qué status code corresponde a cada resultado, y qué headers son obligatorios. Notación transporte-agnóstica (01, API-ADR-01) — aplica igual a una Server Action, un Route Handler o una futura API pública.</p>
+
+<h2 id="metodos">Métodos — cuándo usar cada uno</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Método</th><th>Cuándo</th><th>Idempotente</th><th>Ejemplo real (07)</th></tr></thead>
+<tbody>
+<tr><td><span class="method method--get">GET</span></td><td>Toda Query — lectura sin efecto secundario de dominio (puede registrar auditoría de acceso, 14)</td><td>Sí, por definición</td><td><code>GET /bcs/clientes/{id}</code></td></tr>
+<tr><td><span class="method method--post">POST</span></td><td>Crear un recurso nuevo, o disparar una acción de dominio que no es ni creación ni actualización pura (revocar, archivar, evaluar)</td><td>Depende de la operación — ver 11</td><td><code>POST /bcs/clientes</code>, <code>POST /bcs/enlaces/{id}/revocar</code></td></tr>
+<tr><td><span class="method method--patch">PATCH</span></td><td>Actualización parcial de un subconjunto de campos de un recurso ya existente</td><td>Sí — mismo body, mismo resultado, salvo la excepción documentada abajo</td><td><code>PATCH /perfil</code>, <code>PATCH /bcs/clientes/{id}</code></td></tr>
+<tr><td><span class="method method--put">PUT</span></td><td>Reemplazo completo de un recurso — <strong>ningún endpoint de este catálogo lo usa hoy</strong></td><td>Sí, por definición</td><td>Ninguno — ver nota abajo</td></tr>
+<tr><td><span class="method method--delete">DELETE</span></td><td>Eliminación irreversible de un recurso — reservado a los casos donde el dominio define explícitamente una eliminación permanente, distinta de un archivado reversible</td><td>Sí</td><td><code>DELETE /bcs/clientes/{id}</code> (UC-04, irreversible)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="callout callout--nota">
+  <div class="callout__label">Por qué PUT no aparece en el catálogo</div>
+  <p>El dominio de BREY no tiene una operación de "reemplazo completo" real: toda corrección de un registro histórico (Medición, Diagnóstico) se modela como anular + crear (11, FT-09), nunca como sobrescritura total del recurso — y toda edición de un recurso vivo (Perfil, Cliente) es intencionalmente parcial (PATCH). Se documenta PUT aquí por completitud de la convención HTTP, no porque el catálogo (07) lo necesite. Si un futuro caso de uso lo requiriera, debe declarar explícitamente por qué PATCH no basta antes de introducirlo.</p>
+</div>
+
+<h2 id="status-codes">Status codes</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Código</th><th>Cuándo</th><th>Precedente real</th></tr></thead>
+<tbody>
+<tr><td>200</td><td>Lectura exitosa, o acción exitosa que no crea un recurso nuevo (revocar, archivar, evaluar)</td><td><code>{ ok: true }</code> — app/api/lead</td></tr>
+<tr><td>201</td><td>Creación exitosa de un recurso nuevo (Cliente, Medición, EnlacePúblico, Workout, WorkoutLog)</td><td>Especificado — ningún Route Handler real lo usa todavía (ambos existentes son 200/202-equivalentes vía <code>{ok:true}</code>)</td></tr>
+<tr><td>204</td><td>Éxito sin cuerpo de respuesta — reservado, ningún endpoint del catálogo lo requiere hoy (todos devuelven al menos el envelope de 06)</td><td>Especificado, sin uso real todavía</td></tr>
+<tr><td>400</td><td>Body malformado o campos que fallan validación de forma (no de regla de negocio)</td><td><code>invalid_body</code>, <code>invalid_email</code> — app/api/lead</td></tr>
+<tr><td>401</td><td>Sin sesión válida y sin token de EnlacePúblico donde uno sería aceptado</td><td>Especificado — Security Handbook, 08</td></tr>
+<tr><td>403</td><td>Sesión válida, pero el actor no es dueño del recurso solicitado</td><td>Especificado — 13</td></tr>
+<tr><td>404</td><td>Recurso inexistente — y, deliberadamente, también un token de EnlacePúblico revocado (nunca se distingue de "no existe", BCS Handbook, 10)</td><td>Especificado — BCS Handbook, 10</td></tr>
+<tr><td>409</td><td>Conflicto de estado — transición de máquina de estados inválida, o sesión de Workout Player reclamada por otro dispositivo</td><td>Especificado — <code>SESION_EN_OTRO_DISPOSITIVO</code>, Architecture Handbook, 11</td></tr>
+<tr><td>422</td><td>Body sintácticamente válido pero semánticamente inválido para la regla de negocio (ej. <code>VALOR_FUERA_DE_RANGO_FISICO</code> de una Medición)</td><td>Especificado — BCS Handbook, 13</td></tr>
+<tr><td>429</td><td>Límite de rate limiting excedido</td><td>Sin política numérica definida — ver 12</td></tr>
+<tr><td>500</td><td>Error no anticipado del propio backend</td><td>Sin precedente real documentado — ningún handbook lo mapea a un caso concreto</td></tr>
+<tr><td>502</td><td>Un proveedor externo (Brevo) respondió con error</td><td><code>provider_error</code> — app/api/lead</td></tr>
+<tr><td>503</td><td>Configuración de servidor ausente (secreto/env var faltante)</td><td><code>not_configured</code> — app/api/lead</td></tr>
+</tbody>
+</table>
+</div>
+<p class="matrix-note">Ver 09 para la matriz completa Error → Status con cada código de dominio.</p>
+
+<h2 id="headers">Headers</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Header</th><th>Regla</th></tr></thead>
+<tbody>
+<tr><td><code>Content-Type</code></td><td><code>application/json</code> en toda request/response con body — sin excepción salvo la subida de fotografía de Medición (multipart, directo a Storage, fuera de este contrato)</td></tr>
+<tr><td><code>Cache-Control</code></td><td><code>public, max-age=…</code> únicamente en <code>GET /sistemas</code> (catálogo, lectura pública) — <code>no-store</code> en cualquier endpoint que devuelva datos de un Usuario, Cliente o Medición (dato personal, nunca cacheado por un intermediario)</td></tr>
+<tr><td><code>Authorization</code></td><td>No aplica — la sesión viaja por cookie <code>httpOnly</code>, no por header Bearer (03)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../03-autenticacion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 03 · Autenticación</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../05-convenciones-requests/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">05 · Convenciones de Requests →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

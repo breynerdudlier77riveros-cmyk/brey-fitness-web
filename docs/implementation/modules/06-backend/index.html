@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>06 · Backend — Implementation Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="backend" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 06 · Construcción</p>
+<h1>Backend</h1>
+<p class="lede">El orden de construcción del backend, aplicando el patrón ya fijado por el Engineering Handbook (04) — repositorio por agregado, cliente de Supabase como parámetro. Este módulo no redefine el patrón, solo fija el orden de aplicarlo.</p>
+
+<h2 id="orden-bcs">Orden — Pista A (BCS)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Pieza</th><th>Precondición</th><th>Patrón a seguir</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Repositorio <code>bcs_clientes</code></td><td>M3 aplicada (05)</td><td>Engineering Handbook (04, BE-03) — <code>get</code>/<code>update</code> con <code>SupabaseClient</code> como primer parámetro</td></tr>
+<tr><td>2</td><td>Repositorio <code>bcs_mediciones</code></td><td>Repositorio de Clientes existente (una Medición siempre referencia un Cliente)</td><td>Ídem — nunca edita en sitio, todo <code>UPDATE</code> es en realidad "anular + crear" (BCS Handbook, UC-06)</td></tr>
+<tr><td>3</td><td>Repositorio <code>bcs_enlaces_publicos</code></td><td>Repositorio de Clientes existente</td><td>Ídem, más la generación del token (BCS Handbook, 10 — 21+ caracteres aleatorios)</td></tr>
+<tr><td>4</td><td>Los 9 casos de uso del BCS (UC-01 a UC-09)</td><td>Los tres repositorios existentes</td><td>BCS Handbook (13) — contratos ya especificados en pseudocódigo, traducir literalmente</td></tr>
+<tr><td>5</td><td>Cálculo del Reporte</td><td>Caso de uso VisualizarReportePúblico (UC-09) existente</td><td>BCS Handbook (04, IN-D3) — siempre computado on-demand, nunca persistido</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="orden-motores">Orden — Pista B (Motores)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Pieza</th><th>Precondición</th><th>Patrón a seguir</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Función pura de Recovery Engine (contrato mínimo, IMP-ADR-01)</td><td>IMP-ADR-01 aceptado</td><td>Engineering Handbook (04, BE-05) — función pura, sin I/O, misma disciplina que el motor de Diagnóstico BPS ya real</td></tr>
+<tr><td>2</td><td>Repositorio de <code>progression_events</code></td><td>M2 aplicada (05)</td><td>Engineering Handbook (04, BE-03) — <code>get</code> por rango de fechas (nunca todo el historial sin acotar, 09 del Engineering Handbook), <code>insert</code> únicamente (append-only)</td></tr>
+<tr><td>3</td><td>Motor BPS — máquina de estados como función pura</td><td>Repositorio de eventos + función de Recovery existentes</td><td>Motor BPS Handbook (05) — 8 estados, 15 transiciones, traducidas literalmente de la tabla ya especificada</td></tr>
+<tr><td>4</td><td>Progression Engine — pipeline de 9 pasos</td><td>Función de Recovery existente (no depende de Motor BPS para su propia lógica, 02)</td><td>Progression Engine Handbook (06) — Entrada→Validación→Normalización→Evaluación→Resolución→Aplicación→Persistencia→Eventos→Salida</td></tr>
+<tr><td>5</td><td>Catálogo de 39 reglas (PE-001–039) como funciones puras dentro del paso de Evaluación</td><td>Pipeline base (paso 4) existente</td><td>Progression Engine Handbook (07) — cada regla ya tiene entrada/salida/ejemplo especificados</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="aplicacion-service">Cuándo introducir un Application Service</h2>
+<p>Ninguno de los pasos anteriores lo requiere todavía — cada uno invoca como máximo un repositorio o un motor puro. El primer candidato real (Engineering Handbook, ENG-ADR-01) es el paso "Cálculo del Reporte" del BCS (Pista A, #5), que combina Cliente + Mediciones + interpretación — si su complejidad crece más allá de una función de orquestación simple, es el punto de introducir la capa formal, no antes.</p>
+
+<h2 id="orden-servicios">Servicios externos</h2>
+<p>Ningún paso de este módulo requiere un servicio externo nuevo — Brevo (ya integrado) no participa en ningún flujo de BCS ni de los motores. Si un futuro Coach IA requiere un LLM externo, sigue el mismo patrón que <code>app/api/lead</code> (Engineering Handbook, 06): Route Handler con manejo de error tipado, nunca lógica de negocio dentro del cliente HTTP.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../05-migraciones/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 05 · Migraciones</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../07-frontend/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">07 · Frontend →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

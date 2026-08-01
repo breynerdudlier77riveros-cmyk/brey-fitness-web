@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>01 · Lenguaje Ubicuo — Domain Model Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="lenguaje-ubicuo" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 01 · Fundamentos</p>
+<h1>Lenguaje Ubicuo</h1>
+<p class="lede">21 términos oficiales. Cada uno con su definición, sus sinónimos permitidos, sus términos prohibidos y el handbook donde se originó — nunca un término nuevo introducido sin decir de dónde viene.</p>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">LU-01</span></div>
+<h3>Usuario</h3>
+<dl>
+<dt>Definición</dt><dd>Identidad autenticada real del Core Product — una fila de <code>auth.users</code> + su <code>profile</code> asociado. El término genérico de identidad en todo el ecosistema.</dd>
+<dt class="half">Sinónimos permitidos</dt><dd class="half">"Cuenta" (en contexto de autenticación exclusivamente)</dd>
+<dt class="half">Términos prohibidos</dt><dd class="half">"Miembro", "Suscriptor" — no usados en ningún handbook existente</dd>
+<dt>Handbook de origen</dt><dd>Architecture Handbook</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">LU-02</span></div>
+<h3>Entrenador</h3>
+<dl>
+<dt>Definición</dt><dd>Un Usuario (LU-01) en su rol de administrador de una cartera de Clientes dentro del Body Composition System. No es una identidad distinta — es el mismo Usuario, nombrado por su función en ese contexto específico.</dd>
+<dt class="half">Sinónimos permitidos</dt><dd class="half">Ninguno — "Entrenador" es el único término en el contexto del BCS</dd>
+<dt class="half">Términos prohibidos</dt><dd class="half">"Coach" (reservado para el futuro módulo Coach IA, un concepto distinto), "Admin"</dd>
+<dt>Handbook de origen</dt><dd>Body Composition System Handbook</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">LU-03</span></div>
+<h3>Cliente</h3>
+<dl>
+<dt>Definición</dt><dd>Persona presencial que el Entrenador mide en el contexto del BCS. Explícitamente <strong>no</strong> es un Usuario — no tiene login, no tiene sesión, no existe en <code>auth.users</code>. Es una entidad propia del bounded context Body Composition.</dd>
+<dt class="half">Sinónimos permitidos</dt><dd class="half">Ninguno dentro del BCS</dd>
+<dt class="half">Términos prohibidos</dt><dd class="half">"Usuario del BCS", "Cuenta de cliente" — ninguno de los dos existe; confundir Cliente con Usuario es el error de lenguaje más peligroso de todo el ecosistema (02)</dd>
+<dt>Handbook de origen</dt><dd>Body Composition System Handbook (00, 01)</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">LU-04</span></div>
+<h3>Diagnóstico</h3>
+<dl>
+<dt>Definición</dt><dd>El proceso y resultado de responder el cuestionario BPS que determina el Nivel de entrada de un Usuario en un Sistema.</dd>
+<dt class="half">Sinónimos permitidos</dt><dd class="half">"Diagnóstico BPS" (forma completa, usada en contexto ambiguo)</dd>
+<dt class="half">Términos prohibidos</dt><dd class="half">"Quiz" — término retirado explícitamente (redirect <code>/quiz → /diagnostico</code> ya real en el código)</dd>
+<dt>Handbook de origen</dt><dd>Architecture Handbook</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">LU-05</span></div>
+<h3>Sistema</h3>
+<dl>
+<dt>Definición</dt><dd>Un producto comercial de BREY — la <strong>plantilla</strong> de entrenamiento (Calistenia, Hipertrofia, Híbrido, Fuerza, Elite). Es catálogo, no instancia (P5 del Architecture Handbook, "Plantilla ≠ Instancia").</dd>
+<dt class="half">Sinónimos permitidos</dt><dd class="half">Ninguno</dd>
+<dt class="half">Términos prohibidos</dt><dd class="half">"Programa" como sinónimo de Sistema — ver LU-06, esta confusión es real y documentada</dd>
+<dt>Handbook de origen</dt><dd>Architecture Handbook</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">LU-06</span></div>
+<h3>Programa</h3>
+<dl>
+<dt>Definición</dt><dd>La <strong>instancia personalizada</strong> de un Sistema para un Usuario específico — el resultado de aplicar Sistema + Nivel + Diagnóstico a ese Usuario. Un Programa es al Sistema lo que un objeto es a su clase (P5).</dd>
+<dt class="half">Sinónimos permitidos</dt><dd class="half">Ninguno</dd>
+<dt class="half">Términos prohibidos</dt><dd class="half">Ninguno adicional, pero ver la nota de desambiguación abajo</dd>
+<dt>Handbook de origen</dt><dd>Este handbook (síntesis explícita, ver nota)</dd>
+</dl>
+</div>
+
+<div class="callout callout--nota">
+  <div class="callout__label">Nota de desambiguación — "Programa" no es un término deprecado</div>
+  <p>El código real de BREY (<code>next.config.ts</code>) redirige <code>/programas → /sistemas</code> — pero ese redirect es de <strong>navegación de marketing</strong> (la URL pública donde se compra un Sistema), no una decisión sobre el vocabulario de dominio. "Programa" como la instancia personalizada de un Sistema es un concepto que ningún handbook anterior nombró explícitamente, pero que P5 (Plantilla ≠ Instancia) ya exige que exista conceptualmente. Este documento lo formaliza aquí, sin contradecir el redirect (que sigue rigiendo exclusivamente la URL de catálogo comercial).</p>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">LU-07</span></div>
+<h3>Track</h3>
+<dl>
+<dt>Definición</dt><dd>Variante de ejecución de un Sistema (ej. Gym/Casa) — un eje independiente del Nivel.</dd>
+<dt class="half">Sinónimos permitidos</dt><dd class="half">Ninguno</dd>
+<dt class="half">Términos prohibidos</dt><dd class="half">"Modalidad", "Variante" — no usados en ningún handbook</dd>
+<dt>Handbook de origen</dt><dd>Architecture Handbook</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">LU-08</span></div>
+<h3>Nivel</h3>
+<dl>
+<dt>Definición</dt><dd><code>profiles.nivel_actual</code> — asignado por Diagnóstico/Motor BPS, acoplado a un Sistema específico (ej. "Skills" solo existe en Calistenia). Nunca confundir con <code>nivel_experiencia</code> (autorreportado, sin uso algorítmico, ADR-003 del Architecture Handbook).</dd>
+<dt class="half">Sinónimos permitidos</dt><dd class="half">Ninguno</dd>
+<dt class="half">Términos prohibidos</dt><dd class="half">"Rango", "Grado"</dd>
+<dt>Handbook de origen</dt><dd>Architecture Handbook (ADR-003)</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">LU-09</span></div>
+<h3>Bloque</h3>
+<dl>
+<dt>Definición</dt><dd>Escalón de la jerarquía de entrenamiento compuesto de Mesociclos — posición dentro de un Nivel.</dd>
+<dt>Handbook de origen</dt><dd>Architecture Handbook (Training Framework) — profundizado en Motor BPS Handbook y Progression Engine Handbook</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">LU-10</span></div>
+<h3>Mesociclo</h3>
+<dl>
+<dt>Definición</dt><dd>Escalón compuesto de Microciclos, dentro de un Bloque.</dd>
+<dt>Handbook de origen</dt><dd>Architecture Handbook — profundizado en Progression Engine Handbook (09, escalera de macroprogresión)</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">LU-11</span></div>
+<h3>Microciclo</h3>
+<dl>
+<dt>Definición</dt><dd>El escalón más frecuente de la jerarquía — una semana de entrenamiento, compuesta de Workouts.</dd>
+<dt>Handbook de origen</dt><dd>Architecture Handbook — profundizado en Motor BPS Handbook ("ciclo semanal")</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">LU-12</span></div>
+<h3>Workout</h3>
+<dl>
+<dt>Definición</dt><dd>Una sesión de entrenamiento planificada — <span class="tag tag--implementado">implementado</span>, tabla real <code>workouts</code>.</dd>
+<dt class="half">Sinónimos permitidos</dt><dd class="half">"Entrenamiento", "Sesión" (en prosa, nunca como nombre de entidad)</dd>
+<dt class="half">Términos prohibidos</dt><dd class="half">Ninguno</dd>
+<dt>Handbook de origen</dt><dd>Architecture Handbook</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">LU-13</span></div>
+<h3>Slot</h3>
+<dl>
+<dt>Definición</dt><dd>Posición dentro de un Workout, identificada por Patrón×Rol — nunca por el nombre de un Ejercicio concreto (P7 del Architecture Handbook).</dd>
+<dt>Handbook de origen</dt><dd>Progression Engine Handbook (03)</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">LU-14</span></div>
+<h3>Ejercicio</h3>
+<dl>
+<dt>Definición</dt><dd>El movimiento concreto que resuelve un Slot — propiedad de la Knowledge Base, nunca conocido por nombre por los motores de progresión (P7).</dd>
+<dt>Handbook de origen</dt><dd>Architecture Handbook (Knowledge Base)</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">LU-15</span></div>
+<h3>Serie</h3>
+<dl>
+<dt>Definición</dt><dd>La unidad mínima de ejecución dentro de un Slot — una repetición agrupada de un Ejercicio con su carga/tempo/descanso.</dd>
+<dt>Handbook de origen</dt><dd>Progression Engine Handbook (08, microprogresión)</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">LU-16</span></div>
+<h3>Prescripción</h3>
+<dl>
+<dt>Definición</dt><dd>El conjunto de valores (peso, repeticiones, series, tempo, descanso, RPE/RIR objetivo, duración, volumen, densidad) asignado a un Slot para el próximo ciclo.</dd>
+<dt class="half">Sinónimos permitidos</dt><dd class="half">"Prescripción vigente" (forma completa, forma oficial de Progression Engine Handbook)</dd>
+<dt>Handbook de origen</dt><dd>Progression Engine Handbook (03, 04)</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">LU-17</span></div>
+<h3>Recuperación</h3>
+<dl>
+<dt>Definición</dt><dd>El dominio conceptual gobernado por Recovery Engine — interpreta fatiga/dolor/sueño y produce un Veredicto. <span class="tag tag--especificado">especificado</span> como contrato mínimo (Implementation Handbook, IMP-ADR-01/02); sin handbook de dominio propio todavía.</dd>
+<dt class="half">Sinónimos permitidos</dt><dd class="half">"Recovery Engine" (nombre del motor que gobierna este dominio)</dd>
+<dt>Handbook de origen</dt><dd>Citado por Motor BPS Handbook y Progression Engine Handbook, formalizado por Implementation Handbook</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">LU-18</span></div>
+<h3>Fatiga</h3>
+<dl>
+<dt>Definición</dt><dd>Señal cruda interpretada exclusivamente por Recovery Engine — ningún otro motor (Motor BPS, Progression Engine) la recibe directamente, solo el Veredicto ya resuelto (P8).</dd>
+<dt class="half">Términos prohibidos</dt><dd class="half">Usar "Fatiga" como si fuera un campo del contrato de entrada de Progression Engine — no lo es (10 del Progression Engine Handbook)</dd>
+<dt>Handbook de origen</dt><dd>Progression Engine Handbook (10) — como frontera, no como dato consumido</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">LU-19</span></div>
+<h3>Medición</h3>
+<dl>
+<dt>Definición</dt><dd>Captura puntual de composición corporal de un Cliente, con fecha y hasta 25 variables — aggregate root propio del BCS.</dd>
+<dt>Handbook de origen</dt><dd>Body Composition System Handbook (02, 03)</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">LU-20</span></div>
+<h3>Reporte</h3>
+<dl>
+<dt>Definición</dt><dd>Vista computada a partir de un Cliente y sus Mediciones vigentes — nunca persistida independientemente, siempre refleja el estado actual (IN-D3 del BCS Handbook).</dd>
+<dt>Handbook de origen</dt><dd>Body Composition System Handbook (04)</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">LU-21</span></div>
+<h3>Enlace Público</h3>
+<dl>
+<dt>Definición</dt><dd>Token de acceso de solo lectura al Reporte de un Cliente — aggregate root propio, nunca contenido dentro del aggregate Cliente (BCS-ADR-01).</dd>
+<dt class="half">Sinónimos permitidos</dt><dd class="half">"EnlacePúblico" (una sola palabra, forma técnica usada en el BCS Handbook)</dd>
+<dt class="half">Términos prohibidos</dt><dd class="half">"Permiso", "Credencial" — el Enlace Público nunca es un mecanismo de autorización, ver 14 (Anti-Patrones)</dd>
+<dt>Handbook de origen</dt><dd>Body Composition System Handbook (09, 10)</dd>
+</dl>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../00-introduccion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 00 · Introducción</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../02-arquitectura-dominio/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">02 · Arquitectura del Dominio →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>11 · API Interna — BREY Architecture Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="api-interna" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 11 · Plataforma</p>
+<h1>API Interna</h1>
+<p class="lede">Los contratos entre subsistemas: repositorios (la capa que ya existe), servicios (los motores como funciones tipadas), DTOs, eventos de dominio, catálogo de errores y política de versionado. Contratos antes que implementaciones (P13): todo lo especificado aquí es implementable en cualquier orden sin renegociar fronteras.</p>
+
+<div class="meta-row">
+  <span class="chip">Contrato &gt; implementación (P13)</span>
+  <span class="chip">Errores tipados (P6)</span>
+  <span class="chip">Evolución aditiva</span>
+</div>
+
+<h2 id="convenciones">Convenciones globales</h2>
+<ul>
+  <li><strong>Cliente como parámetro:</strong> toda función de repositorio/servicio recibe el cliente de datos como primer argumento — es lo que permite servir a contexto servidor y navegador sin duplicar lógica (patrón ya implementado y probado).</li>
+  <li><strong>Resultado tipado:</strong> los servicios devuelven <code>Resultado&lt;T&gt; = { ok: true, data: T } | { ok: false, error: ErrorDominio }</code>. Los repositorios (capa de datos, sin decisiones) devuelven <code>T | null</code> / <code>T[]</code> — la semántica de error de dominio es de los servicios, no del acceso a datos.</li>
+  <li><strong>Pureza de motores:</strong> Progression/Recovery son funciones puras (historial entra como argumento, ya leído) — no hacen I/O. El Motor BPS y el Generator orquestan el I/O a través de repositorios.</li>
+  <li><strong>Coerción única:</strong> todo lo que sale de un repositorio ya pasó por su mapper (10) — ningún consumidor coerciona tipos jamás.</li>
+</ul>
+
+<h2 id="dtos">DTOs</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>DTO</th><th>Forma (resumen)</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td><code>Profile</code></td><td>Las 20 columnas, numéricos ya coercionados</td><td>Existe</td></tr>
+<tr><td><code>Workout</code> / <code>WorkoutLog</code></td><td>Fila + jsonb tipado (formas v-Generator / v-Player de 10)</td><td>Existe (forma precursora); extender</td></tr>
+<tr><td><code>Resultado</code> / <code>TurnoCoach</code> (Diagnóstico)</td><td>sistema, nivelEntrada, disponible, razones, notas, cierre</td><td>Existe</td></tr>
+<tr><td><code>PrescripcionSlot</code></td><td>{patron, rol, series, reps|duracion, rpe, descanso, tempo?}</td><td>Nuevo</td></tr>
+<tr><td><code>VeredictoRecovery</code></td><td>{si, tipo?: programada|reactiva, razon?}</td><td>Nuevo</td></tr>
+<tr><td><code>DecisionProgresion</code></td><td>{accion: avanza|sostiene|retrocede|pausa-progresion, alcance?, razones, contexto}</td><td>Nuevo</td></tr>
+<tr><td><code>EventoProgresion</code></td><td>Espejo de la fila de <code>progression_events</code> (10)</td><td>Nuevo</td></tr>
+<tr><td><code>EstadoUsuario</code></td><td>Enum de la máquina del 07</td><td>Nuevo</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="repositorios">Repositorios (capa de datos)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Función</th><th>Firma (conceptual)</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td><code>getProfile</code></td><td>(cliente, userId) → Profile | null</td><td>Existe</td></tr>
+<tr><td><code>getOrCreateProfile</code></td><td>(cliente, userId, defaults) → Profile</td><td>Existe</td></tr>
+<tr><td><code>updateProfile</code></td><td>(cliente, userId, patch) → Profile | null</td><td>Existe</td></tr>
+<tr><td><code>getWorkoutDelDia</code> / <code>getWorkoutsEnRango</code></td><td>(cliente, userId, fechas) → Workout(s)</td><td>Existe</td></tr>
+<tr><td><code>getWorkoutLogs</code> / <code>getWorkoutLogsEnRango</code></td><td>(cliente, userId, opts) → WorkoutLog[]</td><td>Existe</td></tr>
+<tr><td><code>insertWorkouts</code></td><td>(cliente, userId, sesiones[]) → Workout[] — batch de la semana, transaccional</td><td>Nuevo (escritor del Generator)</td></tr>
+<tr><td><code>insertWorkoutLog</code></td><td>(cliente, userId, log) → WorkoutLog — una vez, al cierre (I-W3)</td><td>Nuevo (escritor del Player)</td></tr>
+<tr><td><code>insertEvento</code> / <code>getEventos</code></td><td>(cliente, userId, evento) / (cliente, userId, filtro) → EventoProgresion[]</td><td>Nuevo</td></tr>
+<tr><td><code>insertDiagnosis</code></td><td>(cliente, userId, resultado) → void — conecta el flujo autenticado</td><td>Nuevo</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Regla:</strong> todo acceso a <code>profiles</code>/<code>workouts</code>/<code>workout_logs</code>/<code>progression_events</code>/<code>diagnoses</code> pasa por aquí. Excepción única y documentada: la lectura de nombre del navbar público (ADR-007).</p>
+
+<h2 id="servicios">Servicios (capa de aplicación)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Servicio</th><th>Contrato</th><th>Módulo dueño</th></tr></thead>
+<tbody>
+<tr><td><code>activarSistema</code></td><td>(cliente, userId, resultado, eventoActivacion) → Resultado&lt;EstadoUsuario&gt; — rechaza sin compra (R-M1)</td><td>07</td></tr>
+<tr><td><code>puedeGenerar</code></td><td>(cliente, userId) → Resultado&lt;true&gt; — o el error de gate exacto</td><td>07</td></tr>
+<tr><td><code>cicloSemanal</code></td><td>(cliente, userId) → Resultado&lt;Workout[] | Transicion&gt; — el orquestador completo (R-M4)</td><td>07</td></tr>
+<tr><td><code>evaluarProgresion</code></td><td>(ventana: WorkoutLog[], prescripcion, veredictoRecovery) → DecisionProgresion — pura</td><td>05</td></tr>
+<tr><td><code>evaluarRecuperacion</code></td><td>(ventana: WorkoutLog[], mesociclo) → VeredictoRecovery — pura</td><td>06</td></tr>
+<tr><td><code>generarSemana</code></td><td>(microciclo, perfil, prescripcion, veredicto) → Resultado&lt;Workout[]&gt; — pura salvo el insert final</td><td>08</td></tr>
+<tr><td><code>resolverEjercicioParaSlot</code></td><td>(slot, contextoUsuario) → Ejercicio | ErrorDominio — pura sobre catálogo</td><td>04</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="eventos">Eventos de dominio</h2>
+<p>En v1 los "eventos" son dos cosas concretas — y ninguna es un bus de mensajes (ADR-013): (1) filas de <code>progression_events</code> como registro auditable (P2/P3); (2) la cola local del Player (09) como mecanismo de captura/sync. Un pub/sub asíncrono solo entrará cuando exista un consumidor que lo necesite de verdad (notificaciones, analytics) — y se especificará entonces por ADR.</p>
+
+<h2 id="errores">Catálogo de errores de dominio</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Código</th><th>Significado</th><th>Emisor</th><th>Acción esperada del consumidor</th></tr></thead>
+<tbody>
+<tr><td><code>SISTEMA_NO_ACTIVO</code></td><td>Generación sin Sistema activo</td><td>07</td><td>Dirigir a Diagnóstico/compra</td></tr>
+<tr><td><code>DIAGNOSTICO_REQUERIDO</code></td><td>Compra sin nivelEntrada (R-M2)</td><td>07</td><td>Dirigir al Diagnóstico</td></tr>
+<tr><td><code>PERFIL_INCOMPLETO</code></td><td>Gate R-M3 — incluye la lista exacta de campos faltantes</td><td>07</td><td>Formulario de perfil con los faltantes</td></tr>
+<tr><td><code>ACTIVACION_SIN_COMPRA</code></td><td>Intento de activar sin transacción (R-M1)</td><td>07</td><td>No existe camino legítimo — error de programación</td></tr>
+<tr><td><code>CATALOGO_INSUFICIENTE</code></td><td>Slot sin ejercicio elegible — incluye {patron, rol, track, nivel, exclusiones}</td><td>04/08</td><td>Mensaje de producto + reporte a cola editorial</td></tr>
+<tr><td><code>EQUIVALENCIA_FALTANTE</code></td><td>Sustitución dinámico↔isométrico sin entrada autorizada</td><td>04</td><td>Igual que catálogo insuficiente</td></tr>
+<tr><td><code>SEMANA_YA_GENERADA</code></td><td>Idempotencia del Generator — devuelve la existente</td><td>08</td><td>Usar la semana devuelta (no es fallo para el usuario)</td></tr>
+<tr><td><code>SESION_EN_OTRO_DISPOSITIVO</code></td><td>Conflicto de propiedad (09)</td><td>09</td><td>Modo solo-lectura</td></tr>
+<tr><td><code>VENTANA_INSUFICIENTE</code></td><td>Menos sesiones que el mínimo evaluable — no es error para el usuario: la decisión es <code>sostiene</code></td><td>05</td><td>Interno; se registra en contexto del evento</td></tr>
+<tr><td><code>SISTEMA_SIN_JERARQUIA</code></td><td>Elite u otro Sistema 1:1 en flujo de generación</td><td>07/08</td><td>Camino de coaching humano, no de motor</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Regla — el error nombra qué falta</div>
+  <p>Todo error de dominio lleva payload estructurado con el detalle exacto (P6). "Algo salió mal" no existe en este catálogo.</p>
+</div>
+
+<h2 id="versionado">Versionado de contratos</h2>
+<ul>
+  <li><strong>Aditivo dentro de v1:</strong> agregar campos opcionales a DTOs y errores nuevos al catálogo no versiona. Cambiar semántica o eliminar campos, sí.</li>
+  <li><strong>Cambio breaking = contrato nuevo junto al viejo</strong> (ej. <code>evaluarProgresionV2</code>) + ADR + migración de consumidores + deprecación del viejo. Nunca mutación in-place de un contrato publicado.</li>
+  <li><strong>Las formas jsonb versionan con discriminador <code>v</code></strong> (10) — los mappers absorben la compatibilidad, los consumidores ven siempre el DTO vigente.</li>
+</ul>
+
+<h2 id="casos">Casos límite e inválidos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Tipo</th><th>Comportamiento</th></tr></thead>
+<tbody>
+<tr><td>UI llama <code>evaluarProgresion</code> directamente</td><td>Inválido</td><td>Violación de capas (02/I-1) — los motores se invocan vía <code>cicloSemanal</code>, no desde presentación.</td></tr>
+<tr><td>Repositorio devolviendo error de dominio</td><td>Inválido</td><td>Los repositorios no deciden — null/[] y el servicio interpreta.</td></tr>
+<tr><td>Dos servicios escribiendo <code>nivel_actual</code></td><td>Inválido</td><td>Solo <code>cicloSemanal</code>/<code>activarSistema</code> (I-M2) — cualquier otro escritor es defecto.</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="riesgos">Riesgos y deuda</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Sin enforcement automático de fronteras</div>
+  <p>Igual que en 02: la regla "todo pasa por repositorios/servicios" es convención sin lint. La regla de imports por carpeta es la mitigación pendiente (Roadmap v1).</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../10-arquitectura-datos/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 10 · Arquitectura de Datos</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../12-adr/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">12 · Decisiones (ADR) →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

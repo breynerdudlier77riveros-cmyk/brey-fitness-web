@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>13 · Release Checklist — Implementation Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="release-checklist" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 13 · Checklists y gobernanza</p>
+<h1>Release Checklist</h1>
+<p class="lede">Ocho checklists. Cada ítem cita el módulo/handbook que lo exige — ninguno es una preferencia nueva de este documento.</p>
+
+<div class="checklist-label">Checklist de Pull Request</div>
+<ul class="checklist">
+  <li>El código sigue las convenciones de naming reales (Engineering Handbook, 13) — <code>interface</code> para Props/formas de objeto, <code>type</code> para uniones.</li>
+  <li>Todo comentario explica el <em>por qué</em>, nunca el <em>qué</em> (13).</li>
+  <li>Ningún repositorio nuevo hace <code>select</code> parcial de columnas sin justificación documentada (04, BE-03).</li>
+  <li>Ningún secreto de servidor con prefijo <code>NEXT_PUBLIC_</code> (08).</li>
+  <li>Si toca una tabla, RLS fue verificado activo manualmente (05, 08) — no hay CI que lo haga automáticamente todavía.</li>
+</ul>
+
+<div class="checklist-label">Checklist de Merge</div>
+<ul class="checklist">
+  <li>El PR pasó su propio checklist completo (arriba).</li>
+  <li><code>npm run lint</code> sin errores (Engineering Handbook, 13).</li>
+  <li><code>npm run build</code> exitoso.</li>
+  <li>Si la rama incluye una migración, el orden respecto a otras migraciones pendientes está confirmado (05).</li>
+  <li>El estado de la pieza correspondiente en 12 se actualiza como parte del mismo PR, no en un paso separado.</li>
+</ul>
+
+<div class="checklist-label">Checklist antes de producción</div>
+<ul class="checklist">
+  <li>Toda migración de esta release fue aplicada primero en Preview, no directo en producción (Engineering Handbook, 12).</li>
+  <li>Si Preview y Producción comparten proyecto de Supabase (riesgo real, Architecture Review AR-022), se confirma explícitamente que ningún dato de prueba puede confundirse con datos reales.</li>
+  <li>Las variables de entorno nuevas están documentadas en <code>.env.example</code> antes de configurarse en el entorno real (Engineering Handbook, 12).</li>
+  <li>Ningún hallazgo 🔴 de la Architecture Review que afecte a esta release sigue abierto sin un IMP-ADR que lo resuelva (14).</li>
+</ul>
+
+<div class="checklist-label">Checklist de Release</div>
+<ul class="checklist">
+  <li>El estado de todas las piezas incluidas en la release está en <span class="status status--verificado">verificado</span> en la tabla de 12, no solo <span class="status status--implementado">implementado</span>.</li>
+  <li>El Roadmap (03) refleja la fase real alcanzada tras esta release.</li>
+  <li>Ningún checklist de esta lista de 8 quedó parcialmente completado.</li>
+</ul>
+
+<div class="checklist-label">Checklist de Testing</div>
+<ul class="checklist">
+  <li>Todo motor nuevo tiene cobertura de sus casos límite ya documentados en su propio handbook (10, Engineering Handbook).</li>
+  <li>Todo repositorio nuevo tiene al menos un test de Integration contra Supabase real, nunca mockeado (Engineering Handbook, 10).</li>
+  <li>Si el test depende del Veredicto de Recovery, usa la forma canónica de IMP-ADR-01, no una de las dos formas divergentes originales (Architecture Review AR-025).</li>
+  <li>La "lista roja" de invariantes (inmutabilidad de historial, RLS activo, secretos) fue verificada para este cambio específico (10 de este handbook).</li>
+</ul>
+
+<div class="checklist-label">Checklist de Seguridad</div>
+<ul class="checklist">
+  <li>RLS activo y verificado manualmente en cualquier tabla tocada (05, 08 del Engineering Handbook).</li>
+  <li>Ningún token nuevo tiene menos de 21 caracteres aleatorios si sirve como credencial de acceso sin autenticación (BCS Handbook, 10; BCS-ADR-02).</li>
+  <li>Ningún log incluye un secreto o un token de EnlacePúblico en texto plano (BCS Handbook, 08).</li>
+  <li><code>SUPABASE_SERVICE_ROLE_KEY</code> sigue sin usarse, o si se activa, se verificó manualmente que no aparece en ningún archivo alcanzable por el cliente (Architecture Review AR-019).</li>
+</ul>
+
+<div class="checklist-label">Checklist de Performance</div>
+<ul class="checklist">
+  <li>Ningún repositorio nuevo introduce una consulta dentro de un bucle (N+1) (Engineering Handbook, 09).</li>
+  <li>Ninguna memoización (<code>useMemo</code>/<code>useCallback</code>) se añade sin un problema de rendimiento medido primero (09, Engineering Handbook).</li>
+  <li>Si la feature toca el Reporte del BCS, se confirma que el riesgo de recomputación creciente (Architecture Review AR-021) sigue siendo aceptable al volumen actual de datos, o se implementa cache antes de continuar.</li>
+</ul>
+
+<div class="checklist-label">Checklist de Accesibilidad</div>
+<ul class="checklist">
+  <li>Todo elemento interactivo nuevo tiene un área táctil mínima de 44×44px (BCS Design System Handbook, 15).</li>
+  <li>Ninguna información se comunica solo por color — siempre ícono o texto acompañante (15).</li>
+  <li>Todo gráfico nuevo tiene una alternativa tabular accesible (15).</li>
+  <li>El contraste de cualquier texto nuevo cumple el mínimo ya verificado en la matriz de contraste (15).</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../12-checklist-feature/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 12 · Checklist por Feature</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../14-adr/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">14 · ADR →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

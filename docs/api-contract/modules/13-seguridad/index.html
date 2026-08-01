@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>13 · Seguridad — BREY API Contract Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="seguridad" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 13 · Gobernanza</p>
+<h1>Seguridad</h1>
+<p class="lede">Cómo se aplica en la práctica lo que 03 declara — RLS por tabla, validación de entrada y salida, y manejo de secretos. Consolidado del Security Handbook (Engineering, 08) y la Architecture Review (AR-018, AR-019).</p>
+
+<h2 id="rls-tabla">RLS — política real por tabla</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tabla</th><th>Política real</th><th>¿Coincide con el principio de inmutabilidad (FT-09)?</th></tr></thead>
+<tbody>
+<tr><td><code>systems</code></td><td>Lectura pública, incluso Anonymous</td><td>No aplica — es catálogo</td></tr>
+<tr><td><code>profiles</code></td><td>El Usuario ve/edita su propio perfil; política defensiva de creación de respaldo</td><td>No aplica — es dato vivo, no histórico</td></tr>
+<tr><td><code>diagnoses</code></td><td>Select/insert propios, sin update/delete — registros inmutables</td><td>Sí — el ejemplo correcto de RLS de historial en todo el ecosistema</td></tr>
+<tr><td><code>workouts</code>, <code>workout_logs</code></td><td>"CRUD propio" — <strong>permite DELETE hoy</strong></td><td><span class="severity severity--alta">No</span> — ver AR-018 abajo</td></tr>
+<tr><td><code>progression_events</code></td><td>Select+insert propios, sin update/delete — append-only por diseño (P3)</td><td>Sí</td></tr>
+<tr><td><code>bcs_clientes</code>, <code>bcs_mediciones</code></td><td>Visibles/editables únicamente por el Entrenador dueño (BCS Handbook, 08)</td><td>Sí para Mediciones (corrección = anula+crea, nunca overwrite)</td></tr>
+<tr><td><code>bcs_enlaces_publicos</code></td><td>Crear/revocar solo el Entrenador dueño; resolución token→Reporte es la única operación de un actor Anonymous, solo si <code>activo</code></td><td>Sí — revocado nunca reactiva (IN-28)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="callout callout--riesgo">
+  <div class="callout__label">AR-018 — brecha real, todavía no cerrada</div>
+  <p>Las políticas actuales de <code>workouts</code>/<code>workout_logs</code> permiten <code>DELETE</code> por su dueño — más permisivo de lo que FT-09 (Inmutabilidad) exige. Un usuario puede borrar su propio historial de entrenamientos hoy. La migración de endurecimiento ya está especificada (Architecture Handbook, 10; Implementation Handbook, 05, M1: <code>workout_logs</code> → solo select+insert; <code>workouts</code> → select+insert+update, sin delete en ninguna) pero no aplicada. Este documento no puede declarar <code>DELETE /workouts/{id}</code> como parte del catálogo (07) porque ningún caso de uso de producto lo requiere — su ausencia del catálogo es intencional, no un olvido.</p>
+</div>
+
+<h2 id="jwt-recordatorio">JWT — recordatorio</h2>
+<p><code>getUser()</code>, nunca <code>getSession()</code> a solas, para decidir identidad (03). RLS es la barrera de última instancia — ninguna comprobación de ownership en la capa de aplicación sustituye una política de RLS ausente (ENG-ADR-04).</p>
+
+<h2 id="validacion-input">Validación de input — nunca confiar en el cliente</h2>
+<p>Toda regla de 05 se re-verifica en el servidor, incluso si la interfaz ya validó el mismo campo — la validación de cliente es UX, nunca seguridad. Ningún endpoint de este catálogo asume que un body ya viene válido porque proviene del propio frontend de BREY.</p>
+
+<h2 id="validacion-output">Validación de output — qué nunca se expone</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Endpoint</th><th>Nunca expone</th></tr></thead>
+<tbody>
+<tr><td><code>GET /reportes/{token}</code></td><td>Datos de contacto del Cliente (teléfono/email/dirección — el Reporte no los incluye por diseño), el <code>id</code> interno del Cliente, cualquier dato de otro Cliente, cualquier control de edición (BCS Handbook, 10)</td></tr>
+<tr><td>Cualquier endpoint con error de ownership cruzado</td><td>Si el recurso existe o no para otro actor — 404 uniforme en vez de 403 revelador (09)</td></tr>
+<tr><td>Cualquier endpoint de error de dominio</td><td>Stack trace o mensaje interno — solo el código + <code>detalle</code> estructurado (P6)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="secretos">Secretos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Variable</th><th>Naturaleza</th><th>Regla</th></tr></thead>
+<tbody>
+<tr><td><code>NEXT_PUBLIC_SUPABASE_URL</code>, <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code></td><td>Públicas por diseño</td><td>RLS es la protección real, no el secreto de la clave</td></tr>
+<tr><td><code>SUPABASE_SERVICE_ROLE_KEY</code></td><td>Secreto crítico, sin uso hoy</td><td>Nunca prefijo <code>NEXT_PUBLIC_</code>, nunca alcanzable desde el cliente</td></tr>
+<tr><td><code>BREVO_API_KEY</code></td><td>Secreto de servidor</td><td>Solo dentro de <code>app/api/lead</code>/<code>app/api/contacto</code></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">AR-019 — regla sin guardrail técnico</div>
+  <p>La regla "ningún secreto de servidor con prefijo <code>NEXT_PUBLIC_</code>" es hoy disciplina manual — no hay CI, lint rule ni secret-scanning que la haga cumplir (Security Handbook, Engineering 08/12). Este documento no inventa ese guardrail — lo hereda como riesgo abierto, condicionado a que <code>SUPABASE_SERVICE_ROLE_KEY</code> se active alguna vez.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../12-rate-limiting/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 12 · Rate Limiting</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../14-observabilidad/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">14 · Observabilidad →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

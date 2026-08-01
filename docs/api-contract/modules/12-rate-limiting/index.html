@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>12 · Rate Limiting — BREY API Contract Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="rate-limiting" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 12 · Operación</p>
+<h1>Rate Limiting</h1>
+<p class="lede">Ningún handbook existente define un límite numérico — ni el Security Handbook ni el Performance Handbook (Engineering, 08/09). Este documento no inventa cifras para completar la sección: documenta dónde importaría más, con qué mitigación real ya existe, y deja el resto como pregunta abierta (16, API-ADR-06).</p>
+
+<div class="callout callout--nota">
+  <div class="callout__label">Estado real — sin implementación en ningún endpoint</div>
+  <p>Ni los dos Route Handlers reales (<code>/api/lead</code>, <code>/api/contacto</code>) ni ningún repositorio o Server Action tienen rate limiting hoy. El Security Handbook (08) lo confirma explícitamente como "futuro". Cualquier valor concreto (peticiones por minuto, ventana de bloqueo) que este documento pudiera dar sería inventado — y el encargo que gobierna este handbook lo prohíbe expresamente.</p>
+</div>
+
+<h2 id="donde-importa">Dónde importaría más — Matriz Endpoint → Rate Limit</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Endpoint</th><th>Riesgo si no se limita</th><th>Mitigación real hoy</th><th>Límite numérico</th></tr></thead>
+<tbody>
+<tr><td><code>GET /reportes/{token}</code></td><td>Enumeración de tokens válidos por fuerza bruta</td><td>Entropía del token: ~125 bits (21 caracteres alfanuméricos mixtos) — computacionalmente inviable de romper por fuerza bruta incluso sin rate limiting (Architecture Review, AR-020)</td><td>No definido</td></tr>
+<tr><td><code>POST /diagnosticos</code>, <code>POST /bcs/clientes</code>, <code>POST /bcs/clientes/{id}/mediciones</code></td><td>Creación masiva automatizada de recursos</td><td>Ninguna — depende únicamente de requerir sesión autenticada (03)</td><td>No definido</td></tr>
+<tr><td><code>POST /motor-bps/activacion</code></td><td>Bajo — ya protegido por idempotencia de <code>transaccion_id</code> (11), no por rate limiting</td><td>Idempotencia (11)</td><td>No aplica — el riesgo real ya está cubierto por otro mecanismo</td></tr>
+<tr><td>Todos los demás endpoints del catálogo (07)</td><td>Sin evaluar — ningún handbook los prioriza</td><td>Ninguna</td><td>No definido</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="429">429 — cuando exista</h2>
+<p>Si en el futuro se introduce rate limiting, la respuesta sigue el mismo envelope de error de 06: <code>{ ok: false, error: "rate_limited" }</code> con status 429. Este documento fija la <em>forma</em> de la respuesta por consistencia con el resto del contrato — no fija el umbral que la dispara, porque ningún handbook lo ha decidido todavía.</p>
+
+<h2 id="reintentos">Reintentos</h2>
+<p>Ningún handbook especifica una política de <code>Retry-After</code> ni de backoff exponencial. El único precedente real de reintento en todo el ecosistema es el de <code>app/api/lead</code> frente a Brevo — y ese fetch no tiene timeout ni retry explícitos tampoco (Engineering Handbook, 09, deuda técnica ya documentada). Este documento no inventa una política de reintento donde ninguna existe.</p>
+
+<h2 id="candidatos">Candidatos de implementación (sin decidir)</h2>
+<p>El Security Handbook (Engineering, 08) menciona Vercel Edge Config o middleware en <code>proxy.ts</code> como posibles mecanismos, sin decidir cuál. Este documento no elige entre ellos — esa decisión pertenece a un ADR futuro del Engineering Handbook o del Implementation Handbook, no a este contrato.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../11-idempotencia/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 11 · Idempotencia</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../13-seguridad/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">13 · Seguridad →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

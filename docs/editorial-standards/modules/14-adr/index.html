@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>14 · ADR Editoriales — Editorial Standards</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="adr" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 14 · Gobernanza</p>
+<h1>ADR Editoriales</h1>
+<p class="lede">Siete decisiones de gobernanza. Todas son de <strong>declaración, delegación o política del handbook</strong>; ninguna decide biomecánica, entrenamiento ni contenido. Prefijo <code>ED-ADR-</code>.</p>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">ED-ADR-01</div>
+  <h3>Los roles editoriales se declaran ausentes; no se definen</h3>
+  <p><strong>Contexto:</strong> el brief solicita documentar Autor, Revisor, Aprobador, Administrador y Experto. El barrido con límites de palabra devuelve cero para los cinco; Engineering 08 además niega explícitamente la existencia de un rol administrador global.</p>
+  <p><strong>Problema:</strong> sin roles, el flujo editorial no puede describirse en términos de quién hace qué.</p>
+  <p><strong>Alternativas:</strong> (a) definir los cinco roles con responsabilidades razonables; (b) definirlos marcándolos como propuesta; (c) declarar la ausencia y documentar los dos actores y la autoridad que sí existen.</p>
+  <p><strong>Decisión:</strong> se adopta (c). Un rol definido aquí produce <strong>responsabilidad ficticia</strong>: alguien figuraría como aprobador de decisiones que nunca aceptó tomar, y el documento canónico lo convertiría en norma.</p>
+  <p><strong>Consecuencias:</strong> el módulo <a href="../03-roles/index.html">03</a> documenta actores (Contenido, Ingeniería) y una autoridad (persona con criterio de entrenador), que no son lo mismo que roles formales.</p>
+</div>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">ED-ADR-02</div>
+  <h3>El estándar gobierna el proceso y nunca el contenido</h3>
+  <p><strong>Contexto:</strong> varias deudas del ecosistema podrían cerrarse rápidamente si este handbook decidiera criterios de contenido — por ejemplo, cómo elegir el patrón primario de un ejercicio multi-patrón.</p>
+  <p><strong>Problema:</strong> P14 reserva ese tipo de decisión a una persona con criterio de entrenador.</p>
+  <p><strong>Decisión:</strong> el estándar editorial define <strong>quién puede decidir, con qué evidencia y cómo se registra</strong>; nunca <em>qué</em> se decide. Un estándar que opinara sobre contenido se convertiría en una segunda autoridad compitiendo con la primera.</p>
+  <p><strong>Consecuencias:</strong> el módulo <a href="../11-conflictos/index.html">11</a> gobierna los conflictos sin resolver ninguno, y es coherente con la instrucción explícita del brief.</p>
+</div>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">ED-ADR-03</div>
+  <h3>El ADR es el mecanismo de registro editorial de referencia</h3>
+  <p><strong>Contexto:</strong> todas las trazabilidades que hoy funcionan para decisiones humanas pasan por un ADR: registra razón, alternativas consideradas y consecuencias.</p>
+  <p><strong>Alternativas:</strong> (a) proponer un mecanismo de registro nuevo; (b) adoptar el ADR como forma canónica de registro editorial.</p>
+  <p><strong>Decisión:</strong> se adopta (b). Es el único mecanismo probado del ecosistema y no requiere inventar nada.</p>
+  <p><strong>Consecuencias:</strong> con una limitación reconocida — <strong>un ADR por cada asignación de atributo de cada ejercicio no escala</strong>. Sirve para decisiones generalizables, no para el etiquetado entrada a entrada. La brecha se registra en el módulo <a href="../17-roadmap/index.html">17</a>.</p>
+</div>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">ED-ADR-04</div>
+  <h3>Un conflicto sin regla se escala y se registra; nunca se resuelve localmente</h3>
+  <p><strong>Contexto:</strong> el barrido confirma cero reglas de desempate editorial. Quien detecta un conflicto necesita continuar trabajando.</p>
+  <p><strong>Alternativas:</strong> (a) permitir decisión local no registrada; (b) proponer criterios por defecto; (c) exigir escalado con registro.</p>
+  <p><strong>Decisión:</strong> se adopta (c), derivando el protocolo del circuito de cola editorial ya existente y de P14 — no se introduce ningún flujo nuevo.</p>
+  <p><strong>Consecuencias:</strong> el proceso puede detenerse esperando autorización, y hoy el registro no tiene soporte de datos (ED-D12). Ambas cosas son preferibles a producir precedentes no aprobados.</p>
+</div>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">ED-ADR-05</div>
+  <h3>Las tres deudas de trazabilidad se tratan como una sola</h3>
+  <p><strong>Contexto:</strong> la ausencia de estados (ED-D01), de versionado por entrada (ED-D10) y de registro de autoría (ED-D08) aparecen como tres deudas distintas en tres módulos distintos.</p>
+  <p><strong>Problema:</strong> tratarlas por separado sugiere que pueden resolverse por separado, y no pueden: sin estados no hay qué versionar, sin versionado no hay a qué asociar la autoría, y sin autoría el estado no prueba nada.</p>
+  <p><strong>Decisión:</strong> se declaran <strong>interdependientes</strong> y se priorizan como bloque único en el módulo <a href="../16-deuda-editorial/index.html">16</a>. Resolver una sin las otras dos no cierra la brecha de P14.</p>
+  <p><strong>Consecuencias:</strong> el roadmap las agrupa en una sola fase.</p>
+</div>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">ED-ADR-06</div>
+  <h3>Los precedentes de otros dominios se registran, no se adoptan</h3>
+  <p><strong>Contexto:</strong> el ecosistema ya resolvió el ciclo de vida (FSM de Cliente del BCS), el versionado por objeto (contratos de API) y la gobernanza terminológica (Lenguaje Ubicuo). Los tres son análogos directos de deudas abiertas del catálogo.</p>
+  <p><strong>Problema:</strong> adoptarlos cerraría varias deudas de inmediato — y sería crear reglas nuevas por extensión de alcance.</p>
+  <p><strong>Decisión:</strong> se <strong>registran como precedentes</strong> en el módulo correspondiente, señalando qué resolverían y por qué no se adoptan aquí. La extensión de alcance es una decisión documental, no una del estándar editorial.</p>
+  <p><strong>Consecuencias:</strong> quien cierre esas deudas encuentra el trabajo de análisis hecho y la decisión intacta.</p>
+</div>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">ED-ADR-07</div>
+  <h3>Las contradicciones se registran; no se resuelven</h3>
+  <p><strong>Contexto:</strong> el barrido encontró seis contradicciones (KE-01…06), dos de ellas críticas — incluida la que impide cumplir P14.</p>
+  <p><strong>Problema:</strong> algunas admiten una resolución evidente, y sería tentador aplicarla.</p>
+  <p><strong>Decisión:</strong> se registran con severidad, fuentes implicadas y consecuencias. Resolver una contradicción entre dos fuentes de rango superior desde este handbook lo situaría por encima de ellas en la jerarquía documental, que es exactamente lo contrario de su posición.</p>
+  <p><strong>Consecuencias:</strong> el módulo <a href="../11-conflictos/index.html">11</a> las lista sin decidirlas, conforme a la instrucción explícita del brief.</p>
+</div>
+
+<h2 id="resumen">Resumen</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>ADR</th><th>Tipo</th><th>¿Decide contenido?</th><th>¿Crea regla nueva?</th><th>¿Edita una fuente?</th></tr></thead>
+<tbody>
+<tr><td>ED-ADR-01</td><td>Declaración de ausencia</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>ED-ADR-02</td><td>Política del handbook</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>ED-ADR-03</td><td>Delegación a mecanismo existente</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>ED-ADR-04</td><td>Derivación de proceso</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>ED-ADR-05</td><td>Declaración de interdependencia</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>ED-ADR-06</td><td>Política del handbook</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>ED-ADR-07</td><td>Política del handbook</td><td>No</td><td>No</td><td>No</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../13-integracion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 13 · Integración</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../15-anti-patterns/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">15 · Anti-patterns →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

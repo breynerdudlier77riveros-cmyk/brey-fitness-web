@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>07 · Estados — Content Lifecycle</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="estados" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 07 · Estados y versiones</p>
+<h1>Estados</h1>
+<p class="lede">Preguntas 15, 16 y 17: qué significan "obsoleto" y "deprecado", y si alguno de esos conceptos existe realmente. La respuesta corta: <strong>uno existe en otro dominio, el otro no existe en absoluto, y ninguno se aplica a una entrada de catálogo</strong>.</p>
+
+<h2 id="barrido">Resultado del barrido</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Término</th><th>Base</th><th>Contexto real</th><th>¿Aplica a una entrada?</th></tr></thead>
+<tbody>
+<tr><td><code>draft</code> · <code>borrador</code></td><td><strong>0</strong> · <strong>0</strong></td><td>—</td><td>No existe</td></tr>
+<tr><td><code>approved</code> · <code>aprobado</code></td><td><strong>0</strong> · 1</td><td>La única coincidencia no se refiere a catálogo</td><td>No existe</td></tr>
+<tr><td><code>obsolete</code> · <code>obsoleto</code></td><td><strong>0</strong> · 1</td><td>"vigencia de nivel de seguridad obsoleto" — sobre la caducidad de un <strong>diagnóstico</strong></td><td>No</td></tr>
+<tr><td><code>deprecated</code></td><td><strong>0</strong></td><td>—</td><td>No existe en inglés</td></tr>
+<tr><td><code>deprecación</code></td><td>4</td><td>Deprecación de <strong>contratos de API</strong>: "una fecha de deprecación para el contrato viejo"</td><td>No — otro dominio</td></tr>
+<tr><td><code>archive</code> · <code>archivad*</code></td><td><strong>0</strong> · 31</td><td>Las 31 son la FSM de <strong>Cliente del BCS</strong>: <code>activo ⇄ archivado → eliminado</code></td><td>No — otro dominio</td></tr>
+<tr><td><code>retirar</code> · <code>retirad*</code></td><td><strong>0</strong> · 2</td><td>Marginales, no referidas a catálogo</td><td>No</td></tr>
+<tr><td><code>status</code></td><td>17</td><td>Códigos HTTP del API Contract</td><td>No</td></tr>
+<tr><td><code>state</code> · <code>lifecycle</code></td><td><strong>0</strong> · <strong>0</strong></td><td>—</td><td>No existen</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="significados">Qué significan realmente los dos términos</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">"Obsoleto" — pregunta 15</div>
+  <p><strong>No tiene significado definido para una entrada de catálogo.</strong> La única aparición en el ecosistema base describe la caducidad de un diagnóstico: un resultado de hace más de seis meses queda obsoleto porque "un nivel de entrada de hace un año no es un dato de seguridad vigente". Es obsolescencia de un <em>dato del usuario</em>, con un umbral temporal explícito, y no se extiende al catálogo.</p>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">"Deprecado" — pregunta 16</div>
+  <p><strong>Sí existe, con significado preciso, y solo para contratos publicados.</strong> La disciplina documentada es: crear la versión nueva junto a la anterior, "con un ADR que registre la razón y <strong>una fecha de deprecación</strong> para el contrato viejo… <strong>Nunca mutación in-place de un contrato publicado</strong>". Es el mecanismo mejor definido de todo el ecosistema para retirar algo sin romper a quien lo usa — y se aplica a APIs y contratos de motor, no a entradas de catálogo.</p>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Pregunta 17 — ¿existe realmente alguno de esos conceptos?</div>
+  <p><strong>Para una entrada de catálogo: ninguno.</strong> De los cuatro estados solicitados (draft, approved, deprecated, archived), cero tienen definición aplicable. Dos de los cuatro (<em>deprecado</em>, <em>archivado</em>) existen con precisión en el ecosistema, pero para otros objetos: contratos de API y Clientes del BCS respectivamente. Es terminología prestada, no estado disponible.</p>
+</div>
+
+<h2 id="prestados">Los estados prestados de otros dominios</h2>
+<div class="diagram">
+<div class="diagram-label">Cuatro términos, tres dominios, ninguno el catálogo</div>
+<pre class="mermaid">
+graph TD
+  D["draft / borrador"] --> N1["❌ no existe<br/>en ningún dominio"]
+  A["approved / aprobado"] --> N2["❌ no existe<br/>en ningún dominio"]
+  DEP["deprecated / deprecación"] --> C["✅ CONTRATOS de API<br/>versión nueva + ADR + fecha"]
+  ARC["archived / archivado"] --> B["✅ CLIENTE del BCS<br/>activo ⇄ archivado → eliminado"]
+  OBS["obsoleto"] --> DX["✅ DIAGNÓSTICO<br/>caduca a los 6 meses"]
+  CAT["ENTRADA DE CATÁLOGO"] -.->|"⛔ ningún estado<br/>disponible"| X["sin ciclo de vida"]
+</pre>
+</div>
+
+<h2 id="implicitos">Los dos estados implícitos que sí existen</h2>
+<p>Sin vocabulario de estados, una entrada solo puede estar en dos situaciones, y ambas se <strong>derivan</strong> de la completitud de sus atributos — ningún campo las declara:</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Situación</th><th>Cómo se determina</th><th>Elegible</th><th>Limitación</th></tr></thead>
+<tbody>
+<tr><td><strong>Candidato</strong></td><td>Le falta algún atributo obligatorio</td><td>No</td><td>Indistinguible de una entrada abandonada, defectuosa o en curso</td></tr>
+<tr><td><strong>Oficial</strong></td><td>Cumple las cuatro condiciones de existencia</td><td>Sí</td><td>No registra quién la aprobó ni cuándo</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Deuda CL-D05 — cero estados documentados para una entrada</div>
+  <p>No hay atributo de estado, no hay vocabulario, no hay transiciones y no hay dónde declararlas. Los dos estados implícitos no son estados: son <strong>lecturas de completitud</strong>. Este handbook no los formaliza — hacerlo crearía un vocabulario de estados que ninguna autoridad ha acordado.</p>
+</div>
+
+<h2 id="consecuencias">Qué impide la ausencia de estados</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Operación imposible</th><th>Severidad</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><strong>Trabajar en borrador</strong> — señalar una entrada como "en curso"</td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td>2</td><td><strong>Aprobar formalmente</strong> — la transición ocurre por completitud, no por decisión</td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td>3</td><td><strong>Retirar</strong> — sin estado de retirada, la única vía es borrar, que está prohibido</td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td>4</td><td><strong>Marcar para re-revisión</strong> tras un cambio de vocabulario o de criterio</td><td><span class="severity severity--media">media</span></td></tr>
+<tr><td>5</td><td><strong>Cerrar el ciclo de la cola editorial</strong> — un defecto se registra, pero la entrada no cambia de estado</td><td><span class="severity severity--media">media</span></td></tr>
+<tr><td>6</td><td><strong>Deprecar con convivencia</strong> — el mecanismo existe para contratos y no para entradas</td><td><span class="severity severity--alta">alta</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="precedentes">Precedentes disponibles, no adoptados</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Precedente</th><th>Qué resolvería</th><th>Por qué no se adopta aquí</th></tr></thead>
+<tbody>
+<tr><td>FSM de Cliente del BCS</td><td>Distinguir archivado <strong>reversible</strong> de eliminación permanente</td><td>Otro dominio; adoptarla sería crear una regla nueva</td></tr>
+<tr><td>Deprecación de contratos</td><td>Retirar conservando convivencia, con ADR y fecha</td><td>Se refiere a contratos publicados, no a catálogo</td></tr>
+<tr><td>Caducidad del Diagnóstico</td><td>Invalidar por antigüedad con umbral explícito</td><td>Dato del usuario, no de catálogo</td></tr>
+<tr><td>Estados de Workout</td><td><code>planificado → completado / perdido</code>, con estados finales</td><td>Instancia, no plantilla</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Cuatro soluciones al alcance</div>
+  <p>El ecosistema ha resuelto el problema del ciclo de vida <strong>cuatro veces</strong>, en cuatro dominios distintos y con cuidado en cada uno. Que ninguna se haya extendido al catálogo no es una carencia de capacidad de diseño: es que <strong>nadie ha tomado esa decisión</strong>. Registrarlo con sus precedentes es lo máximo que este handbook puede aportar sin invadir la jerarquía documental.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../06-publicacion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 06 · Publicación</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../08-fsm/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">08 · Máquinas de Estado →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

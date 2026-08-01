@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>16 · Preguntas Abiertas — Exercise Taxonomy Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="preguntas-abiertas" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 16 · Gobernanza</p>
+<h1>Preguntas Abiertas y Deuda Documental</h1>
+<p class="lede">Veintiocho entradas de deuda documental que este handbook no puede resolver sin inventar. Diecisiete son atributos solicitados sin respaldo pleno; once son brechas que el barrido encontró dentro de la especificación existente. Cada una lleva el resultado exacto del barrido, para que quien la resuelva no repita el trabajo.</p>
+
+<h2 id="metodo">Método del barrido</h2>
+<p>Cada término se buscó, sin distinción de mayúsculas, en todos los archivos <code>.html</code> del repositorio documental (once handbooks). "0 apariciones" significa que el término no existe en ninguna forma en toda la documentación. Cuando aparece, se cita dónde y con qué significado, para distinguir "existe con otro sentido" de "no existe".</p>
+
+<h2 id="atributos">Deuda tipo A — atributos solicitados sin respaldo pleno</h2>
+<p class="matrix-note">17 filas: las 15 de los atributos sin respaldo alguno (dos filas agrupan pares equivalentes — rango de reps con rango de duración, y compatibilidad con fases con compatibilidad con bloques, por compartir exactamente el mismo resultado de barrido), más las 2 de los atributos con respaldo <em>parcial</em> que arrastran deuda propia (capacidad física y zona primaria/secundaria). Ninguno se define aquí: se registra qué se buscó y qué se encontró.</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr><th>ID</th><th>Atributo solicitado</th><th>Resultado del barrido</th><th>Lo más cercano que sí existe</th></tr></thead>
+<tbody>
+<tr><td><code>TX-Q01</code></td><td>Alias</td><td>2 apariciones: API Contract 01 ("alias del mismo concepto", sobre nomenclatura) y Engineering 13 (convenciones de código). Ninguna sobre ejercicios.</td><td><code>nombreIngles</code> — un solo sinónimo, un solo idioma</td></tr>
+<tr><td><code>TX-Q02</code></td><td>Plano de movimiento</td><td><strong>0 apariciones.</strong></td><td>Los patrones distinguen horizontal/vertical, pero solo en empuje y tracción</td></tr>
+<tr><td><code>TX-Q03</code></td><td>Dominancia</td><td><strong>0 apariciones</strong> como atributo o eje.</td><td><code>dominante-rodilla</code>/<code>dominante-cadera</code> son <em>slugs de patrón</em>, no un eje de dominancia</td></tr>
+<tr><td><code>TX-Q04</code></td><td>Tipo de contracción</td><td><strong>0 apariciones.</strong> No existe taxonomía concéntrica/excéntrica/isométrica.</td><td>El eje de ejecución de la modalidad (<code>dinamico</code>/<code>isometrico</code>) — adyacente pero distinto</td></tr>
+<tr><td><code>TX-Q05</code></td><td>Tempo compatible</td><td>El tempo existe como <strong>capa 14 de prescripción</strong>, con notación de 4 dígitos y default "controlado". No existe como atributo del ejercicio.</td><td>Capa 14 — pero es prescripción, no clasificación</td></tr>
+<tr><td><code>TX-Q06</code></td><td>Rango de repeticiones / de duración permitido</td><td>El rango existe como <strong>capa 11 de prescripción</strong>. Ninguna fuente declara un rango permitido <em>por ejercicio</em>.</td><td>La modalidad determina la <em>unidad</em> (reps vs. segundos), no el rango</td></tr>
+<tr><td><code>TX-Q07</code></td><td>Escalabilidad</td><td>6 apariciones, <strong>todas sobre escalabilidad de sistemas</strong> (BCS Handbook). Ninguna sobre ejercicios.</td><td>La cadena de progresión cumple una función parecida, con otro modelo</td></tr>
+<tr><td><code>TX-Q08</code></td><td>Contraindicaciones</td><td>1 aparición (Progression Engine 10) y es para declararlo <strong>fuera de alcance</strong>: "responsabilidad de un motor dedicado con su propio handbook".</td><td><code>zonasRiesgo[]</code> — cubre riesgo articular, no contraindicación clínica</td></tr>
+<tr><td><code>TX-Q09</code></td><td>Nivel recomendado</td><td><strong>0 apariciones.</strong> Tampoco "nivel requerido" (0 apariciones).</td><td><code>nivel</code> — un solo campo, sin distinción requerido/recomendado</td></tr>
+<tr><td><code>TX-Q10</code></td><td>Compatibilidad con fases / con bloques</td><td>No existe vínculo ejercicio↔fase ni ejercicio↔bloque. El énfasis del Bloque modula la <em>prescripción</em>, no la elegibilidad.</td><td><code>sistemasVinculados[]</code> — un nivel de granularidad más grueso</td></tr>
+<tr><td><code>TX-Q11</code></td><td>Compatibilidad con objetivos</td><td>El objetivo es del Sistema y del Perfil. El Progression Engine lo declara explícitamente <strong>ignorado</strong>: "ya fue resuelto aguas arriba".</td><td><code>sistemasVinculados[]</code> — el Sistema ya encapsula el objetivo</td></tr>
+<tr><td><code>TX-Q12</code></td><td>Compatibilidad con hemofilia</td><td><strong>0 apariciones.</strong> Además, fuera del dominio declarado: "El sistema NO diagnostica ni trata".</td><td>Ninguno. Toda condición clínica está fuera del alcance del ecosistema</td></tr>
+<tr><td><code>TX-Q13</code></td><td>Compatibilidad con espacio físico</td><td><strong>0 apariciones.</strong> El Track es contexto de <em>equipo</em>, explícitamente no de espacio (ADR-005).</td><td>Track <code>gym</code>/<code>casa</code> — se le parece, no lo es</td></tr>
+<tr><td><code>TX-Q14</code></td><td>Compatibilidad con tiempo disponible</td><td>El tiempo se gestiona por <strong>recorte de slots</strong> (R-G2) y por PE-009, ambos a nivel de sesión. Ningún ejercicio declara duración propia.</td><td>La duración estimada vive en la Sesión, no en el ejercicio</td></tr>
+<tr><td><code>TX-Q21</code></td><td>Capacidad física como cualidad entrenable</td><td>No existe taxonomía de cualidades físicas. "Capacidad" significa otra cosa — ver <a href="../15-adr/index.html">TX-ADR-05</a>.</td><td><code>capacidad</code> — prerequisito demostrable, no cualidad</td></tr>
+<tr><td><code>TX-Q</code>*</td><td>Cadena cinética</td><td><strong>0 apariciones.</strong> "Cadena" está reservado — ver <a href="../15-adr/index.html">TX-ADR-03</a>.</td><td>Ninguno</td></tr>
+<tr><td><code>TX-Q</code>*</td><td>Zona primaria / secundaria</td><td>Existe el eje muscular (<code>musculoPrincipal</code>/<code>musculosSecundarios</code>), pero "zona" designa otra cosa — ver <a href="../15-adr/index.html">TX-ADR-02</a>.</td><td>El eje muscular, con otro nombre</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="brechas">Deuda tipo B — brechas dentro de la especificación existente</h2>
+<p class="matrix-note">No son atributos solicitados: son cosas que la documentación ya <em>usa</em> o <em>exige</em> sin haberlas definido. Estas son, funcionalmente, más urgentes.</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr><th>ID</th><th>Brecha</th><th>Quién la necesita</th><th>Severidad</th></tr></thead>
+<tbody>
+<tr><td><code>TX-Q15</code></td><td><code>metabolico</code> cuenta como volumen "de acondicionamiento, no de fuerza", pero PE-010 fija un techo de volumen sin distinguir tipos</td><td>Progression Engine</td><td><span class="severity severity--media">media</span></td></tr>
+<tr><td><code>TX-Q16</code></td><td>Los descansos por Rol son <strong>rangos</strong> "modulados por énfasis del Bloque", pero la función de modulación no se publica</td><td>Workout Generator</td><td><span class="severity severity--media">media</span></td></tr>
+<tr><td><code>TX-Q17</code></td><td>La <strong>tabla de equivalencias autorizada</strong> reps↔segundos se exige por el algoritmo pero no se especifica: ni forma, ni ubicación, ni autoridad</td><td>Knowledge Base · Generator</td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td><code>TX-Q18</code></td><td>El eje <code>bilateral</code>/<code>unilateral</code> no tiene ninguna consecuencia algorítmica declarada (¿duplica series? ¿cuenta doble el volumen?)</td><td>Generator · Progression</td><td><span class="severity severity--media">media</span></td></tr>
+<tr><td><code>TX-Q19</code></td><td>El mapeo equipo→Track no existe: solo <code>peso-corporal</code> es inequívoco; la fuente usa <code>kettlebell</code> como ejemplo del problema</td><td>Generator</td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td><code>TX-Q20</code></td><td>No se declara si <code>equipo[]</code> es conjunción ("necesita todo") o disyunción ("basta uno")</td><td>Knowledge Base</td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td><code>TX-Q22</code></td><td>No existe mapeo entre el <strong>Nivel del usuario</strong> y los <strong>niveles de ejercicio</strong> aceptables, pese a que el paso 0 filtra por él</td><td>Knowledge Base · Generator</td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td><code>TX-Q23</code></td><td>El Architecture Handbook 08 exige que la fila de Workout lleve patrón, rol, slug, descanso, tempo y notas; el DTO oficial <code>EjercicioPlan</code> solo admite <code>{nombre, series, reps, peso?, intensidad?}</code></td><td>Generator · Player</td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td><code>TX-Q24</code></td><td>La validación estructural debe detectar "huecos de nivel" en una cadena, pero no se define qué constituye un hueco</td><td>Validación de catálogo</td><td><span class="severity severity--media">media</span></td></tr>
+<tr><td><code>TX-Q25</code></td><td>PE-003 distingue "Slot de carga externa" de "progresión de patrón corporal", y su contraejemplo exige saber si un ejercicio "admite carga añadida" — <strong>ninguno de los dos datos es un atributo declarado</strong></td><td>Progression Engine</td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td><code>TX-Q26</code></td><td>El contrato de consumidores promete que Progression usa "roles (peso de la señal)", pero ninguna de las 39 reglas PE lo operacionaliza</td><td>Progression Engine</td><td><span class="severity severity--media">media</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="heredadas">Preguntas heredadas de las fuentes</h2>
+<p>Estas ya estaban abiertas antes de este handbook; se trasladan sin modificar para que el inventario sea completo.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Pregunta</th><th>Fuente</th><th>Estado en la fuente</th></tr></thead>
+<tbody>
+<tr><td>¿Las capacidades demostradas expiran tras un tiempo sin entrenar?</td><td>Architecture Handbook 04</td><td>"Propuesta: sí, con re-validación ligera — sin decidir, Roadmap H3"</td></tr>
+<tr><td>Mapeo equipo→Track (¿kettlebell = casa?)</td><td>Architecture Handbook 04</td><td>"Contenido, Roadmap H2"</td></tr>
+<tr><td>¿La restricción temporal de zona (14 días) puede levantarla el usuario?</td><td>Architecture Handbook 06</td><td>"Tensión P10 vs. seguridad — sin decidir, Roadmap H2"</td></tr>
+<tr><td>¿El Perfil capturará lesiones como zonas estructuradas?</td><td>Architecture Handbook 04</td><td>"Bloqueante registrado en el Roadmap" — hoy es texto libre</td></tr>
+<tr><td>¿La notación de tempo se muestra siempre en el Player?</td><td>Architecture Handbook 03</td><td>"Decisión de UX del módulo 09"</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="prioridad">Orden de resolución sugerido</h2>
+<div class="diagram">
+<div class="diagram-label">Las cuatro críticas bloquean la resolución de slots; el resto no</div>
+<pre class="mermaid">
+graph TD
+  Q22["TX-Q22 · mapeo Nivel↔nivel<br/>CRÍTICA"] --> BLOCK["Resolución de slots<br/>no es ejecutable"]
+  Q25["TX-Q25 · carga externa vs.<br/>patrón corporal · CRÍTICA"] --> BLOCK
+  Q23["TX-Q23 · DTO no admite<br/>lo que el handbook exige · CRÍTICA"] --> BLOCK2["La instancia pierde<br/>información de taxonomía"]
+  Q20["TX-Q20 · conjunción o<br/>disyunción de equipo · ALTA"] --> AMB["Catálogos elegibles<br/>distintos según lectura"]
+  Q19["TX-Q19 · mapeo equipo→Track<br/>ALTA"] --> AMB
+  Q17["TX-Q17 · tabla de<br/>equivalencias · ALTA"] --> SUB["Cruce de modalidad<br/>siempre falla"]
+</pre>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../15-adr/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 15 · ADR</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../17-autoauditoria/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">17 · Autoauditoría →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

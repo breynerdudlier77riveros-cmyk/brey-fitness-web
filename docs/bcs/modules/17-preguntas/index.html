@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>17 · Preguntas Abiertas — BCS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="preguntas" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 17 · Sistema y gobernanza</p>
+<h1>Preguntas Abiertas</h1>
+<p class="lede">Todo lo que este documento deja intencionalmente sin resolver, consolidado desde los módulos donde surgió cada pregunta.</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr><th>Pregunta</th><th>Origen</th><th>Qué se necesita para resolverla</th></tr></thead>
+<tbody>
+<tr><td>¿Debe existir un flujo de consentimiento formal (checkbox/firma) antes de registrar datos de un cliente?</td><td>11, 14</td><td>Requisito legal específico de la jurisdicción donde opere BREY</td></tr>
+<tr><td>¿Deberían los EnlacesPúblicos tener expiración configurable?</td><td>10, 14</td><td>Validar con entrenadores reales si la ausencia de expiración es un problema práctico o una comodidad deseada</td></tr>
+<tr><td>¿Cómo debería el sistema manejar clientes menores de edad, dado que los rangos de referencia de v1 son de población adulta?</td><td>03, 06</td><td>Decisión de producto: ¿BREY atiende menores en este sistema? Si sí, requiere rangos pediátricos citados por separado</td></tr>
+<tr><td>¿El Reporte debería poder "congelarse" como snapshot exportable, en vez de ser siempre la vista más actual?</td><td>02 (IN-D3), 04</td><td>Depende de si surge una necesidad real de comparar "el reporte que el cliente vio en marzo" contra el estado actual — hoy no es una necesidad declarada</td></tr>
+<tr><td>¿Qué fórmula exacta de respaldo debería usar BREY para BMR cuando el dispositivo no lo entrega — Mifflin-St Jeor u otra?</td><td>03 (BCS-V16)</td><td>Elegir y documentar una única fórmula de respaldo con su cita, marcada explícitamente como estimación distinta del valor del dispositivo</td></tr>
+<tr><td>¿Debería el sistema permitir vincular un Cliente del BCS con un <code>profile</code> del Core Product de BREY?</td><td>00, 01, 14</td><td>Depende de si BREY decide ofrecer al cliente final acceso a su propio historial de composición corporal dentro de la app, más allá del enlace público</td></tr>
+<tr><td>¿Qué gatilla realmente la activación de multi-entrenador — demanda comercial, o se construye especulativamente antes?</td><td>12, 16 (BCS-ADR-04)</td><td>Decisión de negocio, no de arquitectura — la arquitectura ya está lista para cuando se decida</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../16-adr/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 16 · ADR</div>
+  </a>
+  <div></div>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

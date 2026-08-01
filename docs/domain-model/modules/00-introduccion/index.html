@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>00 · Introducción — Domain Model Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="introduccion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 00 · Fundamentos</p>
+<h1>Introducción</h1>
+<p class="lede">El lenguaje oficial del negocio de BREY. Define entidades, relaciones, agregados, eventos, ownership e invariantes para todo el ecosistema — la fuente única de verdad de qué existe, qué no existe, y quién es dueño de qué.</p>
+
+<div class="meta-row">
+  <span class="chip">Autoridad: handbook &gt; código</span>
+  <span class="chip">Orquesta el lenguaje de 7 handbooks — no reescribe ninguno</span>
+  <span class="chip">Sin código, sin SQL, sin TypeScript, sin APIs</span>
+</div>
+
+<h2 id="proposito">Propósito</h2>
+<p>Los siete documentos existentes especifican, cada uno, el comportamiento de una parte del sistema. Ninguno responde de forma unificada y transversal a las preguntas más básicas del dominio: ¿cuáles son todas las entidades del ecosistema? ¿Qué conoce cada una? ¿Qué no conoce? ¿Quién es dueño de qué? ¿Qué tiene identidad propia y qué es solo un valor? Este documento responde esas preguntas una sola vez, para todo BREY.</p>
+
+<h2 id="alcance">Alcance</h2>
+<ul>
+  <li>El catálogo completo de entidades, objetos de valor y agregados del ecosistema.</li>
+  <li>El lenguaje ubicuo — los términos oficiales, sus sinónimos permitidos y sus términos prohibidos.</li>
+  <li>Las relaciones, cardinalidades y máquinas de estado de cada entidad.</li>
+  <li>Los invariantes que ninguna implementación futura puede violar.</li>
+  <li>El mapeo conceptual de cada entidad a su forma de persistencia esperada — sin especificar esa persistencia.</li>
+</ul>
+
+<h2 id="no-alcance">No alcance</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Fuera de este documento</th><th>Dónde vive</th></tr></thead>
+<tbody>
+<tr><td>Reglas de negocio de un motor específico (cómo decide Progression Engine)</td><td>El handbook de dominio correspondiente (Motor BPS, Progression Engine, BCS)</td></tr>
+<tr><td>Diseño visual, componentes, tokens</td><td>BCS Design System Handbook</td></tr>
+<tr><td>Capas técnicas, patrones de repositorio, estándares de código</td><td>Engineering Handbook</td></tr>
+<tr><td>Orden de construcción, migraciones, checklists de release</td><td>Implementation Handbook</td></tr>
+<tr><td>Cualquier línea de código, esquema SQL, tipo TypeScript, endpoint de API</td><td>No pertenece a ningún handbook de dominio</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="relacion">Relación con los demás handbooks</h2>
+<div class="diagram">
+<div class="diagram-label">Este handbook extrae y consolida el lenguaje ya usado por los siete anteriores — no inventa entidades nuevas salvo donde el vacío es real</div>
+<pre class="mermaid">
+graph TD
+  AH["Architecture Handbook"] --> DM["Domain Model Handbook<br/>(este documento)"]
+  MB["Motor BPS Handbook"] --> DM
+  PE["Progression Engine Handbook"] --> DM
+  BCS["BCS Handbook"] --> DM
+  BCSD["BCS Design System Handbook"] --> DM
+  ENG["Engineering Handbook"] --> DM
+  IMP["Implementation Handbook"] --> DM
+  DM -->|"lenguaje y modelo consolidados"| FUT["Toda base de datos, API o motor futuro"]
+</pre>
+</div>
+<p>Este documento consolida — nunca contradice. Donde dos handbooks usaron el mismo término con matices distintos (ej. el ejemplo de aggregate roots del propio encargo, que sugería una forma ya descartada por el BCS Handbook), este documento cita la decisión ya tomada y la aplica, con la corrección explicada donde corresponde (08).</p>
+
+<h2 id="regla-prioridad">Regla de prioridad documental</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Prioridad de este documento</div>
+  <p>Si una implementación futura contradice este handbook, este handbook tiene prioridad. Frente a los siete documentos anteriores, este handbook no tiene autoridad para redefinir una regla de negocio ya decidida — solo para nombrar, clasificar y relacionar lo que esos documentos ya establecieron. En caso de conflicto real entre este documento y un handbook de dominio anterior, el handbook de dominio gana en su propio terreno (reglas de negocio); este documento gana en el suyo (nombres, identidad, ownership, relaciones).</p>
+  <p><strong>Corrección Sprint 0 — rango frente a Architecture Review e Implementation Handbook:</strong> este documento se subordina a ambos. Frente a la Architecture Review v1.0, sus hallazgos 🔴/🟠 gobiernan cualquier ajuste de este handbook. Frente al Implementation Handbook, escrito antes, este documento nunca reordena la secuencia de construcción que aquel ya fijó — solo nombra y relaciona lo que se construye, nunca cuándo.</p>
+</div>
+
+<h2 id="como-leer">Cómo leer el documento</h2>
+<p>Cada entidad, objeto de valor o término se presenta con su handbook de origen citado explícitamente — nunca se afirma algo sobre una entidad sin poder señalar de dónde viene esa afirmación. Se reutiliza el sistema de tres etiquetas ya establecido:</p>
+<p>
+<span class="tag tag--implementado">implementado</span>
+<span class="tag tag--especificado">especificado</span>
+<span class="tag tag--futuro">futuro</span>
+</p>
+<p>Y se añade un cuarto uso propio de este documento: cuando una entidad tiene identidad conceptual clara pero ningún handbook anterior definió su persistencia, se declara explícitamente como tal (13) — nunca se inventa una tabla o estructura no autorizada por ningún documento previo.</p>
+
+<div class="pagenav">
+  <div></div>
+  <a class="pagenav__item pagenav__item--next" href="../01-lenguaje-ubicuo/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">01 · Lenguaje Ubicuo →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

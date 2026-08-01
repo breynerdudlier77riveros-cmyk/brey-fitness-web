@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>00 · Introducción — Exercise Taxonomy Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="introduccion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 00 · Empezar</p>
+<h1>Introducción</h1>
+<p class="lede">Qué resuelve este handbook, qué deliberadamente no resuelve, de dónde deriva cada afirmación que contiene, y la única regla que gobierna todo lo demás: cuando la documentación existente no define un atributo, este handbook lo declara como deuda — nunca lo inventa.</p>
+
+<div class="meta-row">
+  <span class="chip">Single Source of Truth de clasificación</span>
+  <span class="chip">Cero clasificación nueva</span>
+  <span class="chip">Derivado, no original</span>
+</div>
+
+<h2 id="proposito">Propósito</h2>
+<p>Antes de este documento, la respuesta a "¿cómo se describe un ejercicio en BREY?" estaba repartida en al menos cinco documentos y dos artefactos de código, cada uno definiendo una parte del vocabulario sin declarar su relación con las demás. Este handbook consolida esa respuesta en un solo lugar y la convierte en <strong>la</strong> respuesta: cualquier ejercicio existente o futuro del ecosistema se describe con los ejes, atributos y vocabularios que este documento fija.</p>
+<p>Su valor no está en aportar clasificación nueva — no aporta ninguna — sino en tres cosas que hoy no existen: (a) el mapa completo de qué atributo vive dónde y con qué autoridad, (b) las fronteras explícitas entre Ejercicio y las seis entidades con las que se confunde, y (c) el inventario honesto de qué se ha pedido clasificar y todavía no tiene respaldo documental.</p>
+
+<h2 id="alcance">Alcance</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Dentro del alcance</th><th>Por qué aquí</th></tr></thead>
+<tbody>
+<tr><td>La ontología del Ejercicio: qué es, qué lo identifica, qué lo clasifica</td><td>Es la pregunta que este handbook existe para responder</td></tr>
+<tr><td>Los cuatro ejes de clasificación cerrados: patrón, rol, modalidad, equipamiento</td><td>Publicados completos por el Architecture Handbook (04); aquí se consolidan y se relacionan</td></tr>
+<tr><td>Las fronteras Ejercicio ≠ Prescripción ≠ Workout ≠ Log ≠ Slot ≠ Plantilla</td><td>Están implícitas en 03/04/08/09 pero nunca se enunciaron juntas</td></tr>
+<tr><td>El estatuto de cada atributo: obligatorio, opcional, derivado, calculado, nunca persistido</td><td>Ningún documento anterior lo declara</td></tr>
+<tr><td>La deuda documental: atributos pedidos sin respaldo</td><td>Declararla es parte del propósito, no un apéndice</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="no-alcance">No alcance</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Fuera del alcance</th><th>Dónde vive</th></tr></thead>
+<tbody>
+<tr><td>Crear ejercicios, o etiquetar los 19 existentes</td><td>Contenido con criterio de entrenador (P14) — bloqueante #2 del Roadmap, Architecture Handbook 04</td></tr>
+<tr><td>La prescripción numérica (series, reps, intensidad, descanso, tempo)</td><td>Training Framework — Architecture Handbook 03, capas 10–15</td></tr>
+<tr><td>El algoritmo de elegibilidad y sustitución</td><td>Knowledge Base — Architecture Handbook 04; aquí solo se documenta qué atributos consume</td></tr>
+<tr><td>Cuándo avanzar o retroceder de eslabón</td><td>Progression Engine Handbook</td></tr>
+<tr><td>El orden de la sesión</td><td>R-4 del Training Framework; aquí solo se documenta que el Rol lo determina</td></tr>
+<tr><td>Cualquier decisión clínica o de seguridad individual</td><td>Fuera del dominio del sistema completo — el sistema no diagnostica ni trata</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="posicion">Posición en el ecosistema documental</h2>
+<div class="diagram">
+<div class="diagram-label">Este handbook consolida; no sustituye a ninguna de sus fuentes</div>
+<pre class="mermaid">
+graph TD
+  AH04["Architecture Handbook 04<br/>Knowledge Base"] --> TX["Exercise Taxonomy Handbook<br/>(este documento)"]
+  AH03["Architecture Handbook 03<br/>Training Framework"] --> TX
+  AH08["Architecture Handbook 08<br/>Workout Generator"] --> TX
+  AH09["Architecture Handbook 09<br/>Workout Player"] --> TX
+  PE["Progression Engine Handbook"] --> TX
+  DM["Domain Model Handbook"] --> TX
+  DB["Database Handbook"] --> TX
+  API["API Contract Handbook"] --> TX
+  ENG["Engineering Handbook"] --> TX
+  TX --> C1["Consumidores: Generator · Progression<br/>Recovery · Player · Diagnóstico"]
+</pre>
+</div>
+
+<h2 id="jerarquia">Jerarquía documental</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Prioridad — este handbook es el más bajo de la cadena</div>
+  <p>Ante cualquier discrepancia entre este documento y una de sus fuentes, <strong>gana la fuente</strong>. El orden vigente del ecosistema es: Architecture Review &gt; Implementation Handbook &gt; Domain Model Handbook &gt; resto de handbooks &gt; este documento. Un Exercise Taxonomy Handbook que contradijera al Architecture Handbook 04 no sería una fuente de verdad: sería un cuarto vocabulario compitiendo con los tres que ya existen — exactamente el problema que viene a resolver.</p>
+</div>
+<p>Lo que sí puede hacer este handbook, y hace en el módulo <a href="../15-adr/index.html">15</a>, es <strong>registrar</strong> una colisión entre fuentes de igual rango y declarar cuál se usa en este documento, sin editar ninguna de las dos.</p>
+
+<h2 id="fuentes">Fuentes consultadas</h2>
+<p class="matrix-note">Barrido completo del repositorio documental. Cada fila indica qué aportó al contenido de este handbook.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Fuente</th><th>Qué aporta</th></tr></thead>
+<tbody>
+<tr><td>Architecture Handbook 04 · Knowledge Base</td><td>Fuente primaria: 9 patrones, 5 roles, 6 zonas de riesgo, 6 equipos, modalidad, capacidades, cadena, tabla de atributos, reglas de sustitución</td></tr>
+<tr><td>Architecture Handbook 03 · Training Framework</td><td>Las 15 capas, el slot Patrón×Rol, Track, la frontera plantilla/instancia, R-1 a R-4</td></tr>
+<tr><td>Architecture Handbook 08 · Workout Generator</td><td>Qué se desnormaliza al materializar; propagación de <code>CATALOGO_INSUFICIENTE</code></td></tr>
+<tr><td>Architecture Handbook 09 · Workout Player</td><td>Modalidad como determinante de UI; I-W2/I-W3 (inmutabilidad del plan y del log)</td></tr>
+<tr><td>Progression Engine Handbook</td><td>Cadena como unidad de avance; PE-003 (carga externa vs. patrón corporal); PE-012</td></tr>
+<tr><td>Domain Model Handbook</td><td>Entidades, agregados y máquinas de estado con las que el Ejercicio se relaciona</td></tr>
+<tr><td>Database Handbook</td><td>Qué se persiste hoy y qué no tiene tabla</td></tr>
+<tr><td>API Contract Handbook</td><td>DTOs oficiales que transportan ejercicios</td></tr>
+<tr><td>Engineering Handbook</td><td>Convenciones de naming y ubicación del catálogo en código (ADR-009)</td></tr>
+<tr><td>Motor BPS Handbook</td><td>BPS-021 (el Motor nunca decide contenido) y BPS-023 (versión de catálogo)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="regla-deuda">La regla de la deuda documental</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Regla fundacional de este handbook</div>
+  <p>Si un atributo se solicita y <strong>no existe respaldo en la documentación</strong>, este handbook lo registra en el módulo <a href="../16-preguntas-abiertas/index.html">16</a> como deuda documental, con el término exacto solicitado y el resultado del barrido. Nunca lo define por analogía, por sentido común fisiológico ni por lo que "obviamente debería ser". Inventar una clasificación aquí la convertiría en oficial por el solo hecho de estar escrita en el documento titulado "Single Source of Truth" — que es precisamente el modo en que una taxonomía se corrompe.</p>
+</div>
+<p>De los 34 atributos solicitados para este handbook, <strong>13 tienen respaldo pleno</strong> y <strong>4 respaldo parcial</strong> — se definen en el módulo <a href="../04-clasificacion/index.html">04</a>; los <strong>17 restantes no tienen respaldo alguno</strong> y se declaran como deuda en el <a href="../16-preguntas-abiertas/index.html">16</a>. El desglose exacto y el método de verificación están en la <a href="../17-autoauditoria/index.html">Autoauditoría</a>.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../../index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← Portada</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../01-filosofia/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">01 · Filosofía →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

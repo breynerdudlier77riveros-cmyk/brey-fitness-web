@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>15 · Anti-patterns — Exercise Tagging Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="anti-patterns" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 15 · Gobernanza</p>
+<h1>Anti-patterns del Etiquetado</h1>
+<p class="lede">Doce errores frecuentes, cada uno con la regla que viola y su forma concreta. Prefijo <code>TGA-</code>, sin colisión con los <code>TXA-</code> del Exercise Taxonomy Handbook ni con los <code>ANP-</code> del Database Handbook.</p>
+
+<h2 id="catalogo">Catálogo</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>ID</th><th>Anti-patrón</th><th>Severidad</th><th>Regla violada</th></tr></thead>
+<tbody>
+<tr><td><code>TGA-01</code></td><td>Deducir un atributo a partir de otro</td><td><span class="severity severity--critica">crítica</span></td><td>TG-03 · "no se infiere del nombre"</td></tr>
+<tr><td><code>TGA-02</code></td><td>Copiar el etiquetado de un ejercicio "parecido"</td><td><span class="severity severity--critica">crítica</span></td><td>TG-01 · cada etiqueta exige autorización propia</td></tr>
+<tr><td><code>TGA-03</code></td><td>Improvisar un criterio ante un conflicto sin regla</td><td><span class="severity severity--alta">alta</span></td><td>TG-07 · escalar, no improvisar</td></tr>
+<tr><td><code>TGA-04</code></td><td>Usar lista vacía donde corresponde ausencia</td><td><span class="severity severity--critica">crítica</span></td><td>TG-04 · TG-08 · filtro no removible</td></tr>
+<tr><td><code>TGA-05</code></td><td>Etiquetar una intensidad de zona "aproximada"</td><td><span class="severity severity--critica">crítica</span></td><td>TG-08 · seguridad sin aproximación</td></tr>
+<tr><td><code>TGA-06</code></td><td>Renombrar un <code>slug</code> para corregirlo</td><td><span class="severity severity--alta">alta</span></td><td>P15 · el slug es identidad, no descripción</td></tr>
+<tr><td><code>TGA-07</code></td><td>Declarar dos patrones primarios</td><td><span class="severity severity--alta">alta</span></td><td>Regla (a) del vocabulario</td></tr>
+<tr><td><code>TGA-08</code></td><td>Encadenar ejercicios de patrones distintos</td><td><span class="severity severity--alta">alta</span></td><td>Regla 1 de la cadena</td></tr>
+<tr><td><code>TGA-09</code></td><td>Etiquetar la modalidad por conveniencia de prescripción</td><td><span class="severity severity--alta">alta</span></td><td>TG-01 · la etiqueta describe, no optimiza</td></tr>
+<tr><td><code>TGA-10</code></td><td>Aceptar un etiquetado por pasar solo la validación estructural</td><td><span class="severity severity--critica">crítica</span></td><td>TG-05 · bien formado ≠ correcto</td></tr>
+<tr><td><code>TGA-11</code></td><td>Corregir un etiquetado sin generar versión de catálogo</td><td><span class="severity severity--alta">alta</span></td><td>TG-06 · BPS-023</td></tr>
+<tr><td><code>TGA-12</code></td><td>Crear un valor de vocabulario al etiquetar</td><td><span class="severity severity--alta">alta</span></td><td>TG-01 · nivel 3 de la jerarquía</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="detalle">Los cinco críticos, en detalle</h2>
+
+<div class="callout callout--riesgo">
+  <div class="callout__label">TGA-01 · Deducir un atributo a partir de otro</div>
+  <p><strong>Forma:</strong> "<code>musculoPrincipal: pecho</code> → entonces el patrón es <code>empuje-horizontal</code>"; o "<code>equipo: barra</code> → entonces carga <code>lumbar</code> en alto". <strong>Por qué falla:</strong> <code>pecho</code> no distingue empuje horizontal de vertical, y el implemento no determina la carga articular. <strong>Consecuencia:</strong> una etiqueta plausible, indistinguible de una correcta, que nadie volverá a revisar. <strong>Alternativa:</strong> etiquetar cada eje por separado o dejarlo vacío.</p>
+</div>
+
+<div class="callout callout--riesgo">
+  <div class="callout__label">TGA-02 · Copiar el etiquetado de un ejercicio "parecido"</div>
+  <p><strong>Forma:</strong> "esto es como una sentadilla, le pongo las mismas zonas de riesgo". <strong>Por qué falla:</strong> el propio ecosistema usa el contraejemplo — "sentadilla con barra y extensión en máquina cargan <code>rodilla</code> de formas muy distintas". El parecido superficial es exactamente lo que el criterio biomecánico debe descartar. <strong>Consecuencia:</strong> propaga un error de un ejercicio a familias enteras. <strong>Alternativa:</strong> cada ejercicio se evalúa por sí mismo.</p>
+</div>
+
+<div class="callout callout--riesgo">
+  <div class="callout__label">TGA-04 · Usar lista vacía donde corresponde ausencia</div>
+  <p><strong>Forma:</strong> <code>zonasRiesgo: []</code> en un ejercicio que nadie ha evaluado, para que "pase la validación". <strong>Por qué falla:</strong> convierte "sin evaluar" en la afirmación positiva "no carga ninguna articulación en riesgo" — la más peligrosa del catálogo. <strong>Consecuencia:</strong> el ejercicio pasa el filtro de seguridad de cualquier usuario con lesión declarada. <strong>Alternativa:</strong> dejarlo ausente; el ejercicio queda no elegible, que es el comportamiento seguro.</p>
+</div>
+
+<div class="callout callout--riesgo">
+  <div class="callout__label">TGA-05 · Etiquetar una intensidad de zona "aproximada"</div>
+  <p><strong>Forma:</strong> "no estoy seguro si es <code>alto</code> o <code>medio</code>, pongo <code>medio</code> que es más neutro". <strong>Por qué falla:</strong> <code>medio</code> no es neutro — es el valor que <strong>permite</strong> que el ejercicio siga siendo elegible para un usuario lesionado. La opción conservadora aparente es la permisiva real. <strong>Consecuencia:</strong> exactamente el fallo de seguridad que el filtro existe para evitar. <strong>Alternativa:</strong> no etiquetar y escalar.</p>
+</div>
+
+<div class="callout callout--riesgo">
+  <div class="callout__label">TGA-10 · Aceptar por pasar solo la validación estructural</div>
+  <p><strong>Forma:</strong> el ejercicio pasa los 15 ítems automáticos del checklist y se da por etiquetado. <strong>Por qué falla:</strong> las 15 validaciones estructurales no pueden detectar ni un solo error de contenido — un patrón equivocado con vocabulario válido las pasa todas. <strong>Consecuencia:</strong> un catálogo bien formado y silenciosamente equivocado, que es la única clase de error que el sistema no detecta solo. <strong>Alternativa:</strong> la sección B del checklist no es opcional.</p>
+</div>
+
+<h2 id="raiz">La raíz común</h2>
+<div class="diagram">
+<div class="diagram-label">Casi todos los anti-patrones son la misma tentación</div>
+<pre class="mermaid">
+graph TD
+  R["RAÍZ: producir una etiqueta<br/>sin la autoridad para producirla"]
+  R --> A1["TGA-01 · deducir de otro atributo"]
+  R --> A2["TGA-02 · copiar de un parecido"]
+  R --> A3["TGA-03 · improvisar criterio"]
+  R --> A4["TGA-04 · vacío por ausencia"]
+  R --> A5["TGA-05 · intensidad aproximada"]
+  R --> A10["TGA-10 · aceptar por estructura"]
+  A1 --> C["CONSECUENCIA COMÚN:<br/>una etiqueta no autorizada,<br/>indistinguible de una autorizada"]
+  A2 --> C
+  A3 --> C
+  A4 --> C
+  A5 --> C
+  A10 --> C
+  C --> P["Viola P14:<br/>la responsabilidad ya no puede<br/>rastrearse a una decisión humana"]
+</pre>
+</div>
+
+<h2 id="deteccion">Detectabilidad</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Detectable por máquina</th><th>Detectable solo por revisión humana</th></tr></thead>
+<tbody>
+<tr><td><code>TGA-06</code> · slug que cambia entre versiones</td><td><code>TGA-01</code> · una etiqueta deducida es idéntica a una etiquetada</td></tr>
+<tr><td><code>TGA-07</code> · dos patrones primarios</td><td><code>TGA-02</code> · el origen del dato no queda en el dato</td></tr>
+<tr><td><code>TGA-08</code> · cadena que cruza de patrón</td><td><code>TGA-03</code> · un criterio improvisado parece una regla</td></tr>
+<tr><td><code>TGA-11</code> · cambio sin versión nueva</td><td><code>TGA-04</code> · lista vacía es estructuralmente perfecta</td></tr>
+<tr><td><code>TGA-12</code> · valor fuera de vocabulario</td><td><code>TGA-05</code> · una intensidad errónea es sintácticamente válida</td></tr>
+<tr><td><code>TGA-04</code> · <em>parcialmente</em>, si se rastrea quién autorizó</td><td><code>TGA-09</code> · la modalidad "conveniente" es válida</td></tr>
+<tr><td>—</td><td><code>TGA-10</code> · es, por definición, lo que la máquina no ve</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">La proporción es la advertencia</div>
+  <p>Cinco anti-patrones son detectables automáticamente; siete no lo son, y entre ellos están cuatro de los cinco críticos. Es la misma asimetría del módulo <a href="../13-validaciones/index.html">13</a>: los errores baratos de cometer son los caros de detectar.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../14-checklist/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 14 · Checklist Oficial</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../16-adr/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">16 · ADR →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

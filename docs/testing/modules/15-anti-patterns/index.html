@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>15 · Anti-patterns — BREY Testing Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="anti-patterns" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 15 · Gobernanza</p>
+<h1>Anti-patterns</h1>
+<p class="lede">17 formas reales de que un test mienta sobre lo que prueba — cada una ya evaluada y descartada por algún handbook, o directamente derivada de un caso real de este documento.</p>
+
+<div class="meta-row">
+  <span class="chip">17 anti-patterns</span>
+</div>
+
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Anti-pattern</th><th>Por qué está prohibido</th><th>Evidencia</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Mockear Supabase completo en un test de <span class="level level--integration">integration</span></td><td>Diverge de RLS real — el nivel Integration existe exactamente para prevenir esto</td><td>Engineering Handbook, 10; 02 de este documento</td></tr>
+<tr><td>2</td><td>Probar un motor sin fijar <code>fecha_ciclo</code>/versión de catálogo</td><td>Un test que a veces pasa y a veces falla con la misma entrada no prueba nada</td><td>Motor BPS Handbook, BPS-022; 01, 03</td></tr>
+<tr><td>3</td><td>Saltarse la verificación de RLS "porque el test de unit ya pasó"</td><td>Unit nunca toca RLS — son capas de riesgo completamente distintas (02)</td><td>Engineering Handbook, 10 ("lista roja")</td></tr>
+<tr><td>4</td><td>Asertar sobre el texto en prosa de un mensaje de error en vez de su código</td><td>El texto puede cambiar por i18n/copy sin que el comportamiento cambie — el código es el contrato real</td><td>API Contract Handbook, 09</td></tr>
+<tr><td>5</td><td>Snapshot-test de un <code>jsonb</code> sin considerar su discriminador de versión</td><td>Un snapshot que mezcla formas <code>v1</code>/<code>v2</code> sin distinguirlas produce falsos positivos de regresión</td><td>Database Handbook, 11</td></tr>
+<tr><td>6</td><td>Un test que depende del orden de ejecución de otros tests</td><td>Rompe aislamiento — un test debe pasar o fallar igual sin importar qué corrió antes</td><td>02 de este documento (ciclo de vida de datos)</td></tr>
+<tr><td>7</td><td>Reutilizar filas creadas por un test anterior sin limpieza determinista</td><td>Contamina el estado conocido que el siguiente test asume — fuente clásica de fallos intermitentes</td><td>02 de este documento</td></tr>
+<tr><td>8</td><td>Inventar un criterio de desempate para PE-012 "solo para poder escribir el test"</td><td>Congela en el test una decisión de negocio que el propio Progression Engine Handbook no ha tomado (AR-008)</td><td>TEST-ADR-09 (14)</td></tr>
+<tr><td>9</td><td>Escribir un test <span class="level level--e2e">e2e</span> para algo ya cubierto por <span class="level level--unit">unit</span></td><td>Redundancia que no añade señal, solo costo de mantenimiento — viola la prioridad de introducción (01)</td><td>Engineering Handbook, 10</td></tr>
+<tr><td>10</td><td>Confundir cobertura de código alta con cobertura de especificación completa</td><td>Un 100% de líneas ejecutadas en <code>lib/utils.ts</code> no dice nada sobre si PE-012 está bien probado</td><td>13</td></tr>
+<tr><td>11</td><td>Probar únicamente el camino feliz, omitiendo el camino de Fail Visible</td><td>FT-05 exige <code>null</code>/<code>[]</code> explícito — un test que no lo verifica no prueba la mitad del contrato</td><td>01, FT-05 (Architecture Handbook)</td></tr>
+<tr><td>12</td><td>Escribir el test de <code>DELETE</code> de <code>workouts</code>/<code>workout_logs</code> contra el estado real permisivo, como si fuera el deseado</td><td>Congela una brecha de seguridad conocida (AR-018) como comportamiento aceptado</td><td>TEST-ADR-07 (14)</td></tr>
+<tr><td>13</td><td>Probar Recovery Engine como si su lógica de fatiga ya existiera</td><td>Da falsa confianza sobre una decisión de negocio que no está especificada (AR-006)</td><td>TEST-ADR-12 (14)</td></tr>
+<tr><td>14</td><td>Generar fixtures con valores aleatorios en cada corrida</td><td>Un fallo intermitente sin fixture reproducible es casi imposible de depurar</td><td>Engineering Handbook, 10; 03</td></tr>
+<tr><td>15</td><td>Tratar un test que cruza una frontera de bounded context prohibida como "caso feliz"</td><td>La frontera existe para no cruzarse — el resultado esperado de intentarlo es siempre rechazo, nunca éxito</td><td>05 (fronteras de contexto)</td></tr>
+<tr><td>16</td><td>Introducir un test runner antes del primer motor de dominio real implementado</td><td>Dependencia sin valor inmediato — el runner se introduce junto con la primera implementación real, no antes</td><td>ENG-ADR-06 (Engineering Handbook)</td></tr>
+<tr><td>17</td><td>Escribir todo como <span class="level level--e2e">e2e</span> "para estar más seguros"</td><td>Invierte la pirámide de prioridad — el nivel más costoso de mantener se vuelve el más usado, exactamente al revés de lo especificado</td><td>01, 02</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../14-testing-adr/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 14 · Testing ADR</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../16-preguntas-abiertas/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">16 · Preguntas Abiertas →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>11 · Observabilidad — Implementation Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="observabilidad" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 11 · Calidad</p>
+<h1>Observabilidad</h1>
+<p class="lede">Orden de instrumentación: logs antes que eventos de dominio, eventos antes que métricas agregadas, métricas antes que alertas. Nunca al revés — una alerta sobre una métrica que no se está registrando todavía es ruido, no señal.</p>
+
+<h2 id="orden-observabilidad">Orden exacto</h2>
+<ol>
+  <li><strong>Logs</strong> — cada Route Handler y repositorio nuevo sigue la convención ya real (<code>console.warn</code>/<code>console.error</code> con prefijo <code>[contexto]</code>, Engineering Handbook 11) desde su primera versión, no como mejora posterior.</li>
+  <li><strong>Eventos de dominio</strong> — cada Decisión de Motor BPS/Progression Engine se persiste en <code>progression_events</code> con <code>contexto</code> completo desde la primera implementación de cada regla (08) — no se difiere "para cuando haya tiempo de instrumentar".</li>
+  <li><strong>Resolución del esquema de <code>contexto</code></strong> — antes de que la segunda regla de un mismo grupo (micro/macro/etc.) se implemente, el esquema de <code>contexto</code> para ese grupo debe estar fijado (Architecture Review, AR-013) — nunca cada regla inventando su propia forma de <code>contexto</code> sobre la marcha.</li>
+  <li><strong>Métricas</strong> — se derivan de <code>progression_events</code> ya poblada con datos reales (Engineering Handbook 11: tasa de avance/sostiene/retroceso, frecuencia de <code>VENTANA_INSUFICIENTE</code>) — no se construye un dashboard de métricas sobre una tabla vacía.</li>
+  <li><strong>Alertas</strong> — el último paso, y solo sobre condiciones ya observadas al menos una vez en logs/eventos reales (ej. fallo repetido de Brevo) — nunca una alerta especulativa sobre un caso que nunca ha ocurrido.</li>
+</ol>
+
+<h2 id="checklist-observabilidad">Checklist de instrumentación por pieza nueva</h2>
+<ul class="checklist">
+  <li>¿Todo <code>INSERT</code> rechazado por un CHECK de base de datos queda registrado con <code>console.error</code> y prefijo de contexto? (Architecture Review, AR-027)</li>
+  <li>¿El evento persistido incluye <code>razones</code> no vacío? (FT-06, IN-P5 del Progression Engine Handbook)</li>
+  <li>¿El <code>contexto</code> sigue el esquema ya fijado para su grupo de reglas, no uno improvisado?</li>
+  <li>¿Existe al menos un log de auditoría (quién, qué, cuándo) para cada escritura nueva, aunque sea en el formato mínimo ya real?</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../10-testing/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 10 · Testing</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../12-checklist-feature/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">12 · Checklist por Feature →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

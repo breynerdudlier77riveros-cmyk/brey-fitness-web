@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>07 · Frontend — Implementation Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="frontend" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 07 · Construcción</p>
+<h1>Frontend</h1>
+<p class="lede">Solo el BCS tiene un handbook de diseño hoy. Los motores (Motor BPS, Progression Engine) no tienen superficie de UI propia — su única salida visible es a través de datos que el Core Product ya muestra (calendario, historial). Este módulo lo declara explícitamente en vez de asumir un trabajo de frontend que no está especificado.</p>
+
+<h2 id="orden-bcs-frontend">Orden — Frontend del BCS</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Pieza</th><th>Precondición</th><th>Gobernado por</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Los 7 componentes nuevos (Metric/Section/History/Warning/Info Card, Indicador, Skeleton)</td><td>DTOs del BCS estables (06, backend paso 4)</td><td>BCS Design System Handbook (06) — compone los 18 componentes de marca ya reales, no los reemplaza</td></tr>
+<tr><td>2</td><td>Sistema de barras y Sistema de gráficos</td><td>Componentes nuevos (paso 1) existentes</td><td>BCS Design System Handbook (10, 11) — línea/área/barras de rango únicamente, Radar y Scatter explícitamente descartados de v1</td></tr>
+<tr><td>3</td><td>Dashboard del entrenador</td><td>Pasos 1–2 existentes, casos de uso del BCS (06) implementados</td><td>BCS Design System Handbook (07)</td></tr>
+<tr><td>4</td><td>Vista pública del cliente</td><td>Dashboard existente (paridad de contenido, BCS-ADR-05)</td><td>BCS Design System Handbook (08)</td></tr>
+<tr><td>5</td><td>Exportación a PDF/impresión</td><td>Vista pública existente (reutiliza su mismo layout, 14)</td><td>BCS Design System Handbook (14)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="gap-motores">Gap declarado — sin superficie de UI para Motor BPS/Progression Engine</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">No es un olvido de este handbook — es un vacío real en la documentación existente</div>
+  <p>A diferencia del BCS, ni Motor BPS Handbook ni Progression Engine Handbook tienen un "Design System Handbook" equivalente. Su salida (una nueva semana de entrenamiento, un cambio de nivel, una señal de estancamiento) necesitará representarse visualmente en algún momento — pero ese diseño no existe todavía en ningún documento. Este handbook no lo inventa (no le corresponde) — lo declara como bloqueante explícito para cualquier trabajo de frontend de esos dos motores, y lo registra en el Roadmap (03, Fase 4) como huérfano hasta que exista su propio handbook de diseño.</p>
+</div>
+<p>Mientras tanto, el frontend real de Motor BPS/Progression Engine se limita a lo que el Core Product ya renderiza: el calendario y el historial de entrenamientos existentes consumen la <em>prescripción</em> que estos motores producirán — sin superficie nueva, reutilizando componentes ya implementados.</p>
+
+<h2 id="reutilizacion">Regla de reutilización</h2>
+<p>Ningún componente nuevo se construye sin verificar primero si ya existe un equivalente en <code>src/components/brand/</code> (Engineering Handbook, 03) — la disciplina que el propio BCS Design System Handbook ya demostró (7 componentes nuevos sobre 18 reutilizados) es la misma que gobierna cualquier frontend futuro.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../06-backend/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 06 · Backend</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../08-motores/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">08 · Motores →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>14 · Roadmap — BCS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="roadmap" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 14 · Sistema y gobernanza</p>
+<h1>Roadmap</h1>
+<p class="lede">Qué es v1.0, qué es candidato futuro, y los riesgos del sistema — este módulo absorbe Riesgos explícitamente, ver nota abajo.</p>
+
+<div class="callout callout--nota">
+  <div class="callout__label">Nota de alcance</div>
+  <p>La lista de contenidos de 18 módulos que definió este handbook no incluye un módulo "Riesgos" separado, aunque el encargo pedía documentarlos como parte de la arquitectura general. Se ubican en este módulo por su relación natural con el roadmap: todo riesgo no mitigado hoy es, por definición, una entrada candidata de trabajo futuro.</p>
+</div>
+
+<h2 id="v1">Alcance de v1.0</h2>
+<p>Gestión completa de Clientes y Mediciones (02), catálogo de 25 variables con procedencia (03), Reporte con paridad total público/privado (04, 07), historial ilimitado con corrección sin pérdida de datos (05), interpretación sin lenguaje diagnóstico (06), enlaces públicos de un solo uso activo por cliente sin expiración automática (09, 10), seguridad de un solo entrenador con RLS ya multi-tenant-ready (08, 12).</p>
+
+<h2 id="v1-1">Candidatos para v1.1+</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Candidato</th><th>Condición para promoverlo</th></tr></thead>
+<tbody>
+<tr><td>Activación de multi-entrenador</td><td>Demanda real de más de un entrenador usando la misma instancia — la arquitectura ya lo soporta (12, 16), falta solo la superficie de gestión</td></tr>
+<tr><td>Exportación de Reporte a PDF</td><td>Solicitud de entrenadores que quieran un archivo descargable además del enlace vivo</td></tr>
+<tr><td>Expiración configurable de EnlacesPúblicos</td><td>Necesidad real de compartición temporal (10)</td></tr>
+<tr><td>Flujo de consentimiento formal (checkbox/firma)</td><td>Requisito legal/regulatorio específico del mercado donde opere BREY (11)</td></tr>
+<tr><td>Captura automática desde el dispositivo BIA (Bluetooth/exportación directa)</td><td>Reduce la carga manual del entrenador — depende de qué dispositivos usen los entrenadores reales de BREY (00, "no alcance")</td></tr>
+<tr><td>Integración con el perfil de usuario del Core Product</td><td>Que un cliente con cuenta BREY vea su propio historial de composición corporal dentro de la app, no solo por enlace (00)</td></tr>
+<tr><td>Rangos de referencia pediátricos</td><td>Si BREY decide atender clientes menores de edad (06, 17)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="riesgos">Riesgos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Riesgo</th><th>Impacto</th><th>Mitigación</th></tr></thead>
+<tbody>
+<tr><td><strong>Un enlace público compartido se reenvía a un tercero no autorizado</strong></td><td>Alto — expone datos de salud sin control del sistema</td><td>Modelo de riesgo aceptado documentado explícitamente (10, 11); revocación instantánea disponible en cualquier momento</td></tr>
+<tr><td><strong>Clasificaciones de 06 se malinterpretan como diagnóstico médico</strong></td><td>Alto — es exactamente lo que este handbook busca prevenir</td><td>Lenguaje no clínico obligatorio + badge de procedencia visible sin excepción (06); auditar el texto generado contra esta regla antes de cada release</td></tr>
+<tr><td><strong>IMC/WHR/SMI mal interpretados en clientes de alta masa muscular</strong></td><td>Medio — puede desmotivar a un cliente que en realidad progresa bien</td><td>Aviso poblacional obligatorio en cada clasificación afectada (06)</td></tr>
+<tr><td><strong>Ausencia de rate-limiting documentado para intentos de token</strong></td><td>Medio — depende de una capa de infraestructura fuera de este dominio</td><td>Eventos de seguridad ya especificados (08) para que esa capa pueda actuar; longitud de token elevada (10) reduce la superficie práctica de ataque</td></tr>
+<tr><td><strong>Falta de flujo de consentimiento formal</strong></td><td>Medio — riesgo regulatorio según jurisdicción</td><td>Documentado como responsabilidad explícita del entrenador en v1 (11); candidato de v1.1</td></tr>
+<tr><td><strong>Reporte calculado on-demand se vuelve lento con historiales muy grandes</strong></td><td>Bajo en el volumen esperado v1 (12)</td><td>Cacheo es optimización de infraestructura disponible sin cambiar el modelo de dominio</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../13-api-interna/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 13 · API Interna</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../15-glosario/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">15 · Glosario →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

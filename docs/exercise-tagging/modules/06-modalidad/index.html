@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>06 · Modalidad — Exercise Tagging Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="modalidad" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 06 · Reglas por atributo</p>
+<h1>Reglas de Etiquetado — Modalidad</h1>
+<p class="lede">Dos sub-ejes con estatuto documental opuesto: uno tiene consecuencias en cascada que permiten decidirlo casi con certeza; el otro no tiene ninguna consecuencia declarada en todo el ecosistema.</p>
+
+<h2 id="ejecucion">Eje de ejecución — <code>dinamico</code> · <code>isometrico</code></h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Criterio derivable de sus consecuencias</div>
+  <p>Ninguna fuente enuncia "cómo decidir si un ejercicio es dinámico o isométrico", pero sí declara tres consecuencias que hacen la decisión verificable en la práctica: la <strong>unidad de prescripción</strong>, la <strong>interfaz del Player</strong> y la <strong>aplicabilidad de la doble progresión</strong>. Un ejercicio cuya prescripción se expresa en segundos y que el Player debe cronometrar es isométrico — no por definición publicada, sino porque las tres consecuencias coinciden.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Consecuencia</th><th><code>dinamico</code></th><th><code>isometrico</code></th><th>Fuente</th></tr></thead>
+<tbody>
+<tr><td>Unidad de la capa 11</td><td>Rango de repeticiones</td><td>Duración en segundos</td><td>TF capa 11 — "En isométricos la unidad es segundos, <strong>declarada por la modalidad del ejercicio</strong>"</td></tr>
+<tr><td>Interfaz del Player</td><td>Contador de repeticiones</td><td>Cronómetro</td><td>TF capa 9</td></tr>
+<tr><td>Doble progresión (PE-002)</td><td>Aplica</td><td>No aplica — rige PE-009</td><td>PE-002, contraejemplo</td></tr>
+<tr><td>Herencia al sustituir</td><td colspan="2">Series/reps se heredan <strong>solo si coincide el eje de ejecución</strong></td><td>AH04, "Qué se preserva al sustituir"</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Lectura circular, declarada como tal</div>
+  <p>La fuente dice que la unidad la <em>declara</em> la modalidad — es decir, la modalidad es la causa y la unidad el efecto. Usar la unidad para decidir la modalidad invierte esa relación. Se documenta como <strong>señal de verificación</strong>, no como criterio de decisión: sirve para comprobar que una etiqueta es coherente, no para producirla.</p>
+</div>
+
+<h2 id="lateralidad">Eje de lateralidad — <code>bilateral</code> · <code>unilateral</code></h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Atributo obligatorio sin ninguna consecuencia declarada</div>
+  <p>El barrido no encuentra <strong>ni una sola</strong> regla, filtro, cálculo o comportamiento que dependa de este sub-eje. No filtra elegibilidad, no cambia la unidad de prescripción, no altera el conteo de volumen, no modifica la interfaz del Player, y no participa en la regla de preservación al sustituir (que solo exige coincidencia del eje de ejecución).</p>
+  <p>Es, por tanto, un atributo <strong>obligatorio y puramente descriptivo</strong>. Preguntas que ninguna fuente responde: ¿un unilateral duplica las series, una por lado? ¿su volumen cuenta simple o doble? ¿puede un unilateral sustituir a un bilateral? Deuda registrada como <a href="../17-auditoria/index.html">TG-D03</a>.</p>
+</div>
+
+<h2 id="decision">Árbol de decisión</h2>
+<div class="diagram">
+<div class="diagram-label">Un eje con señales de verificación; el otro sin ninguna</div>
+<pre class="mermaid">
+flowchart TD
+  A["Ejercicio candidato"] --> B["Eje de EJECUCIÓN"]
+  A --> C["Eje de LATERALIDAD"]
+  B --> B1{"¿La prescripción natural<br/>se expresa en repeticiones<br/>o en segundos?"}
+  B1 -- repeticiones --> BD["dinamico"]
+  B1 -- segundos --> BI["isometrico"]
+  B1 -- "ambiguo" --> BE["ESCALAR · TG-07"]
+  C --> C1{"¿Se ejecuta con ambos lados<br/>simultáneamente?"}
+  C1 -- Sí --> CB["bilateral"]
+  C1 -- No --> CU["unilateral"]
+  C1 -- "ambiguo" --> CE["ESCALAR — sin consecuencia<br/>declarada que oriente"]
+</pre>
+</div>
+
+<h2 id="frontera">La frontera que el etiquetado debe respetar</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">No existe fórmula automática reps↔segundos</div>
+  <p>"Sin entrada en esa tabla, es <code>CATALOGO_INSUFICIENTE</code>, <strong>no una interpolación</strong> (P14)." Y entre las decisiones descartadas: "Fórmula automática reps↔tiempo — Descartado: inventarla sin evidencia sería fisiología fabricada (P11/P14)."</p>
+</div>
+<p>Para el etiquetado esto tiene una consecuencia directa: <strong>la modalidad no es negociable a conveniencia</strong>. No se puede etiquetar un ejercicio como dinámico "porque así hereda mejor la prescripción" ni como isométrico "porque simplifica". La etiqueta describe el movimiento; las consecuencias se aceptan, no se optimizan.</p>
+<div class="callout callout--riesgo">
+  <div class="callout__label">La tabla de equivalencias que el proceso presupone no existe</div>
+  <p>El algoritmo de sustitución exige una "tabla de equivalencias autorizada del catálogo" para cruzar de dinámico a isométrico, pero ninguna fuente la especifica: ni su forma, ni dónde vive, ni quién la autoriza. Mientras no exista, todo cruce de modalidad termina en <code>CATALOGO_INSUFICIENTE</code> — comportamiento correcto que equivale a que el cruce sea hoy imposible. Deuda <a href="../17-auditoria/index.html">TG-D04</a>.</p>
+</div>
+
+<h2 id="validaciones">Validaciones aplicables</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Validación</th><th>Capa</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>Ambos sub-ejes están presentes</td><td>Estructural</td><td><span class="tag tag--implementado">verificable</span> — atributo obligatorio</td></tr>
+<tr><td>Los valores pertenecen a los vocabularios de cada eje</td><td>Estructural</td><td><span class="tag tag--implementado">verificable</span></td></tr>
+<tr><td>El eje de ejecución es coherente con la unidad de prescripción esperada</td><td>Estructural (indirecta)</td><td><span class="tag tag--especificado">derivada</span> — señal de verificación</td></tr>
+<tr><td>La modalidad describe correctamente el movimiento</td><td><strong>Contenido</strong></td><td>Solo revisión humana</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../05-roles/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 05 · Roles</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../07-equipamiento/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">07 · Equipamiento →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

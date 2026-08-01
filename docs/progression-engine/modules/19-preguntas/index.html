@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>19 · Preguntas Abiertas — Progression Engine Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="preguntas" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 19 · Gobernanza</p>
+<h1>Preguntas Abiertas</h1>
+<p class="lede">Todo lo que este documento deja intencionalmente sin resolver, consolidado desde los módulos donde surgió cada pregunta. Ninguna de estas invalida el documento — son los límites conocidos de su alcance actual.</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr><th>Pregunta</th><th>Origen</th><th>Qué se necesita para resolverla</th></tr></thead>
+<tbody>
+<tr><td>¿Cómo debería programarse un Slot que legítimamente necesita mezclar RPE y RIR dentro de la misma sesión?</td><td>08, PE-ADR-05</td><td>Un caso de programa real del Training Framework que lo exija — hoy es hipotético</td></tr>
+<tr><td>¿Qué significa exactamente "más conservador" en el desempate de nivel 5 (05) para cada variable individual?</td><td>05, 17</td><td>Definición operacional por variable (ej. "menor incremento absoluto en peso" vs. "menor incremento porcentual") antes de codificar</td></tr>
+<tr><td>¿El deload preventivo (PE-035) mejora realmente el resultado frente a no aplicarlo?</td><td>12, PE-ADR-04, 17</td><td>Datos de producción — tasa de confirmación del usuario y resultado posterior medible (14)</td></tr>
+<tr><td>¿Es 1 el número correcto de "sostiene" tolerados antes de bloquear el avance de Mesociclo (PE-014)?</td><td>09, 17</td><td>Volumen de ciclos completados suficiente para análisis estadístico, no solo intuición de diseño</td></tr>
+<tr><td>¿Debería existir un cuarto tipo de deload para casos de reincorporación tras pausa larga (no cubierto por programado/reactivo/preventivo)?</td><td>12</td><td>Definición de qué activa "pausa larga" — probablemente depende de una regla del Motor BPS Handbook (auto-pausa por inactividad) que este documento no gobierna</td></tr>
+<tr><td>¿Cómo debería versionarse el catálogo de reglas (PE-XXX) cuando un umbral se recalibra, para que el replay (14) siga siendo fiel a la versión vigente en el momento histórico de cada decisión?</td><td>14, 06</td><td>Diseño de versionado explícito — hoy el documento asume "una versión vigente" sin especificar el mecanismo de transición entre versiones</td></tr>
+<tr><td>¿El techo de volumen por Mesociclo (PE-010) debería variar por Sistema, o es un valor único cross-Sistema?</td><td>07, 08</td><td>Input del Training Framework sobre si el volumen objetivo ya varía por Sistema — si sí, este motor solo hereda esa variación, no la introduce</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../18-roadmap/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 18 · Roadmap</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../20-glosario/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">20 · Glosario →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

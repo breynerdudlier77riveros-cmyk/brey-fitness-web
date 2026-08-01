@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>01 · Filosofía Editorial — Editorial Standards</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="filosofia" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 01 · Empezar</p>
+<h1>Filosofía Editorial</h1>
+<p class="lede">Ocho principios de gobernanza del conocimiento. Todos derivan de principios ya vigentes del ecosistema; ninguno es original. Prefijo <code>ED-</code>.</p>
+
+<h2 id="principios">Los ocho principios</h2>
+
+<div class="callout callout--regla">
+  <div class="callout__label">ED-01 · Toda pieza de conocimiento tiene un autorizador humano</div>
+  <p>Ninguna entrada, atributo o clasificación entra al ecosistema sin que una persona con criterio la haya autorizado. No es una recomendación de proceso: define la frontera entre lo que el sistema puede generar y lo que solo una persona puede aprobar.<br><strong>Deriva de:</strong> P14 — "Ningún motor crea contenido de entrenamiento… <strong>El catálogo es la frontera de autoridad humana</strong>".</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">ED-02 · La autoridad se ejerce, y su ejercicio debe quedar registrado</div>
+  <p>Autorizar sin dejar rastro equivale, a efectos de auditoría, a no haber autorizado. La motivación de P14 es explícita: "la responsabilidad sobre lo que un cuerpo humano ejecuta debe poder <strong>rastrearse</strong> a una decisión humana".<br><span class="tag tag--futuro">⚠ Sin mecanismo</span> — no existe dónde registrarlo. Es la deuda central de este handbook.</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">ED-03 · La ciencia se marca; nunca se inventa</div>
+  <p>Toda regla con base fisiológica lleva un badge de nivel de evidencia. El cuarto badge —<em>decisión de producto</em>— es el más importante: marca los números y reglas que <strong>no</strong> provienen de evidencia científica sino de una decisión de diseño calibrable.<br><strong>Deriva de:</strong> Architecture Handbook 00 — "Confundir decisiones de ingeniería con decisiones científicas es <strong>un error de integridad, no de estilo</strong>".</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">ED-04 · Un concepto, un lugar — no duplicación</div>
+  <p>Cada vocabulario, regla o definición vive en exactamente un documento; los demás lo referencian. Cuatro copias de un vocabulario divergen; la única pregunta es cuándo.<br><strong>Deriva de:</strong> P12 y del Lenguaje Ubicuo — "cada concepto tiene exactamente un término canónico; los sinónimos se registran como sinónimos".</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">ED-05 · El handbook manda; la deriva silenciosa está prohibida</div>
+  <p>Cuando el código y la documentación difieren, <strong>el código está mal</strong>: se corrige el código o se actualiza el handbook mediante un ADR nuevo — "nunca por deriva silenciosa".<br><strong>Deriva de:</strong> Architecture Handbook 00, sección "El handbook manda". Es la regla editorial más ejecutable del ecosistema.</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">ED-06 · Neutralidad: el estándar gobierna el proceso, nunca el contenido</div>
+  <p>Este handbook no decide si un ejercicio es empuje horizontal, ni qué zona carga, ni en qué orden va una cadena. Define quién puede decidirlo, con qué evidencia y cómo queda registrado. Un estándar editorial que opinara sobre contenido se convertiría en una segunda autoridad compitiendo con la primera.<br><strong>Deriva de:</strong> P4 (una capa, una decisión) aplicado a la gobernanza.</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">ED-07 · Lo no decidido se registra como abierto, no se resuelve por defecto</div>
+  <p>Ante una decisión que nadie ha tomado, el estándar la registra como pregunta abierta o deuda, con su barrido. No la cierra con la opción razonable. El ecosistema aplica esta disciplina de forma consistente: cada handbook tiene su módulo de preguntas abiertas.<br><strong>Deriva de:</strong> P6 (sin defaults silenciosos) y P11 (honestidad de evidencia).</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">ED-08 · El historial es inmutable; la corrección es un hecho nuevo</div>
+  <p>Corregir no es reescribir. Un cambio produce una versión nueva y deja intacto lo anterior; lo generado con la versión previa sigue siendo correcto respecto de ella.<br><strong>Deriva de:</strong> P3 (el historial permanece), R-2 (Regla de Inmutabilidad) y de la disciplina de contratos: "nunca mutación in-place de un contrato publicado".</p>
+</div>
+
+<h2 id="derivacion">Mapa de derivación</h2>
+<div class="diagram">
+<div class="diagram-label">Ningún principio editorial es original</div>
+<pre class="mermaid">
+graph LR
+  P14["P14 · El humano autoriza"] --> ED01["ED-01 Autorizador humano"]
+  P14 --> ED02["ED-02 Registro del ejercicio<br/>de la autoridad"]
+  EV["Ciencia marcada ·<br/>4 niveles de evidencia"] --> ED03["ED-03 La ciencia se marca"]
+  P12["P12 · Lenguaje Ubicuo"] --> ED04["ED-04 No duplicación"]
+  HM["El handbook manda ·<br/>nunca deriva silenciosa"] --> ED05["ED-05 El handbook manda"]
+  P4["P4 · Una capa,<br/>una decisión"] --> ED06["ED-06 Neutralidad"]
+  P6["P6 · Sin defaults"] --> ED07["ED-07 Lo abierto se registra"]
+  P11["P11 · Honestidad"] --> ED07
+  P3["P3 · El historial<br/>permanece"] --> ED08["ED-08 Historial inmutable"]
+  R2["R-2 · Inmutabilidad"] --> ED08
+</pre>
+</div>
+
+<h2 id="responsabilidad">Responsabilidad y neutralidad</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Concepto</th><th>Qué significa aquí</th><th>Respaldo</th></tr></thead>
+<tbody>
+<tr><td><strong>Autoridad</strong></td><td>Quién tiene el derecho de decidir</td><td>P14 · Roadmap con dueños nominales</td></tr>
+<tr><td><strong>Responsabilidad</strong></td><td>Quién responde de la consecuencia de esa decisión</td><td>P14 — "la responsabilidad… debe poder rastrearse"</td></tr>
+<tr><td><strong>Neutralidad</strong></td><td>El estándar no opina sobre el contenido que gobierna</td><td>ED-06, derivado de P4</td></tr>
+<tr><td><strong>No duplicación</strong></td><td>Un concepto, un documento canónico</td><td>P12 · Lenguaje Ubicuo</td></tr>
+<tr><td><strong>SSoT</strong></td><td>Cada pregunta tiene exactamente un documento que la responde</td><td>Arquitectura documental del ecosistema</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Autoridad y responsabilidad están disociadas hoy</div>
+  <p>P14 las une en una sola frase, pero el ecosistema solo implementa la primera mitad: la autoridad está definida (quién debe decidir), la responsabilidad no es rastreable (no consta quién decidió). Mientras esa disociación exista, ED-02 es un principio sin cumplimiento verificable — y es la razón por la que el módulo <a href="../08-trazabilidad/index.html">08</a> es el más crítico de este handbook.</p>
+</div>
+
+<h2 id="tensiones">Tensiones aceptadas</h2>
+<div class="callout callout--tradeoff">
+  <div class="callout__label">Gobernanza estricta frente a velocidad de catálogo</div>
+  <p>Exigir autorización humana registrada por cada atributo hace el catálogo lento de crecer. El ecosistema ya aceptó explícitamente este coste en el eje de seguridad: "Más lento, pero es la única versión honesta del filtro". El estándar editorial extiende ese mismo juicio al resto del conocimiento.</p>
+</div>
+<div class="callout callout--descartado">
+  <div class="callout__label">Descartado — definir aquí los roles que faltan</div>
+  <p>Sería el atajo evidente: inventar Autor / Revisor / Aprobador y dar el proceso por cerrado. Descartado por ED-07 y porque un rol definido en el estándar sin acuerdo previo produce responsabilidad ficticia: alguien figuraría como aprobador de decisiones que nunca aceptó tomar.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../00-introduccion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 00 · Introducción</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../02-ciclo-vida/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">02 · Ciclo de Vida →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

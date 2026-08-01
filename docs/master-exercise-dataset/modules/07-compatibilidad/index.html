@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>07 · Compatibilidad — Master Exercise Dataset</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="compatibilidad" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Sección 07 · Estabilidad</p>
+<h1>Compatibilidad Histórica</h1>
+<p class="lede">Una sesión generada hoy debe seguir siendo interpretable dentro de cinco años, aunque para entonces el ejercicio que contiene haya sido reclasificado, deprecado o sustituido. Esta sección define cómo se consigue.</p>
+
+<h2 id="promesa">La promesa</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Promesa de resolubilidad permanente</div>
+  <p>Todo <code>id</code> que alguna vez fue publicado <strong>resuelve siempre</strong>, en cualquier versión futura del dataset, a la entrada que lo recibió. Sin excepciones, sin caducidad, sin importar el estado de la entrada.</p>
+  <p>La promesa cubre la <strong>resolución</strong>. No cubre la <strong>elegibilidad</strong>: que un ID resuelva no significa que el ejercicio siga asignándose a slots nuevos.</p>
+</div>
+
+<h2 id="pilares">Los tres pilares</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Pilar</th><th>Mecanismo</th><th>Qué protege</th></tr></thead>
+<tbody>
+<tr><td><strong>1 · Append-only</strong></td><td>Ninguna entrada se elimina jamás (DS-03)</td><td>Que la referencia encuentre destino</td></tr>
+<tr><td><strong>2 · Identidad inmutable</strong></td><td><code>id</code> y <code>slug</code> no cambian ni se reutilizan (ID-1…ID-4)</td><td>Que el destino sea el correcto y no otro</td></tr>
+<tr><td><strong>3 · Snapshot mínimo</strong></td><td>La sesión copia <code>id</code>, <code>slug</code>, nombre display y modalidad (R6)</td><td>Que el historial se lea aunque el dataset haya cambiado</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Por qué hacen falta los tres</div>
+  <p>Append-only sin identidad inmutable: la referencia resuelve, pero puede resolver a otro ejercicio. Identidad inmutable sin append-only: la referencia es correcta pero apunta a la nada. Ambos sin snapshot: todo resuelve, pero el historial muestra el nombre de hoy para una sesión de hace dos años, y el registro deja de ser fiel a lo que ocurrió.</p>
+</div>
+
+<h2 id="snapshot">El snapshot mínimo</h2>
+<p class="matrix-note">Regla <code>R6</code>. Cuando un ejercicio se materializa en una sesión, se copian exactamente cuatro valores. Todo lo demás se resuelve por <code>id</code> contra el dataset vigente.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Se copia</th><th>Por qué</th><th>Se resuelve al leer</th><th>Por qué</th></tr></thead>
+<tbody>
+<tr><td><code>id</code></td><td>Es el puente al dataset</td><td>Clasificación completa</td><td>Debe reflejar correcciones posteriores</td></tr>
+<tr><td><code>slug</code></td><td>Legibilidad del historial sin consulta</td><td>Zonas de riesgo</td><td>La seguridad se evalúa con el dato actual</td></tr>
+<tr><td>Nombre display</td><td>El historial muestra lo que la persona vio</td><td>Relaciones y cadenas</td><td>El grafo evoluciona</td></tr>
+<tr><td>Modalidad</td><td>Determina si la prescripción está en repeticiones o segundos — sin ella el registro es ininterpretable</td><td>Contenido y media</td><td>La ficha educativa mejora con el tiempo</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Prohibición de snapshot ampliado</div>
+  <p>Ningún consumidor copia campos adicionales «por si acaso». Cada campo copiado es una copia que envejece y que contradirá al dataset. Si un consumidor cree necesitar un quinto campo en el snapshot, el problema es de diseño del consumidor, no del dataset — DS-01.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Lectura de una sesión antigua</div>
+<pre class="mermaid">
+flowchart LR
+  H["Sesión de hace 2 años<br/>snapshot: EX-0042<br/>+ slug + nombre + modalidad"] -->|"muestra directamente"| V1["Lo que la persona vio<br/><i>fiel al momento</i>"]
+  H -->|"resuelve por id"| DS[("Dataset actual")]
+  DS --> V2["Clasificación vigente<br/>zonas de riesgo actuales<br/>ficha mejorada"]
+  V1 --> UI["Historial completo"]
+  V2 --> UI
+</pre>
+</div>
+
+<h2 id="deprecacion">Deprecación y sucesión</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Situación</th><th><code>status</code></th><th><code>superseded_by</code></th><th>Efecto</th></tr></thead>
+<tbody>
+<tr><td>Se retira sin reemplazo</td><td><code>deprecated</code></td><td><code>null</code></td><td>Resuelve; no se asigna a slots nuevos</td></tr>
+<tr><td>Se sustituye por otra entrada</td><td><code>deprecated</code></td><td><code>EX-NNNN</code></td><td>Resuelve; el consumidor puede seguir la sucesión</td></tr>
+<tr><td>Se corrige un slug mal formado (ID-8)</td><td><code>deprecated</code></td><td><code>EX-NNNN</code></td><td>La entrada antigua queda como redirección permanente</td></tr>
+<tr><td>Se retira de toda visibilidad</td><td><code>archived</code></td><td>Se conserva si existía</td><td>Resuelve solo en contexto histórico; no aparece en búsqueda</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Reglas de sucesión</div>
+  <ul>
+    <li><code>superseded_by</code> apunta a una entrada <strong>existente</strong> y en estado <code>published</code>.</li>
+    <li>La cadena de sucesión <strong>no puede formar ciclo</strong>.</li>
+    <li>Seguir la sucesión es <strong>decisión del consumidor</strong>, nunca automática: sustituir en silencio un ejercicio en el plan de una persona es un cambio de prescripción sin revisión humana.</li>
+    <li>Un consumidor que sigue la sucesión resuelve al <strong>final</strong> de la cadena, no al primer salto.</li>
+  </ul>
+</div>
+
+<h2 id="matriz">Matriz de compatibilidad por operación</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Operación</th><th>¿El ID sigue resolviendo?</th><th>¿El historial sigue siendo fiel?</th><th>¿Cambia lo prescrito en el futuro?</th></tr></thead>
+<tbody>
+<tr><td>Añadir un ejercicio</td><td>—</td><td>Sí</td><td>Sí, amplía opciones</td></tr>
+<tr><td>Corregir texto (<code>fix</code>)</td><td>Sí</td><td>Sí</td><td>No</td></tr>
+<tr><td>Reescribir contenido (<code>minor</code>)</td><td>Sí</td><td>Sí</td><td>No</td></tr>
+<tr><td>Reclasificar (<code>major</code>)</td><td>Sí</td><td>Sí — el snapshot no depende de la clasificación</td><td><strong>Sí</strong></td></tr>
+<tr><td>Añadir zona de riesgo</td><td>Sí</td><td>Sí</td><td><strong>Sí</strong> — deja de ser elegible para algunos perfiles</td></tr>
+<tr><td>Deprecar</td><td>Sí</td><td>Sí</td><td><strong>Sí</strong> — no se asigna a slots nuevos</td></tr>
+<tr><td>Archivar</td><td>Sí</td><td>Sí</td><td>Sí — desaparece de búsqueda</td></tr>
+<tr><td>Extender un vocabulario</td><td>Sí</td><td>Sí</td><td>No para las entradas existentes</td></tr>
+<tr><td>Eliminar una entrada</td><td colspan="3"><strong>PROHIBIDO</strong> — rompe los tres pilares (DS-03)</td></tr>
+<tr><td>Reutilizar un <code>id</code></td><td colspan="3"><strong>PROHIBIDO</strong> — la referencia resolvería al ejercicio equivocado (ID-2)</td></tr>
+<tr><td>Renombrar un <code>slug</code></td><td colspan="3"><strong>PROHIBIDO</strong> — se corrige por sucesión (ID-8)</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Las tres filas prohibidas son la definición operativa de la promesa</div>
+  <p>Eliminar, reutilizar y renombrar son las únicas tres operaciones capaces de romper la resolubilidad permanente. Están prohibidas sin excepción y sin procedimiento alternativo. No hay caso de uso, urgencia ni conveniencia que las autorice — cualquier necesidad que parezca requerirlas se resuelve mediante deprecación con sucesor.</p>
+</div>
+
+<h2 id="reclasificacion">El caso difícil: reclasificar un ejercicio publicado</h2>
+<p>Es la única operación que altera prescripciones futuras sin cambiar la identidad. Procedimiento:</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Paso</th><th>Regla aplicada</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Determinar si es reclasificación o si en realidad es <strong>otro ejercicio</strong></td><td>Criterio de identidad, sección 03</td></tr>
+<tr><td>2</td><td>Si difiere en patrón primario, modalidad o gesto: <strong>entrada nueva</strong>, no reclasificación</td><td>Criterio de identidad</td></tr>
+<tr><td>3</td><td>Si es corrección de una etiqueta errónea sobre el mismo gesto: reclasificar</td><td>—</td></tr>
+<tr><td>4</td><td>Registrar la revisión como <code>type: major</code> con motivo explícito</td><td>Sección 06</td></tr>
+<tr><td>5</td><td>Si cambia <code>pattern_primary</code>, <strong>mover la entrada de colección</strong></td><td><code>ORG-1</code></td></tr>
+<tr><td>6</td><td>Verificar que las relaciones de cadena siguen sin cruzar patrones</td><td><code>V10</code></td></tr>
+<tr><td>7</td><td>Avanzar el PARCHE o MENOR del dataset</td><td>Sección 06</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Paso 5 · Cambiar de patrón primario mueve de colección</div>
+  <p>Es la única operación del dataset que traslada una entrada entre archivos. El <code>id</code> y el <code>slug</code> <strong>no cambian</strong>: la entrada es la misma, solo reside en otro sitio. Si además la entrada participaba en una cadena, el paso 6 puede invalidarla y obligar a rehacerla.</p>
+  <p>Por su coste, el paso 1 es el importante: la mayoría de los casos que parecen reclasificación son en realidad ejercicios distintos que nunca debieron compartir entrada.</p>
+</div>
+
+<h2 id="invariantes">Invariantes de compatibilidad</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>ID</th><th>Invariante</th></tr></thead>
+<tbody>
+<tr><td><code>CMP-1</code></td><td>Todo <code>id</code> publicado resuelve en toda versión posterior</td></tr>
+<tr><td><code>CMP-2</code></td><td>Todo <code>slug</code> publicado resuelve en toda versión posterior</td></tr>
+<tr><td><code>CMP-3</code></td><td>El número de entradas del dataset nunca decrece</td></tr>
+<tr><td><code>CMP-4</code></td><td>Todo <code>superseded_by</code> apunta a una entrada existente y <code>published</code></td></tr>
+<tr><td><code>CMP-5</code></td><td>Las cadenas de sucesión son acíclicas y finitas</td></tr>
+<tr><td><code>CMP-6</code></td><td>Todo snapshot histórico contiene los cuatro campos de <code>R6</code>, y solo esos</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../06-versionado/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 06 · Versionado</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../08-convenciones-nombres/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">08 · Convenciones de Nombres →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>17 · Auditoría Final — Exercise Tagging Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="auditoria" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 17 · Gobernanza</p>
+<h1>Auditoría Final</h1>
+<p class="lede">Medición del proceso de etiquetado sobre una matriz de 57 celdas: 19 puntos de decisión × 3 dimensiones. Cada celda es verificable contra una fuente concreta; ninguna es una estimación.</p>
+
+<h2 id="metodo">Método</h2>
+<p>Se enumeran los <strong>19 puntos de decisión</strong> del etiquetado (todos los atributos de la ficha, con <code>modalidad</code> y <code>zonasRiesgo</code> desdoblados en sus dos componentes, porque cada uno se decide por separado). Para cada uno se evalúan tres dimensiones independientes:</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Dimensión</th><th>Pregunta</th><th>✅</th><th>⚠️</th><th>❌</th></tr></thead>
+<tbody>
+<tr><td><strong>A · Criterio de decisión</strong></td><td>¿La documentación dice cómo elegir el valor?</td><td>Procedimiento explícito</td><td>Definiciones o señales que acotan</td><td>Nada</td></tr>
+<tr><td><strong>B · Regla de conflicto</strong></td><td>¿Qué hacer si dos valores son igualmente defendibles?</td><td>Desempate explícito</td><td>Solo la forma de la resolución</td><td>Nada</td></tr>
+<tr><td><strong>C · Regla de validación</strong></td><td>¿Qué hace inválido el valor asignado?</td><td>Regla verificable</td><td>Parcial o derivada</td><td>Nada</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="matriz">Matriz de 57 celdas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Punto de decisión</th><th>A · Criterio</th><th>B · Conflicto</th><th>C · Validación</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>slug</code></td><td>⚠️</td><td>❌</td><td>✅</td></tr>
+<tr><td>2</td><td><code>nombre</code></td><td>❌</td><td>❌</td><td>⚠️</td></tr>
+<tr><td>3</td><td><code>nombreIngles</code></td><td>❌</td><td>❌</td><td>⚠️</td></tr>
+<tr><td>4</td><td><code>tipo</code></td><td>❌</td><td>❌</td><td>✅</td></tr>
+<tr><td>5</td><td><code>nivel</code></td><td>❌</td><td>❌</td><td>✅</td></tr>
+<tr><td>6</td><td><code>equipo[]</code></td><td>⚠️</td><td>❌</td><td>✅</td></tr>
+<tr><td>7</td><td><code>musculoPrincipal</code></td><td>❌</td><td>❌</td><td>✅</td></tr>
+<tr><td>8</td><td><code>musculosSecundarios[]</code></td><td>❌</td><td>❌</td><td>⚠️</td></tr>
+<tr><td>9</td><td>Ficha educativa</td><td>❌</td><td>❌</td><td>✅</td></tr>
+<tr><td>10</td><td><code>sistemasVinculados[]</code></td><td>❌</td><td>❌</td><td>✅</td></tr>
+<tr><td>11</td><td><code>patronPrimario</code></td><td>❌</td><td>⚠️</td><td>✅</td></tr>
+<tr><td>12</td><td><code>patronesSecundarios[]</code></td><td>❌</td><td>❌</td><td>⚠️</td></tr>
+<tr><td>13</td><td><code>rolesPosibles[]</code></td><td>⚠️</td><td>❌</td><td>⚠️</td></tr>
+<tr><td>14</td><td><code>modalidad</code> · ejecución</td><td>⚠️</td><td>❌</td><td>✅</td></tr>
+<tr><td>15</td><td><code>modalidad</code> · lateralidad</td><td>❌</td><td>❌</td><td>✅</td></tr>
+<tr><td>16</td><td><code>zonasRiesgo</code> · zona</td><td>⚠️</td><td>❌</td><td>✅</td></tr>
+<tr><td>17</td><td><code>zonasRiesgo</code> · intensidad</td><td>❌</td><td>❌</td><td>✅</td></tr>
+<tr><td>18</td><td><code>cadena</code></td><td>❌</td><td>❌</td><td>✅</td></tr>
+<tr><td>19</td><td><code>capacidadesRequeridas[]</code></td><td>❌</td><td>❌</td><td>⚠️</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="totales">Totales por dimensión</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Dimensión</th><th>✅ Completa</th><th>⚠️ Parcial</th><th>❌ Inexistente</th><th>% completamente especificada</th></tr></thead>
+<tbody>
+<tr><td>A · Criterio de decisión</td><td>0</td><td>5</td><td>14</td><td><strong>0,0 %</strong></td></tr>
+<tr><td>B · Regla de conflicto</td><td>0</td><td>1</td><td>18</td><td><strong>0,0 %</strong></td></tr>
+<tr><td>C · Regla de validación</td><td>13</td><td>6</td><td>0</td><td><strong>68,4 %</strong></td></tr>
+<tr><td><strong>Total (57 celdas)</strong></td><td><strong>13</strong></td><td><strong>12</strong></td><td><strong>32</strong></td><td><strong>22,8 %</strong></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">El resultado central, en una frase</div>
+  <p><strong>El 22,8 % del proceso de etiquetado está completamente especificado.</strong> Todo ese porcentaje vive en la dimensión de validación. Las dimensiones de <em>criterio de decisión</em> y <em>regla de conflicto</em> están al <strong>0,0 %</strong>: ni un solo punto de decisión del etiquetado tiene procedimiento de elección ni desempate documentado en todo el repositorio.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Dónde está lo especificado y dónde no</div>
+<pre class="mermaid">
+graph TD
+  T["57 celdas"] --> A["A · Criterio<br/>0 ✅ · 5 ⚠️ · 14 ❌"]
+  T --> B["B · Conflicto<br/>0 ✅ · 1 ⚠️ · 18 ❌"]
+  T --> C["C · Validación<br/>13 ✅ · 6 ⚠️ · 0 ❌"]
+  A --> H["El ecosistema sabe QUÉ<br/>etiquetar y CÓMO VERIFICARLO,<br/>no CÓMO DECIDIRLO"]
+  B --> H
+  C --> H
+  H --> P14["Coherente con P14:<br/>la decisión es criterio humano<br/>por diseño, no por olvido"]
+</pre>
+</div>
+
+<h2 id="reglas">Reglas: respaldadas, parciales, inexistentes</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Categoría</th><th>N.º</th><th>Contenido</th></tr></thead>
+<tbody>
+<tr><td><strong>Completamente respaldadas</strong></td><td>13</td><td>Las 13 validaciones ✅ de la dimensión C — todas con caso inválido publicado o derivación necesaria de una regla publicada</td></tr>
+<tr><td><strong>Parcialmente respaldadas</strong></td><td>12</td><td>5 criterios acotados por definiciones (slug, equipo, roles, modalidad-ejecución, zona), 1 conflicto con forma resuelta pero sin selección (patrón primario), 6 validaciones derivadas o incompletas</td></tr>
+<tr><td><strong>Inexistentes</strong></td><td>32</td><td>14 criterios de decisión y 18 reglas de conflicto sin ninguna evidencia documental</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="deudas">Deuda documental registrada</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>ID</th><th>Deuda</th><th>Módulo</th><th>Severidad</th></tr></thead>
+<tbody>
+<tr><td><code>TG-D01</code></td><td>No existe criterio para elegir el patrón primario de un ejercicio multi-patrón</td><td><a href="../04-patrones/index.html">04</a> · <a href="../11-hibridos-conflictos/index.html">11</a></td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td><code>TG-D02</code></td><td>"El más pesado/complejo del patrón" es comparativo y el término de comparación no está fijado; no se declara si <code>rolesPosibles</code> debe reevaluarse al crecer el catálogo</td><td><a href="../05-roles/index.html">05</a></td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td><code>TG-D03</code></td><td>El eje de lateralidad es obligatorio y no tiene ninguna consecuencia declarada</td><td><a href="../06-modalidad/index.html">06</a></td><td><span class="severity severity--media">media</span></td></tr>
+<tr><td><code>TG-D04</code></td><td>La tabla de equivalencias reps↔segundos se exige pero no se especifica</td><td><a href="../06-modalidad/index.html">06</a></td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td><code>TG-D05</code></td><td>No se declara si <code>equipo[]</code> es conjunción o disyunción — produce etiquetas distintas para el mismo ejercicio</td><td><a href="../07-equipamiento/index.html">07</a></td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td><code>TG-D06</code></td><td>El mapeo equipo→Track no existe (la fuente lo declara pendiente)</td><td><a href="../07-equipamiento/index.html">07</a></td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td><code>TG-D07</code></td><td>El Perfil captura lesiones como texto libre no parseable — el otro extremo del filtro de seguridad</td><td><a href="../08-zonas-riesgo/index.html">08</a></td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td><code>TG-D08</code></td><td>"Sin huecos de nivel" es una validación exigida y no implementable</td><td><a href="../09-cadena/index.html">09</a> · <a href="../13-validaciones/index.html">13</a></td><td><span class="severity severity--media">media</span></td></tr>
+<tr><td><code>TG-D09</code></td><td>Las capacidades son vocabulario abierto sin proceso de alta declarado</td><td><a href="../10-capacidades-nivel/index.html">10</a></td><td><span class="severity severity--media">media</span></td></tr>
+<tr><td><code>TG-D10</code></td><td>No existe mapeo entre el Nivel del usuario y el <code>nivel</code> del ejercicio, pese a que el filtro lo usa</td><td><a href="../10-capacidades-nivel/index.html">10</a></td><td><span class="severity severity--critica">crítica</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="contradicciones">Contradicciones encontradas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Contradicción</th><th>Entre</th><th>Severidad</th></tr></thead>
+<tbody>
+<tr><td>K-01</td><td>La regla 4 de la cadena <strong>exige</strong> validar "sin huecos de nivel", pero ninguna fuente define qué es un hueco — una validación obligatoria e imposible de escribir</td><td>Interna a AH04</td><td><span class="severity severity--media">media</span></td></tr>
+<tr><td>K-02</td><td>La regla de exclusión por zona exige que el Perfil capture zonas estructuradas; el Perfil las guarda como texto libre que "nunca se parsea"</td><td>AH04 ↔ modelo de Perfil</td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td>K-03</td><td>El paso 0 de la resolución filtra por nivel confrontando dos vocabularios sin traducción declarada</td><td>AH04 ↔ AH03</td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td>K-04</td><td><code>sistemasVinculados[]</code> es obligatorio y está completo, pero ningún filtro documentado lo consume</td><td>AH04, interna</td><td><span class="severity severity--media">media</span></td></tr>
+<tr><td>K-05</td><td><code>patronesSecundarios[]</code> figura en la tabla de atributos pero ningún consumidor documentado lo lee</td><td>AH04, interna</td><td><span class="severity severity--media">media</span></td></tr>
+<tr><td>K-06</td><td>El algoritmo de sustitución depende de una "tabla de equivalencias autorizada" que ninguna fuente especifica</td><td>AH04, interna</td><td><span class="severity severity--alta">alta</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="vocabulario">Vocabulario ambiguo</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Token</th><th>Ambigüedad</th><th>Efecto sobre el etiquetado</th></tr></thead>
+<tbody>
+<tr><td><code>nivel</code></td><td>Tres acepciones: dificultad del ejercicio · posición del usuario (capa 3) · autopercibido (prohibido por P12)</td><td>Impide saber contra qué se compara al etiquetar — TG-D10</td></tr>
+<tr><td><code>equipo[]</code></td><td>Conjunción o disyunción — sin declarar</td><td>Dos etiquetadores producen listas distintas para el mismo ejercicio — TG-D05</td></tr>
+<tr><td><code>capacidad</code></td><td>Prerequisito demostrable (BREY) vs. cualidad física entrenable (literatura)</td><td>Riesgo de etiquetar cualidades donde se esperan gates</td></tr>
+<tr><td><code>cadena</code></td><td>Cadena de progresión (BREY) vs. cadena cinética (literatura)</td><td>Riesgo de confusión en documentación derivada</td></tr>
+<tr><td><code>core</code></td><td>Grupo muscular · patrón · componente del rol <code>core-final</code></td><td>Una etiqueta "core" puede referirse a tres ejes distintos</td></tr>
+<tr><td><code>hombro</code> / <code>hombros</code></td><td>Zona de riesgo (singular) vs. grupo muscular (plural)</td><td>Se distinguen solo por el número gramatical</td></tr>
+<tr><td><code>híbrido</code></td><td>Sistema comercial · patrón de arquitectura · estrategia descartada — <strong>nunca</strong> ejercicio multi-categoría</td><td>Buscar "híbrido" para resolver ejercicios híbridos devuelve solo falsos positivos</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="dependencias">Dependencias hacia el Exercise Taxonomy Handbook</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Qué se toma</th><th>De dónde</th><th>Tipo</th></tr></thead>
+<tbody>
+<tr><td>El inventario de atributos y sus estatutos (obligatorio/opcional/derivado/calculado)</td><td>Taxonomy 04</td><td>Dependencia dura — sin ella no hay puntos de decisión que enumerar</td></tr>
+<tr><td>Las fronteras Ejercicio ≠ Prescripción ≠ Workout ≠ Slot</td><td>Taxonomy 02</td><td>Dependencia dura — delimita qué se etiqueta</td></tr>
+<tr><td>La distinción ausencia ≠ lista vacía</td><td>Taxonomy TX-ADR-07</td><td>Coincidencia declarada — TG-ADR-03 la reafirma, no la re-decide</td></tr>
+<tr><td>El estatuto de identidad del <code>slug</code></td><td>Taxonomy 03</td><td>Dependencia dura</td></tr>
+<tr><td>Los vocabularios cerrados consolidados</td><td>Taxonomy 05–09</td><td>Dependencia de conveniencia — el original es AH04</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Independencia del barrido</div>
+  <p>Los conteos de este handbook <strong>excluyen</strong> el Exercise Taxonomy Handbook del recuento de evidencia, para no contar como fuente independiente lo que ya era consolidación de las mismas fuentes. Las dependencias de esta tabla son estructurales, no probatorias.</p>
+</div>
+
+<h2 id="bloqueantes">Bloqueantes para construir el Exercise Catalog</h2>
+<p class="matrix-note">Ordenados por si impiden empezar, impiden terminar o impiden usar el resultado.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Bloqueante</th><th>Impide</th><th>Quién lo desbloquea</th></tr></thead>
+<tbody>
+<tr><td>B-1</td><td><strong>TG-D07</strong> · El Perfil no captura zonas estructuradas</td><td><strong>Usar</strong> el resultado: aunque se etiquetaran los 19, el filtro de seguridad no funcionaría</td><td>Ingeniería (modelo de Perfil)</td></tr>
+<tr><td>B-2</td><td><strong>TG-D10</strong> · Sin mapeo Nivel↔nivel</td><td><strong>Usar</strong> el resultado: el paso 0 de la resolución no es computable</td><td>Decisión documental</td></tr>
+<tr><td>B-3</td><td><strong>TG-D05</strong> · <code>equipo[]</code> conjunción o disyunción</td><td><strong>Terminar</strong>: el ítem B-05 del checklist no es verificable</td><td>Decisión documental</td></tr>
+<tr><td>B-4</td><td><strong>TG-D01</strong> · Sin criterio para el patrón primario</td><td><strong>Terminar</strong> sin escalar cada ejercicio ambiguo</td><td>Autoridad de contenido (P14)</td></tr>
+<tr><td>B-5</td><td><strong>TG-D06</strong> · Sin mapeo equipo→Track</td><td><strong>Usar</strong>: el filtro de equipo no puede evaluarse</td><td>Contenido (Roadmap H2)</td></tr>
+<tr><td>B-6</td><td>Disponibilidad de <strong>criterio de entrenador</strong></td><td><strong>Empezar</strong>: 11 de los 30 ítems del checklist exigen autorización humana</td><td>Contenido — Roadmap #2, dueño declarado "Contenido"</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Ninguno de los seis bloqueantes es de este handbook</div>
+  <p>Cuatro son decisiones documentales o de contenido pendientes; dos son brechas del modelo de datos. El proceso de etiquetado, tal como queda especificado aquí, es aplicable en cuanto B-6 exista — pero su producto no será utilizable hasta resolver B-1 y B-2.</p>
+</div>
+
+<h2 id="criterio-humano">Qué sigue siendo necesariamente criterio humano</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Decisión</th><th>¿Por diseño o por omisión?</th><th>Evidencia</th></tr></thead>
+<tbody>
+<tr><td>La intensidad de carga de cada zona de riesgo</td><td><strong>Por diseño</strong></td><td>"Exige etiquetado con criterio biomecánico. Más lento, pero es la única versión honesta del filtro de seguridad"</td></tr>
+<tr><td>El orden de dificultad de una cadena</td><td><strong>Por diseño</strong></td><td>"El orden lo autoriza criterio de entrenador (P14)"</td></tr>
+<tr><td>Todo el etiquetado de los 6 atributos nuevos</td><td><strong>Por diseño</strong></td><td>"Es etiquetado con criterio, <strong>no código</strong>" · Roadmap #2, dueño "Contenido"</td></tr>
+<tr><td>Cuál patrón es primario en un ejercicio multi-patrón</td><td>Por omisión</td><td>La fuente reconoce el caso y no lo resuelve — TG-D01</td></tr>
+<tr><td>Si un ejercicio es "el más pesado del patrón"</td><td>Por omisión</td><td>Comparativo sin término de comparación fijado — TG-D02</td></tr>
+<tr><td>El nivel de dificultad de un ejercicio</td><td>Por omisión</td><td>Sin criterio publicado</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">La distinción que importa</div>
+  <p>Tres de estas decisiones son humanas <strong>por diseño</strong>: el ecosistema las razonó, aceptó su coste y las declaró frontera de autoridad humana. Las otras tres lo son <strong>por omisión</strong>: nadie decidió que fueran humanas, simplemente nadie escribió la regla. Las primeras no deben cerrarse nunca; las segundas son deuda que alguien puede saldar con una decisión documental.</p>
+</div>
+
+<h2 id="metricas">Métricas del handbook</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Métrica</th><th>Valor</th></tr></thead>
+<tbody>
+<tr><td>Módulos</td><td>18 (00–17)</td></tr>
+<tr><td>Puntos de decisión analizados</td><td>19</td></tr>
+<tr><td>Celdas de la matriz de auditoría</td><td>57</td></tr>
+<tr><td>Principios (TG-01…08)</td><td>8</td></tr>
+<tr><td>ADR (TG-ADR-01…07)</td><td>7</td></tr>
+<tr><td>Anti-patterns (TGA-01…12)</td><td>12</td></tr>
+<tr><td>Validaciones estructurales (V-01…17)</td><td>17</td></tr>
+<tr><td>Validaciones de contenido (H-01…08)</td><td>8</td></tr>
+<tr><td>Ítems de checklist (A+B+C)</td><td>30</td></tr>
+<tr><td>Deudas documentales (TG-D01…10)</td><td>10</td></tr>
+<tr><td>Contradicciones (K-01…06)</td><td>6</td></tr>
+<tr><td>Bloqueantes del catálogo</td><td>6</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="limitaciones">Limitaciones de esta auditoría</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Limitación</th><th>Alcance</th></tr></thead>
+<tbody>
+<tr><td>El barrido es textual</td><td>Se buscaron términos de proceso en los <code>.html</code> del repositorio. Un criterio expresado con palabras completamente distintas podría no haberse detectado.</td></tr>
+<tr><td>La clasificación ✅/⚠️/❌ es un juicio acotado</td><td>Cada celda se justifica en su módulo correspondiente y es rebatible con una cita; el conteo derivado sí es exacto.</td></tr>
+<tr><td>El desdoblamiento en 19 puntos es una elección</td><td>Contar <code>modalidad</code> y <code>zonasRiesgo</code> como uno solo daría 17 puntos y 51 celdas; el porcentaje pasaría a 23,5 %. La conclusión no cambia.</td></tr>
+<tr><td>No mide la calidad del etiquetado</td><td>Mide cuánto del <em>proceso</em> está especificado, no si los 19 ejercicios están bien clasificados — hoy no lo está ninguno.</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="estado">Estado final</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Veredicto</div>
+  <p>El <strong>Exercise Tagging Handbook v1.0 está completo</strong> como Source of Truth del proceso: define los 7 pasos, la jerarquía de 5 niveles, 17 validaciones estructurales, 8 de contenido, un checklist de 30 ítems y 12 anti-patrones — todos derivados, ninguno inventado.</p>
+  <p>El proceso está especificado al <strong>22,8 %</strong> en su totalidad, con la <strong>verificación al 68,4 %</strong> y la <strong>decisión al 0 %</strong>. Ese reparto no es un defecto del handbook ni de las fuentes: es la forma exacta de un sistema que declaró el catálogo como frontera de autoridad humana. Lo que este handbook aporta es que ahora esa frontera está <strong>medida</strong>, y que las seis decisiones humanas están separadas entre las tres que deben seguir siéndolo y las tres que son deuda saldable.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../16-adr/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 16 · ADR</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../../index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">Portada →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

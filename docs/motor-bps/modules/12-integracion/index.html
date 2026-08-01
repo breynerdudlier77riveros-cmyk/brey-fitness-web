@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>12 · Integración — Motor BPS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="integracion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 12 · Sistema</p>
+<h1>Integración</h1>
+<p class="lede">Cómo conversa el Motor con cada contraparte: dirección, contrato, cadencia y lo que cada lado tiene prohibido saber del otro. La regla transversal: todo diálogo pasa por los DTOs del marco (módulo 11 del Architecture Handbook) — ninguna contraparte lee las estructuras internas de otra.</p>
+
+<h2 id="tabla">Matriz de conversaciones</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Contraparte</th><th>Dirección</th><th>Contrato</th><th>Cadencia</th><th>Prohibido</th></tr></thead>
+<tbody>
+<tr><td><strong>Diagnóstico</strong></td><td>→ Motor</td><td>DTO Resultado {sistema, nivelEntrada, razones}</td><td>Por evento (completar/re-tomar)</td><td>El Motor no conoce preguntas ni scoring; el Diagnóstico no conoce estados</td></tr>
+<tr><td><strong>Perfil</strong></td><td>→ Motor (lectura fresca)</td><td>Los campos del módulo 03/G2</td><td>Cada ciclo + gates</td><td>El Motor no escribe campos del usuario (IN-3 aparte: sus punteros)</td></tr>
+<tr><td><strong>Recovery Engine</strong></td><td>Motor → (invoca) → Motor</td><td>(ventana, mesociclo) → Veredicto</td><td>1×/ciclo, SIEMPRE primero (BPS-007)</td><td>Recovery no conoce la FSM ni al Generator — función pura</td></tr>
+<tr><td><strong>Progression Engine</strong></td><td>Motor → (invoca) → Motor</td><td>(ventana, prescripción, veredicto) → Decisión</td><td>≤1×/ciclo (solo sin descarga)</td><td>Progression no escribe punteros — el Motor aplica su decisión (I-M2 del marco)</td></tr>
+<tr><td><strong>Workout Generator</strong></td><td>Motor → (invoca)</td><td>(microciclo, perfil, prescripción, veredicto, versión) → semana | error</td><td>1×/ciclo si procede</td><td>El Generator no re-consulta al Motor — recibe todo resuelto (04)</td></tr>
+<tr><td><strong>Workout Player</strong></td><td>— sin canal directo —</td><td>Se comunican solo vía Historial</td><td>—</td><td>El Motor jamás actúa durante una sesión; el Player jamás consulta estados (01, separación decisión/ejecución)</td></tr>
+<tr><td><strong>Knowledge Base</strong></td><td>— sin canal directo —</td><td>El Motor no la lee; la consume el Generator</td><td>—</td><td>BPS-021: el Motor no conoce la ontología</td></tr>
+<tr><td><strong>Training Framework (catálogo)</strong></td><td>→ Motor (lectura)</td><td>Estructura Bloques/Mesociclos/Microciclos + versión</td><td>Cada ciclo</td><td>Solo lectura; la posición del usuario en la estructura es del Motor, la estructura es del catálogo</td></tr>
+<tr><td><strong>Repositorios</strong></td><td>Motor ↔ datos</td><td>Los del marco (módulo 11) + insertEvento/insertWorkouts</td><td>Según operación</td><td>Única vía de I/O — cero acceso directo a tablas</td></tr>
+<tr><td><strong>Eventos (progression_events)</strong></td><td>Motor → (escribe) / ← (replay)</td><td>Fila con tipo/origen/razones/contexto</td><td>Cada transición; replay bajo demanda</td><td>Nunca UPDATE/DELETE (P3)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="secuencia">Diagrama de secuencia — un ciclo completo</h2>
+<div class="diagram">
+<div class="diagram-label">Todas las conversaciones de un ciclo semanal, en orden</div>
+<pre class="mermaid">
+sequenceDiagram
+  participant SCH as Scheduler
+  participant MB as Motor BPS
+  participant REPO as Repositorios
+  participant RE as Recovery
+  participant PE as Progression
+  participant WG as Generator
+  SCH->>MB: cicloSemanal(fecha, versión)
+  MB->>REPO: leerPerfilFresco + estado
+  MB->>MB: guards (estado, gates, inactividad)
+  MB->>REPO: leerVentanaHistorial
+  MB->>RE: evaluar(ventana, mesociclo)
+  RE-->>MB: veredicto
+  alt exige descarga
+    MB->>REPO: transición T8 + evento (atómico)
+  else
+    MB->>PE: evaluar(ventana, prescripción, veredicto)
+    PE-->>MB: decisión
+    MB->>REPO: aplicar transición + evento (atómico)
+  end
+  MB->>WG: generarSemana(todo resuelto)
+  WG-->>MB: semana | CATALOGO_INSUFICIENTE
+  MB->>REPO: evento semana_generada (con versión)
+  MB-->>SCH: resultado
+</pre>
+</div>
+
+<h2 id="acoplamiento">Reglas de acoplamiento</h2>
+<ul>
+  <li><strong>A-1:</strong> Recovery y Progression son funciones puras — el Motor les pasa los datos ya leídos; ellas no tocan I/O. Es lo que las hace testeables con casos fijos y reemplazables sin tocar al Motor (P13 del marco).</li>
+  <li><strong>A-2:</strong> el Player y el Motor se reencuentran solo en el Historial, al ciclo siguiente — no hay canal en tiempo real entre ambos. Todo lo que parezca necesitar uno (ej. "avisar al Motor que hubo dolor") ya está resuelto vía eventos que el ciclo lee (restricciones de zona, BPS-024).</li>
+  <li><strong>A-3:</strong> agregar una contraparte nueva (ej. panel del coach, v2) exige fila nueva en la matriz de este módulo ANTES de escribir código — la matriz es normativa, no descriptiva.</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../11-algoritmo/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 11 · Algoritmo conceptual</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../13-observabilidad/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">13 · Observabilidad →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

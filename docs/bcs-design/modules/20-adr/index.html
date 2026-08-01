@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>20 · ADR — BCS Design System Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="adr" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 20 · Gobernanza</p>
+<h1>Decisiones de Arquitectura (ADR)</h1>
+<p class="lede">Las decisiones propias de este handbook, con su contexto, alternativas descartadas y consecuencias.</p>
+
+<div class="adr" id="bcsd-adr-01">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">BCSD-ADR-01</div>
+  <h3>Extender el sistema de diseño real de BREY, nunca crear uno paralelo</h3>
+  <p><strong>Contexto:</strong> BREY ya tiene una librería de 18 componentes de marca y una paleta fijada (00).</p>
+  <p><strong>Problema:</strong> diseñar el BCS desde cero, sin auditar lo existente, produciría inconsistencias visuales entre el BCS y el resto de la app, y duplicaría trabajo ya resuelto.</p>
+  <p><strong>Alternativas descartadas:</strong> definir una paleta y componentes propios "optimizados para datos de salud" (ganancia marginal, costo real de fragmentar la identidad de marca).</p>
+  <p><strong>Decisión:</strong> este handbook audita el código real antes de especificar cualquier valor, y solo introduce elementos nuevos (etiquetados <span class="tag tag--nuevo">nuevo</span> en todo el documento) donde no existe nada reutilizable.</p>
+  <p><strong>Consecuencias:</strong> cualquier futura actualización de la paleta base de BREY se propaga automáticamente al BCS sin requerir una segunda migración.</p>
+</div>
+
+<div class="adr" id="bcsd-adr-02">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">BCSD-ADR-02</div>
+  <h3>Solo modo oscuro en v1</h3>
+  <p><strong>Contexto:</strong> el encargo original pedía especificar modo claro y modo oscuro.</p>
+  <p><strong>Problema:</strong> el resto de BREY no tiene modo claro implementado — introducirlo solo en el BCS crearía un producto visualmente inconsistente consigo mismo.</p>
+  <p><strong>Alternativas descartadas:</strong> especificar un modo claro completo de todas formas, para "estar listos" (trabajo especulativo sin caso de uso real ni compromiso de implementación).</p>
+  <p><strong>Decisión:</strong> v1 hereda el único modo existente (oscuro); modo claro queda en 19 como candidato explícito de v2, condicionado a que BREY lo adopte a nivel de producto.</p>
+  <p><strong>Consecuencias:</strong> resuelve la tensión entre el encargo original y la realidad del código sin inventar una paleta clara sin fundamento.</p>
+</div>
+
+<div class="adr" id="bcsd-adr-03">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">BCSD-ADR-03</div>
+  <h3>Barra de rango inspirada en analizadores comerciales, sin copiar su identidad</h3>
+  <p><strong>Contexto:</strong> el encargo pedía inspirarse en InBody/Tanita/Seca sin copiarlos (10).</p>
+  <p><strong>Problema:</strong> el lenguaje visual de "barra con zonas y marcador" es genérico y útil, pero la ejecución exacta de esas marcas (colores, iconografía, proporciones) es su identidad registrada.</p>
+  <p><strong>Alternativas descartadas:</strong> un diseño de barra completamente distinto sin precedente en el dominio (arriesga que los clientes, ya familiarizados con el formato de esas marcas, no reconozcan el patrón).</p>
+  <p><strong>Decisión:</strong> se toma el concepto estructural (pista horizontal + zonas + marcador), reconstruido enteramente con tokens de marca de BREY (05).</p>
+  <p><strong>Consecuencias:</strong> el componente es reconocible para el usuario final sin exponer a BREY a un problema de identidad visual.</p>
+</div>
+
+<div class="adr" id="bcsd-adr-04">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">BCSD-ADR-04</div>
+  <h3>Radar y Scatter descartados de v1</h3>
+  <p><strong>Contexto:</strong> el encargo listaba 6 tipos de gráfico a evaluar, incluyendo Radar y Scatter (11).</p>
+  <p><strong>Problema:</strong> ambos tipos implican, por su propia naturaleza visual, afirmaciones que el BCS no tiene base para hacer — Radar sugiere "balance" entre variables de escalas distintas sin ponderación definida; Scatter sugiere correlación estadística no validada.</p>
+  <p><strong>Alternativas descartadas:</strong> incluirlos con una advertencia textual ("esto no implica correlación") — insuficiente, porque el impacto visual de un gráfico precede a la lectura de cualquier advertencia.</p>
+  <p><strong>Decisión:</strong> ninguno de los dos entra en v1; ambos quedan en 19 como candidatos condicionados a resolver primero su problema de fondo, no solo su presentación.</p>
+  <p><strong>Consecuencias:</strong> consistente con la misma disciplina de "no inventar criterios médicos/estadísticos" que gobierna el BCS Handbook.</p>
+</div>
+
+<div class="adr" id="bcsd-adr-05">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">BCSD-ADR-05</div>
+  <h3>Container fijo en 1024px incluso en pantallas ultra wide</h3>
+  <p><strong>Contexto:</strong> el encargo pedía especificar el comportamiento en pantallas ultra wide (03, 18).</p>
+  <p><strong>Problema:</strong> la tentación natural es añadir más columnas de contenido cuando hay más espacio disponible.</p>
+  <p><strong>Alternativas descartadas:</strong> grid de 4 columnas en <code>2xl</code> (rompe la consistencia de posición que el entrenador memoriza entre resoluciones, 01).</p>
+  <p><strong>Decisión:</strong> el container permanece en <code>max-w-5xl</code> (heredado de <code>AppShell.tsx</code>) en cualquier resolución — el espacio extra se convierte en margen, no en más contenido.</p>
+  <p><strong>Consecuencias:</strong> menos aprovechamiento del espacio en monitores grandes, a cambio de una experiencia predecible sin importar el dispositivo.</p>
+</div>
+
+<div class="adr" id="bcsd-adr-06">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">BCSD-ADR-06</div>
+  <h3>Tabular figures obligatorias para todo número de composición corporal</h3>
+  <p><strong>Contexto:</strong> las tablas comparativas (12) y el historial (BCS Handbook, 05) muestran columnas densas de números.</p>
+  <p><strong>Problema:</strong> las cifras proporcionales por defecto de cualquier fuente (incluida Inter) tienen ancho variable por dígito, produciendo columnas desalineadas que dificultan el escaneo rápido (01).</p>
+  <p><strong>Alternativas descartadas:</strong> una fuente monoespaciada solo para números (rompería la Ley "una sola familia tipográfica" sin necesidad — Inter ya soporta la variante tabular).</p>
+  <p><strong>Decisión:</strong> todo valor numérico de composición corporal usa la variante <em>tabular figures</em> de la misma Inter (04).</p>
+  <p><strong>Consecuencias:</strong> primera extensión tipográfica genuina del sistema — no existía necesidad de esta distinción hasta el BCS.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../19-roadmap/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 19 · Roadmap</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../21-glosario/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">21 · Glosario →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

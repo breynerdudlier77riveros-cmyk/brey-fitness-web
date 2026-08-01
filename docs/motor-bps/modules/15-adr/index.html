@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>15 · Decisiones (ADR) — Motor BPS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="adr" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 15 · Gobernanza</p>
+<h1>Decisiones de Arquitectura (ADR)</h1>
+<p class="lede">Las decisiones propias de este handbook (MBPS-ADR-01…06), que extienden — sin contradecir — los 14 ADRs del Architecture Handbook. Las decisiones heredadas del marco que gobiernan este Motor (ADR-001, 002, 003, 010, 012) no se re-registran: viven allá; aquí solo se citan.</p>
+
+<h2 id="lista">Registro propio</h2>
+
+<div class="adr" id="madr-01">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">MBPS-ADR-01</div>
+  <h3>Estado como puntero materializado + eventos como verdad</h3>
+  <p><strong>Contexto:</strong> el estado podía ser (a) solo un puntero mutable, (b) solo derivado de eventos en cada lectura, o (c) ambos.</p>
+  <p><strong>Decisión:</strong> ambos — puntero para lectura barata, eventos como fuente de verdad con replay determinista (IN-5); ante divergencia, los eventos ganan.</p>
+  <p><strong>Alternativas descartadas:</strong> solo puntero (irreparable ante corrupción, inauditable); solo derivado (costo de replay en cada lectura de estado, para un beneficio que el puntero + auditoría ya dan).</p>
+  <p><strong>Consecuencias:</strong> la auditoría de replay es parte de la definición de terminado; la reparación de estados imposibles queda especificada (05).</p>
+</div>
+
+<div class="adr" id="madr-02">
+  <span class="adr__estado">Aceptada · extensión del marco</span>
+  <div class="adr__id">MBPS-ADR-02</div>
+  <h3>Auto-pausa por inactividad (21 días)</h3>
+  <p><strong>Contexto:</strong> el marco define <code>en_pausa</code> solo como manual (lesión/voluntaria); sin entrada automática, el ciclo generaría semanas indefinidamente para usuarios ausentes y las ventanas vacías harían ruido en los motores.</p>
+  <p><strong>Decisión:</strong> T11 — ≥21 días sin log transiciona a <code>en_pausa</code> con motivo <code>inactividad</code>, comunicación obligatoria y umbral calibrable (BPS-025). <span class="ev ev--producto">decisión de producto</span></p>
+  <p><strong>Alternativas descartadas:</strong> generar indefinidamente (desperdicio + señal contaminada); desactivar el Sistema (castigo comercial desproporcionado, viola IN-1).</p>
+  <p><strong>Consecuencias:</strong> nueva transición en la FSM del marco (extensión declarada, no contradicción — el marco no prohibía entradas automáticas, no las especificaba).</p>
+</div>
+
+<div class="adr" id="madr-03">
+  <span class="adr__estado">Aceptada · extensión del marco</span>
+  <div class="adr__id">MBPS-ADR-03</div>
+  <h3>La fecha del ciclo es parámetro explícito</h3>
+  <p><strong>Contexto:</strong> el determinismo (P1) exige que re-ejecutar un ciclo histórico reproduzca sus decisiones; cualquier lectura ad-hoc del reloj lo rompe.</p>
+  <p><strong>Decisión:</strong> BPS-022 — fecha y versión de catálogo son parámetros del ciclo, sin defaults.</p>
+  <p><strong>Alternativas descartadas:</strong> reloj inyectado como servicio global (funciona, pero invisible en la firma — el parámetro hace el contrato evidente y los tests triviales).</p>
+  <p><strong>Consecuencias:</strong> el scheduler es el único dueño del "ahora"; la auditoría de determinismo (13) es posible sin mocks.</p>
+</div>
+
+<div class="adr" id="madr-04">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">MBPS-ADR-04</div>
+  <h3>Ciclo semanal batch, no reactivo por evento</h3>
+  <p><strong>Contexto:</strong> el Motor podía re-evaluar tras cada sesión registrada (reactivo) o una vez por cierre de Microciclo (batch).</p>
+  <p><strong>Decisión:</strong> batch — el ciclo corre al cierre del Microciclo; las sesiones se acumulan como señal.</p>
+  <p><strong>Alternativas descartadas:</strong> reactivo por sesión (acopla el Motor a la cadencia del Player, dispara macro-evaluaciones que el marco prohíbe por sesión — I-P2 — y multiplica ejecuciones sin cambiar decisiones, porque la ventana apenas se mueve).</p>
+  <p><strong>Consecuencias:</strong> latencia máxima de una semana entre señal y respuesta macro — aceptada; el micro-ajuste (Progression) ya opera por aparición de ejercicio dentro del mismo contrato batch.</p>
+</div>
+
+<div class="adr" id="madr-05">
+  <span class="adr__estado">Aceptada · extensión del marco</span>
+  <div class="adr__id">MBPS-ADR-05</div>
+  <h3>Vigencia del Diagnóstico: 6 meses para activar</h3>
+  <p><strong>Contexto:</strong> una compra puede llegar mucho después del Diagnóstico; el nivelEntrada envejece.</p>
+  <p><strong>Decisión:</strong> resultado &gt; 6 meses al momento de la compra → <code>pendiente_diagnostico</code> con motivo <code>resultado_expirado</code> (06). Umbral <span class="ev ev--producto">decisión de producto</span> calibrable.</p>
+  <p><strong>Alternativas descartadas:</strong> vigencia infinita (nivel de seguridad obsoleto); re-diagnóstico obligatorio siempre (fricción injustificada para compras inmediatas).</p>
+  <p><strong>Consecuencias:</strong> el guard de T3 consulta la vigencia; la re-toma es ligera y el flujo T5 la absorbe.</p>
+</div>
+
+<div class="adr" id="madr-06">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">MBPS-ADR-06</div>
+  <h3>Sin traducción de niveles entre Sistemas</h3>
+  <p><strong>Contexto:</strong> al comprar un Sistema distinto del recomendado, el nivelEntrada del resultado vigente pertenece a OTRO sistema (los niveles son internos y no equivalentes — "Skills" solo existe en Calistenia).</p>
+  <p><strong>Decisión:</strong> el Motor exige re-diagnóstico (ligero) para el Sistema comprado; jamás mapea niveles entre Sistemas (06, casos límite).</p>
+  <p><strong>Alternativas descartadas:</strong> tabla de equivalencias entre niveles (fisiología inventada — P11; los niveles son configuraciones internas, no una escala universal).</p>
+  <p><strong>Consecuencias:</strong> algo más de fricción en el cambio de Sistema, a cambio de nunca ubicar mal a alguien por una equivalencia fabricada.</p>
+</div>
+
+<h2 id="heredadas">Decisiones heredadas del marco que gobiernan este Motor</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>ADR del marco</th><th>Qué fija aquí</th></tr></thead>
+<tbody>
+<tr><td>ADR-001</td><td>Determinismo total; sin IA decidiendo dentro del Motor</td></tr>
+<tr><td>ADR-002</td><td>La Regla de Activación (módulo 06 entero la profundiza)</td></tr>
+<tr><td>ADR-003</td><td><code>nivel_experiencia</code> fuera de toda decisión (BPS-006)</td></tr>
+<tr><td>ADR-010</td><td>Recovery precede a Progression (BPS-007, IN-7)</td></tr>
+<tr><td>ADR-012</td><td>Elite fuera del pipeline (BPS-009)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../14-riesgos/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 14 · Riesgos</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../16-preguntas/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">16 · Preguntas abiertas →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

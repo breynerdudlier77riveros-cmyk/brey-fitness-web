@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10 · Autorregulación — Progression Engine Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="autorregulacion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 10 · Reglas</p>
+<h1>Autorregulación</h1>
+<p class="lede">Las ocho señales de autorregulación del sistema BREY, y para cada una: si este motor la procesa directamente o solo la obedece ya resuelta. Este es el módulo con la frontera de capa más importante de todo el handbook (P8).</p>
+
+<h2 id="objetivo">Objetivo</h2>
+<p>Eliminar cualquier ambigüedad sobre qué señales son responsabilidad directa del Progression Engine y cuáles pertenecen al Recovery Engine — la confusión entre ambas es el error de diseño más costoso que este documento puede prevenir.</p>
+
+<h2 id="tabla-frontera">Las 8 señales — quién las procesa</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Señal</th><th>¿Este motor la procesa directamente?</th><th>Regla</th></tr></thead>
+<tbody>
+<tr><td><strong>RPE</strong></td><td>Sí — señal primaria de ajuste micro</td><td>PE-007, PE-019</td></tr>
+<tr><td><strong>RIR</strong></td><td>Sí — alterna a RPE, mutuamente excluyente</td><td>PE-008, PE-020</td></tr>
+<tr><td><strong>Cumplimiento</strong></td><td>Sí — gate previo a toda evaluación de progresión</td><td>PE-021</td></tr>
+<tr><td><strong>Eventos inesperados</strong></td><td>Sí — excluye la Aparición con causa registrada</td><td>PE-022</td></tr>
+<tr><td><strong>Adherencia</strong> (cumplimiento agregado en el tiempo)</td><td>Sí — pero solo a nivel macro (retroceso/avance de escalón), nunca como interpretación clínica</td><td>PE-014, PE-017</td></tr>
+<tr><td><strong>Dolor</strong></td><td><strong>No</strong> — recibido ya resuelto vía Veredicto de Recovery</td><td>PE-023</td></tr>
+<tr><td><strong>Fatiga percibida cruda</strong></td><td><strong>No</strong> — ídem</td><td>PE-024</td></tr>
+<tr><td><strong>Sueño</strong></td><td><strong>No</strong> — ídem</td><td>PE-025</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="diagrama">Diagrama de la frontera</h2>
+<div class="diagram">
+<div class="diagram-label">Señales propias vs. señales que solo llegan como veredicto ya resuelto</div>
+<pre class="mermaid">
+graph LR
+  subgraph PROPIAS["Procesadas directamente por este motor"]
+    RPE["RPE"]
+    RIR["RIR"]
+    CUMP["Cumplimiento"]
+    EVT["Eventos inesperados"]
+    ADH["Adherencia (macro)"]
+  end
+  subgraph RECOVERY["Recovery Engine — dominio ajeno"]
+    DOL["Dolor"]
+    FAT["Fatiga cruda"]
+    SUE["Sueño"]
+  end
+  RECOVERY -->|"resuelve a"| VER["Veredicto {procede, tipo, razon}"]
+  VER -->|"única entrada que este motor recibe de esa capa"| PE["Progression Engine"]
+  PROPIAS --> PE
+</pre>
+</div>
+
+<h2 id="por-que">Por qué esta frontera y no otra</h2>
+<p>Dolor, fatiga cruda y sueño requieren interpretación clínica/fisiológica especializada (umbrales de riesgo, contraindicaciones, señales de alarma) que es responsabilidad de un motor dedicado con su propio handbook. RPE, RIR, cumplimiento y eventos inesperados son, en cambio, señales de <em>ejecución del entrenamiento en curso</em> — su interpretación es inseparable de la lógica de progresión misma. Trazar la frontera en cualquier otro punto obligaría a este motor a duplicar lógica clínica, o a Recovery a decidir cargas — ambos violan P4.</p>
+
+<h2 id="casos-limite">Casos límite</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Comportamiento</th></tr></thead>
+<tbody>
+<tr><td>RPE reportado alto Y Veredicto de Recovery favorable</td><td>El motor procede con evaluación normal — un RPE alto puntual no es, por sí solo, una señal de riesgo (eso ya fue evaluado por Recovery); puede sí evitar un avance ese ciclo vía PE-007</td></tr>
+<tr><td>Veredicto de Recovery desfavorable Y RPE reportado bajo</td><td>Gana el Veredicto (PE-026) — el RPE bajo es irrelevante ese ciclo, se sostiene igual</td></tr>
+<tr><td>Usuario reporta dolor directamente en un campo de la sesión (fuera del flujo de Recovery)</td><td>Ese campo no es una entrada de este motor (03, "no reconocidas") — si existe en la UI, su destino de procesamiento es Recovery, no este documento</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="contraejemplos">Contraejemplos</h2>
+<ul>
+  <li>El motor NO tiene ningún umbral propio de "RPE peligroso" — eso sería reinterpretar una señal de seguridad, terreno exclusivo de Recovery.</li>
+  <li>El motor NO combina RPE con una supuesta lectura de fatiga para "afinar" la decisión — RPE es la única señal de esfuerzo que usa, sin mezclarla con nada fuera de su contrato.</li>
+</ul>
+
+<h2 id="errores">Errores posibles</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Error</th><th>Tratamiento</th></tr></thead>
+<tbody>
+<tr><td>Entrada con campo de dolor/fatiga/sueño presente en el contrato</td><td>Error de invocación — el contrato (04) no define esos campos; su presencia indica una integración mal construida aguas arriba</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="consecuencias">Consecuencias</h2>
+<p>Esta frontera implica que el Progression Engine no puede, por diseño, explicar por sí solo un "sostiene" causado por fatiga — solo puede citar el veredicto recibido. Cualquier explicación más profunda al usuario debe consultarse en la observabilidad del Recovery Engine, no en la de este motor (14).</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../09-macroprogresion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 09 · Macroprogresión</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../11-estancamiento/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">11 · Estancamiento →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

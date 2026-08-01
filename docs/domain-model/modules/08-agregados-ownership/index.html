@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>08 · Agregados y Ownership — Domain Model Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="agregados-ownership" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 08 · Estructura</p>
+<h1>Agregados y Ownership</h1>
+<p class="lede">Los Aggregate Roots reales del ecosistema — y por qué la forma ingenua de "una raíz que contiene todo" ya fue descartada donde se probó.</p>
+
+<div class="callout callout--riesgo">
+  <div class="callout__label">Corrección respecto a la forma ingenua de aggregate</div>
+  <p>Un modelo intuitivo agruparía Cliente con sus Mediciones, Historial y Enlaces como un único aggregate ("Cliente contiene todo"). El BCS Handbook ya evaluó exactamente esa forma y la descartó explícitamente (BCS-ADR-01): un aggregate que contuviera todas las Mediciones de un Cliente obligaría a cargar el historial completo cada vez que se toca cualquier dato del cliente, y crecería sin límite con el tiempo. La decisión ya tomada — y que este documento seguirá sin excepción — es que Cliente, Medición y EnlacePúblico son <strong>tres aggregate roots independientes</strong>, cada uno referenciando <code>clienteId</code>, nunca conteniéndose entre sí.</p>
+</div>
+
+<h2 id="tabla-aggregates">Aggregate Roots reales</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Aggregate Root</th><th>Contiene</th><th>Fuente de la decisión</th></tr></thead>
+<tbody>
+<tr><td>Usuario</td><td>Su propio Perfil (incluido PerfilEntrenamiento) — ninguna otra entidad físicamente</td><td>Architecture Handbook</td></tr>
+<tr><td>Diagnóstico</td><td>Respuestas, ResultadoDiagnóstico — ambos genuinamente contenidos, sin identidad propia fuera del Diagnóstico</td><td>Architecture Handbook</td></tr>
+<tr><td>Workout</td><td>Sus Slots y Series prescritas (vía <code>ejercicios</code> jsonb) — no contiene Bloques ni Mesociclos, que son posicionales, no de contención (03)</td><td>Engineering Handbook, ENG-ADR-05</td></tr>
+<tr><td>WorkoutLog</td><td>Sus Series ejecutadas — agregado separado de Workout, referencia opcional a él (<code>workout_id</code> nullable)</td><td>Architecture Handbook (esquema real)</td></tr>
+<tr><td>Cliente</td><td><strong>Solo sus propios datos identificativos y estado</strong> — NO contiene Mediciones, Historial ni Enlaces</td><td>BCS Handbook, BCS-ADR-01</td></tr>
+<tr><td>Medición</td><td>Sus propias 25 variables y metadatos — referencia <code>clienteId</code>, no contenida por Cliente</td><td>BCS Handbook, BCS-ADR-01</td></tr>
+<tr><td>EnlacePúblico</td><td>Su propio token y estado — referencia <code>clienteId</code>, no contenido por Cliente</td><td>BCS Handbook, BCS-ADR-01</td></tr>
+<tr><td>EventoProgresión</td><td>Ninguno — es en sí mismo la unidad, sin hijos (append-only, no un contenedor)</td><td>Architecture Handbook + Engineering Handbook, 07</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="por-que-no">Por qué otras entidades NO son raíces</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Entidad</th><th>Por qué no es Aggregate Root</th></tr></thead>
+<tbody>
+<tr><td>Programa</td><td>No tiene identidad de fila propia — es una posición conceptual derivada de <code>profiles.sistema_actual</code>/<code>nivel_actual</code> + los Workouts existentes del Usuario (13)</td></tr>
+<tr><td>Bloque, Mesociclo, Microciclo</td><td>Puramente posicionales — su "estado" es la posición codificada en columnas del Workout (<code>semana</code>, <code>semana_total</code>), nunca una fila independiente</td></tr>
+<tr><td>Slot, Serie</td><td>Sin identidad fuera del Workout/WorkoutLog que las contiene — viven dentro del jsonb <code>ejercicios</code> (ENG-ADR-05)</td></tr>
+<tr><td>Ejercicio</td><td>Pertenece a la Knowledge Base, fuera de alcance de este handbook — nunca es un aggregate de los contextos aquí modelados</td></tr>
+<tr><td>Respuesta</td><td>Sin identidad fuera del Diagnóstico — es un elemento de su array <code>respuestas</code></td></tr>
+<tr><td>Reporte</td><td>Value object efímero, recalculado siempre — nunca tiene identidad persistida (IN-D3 del BCS Handbook)</td></tr>
+<tr><td>HistorialMediciones</td><td>Es una proyección/consulta, no una entidad con estado propio</td></tr>
+<tr><td>SeñalFatiga, EstadoRecuperación</td><td>Efímeras — su única forma persistida indirecta es el EventoProgresión que originan cuando disparan una Descarga</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="regla-general">La regla general detrás de cada decisión</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Cuándo algo es Aggregate Root</div>
+  <p>Una entidad es Aggregate Root cuando (1) tiene identidad propia persistida, (2) su ciclo de vida es independiente de cualquier otra entidad, y (3) las reglas de consistencia que protege son locales a sí misma. Todo lo demás es, o bien contenido dentro de un aggregate (Respuesta dentro de Diagnóstico), o bien puramente posicional/derivado (Bloque, Programa) sin necesitar su propia fila. Esta regla es la misma que ya aplicó el BCS Handbook (BCS-ADR-01) — este módulo solo la generaliza a todo el ecosistema.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../07-objetos-valor/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 07 · Objetos de Valor</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../09-relaciones-dominio/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">09 · Relaciones del Dominio →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>14 · Anti-patterns — Exercise Taxonomy Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="anti-patterns" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 14 · Gobernanza</p>
+<h1>Anti-patterns</h1>
+<p class="lede">Catorce formas concretas de corromper la taxonomía. Todas derivan de una prohibición ya existente en el ecosistema; ninguna es una advertencia genérica. Prefijo <code>TXA-</code> para no colisionar con los <code>ANP-</code> del Database Handbook ni con ningún otro catálogo.</p>
+
+<h2 id="catalogo">Catálogo de anti-patrones</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr><th>ID</th><th>Anti-patrón</th><th>Severidad</th><th>Regla que viola</th></tr></thead>
+<tbody>
+<tr><td><code>TXA-01</code></td><td>Inferir la clasificación desde el nombre o el músculo</td><td><span class="severity severity--critica">crítica</span></td><td>TX-04 · "La intensidad relativa por zona no se infiere del nombre"</td></tr>
+<tr><td><code>TXA-02</code></td><td>Parsear texto libre para obtener un dato decidible</td><td><span class="severity severity--critica">crítica</span></td><td>TX-05 · Invariante duro de la capa 15</td></tr>
+<tr><td><code>TXA-03</code></td><td>Inventar una fórmula reps↔segundos</td><td><span class="severity severity--critica">crítica</span></td><td>"No existe fórmula automática reps↔segundos" (P11/P14)</td></tr>
+<tr><td><code>TXA-04</code></td><td>Rellenar un slot con "el menos malo"</td><td><span class="severity severity--critica">crítica</span></td><td>P6 · Descarte explícito del Architecture Handbook 08</td></tr>
+<tr><td><code>TXA-05</code></td><td>Recursar la degradación de patrón sin guarda de visitados</td><td><span class="severity severity--alta">alta</span></td><td>El grafo tiene tres ciclos de longitud 2 — ver <a href="../15-adr/index.html">TX-ADR-01</a></td></tr>
+<tr><td><code>TXA-06</code></td><td>Tratar <code>zonasRiesgo</code> ausente como lista vacía</td><td><span class="severity severity--critica">crítica</span></td><td>TX-08 · "Sin etiquetar" ≠ "no carga ninguna zona"</td></tr>
+<tr><td><code>TXA-07</code></td><td>Renombrar un slug para corregirlo</td><td><span class="severity severity--alta">alta</span></td><td>TX-02 / P15 · El slug es identidad, no descripción</td></tr>
+<tr><td><code>TXA-08</code></td><td>Usar "movimiento" como si fuera una entidad formal</td><td><span class="severity severity--media">media</span></td><td>No existe tal entidad — ver módulo <a href="../02-ontologia-ejercicio/index.html">02</a></td></tr>
+<tr><td><code>TXA-09</code></td><td>Declarar la prescripción como atributo del ejercicio</td><td><span class="severity severity--alta">alta</span></td><td>TX-03 · Capa 9: "nunca decide su propia prescripción"</td></tr>
+<tr><td><code>TXA-10</code></td><td>Permitir que un ejercicio declare más de un patrón primario</td><td><span class="severity severity--alta">alta</span></td><td>Regla (a) del vocabulario de patrones</td></tr>
+<tr><td><code>TXA-11</code></td><td>Improvisar pares de degradación no declarados</td><td><span class="severity severity--alta">alta</span></td><td>Regla (b) · "La degradación declarada aquí es la ÚNICA permitida"</td></tr>
+<tr><td><code>TXA-12</code></td><td>Guardar datos del usuario dentro de la ficha del ejercicio</td><td><span class="severity severity--critica">crítica</span></td><td>La Knowledge Base nunca conoce usuarios</td></tr>
+<tr><td><code>TXA-13</code></td><td>Crear un vocabulario paralelo para un eje que ya existe</td><td><span class="severity severity--alta">alta</span></td><td>TX-01 · El propósito declarado de la KB</td></tr>
+<tr><td><code>TXA-14</code></td><td>Alterar el orden de roles al ensamblar la sesión</td><td><span class="severity severity--alta">alta</span></td><td>R-4 · "El Generator no puede alterar este orden relativo"</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="detalle">Los cuatro críticos, en detalle</h2>
+
+<div class="callout callout--riesgo">
+  <div class="callout__label">TXA-01 · Inferir la clasificación desde el nombre o el músculo</div>
+  <p><strong>Forma que adopta:</strong> "el catálogo ya declara <code>musculoPrincipal: pecho</code>, así que el patrón es <code>empuje-horizontal</code>". <strong>Por qué falla:</strong> <code>pecho</code> no distingue empuje horizontal de vertical, y ninguna combinación de músculo y equipo determina la intensidad de carga articular. <strong>Consecuencia real:</strong> un ejercicio con la zona de riesgo mal inferida pasa el filtro de seguridad de un usuario lesionado. <strong>Alternativa correcta:</strong> dejarlo <code>null</code> y que falle visiblemente hasta que alguien lo etiquete.</p>
+</div>
+
+<div class="callout callout--riesgo">
+  <div class="callout__label">TXA-02 · Parsear texto libre para obtener un dato decidible</div>
+  <p><strong>Forma que adopta:</strong> extraer de <code>variantes[]</code> la cadena de progresión, o de <code>erroresComunes[]</code> las contraindicaciones. <strong>Por qué falla:</strong> el ecosistema declara <code>variantes[]</code> como "precursor sin estructura" precisamente para señalar que no es convertible. <strong>Consecuencia real:</strong> una cadena de progresión generada por parsing pone al usuario en un eslabón que ningún entrenador autorizó. <strong>Alternativa correcta:</strong> "si una nota contiene información que un motor necesitaría, el modelo de datos tiene un vacío que se resuelve con un campo nuevo".</p>
+</div>
+
+<div class="callout callout--riesgo">
+  <div class="callout__label">TXA-03 · Inventar una fórmula reps↔segundos</div>
+  <p><strong>Forma que adopta:</strong> "1 repetición ≈ 3 segundos, así que 8 reps son 24 s de plancha". <strong>Por qué falla:</strong> es fisiología fabricada — el ecosistema descarta la interpolación por nombre y apellido. <strong>Consecuencia real:</strong> una sustitución silenciosa que cambia por completo el estímulo. <strong>Alternativa correcta:</strong> tabla de equivalencias autorizada, o <code>CATALOGO_INSUFICIENTE</code>.</p>
+</div>
+
+<div class="callout callout--riesgo">
+  <div class="callout__label">TXA-06 · Tratar <code>zonasRiesgo</code> ausente como lista vacía</div>
+  <p><strong>Forma que adopta:</strong> <code>const zonas = ejercicio.zonasRiesgo ?? []</code>. <strong>Por qué falla:</strong> convierte "nadie ha evaluado este ejercicio" en "este ejercicio no carga ninguna articulación en riesgo" — la afirmación más peligrosa posible del catálogo. <strong>Consecuencia real:</strong> los 19 ejercicios sin etiquetar pasarían el filtro de seguridad de cualquier usuario lesionado. <strong>Alternativa correcta:</strong> el ausente no es elegible; el fallo alimenta la cola editorial.</p>
+</div>
+
+<h2 id="deteccion">Cómo se detectan</h2>
+<p class="matrix-note">Qué tipo de revisión detecta cada anti-patrón. Los estructurales son automatizables; los de contenido exigen criterio.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Detectable por validación estructural</th><th>Detectable solo por revisión humana</th></tr></thead>
+<tbody>
+<tr><td><code>TXA-05</code> · ciclos en el grafo de degradación</td><td><code>TXA-01</code> · una clasificación inferida es sintácticamente idéntica a una etiquetada</td></tr>
+<tr><td><code>TXA-06</code> · distinguir <code>null</code> de <code>[]</code></td><td><code>TXA-02</code> · el origen del dato no queda en el dato</td></tr>
+<tr><td><code>TXA-07</code> · un slug que cambia entre versiones de catálogo</td><td><code>TXA-03</code> · una equivalencia inventada parece una autorizada</td></tr>
+<tr><td><code>TXA-10</code> · más de un patrón primario</td><td><code>TXA-04</code> · "el menos malo" es un candidato válido a ojos del código</td></tr>
+<tr><td><code>TXA-11</code> · degradación fuera de la tabla</td><td><code>TXA-08</code> · ambigüedad de vocabulario en prosa</td></tr>
+<tr><td><code>TXA-14</code> · orden de roles alterado</td><td><code>TXA-13</code> · un vocabulario paralelo se ve como código normal</td></tr>
+</tbody>
+</table>
+</div>
+<div class="diagram">
+<div class="diagram-label">Los cuatro anti-patrones críticos comparten una misma raíz</div>
+<pre class="mermaid">
+graph TD
+  R["RAÍZ: rellenar una ausencia<br/>en vez de declararla"]
+  R --> A1["TXA-01 · inferir del nombre"]
+  R --> A2["TXA-02 · parsear texto libre"]
+  R --> A3["TXA-03 · interpolar reps↔segundos"]
+  R --> A4["TXA-04 · el menos malo"]
+  R --> A6["TXA-06 · null tratado como vacío"]
+  A1 --> C["CONSECUENCIA:<br/>un dato no autorizado<br/>indistinguible de uno autorizado"]
+  A2 --> C
+  A3 --> C
+  A4 --> C
+  A6 --> C
+</pre>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../13-knowledge-base/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 13 · Knowledge Base</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../15-adr/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">15 · ADR →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

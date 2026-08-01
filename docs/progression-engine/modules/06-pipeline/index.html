@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>06 · Pipeline — Progression Engine Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="pipeline" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 06 · Modelo</p>
+<h1>Pipeline</h1>
+<p class="lede">Los nueve pasos exactos que ejecuta el motor en cada invocación, en orden fijo, cada uno con su contrato propio de entradas, salidas, errores, precondiciones y postcondiciones.</p>
+
+<h2 id="objetivo">Objetivo</h2>
+<p>Que la implementación tenga una sola forma correcta de estructurar el motor internamente: nueve funciones encadenadas, cada una pura, cada una testeable en aislamiento.</p>
+
+<h2 id="diagrama">Diagrama del pipeline</h2>
+<div class="diagram">
+<div class="diagram-label">9 pasos, orden fijo, sin saltos hacia atrás</div>
+<pre class="mermaid">
+flowchart LR
+  E1["1. Entrada"] --> E2["2. Validación"]
+  E2 --> E3["3. Normalización"]
+  E3 --> E4["4. Evaluación"]
+  E4 --> E5["5. Resolución<br/>de conflictos"]
+  E5 --> E6["6. Aplicación"]
+  E6 --> E7["7. Persistencia"]
+  E7 --> E8["8. Eventos"]
+  E8 --> E9["9. Salida"]
+</pre>
+</div>
+
+<h2 id="pasos">Los 9 pasos</h2>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PASO 1</span></div>
+<h3>Entrada</h3>
+<dl>
+<dt class="half">Entradas</dt><dd class="half">Las 5 del módulo 04, tal como llegan del orquestador</dd>
+<dt class="half">Salidas</dt><dd class="half">Las mismas 5, sin transformar — este paso solo las recibe y las pasa</dd>
+<dt class="half">Precondición</dt><dd class="half">El orquestador ya consultó Recovery (BPS-007)</dd>
+<dt class="half">Postcondición</dt><dd class="half">Ninguna mutación — paso de recepción pura</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PASO 2</span></div>
+<h3>Validación</h3>
+<dl>
+<dt class="half">Entradas</dt><dd class="half">Las 5 entradas crudas</dd>
+<dt class="half">Salidas</dt><dd class="half">Las mismas, marcadas válidas — o error de invocación</dd>
+<dt>Errores posibles</dt><dd>Veredicto ausente, ventana desordenada, fecha anterior a la última Aparición (04, "Estados inválidos") — todos abortan el pipeline antes del paso 3</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PASO 3</span></div>
+<h3>Normalización</h3>
+<dl>
+<dt class="half">Entradas</dt><dd class="half">Entradas válidas</dd>
+<dt class="half">Salidas</dt><dd class="half">Ventana con huecos explícitos marcados (sesión perdida ≠ sesión con mal desempeño), RPE normalizado a escala 0–10 si llegó en escala alternativa</dd>
+<dt>Precondición</dt><dd>Ninguna normalización infiere valores ausentes — un hueco se marca, nunca se interpola (P6)</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PASO 4</span></div>
+<h3>Evaluación</h3>
+<dl>
+<dt class="half">Entradas</dt><dd class="half">Entradas normalizadas</dd>
+<dt class="half">Salidas</dt><dd class="half">Conjunto de candidatas: 0, 1 o más reglas PE-XXX cuyas condiciones se cumplen (07)</dd>
+<dt>Nota</dt><dd>Este paso no decide — solo recolecta qué reglas aplican. La decisión final es el paso 5.</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PASO 5</span></div>
+<h3>Resolución de conflictos</h3>
+<dl>
+<dt class="half">Entradas</dt><dd class="half">Conjunto de candidatas</dd>
+<dt class="half">Salidas</dt><dd class="half">Una única decisión por dimensión (micro) y una única decisión de escalón (macro), aplicando la escalera de precedencia (05)</dd>
+<dt>Postcondición</dt><dd>Nunca queda más de una candidata activa por variable — el empate se resuelve por la tabla de desempate de 05</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PASO 6</span></div>
+<h3>Aplicación</h3>
+<dl>
+<dt class="half">Entradas</dt><dd class="half">Decisión resuelta</dd>
+<dt class="half">Salidas</dt><dd class="half">Nueva Prescripción vigente calculada (micro) y/o nuevo puntero de escalón (macro) — en memoria, aún no persistido</dd>
+<dt>Precondición</dt><dd>Los valores resultantes respetan los límites duros del catálogo (07) — nunca produce, por ejemplo, RIR negativo</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PASO 7</span></div>
+<h3>Persistencia</h3>
+<dl>
+<dt class="half">Entradas</dt><dd class="half">Prescripción/puntero calculados</dd>
+<dt class="half">Salidas</dt><dd class="half">DTO listo para que el Motor BPS lo persista — este motor no escribe directamente a base de datos (IN-P1, 15)</dd>
+<dt>Nota</dt><dd>"Persistencia" aquí significa "empaquetado para persistir", no la escritura física.</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PASO 8</span></div>
+<h3>Eventos</h3>
+<dl>
+<dt class="half">Entradas</dt><dd class="half">DTO de decisión final</dd>
+<dt class="half">Salidas</dt><dd class="half">Descriptor de evento con tipo, razón y contexto (14) — igualmente, empaquetado, no emitido directamente por este motor</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PASO 9</span></div>
+<h3>Salida</h3>
+<dl>
+<dt class="half">Entradas</dt><dd class="half">Prescripción/puntero + descriptor de evento</dd>
+<dt class="half">Salidas</dt><dd class="half">El DTO de retorno completo del motor hacia el Motor BPS</dd>
+<dt>Postcondición</dt><dd>Toda salida trae razón + contexto sin excepción (IN-P5, P2) — un DTO sin razón es, por definición, un bug de implementación, no un caso válido.</dd>
+</dl>
+</div>
+
+<h2 id="matriz-regla-pipeline">Matriz Regla → Pipeline</h2>
+<p class="matrix-note">Qué pasos del pipeline participa cada categoría de regla del catálogo (07). Los rangos de ID exactos se fijan en el módulo 07.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Categoría</th><th>Evaluación</th><th>Resolución de conflictos</th><th>Aplicación</th></tr></thead>
+<tbody>
+<tr><td>Microprogresión (PE-001–012)</td><td>✓</td><td>✓ (entre variables)</td><td>✓</td></tr>
+<tr><td>Macroprogresión (PE-013–018)</td><td>✓</td><td>✓ (vs. micro, ver 05)</td><td>✓</td></tr>
+<tr><td>Autorregulación (PE-019–026)</td><td>✓</td><td>✓ (precede a micro normal)</td><td>—  (modula, no aplica directamente)</td></tr>
+<tr><td>Estancamiento (PE-027–032)</td><td>✓</td><td>✓ (nivel 3, ver 05)</td><td>✓ (acción de escalera)</td></tr>
+<tr><td>Deload (PE-033–039)</td><td>✓</td><td>✓ (nivel 1 o 3 según tipo)</td><td>✓</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="matriz-decision-evidencia">Matriz Decisión → Evidencia</h2>
+<p class="matrix-note">Qué nivel de evidencia respalda el mecanismo detrás de cada tipo de salida del motor — no la existencia de la salida en sí (eso siempre es determinístico, P1), sino el umbral/regla que la dispara.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tipo de decisión</th><th>Evidencia del mecanismo subyacente</th></tr></thead>
+<tbody>
+<tr><td>Sostiene por <code>VENTANA_INSUFICIENTE</code></td><td><span class="eb eb--producto">🟠 producto</span> (el mínimo de 4 apariciones)</td></tr>
+<tr><td>Avanza por RPE consistentemente bajo el objetivo</td><td><span class="eb eb--moderada">🟡 moderada</span> (validez general del RPE) + <span class="eb eb--producto">🟠 producto</span> (la banda numérica exacta, ver 08)</td></tr>
+<tr><td>Sostiene/retrocede por incumplimiento</td><td><span class="eb eb--producto">🟠 producto</span> (regla operacional, no fisiológica)</td></tr>
+<tr><td>Señal de estancamiento confirmada</td><td><span class="eb eb--producto">🟠 producto</span> (el número de apariciones consecutivas que confirman)</td></tr>
+<tr><td>Deload reactivo obedecido</td><td>Hereda la clasificación del Recovery Engine — este motor no reclasifica una decisión ajena</td></tr>
+<tr><td>Deload preventivo sugerido</td><td><span class="eb eb--hipotesis">🔴 hipótesis</span> (mecanismo nuevo de BREY, sin validación externa aún — ver 12 y 19)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../05-modelo-decision/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 05 · Modelo de Decisión</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../07-reglas-negocio/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">07 · Reglas de Negocio →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

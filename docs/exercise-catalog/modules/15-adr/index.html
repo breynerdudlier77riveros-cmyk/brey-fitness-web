@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>15 · ADR — Exercise Catalog</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="adr" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 15 · Gobernanza</p>
+<h1>Decisiones de Arquitectura (ADR)</h1>
+<p class="lede">Seis decisiones, todas de <strong>delegación o declaración</strong>. Ninguna crea una regla de catálogo, ninguna define un atributo y ninguna edita una fuente. Prefijo <code>CT-ADR-</code>, sin colisión con las familias existentes.</p>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">CT-ADR-01</div>
+  <h3>La clasificación se delega íntegramente; no se reproduce</h3>
+  <p><strong>Contexto:</strong> el contrato del catálogo necesita referirse a los nueve patrones, cinco roles, seis zonas y seis equipos. Reproducir las tablas aquí las haría cómodas de consultar.</p>
+  <p><strong>Problema:</strong> sería la cuarta copia del mismo vocabulario (Architecture Handbook 04 → Taxonomy → Tagging → Catalog). Cuatro copias divergen; la pregunta es cuándo.</p>
+  <p><strong>Alternativas:</strong> (a) reproducir las tablas completas; (b) reproducir un resumen; (c) referenciar y documentar solo cardinalidad y obligatoriedad.</p>
+  <p><strong>Decisión:</strong> se adopta (c). El módulo <a href="../04-clasificacion/index.html">04</a> declara qué ejes debe declarar una entrada y con qué cardinalidad, sin listar un solo valor de vocabulario.</p>
+  <p><strong>Consecuencias:</strong> consultar los valores exige abrir Taxonomy o el Architecture Handbook 04. Es el coste aceptado de tener una sola fuente por vocabulario.</p>
+</div>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">CT-ADR-02</div>
+  <h3>La existencia de una entrada es condicional y binaria</h3>
+  <p><strong>Contexto:</strong> el brief define cuatro condiciones (slug, identidad única, tagging completo, validaciones superadas). No existe estado intermedio documentado.</p>
+  <p><strong>Problema:</strong> sin estados (módulo <a href="../11-estados/index.html">11</a>), una entrada a medio etiquetar podría considerarse "parcialmente en el catálogo".</p>
+  <p><strong>Decisión:</strong> la pertenencia al catálogo es <strong>binaria</strong>: se cumplen las cuatro condiciones o la entrada no es del catálogo. Deriva de que la elegibilidad se calcula sobre atributos completos y de que "sin <code>patronPrimario</code> nunca llega a ser elegible".</p>
+  <p><strong>Consecuencias:</strong> hoy el catálogo oficial tiene cero entradas pese a haber 19 ejercicios documentados. Es el resultado correcto, no un fallo de cómputo.</p>
+</div>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">CT-ADR-03</div>
+  <h3>Progresión y regresión no se modelan como entidades</h3>
+  <p><strong>Contexto:</strong> el índice solicitado las presenta como niveles distintos de una jerarquía, lo que sugiere estructuras separadas.</p>
+  <p><strong>Problema:</strong> modelarlas por separado duplicaría la información de <code>cadena</code> y permitiría que divergieran (que A declare a B como progresión mientras B no declare a A como regresión).</p>
+  <p><strong>Decisión:</strong> son <strong>dos direcciones de lectura</strong> del mismo atributo <code>cadena {anterior?, siguiente?}</code>. Ningún atributo adicional se define.</p>
+  <p><strong>Consecuencias:</strong> los módulos <a href="../07-regresiones/index.html">07</a> y <a href="../08-progresiones/index.html">08</a> documentan disparadores y consumidores distintos sobre una única estructura.</p>
+</div>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">CT-ADR-04</div>
+  <h3>Ausencia y lista vacía son estados distintos en todo atributo de lista</h3>
+  <p><strong>Contexto:</strong> la tabla de atributos declara <code>zonasRiesgo[]</code> obligatorio "(lista vacía válida)" sin distinguir el caso "sin evaluar".</p>
+  <p><strong>Decisión:</strong> <strong>lista vacía = evaluado sin resultado positivo</strong>; <strong>ausencia = sin evaluar</strong>, y la ausencia no es elegible. Se generaliza a todos los atributos de lista del modelo.</p>
+  <p><strong>Consecuencias:</strong> coincide con TX-ADR-07 y TG-ADR-03 de los handbooks previos — es reafirmación de una decisión ya tomada, no una decisión nueva. Sin ella, las 19 entradas sin evaluar pasarían el filtro de seguridad de cualquier usuario lesionado.</p>
+</div>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">CT-ADR-05</div>
+  <h3>El ciclo de vida y el versionado por entrada se declaran ausentes, no se definen</h3>
+  <p><strong>Contexto:</strong> el brief pide documentar estados (Draft/Approved/Deprecated/Archived) y versionado del Exercise. La doble verificación —barrido de términos y catálogo de FSM del Domain Model— confirma que ninguno existe.</p>
+  <p><strong>Problema:</strong> el ecosistema tiene dos precedentes aplicables (la FSM de Cliente del BCS y la disciplina de deprecación de contratos de API). Adoptar cualquiera cerraría la brecha de inmediato.</p>
+  <p><strong>Alternativas:</strong> (a) adoptar la FSM del BCS por analogía; (b) proponer un ciclo de vida propio; (c) declarar la ausencia y registrar los precedentes como material para una decisión futura.</p>
+  <p><strong>Decisión:</strong> se adopta (c). Definir aquí una máquina de estados de Exercise crearía una sexta FSM fuera del módulo que las centraliza (Domain Model 10), sin pasar por la jerarquía documental.</p>
+  <p><strong>Consecuencias:</strong> CT-07 ("una entrada nunca se borra") queda sin mecanismo que la haga ejecutable, y la trazabilidad de autoría que P14 exige no tiene dónde registrarse. Ambas se reportan como deuda crítica.</p>
+</div>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">CT-ADR-06</div>
+  <h3>Este handbook no contiene ninguna entrada de catálogo</h3>
+  <p><strong>Contexto:</strong> un contrato se entiende mejor con un ejemplo, y el catálogo real ya tiene 19 ejercicios documentados de los que se podría mostrar uno.</p>
+  <p><strong>Problema:</strong> una ficha escrita en el documento titulado "Source of Truth del catálogo" se convierte en canónica por estar ahí, sin que ninguna autoridad de contenido la haya aprobado — y ninguno de los 19 tiene los siete atributos que exigen criterio.</p>
+  <p><strong>Alternativas:</strong> (a) incluir una ficha completa de ejemplo; (b) incluir una ficha parcial marcada como ilustrativa; (c) no incluir ninguna.</p>
+  <p><strong>Decisión:</strong> se adopta (c). La opción (b) es la más peligrosa: un ejemplo marcado como ilustrativo pierde la marca al ser citado.</p>
+  <p><strong>Consecuencias:</strong> el contrato se documenta en abstracto. Es coherente con la instrucción explícita del brief de no crear <em>pull up</em>, <em>push up</em>, <em>dip</em> ni <em>squat</em>.</p>
+</div>
+
+<h2 id="resumen">Resumen</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>ADR</th><th>Tipo</th><th>¿Crea regla nueva?</th><th>¿Define atributo?</th><th>¿Edita una fuente?</th></tr></thead>
+<tbody>
+<tr><td>CT-ADR-01</td><td>Delegación</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>CT-ADR-02</td><td>Declaración derivada</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>CT-ADR-03</td><td>Decisión de modelado</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>CT-ADR-04</td><td>Reafirmación de decisión previa</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>CT-ADR-05</td><td>Declaración de ausencia</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>CT-ADR-06</td><td>Política del handbook</td><td>No</td><td>No</td><td>No</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../14-validaciones/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 14 · Validaciones</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../16-anti-patterns/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">16 · Anti-patterns →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

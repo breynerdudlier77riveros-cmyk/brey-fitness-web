@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>08 · Security Handbook — Engineering Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="security-handbook" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 08 · Calidad y operación</p>
+<h1>Security Handbook</h1>
+<p class="lede">La regla que gobierna todo este módulo, ya real en el código: RLS es la barrera de seguridad verdadera; cualquier otra capa (proxy, chequeo en Server Action) es UX, nunca protección primaria.</p>
+
+<h2 id="diagrama-auth">Diagrama de autenticación</h2>
+<div class="diagram">
+<div class="diagram-label">Dos capas — UX rápida (proxy) y verdad de datos (RLS)</div>
+<pre class="mermaid">
+sequenceDiagram
+  participant U as Usuario
+  participant PX as src/proxy.ts
+  participant SC as Server Component
+  participant PG as Postgres
+  U->>PX: request a /app/*
+  PX->>PX: getUser() — revalida JWT contra Auth
+  alt sin sesión válida
+    PX-->>U: redirect a /login (UX)
+  else con sesión
+    PX-->>SC: continúa
+    SC->>PG: query con el JWT del usuario
+    PG->>PG: RLS evalúa auth.uid() por fila
+    PG-->>SC: solo filas permitidas — incluso si el proxy tuviera un bug
+  end
+</pre>
+</div>
+
+<h2 id="autenticacion">Autenticación</h2>
+<p>Supabase Auth vía <code>@supabase/ssr</code> — sesión persistida en cookies httpOnly, refrescada automáticamente. Tres clientes distintos según el contexto de ejecución (04, BE-06): <code>lib/supabase/server.ts</code> (Server Components/Actions, usa <code>cookies()</code> de <code>next/headers</code>), <code>lib/supabase/client.ts</code> (Client Components), <code>lib/supabase/proxy.ts</code> (el proxy, opera sobre <code>NextRequest</code>/<code>NextResponse</code> directamente).</p>
+
+<h2 id="jwt">JWT — <code>getUser()</code> vs. <code>getSession()</code></h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Regla ya documentada en el código real</div>
+  <p><code>getSession()</code> solo lee la cookie — no garantiza que el JWT siga siendo válido. <code>getUser()</code> revalida contra el servidor de Auth. <code>src/lib/supabase/proxy.ts</code> usa <code>getUser()</code> explícitamente para la decisión de redirect, con el comentario en el propio código: "no basta con leer la cookie (<code>getSession()</code>) para una decisión de redirect". Cualquier código nuevo que necesite saber si el usuario está autenticado debe seguir el mismo criterio.</p>
+</div>
+
+<h2 id="rls-diagrama">RLS — la barrera real</h2>
+<div class="diagram" id="diagrama-rls">
+<div class="diagram-label">auth.uid() = user_id, en cada tabla de usuario</div>
+<pre class="mermaid">
+flowchart TD
+  Q["Query a una tabla con RLS activo"] --> P{"¿Existe policy para esta operación?"}
+  P -->|"No"| DENY["Denegado — comportamiento por defecto sin policy"]
+  P -->|"Sí"| C{"¿auth.uid() = user_id de la fila?"}
+  C -->|"No"| DENY2["Fila excluida del resultado"]
+  C -->|"Sí"| ALLOW["Fila visible/editable"]
+</pre>
+</div>
+<p>Advertencia ya presente en <code>supabase/schema.sql</code>: sin <code>ENABLE ROW LEVEL SECURITY</code>, las políticas de abajo nunca se evalúan y cualquiera con la <code>anon key</code> (pública, va en el JS del navegador) puede leer y escribir todo — "el error más común y silencioso de Supabase". Verificar RLS activo en cada tabla nueva no es opcional, es un paso obligatorio de cualquier migración (05). RLS como única barrera de seguridad real es decisión formal en ENG-ADR-04 (14).</p>
+
+<h2 id="policies">Policies</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tabla</th><th>Política real</th></tr></thead>
+<tbody>
+<tr><td><code>systems</code></td><td>Lectura pública — incluso anónimos (catálogo de marketing)</td></tr>
+<tr><td><code>profiles</code></td><td>El usuario ve/edita su propio perfil; policy de respaldo defensivo de creación propia (el trigger, <code>SECURITY DEFINER</code>, no pasa por RLS)</td></tr>
+<tr><td><code>diagnoses</code></td><td>El usuario ve/crea sus propios diagnósticos</td></tr>
+<tr><td><code>workouts</code>, <code>workout_logs</code></td><td>"CRUD propio" (<code>for all using/with check auth.uid() = user_id</code>) — <strong>más permisivo de lo necesario</strong>, ver riesgo abajo</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="callout callout--riesgo">
+  <div class="callout__label">Riesgo real, ya identificado por el Architecture Handbook — migración pendiente</div>
+  <p>Las políticas "CRUD propio" de <code>workouts</code>/<code>workout_logs</code> permiten <code>DELETE</code> al propio usuario — más permisivo de lo que el principio de inmutabilidad (FT-09) exige para datos de historial. Migración de endurecimiento ya especificada por el Architecture Handbook: <code>workout_logs</code> → solo <code>select</code>+<code>insert</code> propios; <code>workouts</code> → <code>select</code>+<code>insert</code>+<code>update</code> propio (limitado en la práctica a la transición de <code>estado</code>, aunque RLS de Postgres no restringe por columna — esa disciplina queda documentada, no forzada por Postgres). <code>delete</code> desaparece de ambas. Pendiente de aplicar — ver 15.</p>
+</div>
+
+<h2 id="matriz-policy-recurso">Matriz Policy → Recurso</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Recurso</th><th>Policy</th><th>Operaciones permitidas</th></tr></thead>
+<tbody>
+<tr><td><code>systems</code></td><td>lectura pública</td><td>select (anon + authenticated)</td></tr>
+<tr><td><code>profiles</code></td><td>propio + respaldo de creación</td><td>select, insert (respaldo), update</td></tr>
+<tr><td><code>diagnoses</code></td><td>propio</td><td>select, insert</td></tr>
+<tr><td><code>workouts</code></td><td>CRUD propio (a endurecer)</td><td>select, insert, update, delete (delete a remover)</td></tr>
+<tr><td><code>workout_logs</code></td><td>CRUD propio (a endurecer)</td><td>select, insert, update, delete (update/delete a remover)</td></tr>
+<tr><td><code>progression_events</code> <span class="tag tag--especificado">especificado</span></td><td>propio, append-only</td><td>select, insert — sin update/delete por diseño (P3, 07)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="storage-buckets">Storage y Buckets</h2>
+<p><span class="tag tag--futuro">futuro</span> — Supabase Storage no está configurado (04, BE-07). Cuando se active para las fotografías del BCS Handbook (11), la regla ya especificada es: bucket separado, acceso solo vía referencia autenticada del entrenador o token de EnlacePúblico válido — nunca una URL de bucket pública y predecible.</p>
+
+<h2 id="links-publicos">Links Públicos y Tokens</h2>
+<p><span class="tag tag--especificado">especificado</span> — el diseño completo del token de compartición vive en el BCS Handbook (10) y BCS-ADR-02: token alfanumérico aleatorio criptográficamente seguro, mínimo 21 caracteres, sin relación derivable con ningún dato del Cliente, ruta con <code>noindex</code>. Este handbook confirma que ese es el único patrón de "acceso sin autenticación" permitido en todo el ecosistema — ningún módulo futuro inventa su propio esquema de token sin pasar por esta misma especificación.</p>
+
+<h2 id="rate-limiting">Rate Limiting</h2>
+<p><span class="tag tag--futuro">futuro</span> — no implementado en ningún endpoint hoy, incluidos los 2 Route Handlers reales (<code>/api/lead</code>, <code>/api/contacto</code>). Riesgo real documentado en 07 del BCS Handbook (intentos de token inválido/revocado sin límite de tasa). Candidato técnico: Vercel Edge Config o un middleware de rate limiting a nivel de <code>proxy.ts</code> — decisión pendiente (15).</p>
+
+<h2 id="secrets-variables">Secrets y Variables</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Variable</th><th>Naturaleza</th><th>Regla</th></tr></thead>
+<tbody>
+<tr><td><code>NEXT_PUBLIC_SUPABASE_URL</code>, <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code></td><td>Pública a propósito</td><td>Va en el JS del navegador — la protección real es RLS, no el secreto de esta clave</td></tr>
+<tr><td><code>SUPABASE_SERVICE_ROLE_KEY</code></td><td>Secreto crítico, hoy sin uso</td><td>Nunca con prefijo <code>NEXT_PUBLIC_</code>, nunca en código alcanzable por el cliente — el <code>.env.example</code> real ya lo advierte explícitamente comentado, sin activar</td></tr>
+<tr><td><code>BREVO_API_KEY</code></td><td>Secreto de servidor</td><td>Server-only, usada exclusivamente en <code>app/api/lead/route.ts</code></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Convención de naming ya establecida</div>
+  <p>El prefijo <code>NEXT_PUBLIC_</code> es la única señal de si una variable es segura para el navegador — cualquier variable nueva sin ese prefijo se trata como secreto de servidor por defecto, nunca al revés (un secreto no se marca "por ahora sin prefijo, ya lo cambio después").</p>
+</div>
+
+<h2 id="logs">Logs</h2>
+<p>Detalle de niveles y formato en 11 — a nivel de seguridad, la regla es que un log nunca incluye el valor de un secreto ni un token de EnlacePúblico en texto plano (BCS Handbook, 08: "nunca el token en texto plano en el log de auditoría — solo su identificador interno").</p>
+
+<h2 id="auditoria-seguridad">Auditoría</h2>
+<p>Detalle completo en 05/11. A nivel de seguridad: toda acción de escritura queda atribuible a un <code>user_id</code> real vía RLS + <code>created_at</code> — no existe hoy una tabla de auditoría formal separada de las tablas de negocio mismas.</p>
+
+<h2 id="revocacion">Revocación</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Qué se revoca</th><th>Mecanismo</th></tr></thead>
+<tbody>
+<tr><td>Sesión de usuario</td><td><code>signOut()</code> (<code>lib/supabase/actions.ts</code>) — <code>supabase.auth.signOut()</code> + redirect a <code>/login</code></td></tr>
+<tr><td>Enlace público del BCS <span class="tag tag--especificado">especificado</span></td><td>UC-08 RevocarEnlacePúblico — irreversible para ese token específico (BCS Handbook, 02)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="ataques-mitigaciones">Ataques comunes y mitigaciones</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Ataque</th><th>Mitigación real o especificada</th></tr></thead>
+<tbody>
+<tr><td>RLS deshabilitado por accidente en una tabla nueva</td><td>Advertencia explícita ya documentada en <code>schema.sql</code>; regla de este handbook: ninguna migración se considera completa sin verificar el indicador de RLS activo en el Dashboard</td></tr>
+<tr><td>Enumeración de tokens de EnlacePúblico</td><td>Longitud mínima de 21 caracteres aleatorios (BCS-ADR-02) + rate limiting <span class="tag tag--futuro">futuro</span> pendiente</td></tr>
+<tr><td>CSRF sobre Server Actions</td><td>Mitigado por el propio modelo de Server Actions de Next.js (origen verificado por el framework) — no requiere token CSRF manual adicional</td></tr>
+<tr><td>Open redirect en el proxy</td><td><code>proxy.ts</code> solo redirige a una ruta interna fija (<code>/login</code>), nunca a una URL tomada de un parámetro de la request</td></tr>
+<tr><td>Fuga de <code>SUPABASE_SERVICE_ROLE_KEY</code></td><td>No usada en ningún código hoy — el riesgo es cero mientras siga sin activarse; si se activa, regla de naming (arriba) la protege de exposición accidental al cliente</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../07-domain-events/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 07 · Domain Events</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../09-performance-handbook/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">09 · Performance Handbook →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

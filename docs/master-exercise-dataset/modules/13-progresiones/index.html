@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>13 · Progresiones — Master Exercise Dataset</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="progresiones" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Sección 13 · Relaciones</p>
+<h1>Progresiones</h1>
+<p class="lede">Una cadena es una secuencia ordenada de ejercicios del mismo patrón, de menor a mayor exigencia. El dataset declara <strong>qué viene después</strong>; cuándo avanzar es competencia del motor de progresión, y esa frontera es deliberada.</p>
+
+<h2 id="definicion">Definición</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Criterio de paso de cadena</div>
+  <p><code>B</code> es el paso siguiente de <code>A</code> si comparten <code>pattern_primary</code>, entrenan la misma capacidad y <code>B</code> es <strong>consistentemente más exigente</strong> que <code>A</code> para la misma persona, por asistencia, palanca, rango, lastre o estabilidad.</p>
+  <p>«Consistentemente» significa: más exigente para <em>cualquiera</em>, no solo para algunos. Si la dificultad relativa depende de la constitución o del historial de quien lo ejecuta, no es un paso de cadena — es una <a href="../12-variantes/index.html">variante</a>.</p>
+</div>
+
+<h2 id="ejes">Ejes de progresión admitidos</h2>
+<p class="matrix-note">Un paso de cadena avanza por uno de estos cinco ejes. Los ejes no se combinan en un solo paso.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Eje</th><th>Qué cambia</th><th><code>load_type</code> típico</th></tr></thead>
+<tbody>
+<tr><td><strong>Asistencia</strong></td><td>Se retira ayuda externa progresivamente</td><td><code>bodyweight_pattern</code></td></tr>
+<tr><td><strong>Palanca</strong></td><td>Cambia la posición del cuerpo, alargando el brazo de momento</td><td><code>bodyweight_pattern</code></td></tr>
+<tr><td><strong>Rango</strong></td><td>Se amplía el recorrido de parcial a completo</td><td><code>bodyweight_pattern</code></td></tr>
+<tr><td><strong>Estabilidad</strong></td><td>Se reduce la base de apoyo o se pasa a unilateral</td><td>cualquiera</td></tr>
+<tr><td><strong>Lastre</strong></td><td>Se añade carga externa a un patrón ya dominado</td><td><code>external_load</code></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Un paso, un eje</div>
+  <p>Un paso que avanza por dos ejes a la vez —retira asistencia <em>y</em> pasa a unilateral— produce un salto de exigencia que ninguna persona atraviesa de golpe, y hace que el estancamiento sea inatribuible: no se sabe cuál de los dos cambios lo causó. Si un salto parece exigir dos ejes, faltan entradas intermedias en la cadena.</p>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">El lastre no siempre es cadena</div>
+  <p>Cuando un ejercicio de <code>load_type: external_load</code> progresa añadiendo kilos, eso <strong>no</strong> es un paso de cadena: es progresión de carga dentro de la misma entrada, y la resuelve el motor sin tocar el catálogo. El lastre solo constituye paso de cadena cuando convierte un patrón corporal en un ejercicio lastrado distinto — lo que el campo <code>accepts_added_load</code> permite declarar.</p>
+</div>
+
+<h2 id="estructura">Estructura de una cadena</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Propiedad</th><th>Decisión</th></tr></thead>
+<tbody>
+<tr><td>Forma</td><td>Lista doblemente enlazada — <code>chain_previous</code> / <code>chain_next</code></td></tr>
+<tr><td>Ramificación</td><td>Ninguna — RL-6</td></tr>
+<tr><td>Inicio</td><td>Entrada con <code>chain_previous: null</code></td></tr>
+<tr><td>Fin</td><td>Entrada con <code>chain_next: null</code></td></tr>
+<tr><td>Longitud típica</td><td>3 a 6 eslabones</td></tr>
+<tr><td>Pertenencia</td><td>Una entrada está en <strong>como máximo una</strong> cadena</td></tr>
+<tr><td>Cruce de patrón</td><td>Prohibido — RL-4</td></tr>
+<tr><td>Ciclos</td><td>Prohibidos — RL-5</td></tr>
+</tbody>
+</table>
+</div>
+<div class="diagram">
+<div class="diagram-label">Anatomía de una cadena</div>
+<pre class="mermaid">
+graph LR
+  I["INICIO<br/>chain_previous: null<br/>level: beginner"] -->|chain_next| M1["eslabón 2"]
+  M1 -->|chain_next| M2["eslabón 3"]
+  M2 -->|chain_next| F["FIN<br/>chain_next: null<br/>level: advanced"]
+  M1 -.->|chain_previous| I
+  M2 -.->|chain_previous| M1
+  F -.->|chain_previous| M2
+  F --> AL["accepts_added_load: true<br/><i>sigue progresando por carga<br/>sin salir de la entrada</i>"]
+</pre>
+</div>
+
+<h2 id="reglas">Reglas de construcción</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Regla</th><th>Verificable</th></tr></thead>
+<tbody>
+<tr><td>PG-1</td><td>Todos los eslabones comparten <code>pattern_primary</code></td><td>Mecánicamente</td></tr>
+<tr><td>PG-2</td><td>El <code>level</code> es no decreciente a lo largo de la cadena</td><td>Mecánicamente</td></tr>
+<tr><td>PG-3</td><td>Cada paso avanza por <strong>un solo</strong> eje</td><td>Editorialmente</td></tr>
+<tr><td>PG-4</td><td>El salto de exigencia entre eslabones consecutivos es abordable</td><td>Editorialmente</td></tr>
+<tr><td>PG-5</td><td>Ningún eslabón intermedio queda sin uno de sus dos enlaces</td><td>Mecánicamente</td></tr>
+<tr><td>PG-6</td><td>Una entrada pertenece a como máximo una cadena</td><td>Mecánicamente — RL-6</td></tr>
+<tr><td>PG-7</td><td>El eslabón final debería declarar <code>accepts_added_load</code> de forma explícita</td><td>Mecánicamente</td></tr>
+<tr><td>PG-8</td><td>Las <code>capabilities_required</code> son no decrecientes a lo largo de la cadena</td><td>Mecánicamente</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">PG-7 · El final de la cadena no es el final de la progresión</div>
+  <p>Cuando alguien alcanza el último eslabón, la pregunta «¿y ahora qué?» tiene respuesta en el propio campo: si <code>accepts_added_load</code> es <code>true</code>, sigue progresando por carga dentro de la misma entrada; si es <code>false</code>, la cadena está agotada y el motor debe recurrir a otro mecanismo —volumen, densidad, o una cadena hermana—.</p>
+  <p>Sin este campo, el final de cadena es un callejón sin salida silencioso. Por eso se exige declararlo explícitamente en el eslabón final.</p>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">PG-2 no implica que el nivel crezca en cada paso</div>
+  <p><code>level</code> tiene tres valores y una cadena puede tener seis eslabones: varios consecutivos compartirán nivel. Lo que la regla prohíbe es que un paso <strong>baje</strong> de nivel, lo que indicaría que la cadena está construida al revés o que un eslabón está mal clasificado.</p>
+</div>
+
+<h2 id="frontera">Frontera con el motor de progresión</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Pregunta</th><th>La responde</th></tr></thead>
+<tbody>
+<tr><td>¿Qué ejercicio viene después de este?</td><td><strong>El dataset</strong> — <code>chain_next</code></td></tr>
+<tr><td>¿Qué ejercicio venía antes?</td><td><strong>El dataset</strong> — <code>chain_previous</code></td></tr>
+<tr><td>¿Este ejercicio admite carga añadida?</td><td><strong>El dataset</strong> — <code>load_type</code></td></tr>
+<tr><td>¿Qué capacidades exige?</td><td><strong>El dataset</strong> — <code>capabilities_required</code></td></tr>
+<tr><td>¿Esta persona ya puede avanzar?</td><td>El motor de progresión</td></tr>
+<tr><td>¿Cuántas sesiones sostenidas hacen falta?</td><td>El motor de progresión</td></tr>
+<tr><td>¿Está estancada y hay que retroceder?</td><td>El motor de progresión</td></tr>
+<tr><td>¿Toca descarga antes de avanzar?</td><td>El motor de progresión</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">El dataset declara el mapa; el motor decide el paso</div>
+  <p>El catálogo no contiene ningún umbral, ninguna condición de avance y ninguna regla temporal. Todo eso es estado de una persona concreta, y el dataset —por DS-01 y por la definición misma de una Knowledge Base— <strong>nunca conoce usuarios</strong>.</p>
+  <p>La consecuencia práctica: cambiar los criterios de avance no toca el dataset, y añadir un eslabón no toca el motor.</p>
+</div>
+
+<h2 id="poblacion">Población de cadenas en v1.0</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Las cadenas se declaran, no se pueblan todavía</div>
+  <p>Esta sección fija la <strong>estructura</strong> de las cadenas: sus campos, su forma, sus ocho reglas y su frontera. Las cadenas concretas de cada patrón se construyen en la fase 4 del <a href="../17-roadmap/index.html">roadmap</a>, cuando existan suficientes entradas publicadas para que encadenarlas sea significativo.</p>
+  <p>Encadenar antes de tener las entradas produce cadenas de dos eslabones con saltos enormes, que después hay que rehacer al insertar los intermedios — y cada reconexión es una revisión <code>major</code> en dos entradas.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Orden</th><th>Precondición para encadenar un patrón</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>El patrón tiene al menos 12 entradas <code>published</code></td></tr>
+<tr><td>2</td><td>Las entradas cubren los tres valores de <code>level</code></td></tr>
+<tr><td>3</td><td>Los conjuntos de variantes del patrón están cerrados</td></tr>
+<tr><td>4</td><td>Cada entrada candidata tiene <code>load_type</code> y <code>capabilities_required</code> informados</td></tr>
+<tr><td>5</td><td>Se ha identificado el eje de progresión dominante del patrón</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="invariantes">Invariantes de cadena</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>ID</th><th>Invariante</th></tr></thead>
+<tbody>
+<tr><td><code>CAD-1</code></td><td>Toda cadena es acíclica y finita</td></tr>
+<tr><td><code>CAD-2</code></td><td>Todos los eslabones de una cadena comparten <code>pattern_primary</code></td></tr>
+<tr><td><code>CAD-3</code></td><td><code>chain_next</code> y <code>chain_previous</code> son recíprocos en todos los pares</td></tr>
+<tr><td><code>CAD-4</code></td><td>Toda cadena tiene exactamente un inicio y un final</td></tr>
+<tr><td><code>CAD-5</code></td><td>El <code>level</code> es no decreciente recorriendo la cadena hacia adelante</td></tr>
+<tr><td><code>CAD-6</code></td><td>Las <code>capabilities_required</code> son no decrecientes recorriendo hacia adelante</td></tr>
+<tr><td><code>CAD-7</code></td><td>Ninguna entrada aparece en dos cadenas</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../12-variantes/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 12 · Variantes</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../14-regresiones/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">14 · Regresiones →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

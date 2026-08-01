@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03 · Autenticación — BREY API Contract Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="autenticacion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 03 · Acceso</p>
+<h1>Autenticación</h1>
+<p class="lede">Quién es quién frente a este catálogo — JWT, cookies, los cuatro actores reales, y por qué "Admin" no es uno de ellos todavía. Consolidado del Security Handbook (Engineering, 08) y el Lenguaje Ubicuo (Domain Model Handbook, 01).</p>
+
+<div class="meta-row">
+  <span class="chip">Supabase Auth vía @supabase/ssr</span>
+  <span class="chip">getUser() ≠ getSession()</span>
+  <span class="chip">ENG-ADR-04 — RLS es la barrera real</span>
+</div>
+
+<h2 id="mecanismo">Mecanismo — JWT y cookies</h2>
+<p>Toda autenticación del ecosistema pasa por Supabase Auth, sesión en cookies <code>httpOnly</code> con auto-refresh. Tres clientes distintos, cada uno con su propio contexto de ejecución:</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Cliente</th><th>Contexto</th><th>Uso en este catálogo</th></tr></thead>
+<tbody>
+<tr><td><code>lib/supabase/server.ts</code></td><td>Server Components / Server Actions</td><td>Ejecuta la inmensa mayoría de los endpoints de este catálogo (07)</td></tr>
+<tr><td><code>lib/supabase/client.ts</code></td><td>Client Components</td><td>Solo para lectura reactiva ya autorizada por RLS — nunca para lógica de dominio</td></tr>
+<tr><td><code>lib/supabase/proxy.ts</code></td><td>Proxy — opera sobre <code>NextRequest</code>/<code>NextResponse</code></td><td>Decide redirecciones de ruta según sesión — no participa en el contrato de datos de este catálogo</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">Regla — getUser(), nunca getSession(), para decidir identidad</div>
+  <p><code>getSession()</code> solo lee la cookie — no garantiza que el JWT siga siendo válido. <code>getUser()</code> revalida contra el servidor de Auth. Todo endpoint de este catálogo que necesite saber "¿quién es el actor de esta request?" para efectos de ownership o autorización usa el criterio de <code>getUser()</code> (Security Handbook, Engineering, 08) — nunca el de <code>getSession()</code> a solas.</p>
+</div>
+
+<h2 id="rls-barrera">RLS — la barrera real, no la autenticación</h2>
+<p>La autenticación identifica al actor; quien decide qué fila ve o edita es Row Level Security en Postgres. Sin <code>ENABLE ROW LEVEL SECURITY</code> en una tabla, sus políticas nunca se evalúan y cualquier poseedor de la <code>anon key</code> puede leer/escribir todo — "el error más común y silencioso de Supabase" (Security Handbook, Engineering, 08; ENG-ADR-04). Todo endpoint de este catálogo asume RLS como la barrera de autorización de última instancia — la comprobación de ownership en la Server Action es una conveniencia de UX (mensaje de error temprano), nunca el único guardarraíl.</p>
+
+<h2 id="roles">Los cuatro actores reales</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Actor</th><th>Autenticación</th><th>Alcance</th><th>Origen</th></tr></thead>
+<tbody>
+<tr><td><strong>Usuario</strong></td><td>Sesión Supabase Auth (JWT + cookie)</td><td>Su propio Perfil, Diagnósticos, Workouts, WorkoutLogs y EventoProgresión — nunca los de otro Usuario (<code>auth.uid() = user_id</code>)</td><td>Domain Model Handbook, LU-01</td></tr>
+<tr><td><strong>Entrenador</strong></td><td>El mismo Usuario autenticado, actuando en el contexto del BCS — no es una identidad distinta</td><td>Sus propios Clientes, Mediciones y EnlacesPúblicos — nunca los de otro Entrenador</td><td>Domain Model Handbook, LU-02; BCS Handbook, 08</td></tr>
+<tr><td><strong>Cliente</strong></td><td>Ninguna — no tiene fila en <code>auth.users</code>, nunca inicia sesión</td><td>Ninguno directo. Su Reporte solo es visible a través de un EnlacePúblico válido, presentado por el actor Anonymous</td><td>Domain Model Handbook, LU-03; BCS Handbook, 00</td></tr>
+<tr><td><strong>Anonymous</strong></td><td>Ninguna</td><td>Catálogo público de Sistemas (<code>GET /sistemas</code>) y el Reporte de un Cliente cuyo token de EnlacePúblico posea y esté <code>activo</code> — nada más</td><td>Security Handbook (Engineering, 08); BCS Handbook, 10</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="callout callout--nota">
+  <div class="callout__label">"Admin" no es un actor especificado — ver API-ADR-05</div>
+  <p>Ningún handbook existente define un rol de administrador transversal (superusuario sobre todos los Entrenadores, o sobre todo el ecosistema). El Security Handbook (Engineering, 08) es explícito: no existe una tabla de roles, y "no hay ningún rol 'admin' documentado en este handbook". Este documento no lo inventa — lo registra como pregunta abierta (AP-01, 16).</p>
+</div>
+
+<h2 id="ownership">Ownership — la regla de acceso por recurso</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Recurso</th><th>Regla de ownership</th></tr></thead>
+<tbody>
+<tr><td><code>profiles</code>, <code>diagnoses</code>, <code>workouts</code>, <code>workout_logs</code>, <code>progression_events</code></td><td><code>auth.uid() = user_id</code> — el Usuario ve y edita únicamente sus propias filas</td></tr>
+<tr><td><code>systems</code></td><td>Lectura pública, incluso para Anonymous — es catálogo, no dato personal</td></tr>
+<tr><td><code>bcs_clientes</code>, <code>bcs_mediciones</code></td><td>Visibles/editables únicamente por el Entrenador dueño — nunca por otro Entrenador, nunca directamente por el Cliente (BCS Handbook, 08)</td></tr>
+<tr><td><code>bcs_enlaces_publicos</code></td><td>Creación/revocación solo por el Entrenador dueño del Cliente referenciado; <strong>resolución token→Reporte es la única operación que un actor Anonymous puede ejecutar</strong>, y solo si el token existe y está <code>activo</code> (BCS Handbook, 08, 10)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="flujo-resolucion">Flujo de resolución de acceso</h2>
+<div class="diagram">
+<div class="diagram-label">Aplica a cada endpoint del catálogo (07) salvo <code>GET /sistemas</code> y <code>GET /reportes/{token}</code>, explícitamente públicos</div>
+<pre class="mermaid">
+flowchart TD
+  R["Request"] --> S{"¿Sesión válida?<br/>(getUser())"}
+  S -- No --> T{"¿Token de EnlacePúblico<br/>presente y activo?"}
+  T -- No --> D["401 — acceso denegado"]
+  T -- Sí --> RO["Acceso de solo lectura<br/>al Reporte de ese Cliente únicamente"]
+  S -- Sí --> O{"¿auth.uid() es dueño<br/>del recurso solicitado?"}
+  O -- No --> E["403/404 según el caso (13)"]
+  O -- Sí --> A["Acceso concedido"]
+</pre>
+</div>
+
+<h2 id="autorizacion-cruce">Autorización — fronteras de contexto</h2>
+<p>Ningún token de sesión de Usuario autoriza acceso a datos de BCS de otro Entrenador, y ningún token de EnlacePúblico autoriza nada distinto de la lectura del Reporte de <em>ese</em> Cliente específico (BCS Handbook, 10). Cruzar estas fronteras no es un caso de negocio — es un error de autorización, catalogado en 09 y 13.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../02-arquitectura-general/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 02 · Arquitectura General</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../04-convenciones-http/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">04 · Convenciones HTTP →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

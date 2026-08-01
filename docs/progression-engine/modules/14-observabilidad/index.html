@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>14 · Observabilidad — Progression Engine Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="observabilidad" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 14 · Sistema</p>
+<h1>Observabilidad</h1>
+<p class="lede">Qué se registra, con qué nivel, qué métricas y KPIs se derivan, cómo se audita el comportamiento del motor en producción, y cómo se reconstruye ("replay") una decisión pasada.</p>
+
+<h2 id="objetivo">Objetivo</h2>
+<p>Que ninguna decisión del motor sea una caja negra meses después de tomada — P2 (explicabilidad) aplicado operativamente.</p>
+
+<h2 id="niveles">Niveles de registro</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Nivel</th><th>Cuándo se emite</th><th>Ejemplo</th></tr></thead>
+<tbody>
+<tr><td><strong>Log</strong></td><td>Toda decisión, sin excepción — es el registro base de auditoría</td><td><code>prescripcion_actualizada</code> con razón y contexto completos</td></tr>
+<tr><td><strong>Warning</strong></td><td>Situaciones válidas pero atípicas — no bloquean el pipeline</td><td>Ventana con más de un hueco reciente; deload preventivo sugerido 2 veces seguidas para el mismo Slot</td></tr>
+<tr><td><strong>Error</strong></td><td>Entradas inválidas que abortan el pipeline (paso 2, 06)</td><td><code>PRESCRIPCION_INCOHERENTE</code>, <code>JERARQUIA_INCONSISTENTE</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="contexto">Qué trae cada evento (contrato mínimo)</h2>
+<p>Todo evento emitido por este motor incluye, sin excepción: tipo, Slot afectado, valores de entrada relevantes al momento de la decisión, valores de salida, razón en lenguaje explícito (no solo un código), regla(s) PE-XXX que lo originaron, y fecha del ciclo. Esto es lo que permite el replay.</p>
+
+<h2 id="metricas">Métricas y KPIs derivados</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Métrica</th><th>Para qué sirve</th></tr></thead>
+<tbody>
+<tr><td>Tasa de avance vs. sostiene vs. retroceso (por Slot, por usuario, agregada)</td><td>Salud general de la progresión — una tasa de retroceso anómalamente alta sugiere prescripciones iniciales mal calibradas, no un problema de este motor per se</td></tr>
+<tr><td>Frecuencia de <code>VENTANA_INSUFICIENTE</code></td><td>Mide adherencia real de registro — alta frecuencia indica un problema de logging upstream, no del motor</td></tr>
+<tr><td>Frecuencia de estancamiento confirmado por Patrón×Rol</td><td>Detecta cadenas de progresión mal escalonadas en la Knowledge Base (señal cruzada, no de este motor, pero visible aquí primero)</td></tr>
+<tr><td>Proporción de deload preventivo confirmado vs. descartado por el usuario</td><td>Métrica clave para validar o refutar la hipótesis 🔴 de PE-035 con datos reales</td></tr>
+<tr><td>Densidad promedio por Slot (PE-011)</td><td>Métrica puramente informativa, sin umbral de acción asociado</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="auditorias">Auditorías</h2>
+<p>Toda regla PE-XXX debe ser trazable desde un evento hasta su definición exacta en 07 — la matriz Regla→Pipeline (06) y las matrices de este documento existen precisamente para que una auditoría externa pueda recorrer el camino completo: evento → paso del pipeline → regla → nivel de evidencia, sin intervención humana adicional.</p>
+
+<h2 id="replay">Replay</h2>
+<p>Dado el determinismo (P1/IN-P1), reprocesar las mismas 5 entradas de un ciclo pasado con la misma versión del catálogo de reglas debe producir exactamente la misma Decisión. El replay es la herramienta de diagnóstico principal ante un reporte de "decisión rara": se reconstruyen las 5 entradas tal como existían en ese momento (nunca con datos actuales) y se re-ejecuta el pipeline en un entorno de auditoría.</p>
+
+<h2 id="matriz-error-recuperacion">Matriz Error → Recuperación</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Error</th><th>Recuperación</th></tr></thead>
+<tbody>
+<tr><td>Veredicto de Recovery ausente</td><td>El orquestador reintenta la consulta a Recovery antes de invocar este motor — este motor nunca sustituye un veredicto ausente por un default</td></tr>
+<tr><td>Ventana desordenada</td><td>El repositorio de origen corrige el orden y reintenta — el motor nunca ordena por su cuenta (evitaría enmascarar un bug real upstream)</td></tr>
+<tr><td><code>PRESCRIPCION_INCOHERENTE</code></td><td>Se usa el default de cadena como Prescripción base y se registra la anomalía para revisión — el ciclo no se pierde, se degrada de forma segura</td></tr>
+<tr><td><code>SISTEMA_ESFUERZO_MIXTO</code></td><td>Bloquea la invocación — requiere corrección en el origen del programa (Training Framework), no tiene fallback seguro automatizable</td></tr>
+<tr><td><code>JERARQUIA_INCONSISTENTE</code></td><td>Bloquea la invocación — requiere reconciliación manual del puntero, análoga a la reparación de "estados imposibles" del Motor BPS Handbook (05)</td></tr>
+<tr><td><code>ESTADO_ESTANCAMIENTO_INCONSISTENTE</code></td><td>El Slot se trata como recién detectado (contador en 0) — recuperación optimista, prioriza continuidad de servicio sobre exactitud retroactiva del contador</td></tr>
+<tr><td><code>PRESCRIPCION_PREVIA_AUSENTE</code> (post-deload)</td><td>Fallback al default de cadena, se registra la anomalía — nunca bloquea la reincorporación</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../13-integracion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 13 · Integración</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../15-arquitectura-datos/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">15 · Arquitectura de Datos →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

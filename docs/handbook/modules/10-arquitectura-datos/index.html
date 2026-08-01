@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10 · Arquitectura de Datos — BREY Architecture Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="arquitectura-datos" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 10 · Plataforma</p>
+<h1>Arquitectura de Datos</h1>
+<p class="lede">El modelo completo: las 5 tablas que existen en producción (documentadas fielmente, no idealizadas), la tabla nueva requerida (<code>progression_events</code>), las formas de los jsonb, índices, políticas RLS, y la política de versionado y migraciones. Cada entidad se clasifica primero en su categoría (P9) — eso decide quién la escribe.</p>
+
+<div class="meta-row">
+  <span class="chip">5 tablas en producción + 1 requerida</span>
+  <span class="chip">RLS = frontera real (I-3)</span>
+  <span class="chip">Catálogo rico en código (ADR-009)</span>
+</div>
+
+<h2 id="categorias">Clasificación por categoría (P9)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Entidad</th><th>Categoría</th><th>Dónde vive</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td><code>systems</code> (catálogo liviano)</td><td>Catálogo</td><td>Postgres</td><td>Existe</td></tr>
+<tr><td>Sistemas ricos, Ejercicios + ontología, Bloques/Mesociclos/Microciclos, cadenas, equivalencias</td><td>Catálogo</td><td><strong>Código versionado (TS), no DB</strong> — ADR-009</td><td>Parcial (sin ontología ni plantillas)</td></tr>
+<tr><td><code>profiles</code></td><td>Dato de usuario</td><td>Postgres</td><td>Existe (20 columnas)</td></tr>
+<tr><td><code>diagnoses</code></td><td>Historial</td><td>Postgres</td><td>Existe, sin escritor conectado aún</td></tr>
+<tr><td><code>workouts</code> (sesiones instanciadas)</td><td>Historial (instancia inmutable)</td><td>Postgres</td><td>Existe, sin escritor (el Generator será su escritor)</td></tr>
+<tr><td><code>workout_logs</code></td><td>Historial</td><td>Postgres</td><td>Existe; forma del jsonb debe extenderse (abajo)</td></tr>
+<tr><td><code>progression_events</code></td><td>Historial</td><td>Postgres</td><td><strong>Requerida — no existe</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="er">Diagrama entidad-relación</h2>
+<div class="diagram">
+<div class="diagram-label">Relaciones — el catálogo rico vive en código y se referencia por slug (P15)</div>
+<pre class="mermaid">
+erDiagram
+  auth_users ||--|| profiles : "id (cascade)"
+  auth_users ||--o{ diagnoses : user_id
+  auth_users ||--o{ workouts : user_id
+  auth_users ||--o{ workout_logs : user_id
+  auth_users ||--o{ progression_events : user_id
+  systems ||--o{ profiles : sistema_actual
+  systems ||--o{ diagnoses : sistema_recomendado
+  systems ||--o{ workouts : system_slug
+  workouts ||--o{ workout_logs : "workout_id (set null)"
+  workout_logs ||--o{ progression_events : "origen (opcional)"
+</pre>
+</div>
+
+<h2 id="tablas">Especificación tabla por tabla</h2>
+
+<h3 id="t-systems">systems — catálogo liviano</h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Columna</th><th>Tipo</th><th>Restricciones</th></tr></thead>
+<tbody>
+<tr><td><code>slug</code></td><td>text</td><td>PK — identificador estable (P15)</td></tr>
+<tr><td><code>nombre</code>, <code>objetivo</code>, <code>tagline</code>, <code>descripcion</code></td><td>text</td><td><code>nombre</code> not null; el copy largo vive en el archivo estático, no aquí</td></tr>
+<tr><td><code>duracion_semanas</code></td><td>int</td><td>null si no disponible</td></tr>
+<tr><td><code>disponible</code></td><td>boolean</td><td>not null default false — nunca se vende lo que no existe (P16)</td></tr>
+<tr><td><code>precio</code></td><td><strong>numeric</strong></td><td>⚠ PostgREST lo serializa como string — ver capa de coerción</td></tr>
+<tr><td><code>modelo_precio</code></td><td>text</td><td>check ∈ {unico, membresia}</td></tr>
+<tr><td><code>created_at</code></td><td>timestamptz</td><td>not null default now()</td></tr>
+</tbody>
+</table>
+</div>
+<p>Existe como destino de FKs y para alternar disponibilidad/precio sin deploy — es catálogo-espejo, no el catálogo rico (ADR-009). RLS: lectura pública; sin políticas de escritura (gestión vía dashboard/service role).</p>
+
+<h3 id="t-profiles">profiles — dato de usuario</h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Columna</th><th>Tipo</th><th>Restricciones / semántica</th></tr></thead>
+<tbody>
+<tr><td><code>id</code></td><td>uuid</td><td>PK, FK → auth.users on delete cascade. Fila creada por trigger <code>handle_new_user</code> (SECURITY DEFINER, idempotente)</td></tr>
+<tr><td><code>email</code>, <code>nombre</code>, <code>avatar_url</code></td><td>text</td><td>—</td></tr>
+<tr><td><code>sistema_actual</code></td><td>text</td><td>FK → systems.slug. Solo lo escribe el Motor BPS (I-M1) — la RLS actual no lo restringe por columna: limitación documentada abajo</td></tr>
+<tr><td><code>nivel_actual</code></td><td>text</td><td>Texto del nivel interno del Sistema (ej. "Skills"). Escritores legítimos: Diagnóstico + Progression vía Motor BPS (I-M2)</td></tr>
+<tr><td><code>edad</code></td><td>int</td><td>check (edad is null or (edad &gt; 0 and edad &lt; 120))</td></tr>
+<tr><td><code>sexo</code></td><td>text</td><td>check ∈ {Masculino, Femenino, Prefiero no decirlo}</td></tr>
+<tr><td><code>peso_kg</code>, <code>altura_cm</code></td><td><strong>numeric</strong></td><td>check &gt; 20 / &gt; 80. ⚠ string vía PostgREST</td></tr>
+<tr><td><code>objetivo</code>, <code>nivel_experiencia</code>, <code>lugar_entrenamiento</code>, <code>experiencia</code></td><td>text</td><td>checks de vocabulario cerrado (etiquetas idénticas al Diagnóstico — un solo vocabulario, P12). <code>nivel_experiencia</code> ≠ <code>nivel_actual</code>: autopercibido, sin uso algorítmico</td></tr>
+<tr><td><code>dias_por_semana</code></td><td>int</td><td>check between 1 and 7</td></tr>
+<tr><td><code>duracion_sesion_min</code></td><td>int</td><td>check &gt; 0</td></tr>
+<tr><td><code>lesiones</code>, <code>observaciones</code></td><td>text</td><td>Texto libre — se conserva como nota humana. El filtro de seguridad exige el campo estructurado nuevo (abajo)</td></tr>
+<tr><td><code>created_at</code>, <code>updated_at</code></td><td>timestamptz</td><td><code>updated_at</code> mantenido por trigger</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Extensión requerida — zonas estructuradas</div>
+  <p>El filtro por zona de riesgo (04) exige <code>zonas_riesgo jsonb</code> (lista de slugs de zona declarados por el usuario) + las restricciones temporales por dolor (06) que viven como eventos. <code>lesiones</code> texto libre NO se parsea jamás (invariante de Notas, 03). Migración pendiente — Roadmap v1.</p>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Limitación RLS documentada (heredada, sin resolver)</div>
+  <p>La política de UPDATE de <code>profiles</code> permite editar cualquier columna propia — incluidas <code>sistema_actual</code>/<code>nivel_actual</code>. Inofensivo mientras no haya permisos comerciales atados; cuando la Regla de Activación se implemente de verdad, esas dos columnas deben escribirse por camino de servidor con autorización propia, no por la política general. Registrado también en el archivo real de esquema.</p>
+</div>
+
+<h3 id="t-diagnoses">diagnoses — historial</h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Columna</th><th>Tipo</th><th>Notas</th></tr></thead>
+<tbody>
+<tr><td><code>id</code></td><td>uuid PK default gen_random_uuid()</td><td>—</td></tr>
+<tr><td><code>user_id</code></td><td>uuid FK → auth.users cascade, not null</td><td>El /diagnostico anónimo sigue efímero — conectar el flujo autenticado es Roadmap v1</td></tr>
+<tr><td><code>sistema_recomendado</code></td><td>text FK → systems.slug, not null</td><td>—</td></tr>
+<tr><td><code>nivel_entrada</code></td><td>text</td><td>null = individualizado (Elite)</td></tr>
+<tr><td><code>disponible</code></td><td>boolean not null</td><td>Si el recomendado estaba a la venta al momento del diagnóstico</td></tr>
+<tr><td><code>razones</code>, <code>notas</code>, <code>respuestas</code></td><td>jsonb default '[]'</td><td>Espejan el tipo <code>Resultado</code> — P2 materializado</td></tr>
+<tr><td><code>created_at</code></td><td>timestamptz</td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+<p>RLS: select/insert propios; <strong>sin update/delete a propósito</strong> — registros inmutables (P3). Es la tabla modelo de cómo debe verse el historial.</p>
+
+<h3 id="t-workouts">workouts — sesión instanciada</h3>
+<p>Columnas existentes: <code>id</code> uuid PK · <code>user_id</code> FK not null · <code>system_slug</code> FK · <code>nombre</code> text not null · <code>semana</code>/<code>semana_total</code> int · <code>fecha_planificada</code> date not null · <code>duracion_estimada_min</code> int · <code>ejercicios</code> jsonb not null default '[]' · <code>estado</code> text check ∈ {planificado, completado, perdido} · <code>created_at</code>. Sin fila = descanso; "hoy" se calcula, nunca se persiste.</p>
+<div class="callout callout--regla">
+  <div class="callout__label">Forma requerida del jsonb <code>ejercicios</code> (v-Generator)</div>
+  <p>Array de slots, cada uno: <code>{ patron, rol, ejercicio: {slug, nombre, modalidad}, series, reps: {min, max} | duracion_s, rpe_objetivo, descanso_s, tempo?, notas? }</code> — todo desnormalizado (P5/I-G2). La forma actual (<code>EjercicioPlan</code>: nombre/series/reps/peso/intensidad) es la precursora; la migración de forma es aditiva y solo afecta filas nuevas (las viejas no existen: la tabla está vacía).</p>
+</div>
+
+<h3 id="t-logs">workout_logs — historial de ejecución</h3>
+<p>Columnas existentes: <code>id</code> uuid PK · <code>user_id</code> FK not null · <code>workout_id</code> uuid FK → workouts on delete <strong>set null</strong> (sesiones ad-hoc permitidas) · <code>fecha</code> date not null · <code>duracion_real_min</code> int · <code>volumen_total_kg</code> <strong>numeric</strong> ⚠ · <code>ejercicios</code> jsonb · <code>completado</code> boolean · <code>created_at</code>.</p>
+<div class="callout callout--regla">
+  <div class="callout__label">Forma requerida del jsonb <code>ejercicios</code> (v-Player)</div>
+  <p>Array por ejercicio ejecutado: <code>{ ejercicio_slug, nombre, sustituido_desde?, series: [{n, peso_kg, reps | duracion_s, rpe, timestamp}], omitido?, motivo_omision? }</code>. La fila se inserta UNA VEZ al cierre de sesión (I-W3) — por eso las políticas no necesitan UPDATE: la corrección pre-cierre ocurre en la cola local del Player, y la post-cierre será un evento nuevo (v2).</p>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Migración de endurecimiento aplicada — Sprint 0</div>
+  <p>Las políticas originales de <code>workouts</code>/<code>workout_logs</code> eran "CRUD propio" (for all) — más permisivas de lo que P3 exige. Aplicado: <code>workout_logs</code> → solo select+insert propios; <code>workouts</code> → select+insert propios + update propio (transición de <code>estado</code>; RLS de Postgres no restringe por columna — la disciplina de "solo estado" sigue siendo de capa de aplicación, documentada). El delete desapareció de ambas (<code>supabase/schema.sql</code>, <code>supabase/migration_rls_endurecimiento.sql</code>).</p>
+</div>
+
+<h3 id="t-events">progression_events — historial de decisiones (REQUERIDA)</h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Columna</th><th>Tipo</th><th>Restricciones</th></tr></thead>
+<tbody>
+<tr><td><code>id</code></td><td>uuid</td><td>PK default gen_random_uuid()</td></tr>
+<tr><td><code>user_id</code></td><td>uuid</td><td>FK → auth.users cascade, not null</td></tr>
+<tr><td><code>tipo</code></td><td>text</td><td>check ∈ {activacion, avanza, sostiene, retrocede, descarga_programada, descarga_reactiva, pausa, reanudacion, dolor_reportado, restriccion_zona, override_usuario, sistema_completado, semana_generada, anomalia}</td></tr>
+<tr><td><code>origen</code></td><td>text</td><td>check ∈ {motor_bps, progression_engine, recovery_engine, workout_generator, usuario, coach}</td></tr>
+<tr><td><code>razones</code></td><td>jsonb</td><td>not null — P2: sin razón no hay evento válido</td></tr>
+<tr><td><code>contexto</code></td><td>jsonb</td><td>Métricas usadas (adherencia, índice, umbrales vigentes) — lo que hace la decisión recomputable (P1)</td></tr>
+<tr><td><code>workout_log_id</code></td><td>uuid</td><td>FK opcional al log que originó la evaluación</td></tr>
+<tr><td><code>created_at</code></td><td>timestamptz</td><td>not null default now()</td></tr>
+</tbody>
+</table>
+</div>
+<p>RLS: select+insert propios, sin update/delete (P3). Es donde viven la trazabilidad de 05/06/07, la máquina de estados del usuario (07) y las restricciones temporales de zona (06).</p>
+
+<h2 id="coercion">Capa de coerción — la trampa de PostgREST</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Regla vigente (ya implementada — ADR-007)</div>
+  <p>PostgREST serializa <code>numeric</code> como <strong>string</strong> JSON (para no perder precisión); <code>int</code> llega como número real. Columnas afectadas: <code>precio</code>, <code>peso_kg</code>, <code>altura_cm</code>, <code>volumen_total_kg</code>. Todo acceso pasa por la capa de repositorios+mappers, y <code>numOrNull()</code> es el ÚNICO punto de coerción del sistema. Un <code>Number(row.x)</code> fuera de los mappers es un defecto. Este bug existió de verdad (una suma que concatenaba strings en el agregado de progreso) — la capa existe porque el riesgo es real, no teórico.</p>
+</div>
+
+<h2 id="indices">Índices requeridos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Índice</th><th>Sobre</th><th>Sirve a</th></tr></thead>
+<tbody>
+<tr><td><code>(user_id, fecha_planificada)</code></td><td>workouts</td><td>Sesión del día, rango del calendario (08/dashboard)</td></tr>
+<tr><td><code>(user_id, fecha desc)</code></td><td>workout_logs</td><td>Historial reciente, ventanas de 05/06</td></tr>
+<tr><td><code>(user_id, created_at desc)</code></td><td>progression_events</td><td>Timeline de decisiones, estado vigente de la máquina (07)</td></tr>
+<tr><td><code>(user_id, tipo, created_at desc)</code></td><td>progression_events</td><td>Restricciones de zona activas (06)</td></tr>
+</tbody>
+</table>
+</div>
+<p>Hoy no existe ninguno más allá de PKs — irrelevante con tablas vacías, obligatorio antes de que el Player escriba en volumen. Migración v1.</p>
+
+<h2 id="versionado">Versionado y migraciones — política</h2>
+<ul>
+  <li><strong>Patrón establecido (real, en uso):</strong> archivos <code>migration_*.sql</code> planos e idempotentes — <code>ADD COLUMN IF NOT EXISTS</code>; para constraints (sin IF NOT EXISTS nativo), bloque <code>DO $$</code> verificando <code>pg_constraint</code> por <code>conname</code> + <code>conrelid</code>. Cada archivo puede pegarse N veces sin error.</li>
+  <li><strong><code>schema.sql</code> paralelo:</strong> el estado completo para instalación desde cero, actualizado en el mismo cambio que cada migración. Producción solo recibe migraciones; schema.sql nunca se re-pega sobre datos.</li>
+  <li><strong>Catálogo en código:</strong> versionado por git; el evento <code>semana_generada</code> registra la versión de catálogo usada — es lo que hace reproducible una generación pasada (P1) sin snapshot de DB.</li>
+  <li><strong>Evolución de formas jsonb:</strong> aditiva con campo <code>v</code> discriminador cuando cambie la forma; los mappers leen todas las versiones históricas, escriben solo la vigente (P3: lo escrito no se migra en masa).</li>
+</ul>
+
+<h2 id="casos">Casos límite e inválidos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Tipo</th><th>Comportamiento</th></tr></thead>
+<tbody>
+<tr><td>Log ad-hoc sin workout planificado</td><td>Límite</td><td>Válido — <code>workout_id</code> null por diseño.</td></tr>
+<tr><td>Workout borrado con logs asociados</td><td>Límite</td><td>FK set null: el log sobrevive (P3) huérfano de plan — correcto.</td></tr>
+<tr><td>Usuario borra su cuenta</td><td>Límite</td><td>Cascade en todas las tablas — el derecho de borrado gana sobre P3 (única excepción, legal).</td></tr>
+<tr><td>UPDATE directo a un workout_log</td><td>Inválido</td><td>Tras la migración de endurecimiento: rechazado por RLS, no por convención.</td></tr>
+<tr><td>Evento sin <code>razones</code></td><td>Inválido</td><td>not null lo rechaza en DB — P2 con dientes.</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="riesgos">Riesgos, deuda y extensiones</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Deuda — sin tipos generados de Supabase</div>
+  <p>Los mappers son casts manuales centralizados: cada columna nueva exige tocar SQL + migración + tipos + mapper (4 lugares, a mano). <code>supabase gen types</code> eliminaría una clase de error — candidata v1/v2, registrada.</p>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Deuda — jsonb vs. tabla normalizada de series</div>
+  <p>Trade-off heredado y documentado en el esquema real: <code>ejercicios</code> es jsonb. El disparador de normalización ya está definido: cuando el tracking de PRs se vuelva consulta real (<code>MAX(peso) por ejercicio en el tiempo</code>), se normaliza a tabla de series. Antes no.</p>
+</div>
+<div class="callout callout--escala">
+  <div class="callout__label">Extensión — plantillas a DB</div>
+  <p>Cuando el equipo de contenido necesite editar sin deploy, las plantillas migran de código a tablas — el contrato de los mappers no cambia (ADR-009 prevé la transición).</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../09-workout-player/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 09 · Workout Player</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../11-api-interna/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">11 · API Interna →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>14 · Observabilidad — BREY API Contract Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="observabilidad" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 14 · Gobernanza</p>
+<h1>Observabilidad</h1>
+<p class="lede">Qué se registra hoy, con qué convención real, y qué no existe todavía — sin inventar un request ID donde ningún handbook lo pide.</p>
+
+<div class="callout callout--nota">
+  <div class="callout__label">Sin request ID, trace ID ni correlation ID — gap confirmado, no se inventa aquí</div>
+  <p>El Observability Handbook (Engineering, 11) es explícito: "sin distributed tracing... un trace ID por request añadiría complejidad sin un problema real que resolver todavía". Este documento no formaliza una convención de propagación de identificador de request porque ningún handbook la especifica — inventarla violaría la restricción de este encargo. Se registra como pregunta abierta (AP-05, 16).</p>
+</div>
+
+<h2 id="logs">Logs — convención real</h2>
+<p>Todo endpoint de este catálogo que registre un log de advertencia o error sigue el formato ya real: <code>console.warn(`[contexto] mensaje`)</code> para condiciones degradadas no fatales, <code>console.error(`[contexto] mensaje`)</code> para fallos de servicio externo. El prefijo entre corchetes identifica el origen (<code>[lead]</code>, <code>[contacto]</code>, y por extensión <code>[bcs]</code>, <code>[motor-bps]</code> para los endpoints de este catálogo) — ningún log nuevo se escribe sin ese prefijo (Observability Handbook, Engineering 11).</p>
+
+<h2 id="matriz-error-recuperacion">Matriz Error → Recuperación</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Error</th><th>Recuperación</th></tr></thead>
+<tbody>
+<tr><td><code>invalid_body</code> / <code>invalid_email</code> / <code>invalid_fields</code> (09)</td><td>El actor corrige el formulario — sin reintento automático</td></tr>
+<tr><td><code>not_configured</code> (secreto de servidor ausente)</td><td>Ninguna a nivel de request — requiere intervención de configuración de entorno</td></tr>
+<tr><td><code>provider_error</code> (proveedor externo caído)</td><td>Sin reintento hoy — se pierde el intento, solo queda el <code>console.error</code></td></tr>
+<tr><td>RLS bloquea una escritura esperada (bug de política)</td><td>El repositorio devuelve <code>null</code> (FT-05) — se manifiesta como fallo genérico de UI; requiere revisar el log de Postgres/Supabase directamente, sin traducción automática de la razón de RLS</td></tr>
+<tr><td><code>tipo</code> de evento fuera del CHECK de <code>progression_events</code> (gap de 14→25 valores, API-ADR-03)</td><td>El <code>INSERT</code> es rechazado por Postgres — el motor productor debe tratarlo como <code>error_invocacion</code> (07) y no reintentar con el mismo <code>tipo</code> inválido</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="eventos-observabilidad">Eventos como mecanismo de observabilidad</h2>
+<p><code>progression_events</code> con <code>origen</code> en <code>motor_bps</code>/<code>progression_engine</code>/<code>recovery_engine</code> es, además de historial de negocio, la fuente de KPIs de observabilidad ya especificados (Observability Handbook, Engineering 11) — ej. frecuencia de <code>VENTANA_INSUFICIENTE</code>, tasa de <code>avanza</code> vs. <code>sostiene</code>. Ningún endpoint nuevo se necesita para esto: son consultas agregadas sobre <code>GET /motor-bps/eventos</code> (07).</p>
+
+<h2 id="auditoria">Auditoría — BCS</h2>
+<p>Toda escritura sobre <code>bcs_clientes</code>/<code>bcs_mediciones</code>/<code>bcs_enlaces_publicos</code> queda registrada de forma inmutable: quién, qué acción, sobre qué entidad, cuándo, valor anterior donde aplica (BCS Handbook, 08). El acceso vía EnlacePúblico se audita <strong>sin identidad</strong> — se registra que el enlace fue visitado, nunca quién lo visitó; el token nunca se registra en texto plano, solo su identificador interno.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Evento de seguridad</th><th>Cuándo</th></tr></thead>
+<tbody>
+<tr><td><code>token_invalido_intentado</code></td><td>Request a un token de EnlacePúblico inexistente — posible enumeración</td></tr>
+<tr><td><code>token_revocado_intentado</code></td><td>Request a un token que existió pero ya fue revocado — distinto del anterior solo para diagnóstico interno, nunca para la respuesta al actor (09)</td></tr>
+<tr><td><code>enlace_creado</code> / <code>enlace_revocado</code></td><td>Cada vez que el Entrenador crea o revoca un EnlacePúblico (07)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="sin-alerting">Sin health-check ni alerting</h2>
+<p>Confirmado por el Observability Handbook (Engineering, 11): no existe endpoint de salud ni alerting configurado. Ver 07 (gap documentado) y 16 (AP-06).</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../13-seguridad/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 13 · Seguridad</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../15-api-adr/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">15 · API-ADR →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

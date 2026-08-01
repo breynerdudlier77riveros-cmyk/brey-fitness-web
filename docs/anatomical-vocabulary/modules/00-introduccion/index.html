@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>00 · Introducción — Anatomical Vocabulary</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="introduccion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Sección 00 · Fundamento</p>
+<h1>Introducción</h1>
+<p class="lede">El <strong>BREY Anatomical Vocabulary</strong> es la Source of Truth de todos los nombres anatómicos del ecosistema. Es una lista cerrada de <strong>72 estructuras</strong> con siete campos cada una. Nada más.</p>
+
+<h2 id="que-es">Qué es y qué no es</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Es</th><th>No es</th></tr></thead>
+<tbody>
+<tr><td>Un vocabulario cerrado de nombres</td><td>Un tratado de anatomía</td></tr>
+<tr><td>Una tabla de identificadores estables</td><td>Un documento educativo</td></tr>
+<tr><td>Un índice de sinónimos con resolución determinista</td><td>Una referencia de biomecánica o fisiología</td></tr>
+<tr><td>Una dependencia técnica de otros módulos</td><td>Un handbook con criterio propio</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Alcance estricto</div>
+  <p>Este documento responde a <strong>una sola pregunta</strong>: «¿cómo se llama oficialmente esta estructura y con qué identificador se referencia?».</p>
+  <p>No responde a qué hace un músculo, dónde se inserta, qué ejercicio lo entrena, en qué patrón participa ni qué riesgo comporta. Todo eso vive en otros módulos y <strong>no se duplica aquí</strong>.</p>
+</div>
+
+<h2 id="no-incluye">Lo que este vocabulario no contiene</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Dato</th><th>Dónde vive</th></tr></thead>
+<tbody>
+<tr><td>Origen · inserción · acción</td><td>En ningún módulo del ecosistema — fuera de alcance del producto</td></tr>
+<tr><td>Función y biomecánica</td><td>Fuera de alcance</td></tr>
+<tr><td>Qué ejercicios lo entrenan</td><td><a href="../../../master-exercise-dataset/index.html">Master Exercise Dataset</a> — campos <code>muscle_primary</code> y <code>muscles_secondary</code></td></tr>
+<tr><td>Patrones y roles</td><td>Master Exercise Dataset — bloque de Clasificación</td></tr>
+<tr><td>Zonas de riesgo</td><td>Master Exercise Dataset — campo <code>risk_zones</code></td></tr>
+<tr><td>Cadenas, progresiones, regresiones</td><td>Master Exercise Dataset — bloque de Relaciones</td></tr>
+<tr><td>Vídeos, imágenes</td><td>Master Exercise Dataset — bloque de Media</td></tr>
+<tr><td>Notas clínicas y fisiología</td><td>Fuera de alcance</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Por qué la lista de exclusiones es tan larga</div>
+  <p>Un vocabulario anatómico tiende a crecer hacia el tratado: primero se añade la acción «porque es útil», después el origen «porque ya que estamos». El resultado es un documento que nadie mantiene y que contradice a los módulos que sí deciden. Enumerar explícitamente lo que no entra es lo que mantiene este documento pequeño y, por tanto, correcto.</p>
+</div>
+
+<h2 id="consumidores">Consumidores</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Consumidor</th><th>Qué toma del vocabulario</th></tr></thead>
+<tbody>
+<tr><td><strong>Master Exercise Dataset</strong></td><td>Los valores válidos de <code>muscle_primary</code> y <code>muscles_secondary</code></td></tr>
+<tr><td><strong>Exercise Catalog</strong></td><td>Los nombres mostrados en las fichas</td></tr>
+<tr><td><strong>Exercise Tagging</strong></td><td>El vocabulario cerrado al que se etiqueta</td></tr>
+<tr><td><strong>Exercise Taxonomy</strong></td><td>El eje muscular de la clasificación</td></tr>
+<tr><td><strong>Progression Engine</strong></td><td>Los <code>id</code> con que compara solapamiento muscular</td></tr>
+<tr><td><strong>Workout Generator</strong></td><td>Los <code>id</code> con que reparte volumen entre sesiones</td></tr>
+<tr><td><strong>Estadísticas y reportes</strong></td><td>Las claves de agregación — <code>id</code>, <code>group</code>, <code>region</code></td></tr>
+<tr><td><strong>Filtros de interfaz</strong></td><td><code>group</code> y <code>region</code> como facetas</td></tr>
+<tr><td><strong>IA</strong></td><td>El índice de sinónimos para resolver texto libre a <code>id</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="contrato">El contrato</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Garantía</th></tr></thead>
+<tbody>
+<tr><td>C-1</td><td>Todo <code>id</code> publicado es <strong>inmutable</strong> y no se reutiliza</td></tr>
+<tr><td>C-2</td><td>Un músculo tiene <strong>exactamente un</strong> <code>id</code> — nunca dos</td></tr>
+<tr><td>C-3</td><td>Todo <code>id</code> tiene exactamente un <code>display_name</code> y un <code>common_name_es</code></td></tr>
+<tr><td>C-4</td><td>Todo sinónimo resuelve a exactamente un <code>id</code></td></tr>
+<tr><td>C-5</td><td>Todo <code>group</code> pertenece a exactamente una <code>region</code></td></tr>
+<tr><td>C-6</td><td>El vocabulario es <strong>cerrado</strong>: un consumidor puede rechazar cualquier valor que no esté aquí</td></tr>
+<tr><td>C-7</td><td>El acceso es de <strong>solo lectura</strong> para todos los consumidores</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">C-6 · El valor de ser cerrado</div>
+  <p>Que el vocabulario sea cerrado es lo que permite a un consumidor validar mecánicamente sus propios datos: cualquier nombre muscular que no aparezca aquí es un error, no un caso no contemplado. Sin esta garantía, cada módulo acabaría aceptando su propia variante ortográfica y ninguna estadística agregaría correctamente.</p>
+</div>
+
+<h2 id="secciones">Las cinco secciones</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Sección</th><th>Contenido</th></tr></thead>
+<tbody>
+<tr><td>00</td><td>Introducción</td><td>Alcance, exclusiones, consumidores, contrato</td></tr>
+<tr><td>01</td><td><a href="../01-modelo/index.html">Modelo</a></td><td>Los 7 campos, los 13 grupos, las 4 regiones y las reglas</td></tr>
+<tr><td>02</td><td><a href="../02-vocabulario/index.html">Catálogo</a></td><td>Las 72 estructuras</td></tr>
+<tr><td>03</td><td><a href="../03-sinonimos/index.html">Sinónimos</a></td><td>79 sinónimos resolubles + 15 términos ambiguos rechazados</td></tr>
+<tr><td>04</td><td><a href="../04-validacion/index.html">Validación e Integración</a></td><td>Las 11 comprobaciones, la cobertura y el contrato de uso</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Cinco secciones, no dieciocho</div>
+  <p>Este documento es deliberadamente pequeño. Un vocabulario cerrado con siete campos por entrada no necesita más estructura, y añadirla solo dispersaría lo que cabe en una tabla.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../../index.html">
+    <div class="pagenav__dir">Volver</div>
+    <div class="pagenav__title">← Índice</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../01-modelo/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">01 · Modelo →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

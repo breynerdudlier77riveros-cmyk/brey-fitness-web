@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>13 · Evidencia Científica — Content Lifecycle</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="evidencia-cientifica" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 13 · Garantías</p>
+<h1>Evidencia Científica</h1>
+<p class="lede">Preguntas 26 y 27. El ecosistema tiene un sistema de niveles de evidencia riguroso y ampliamente aplicado — y <strong>ningún mecanismo para propagar un cambio de evidencia a las entradas existentes</strong>.</p>
+
+<h2 id="sistema">El sistema de cuatro niveles</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Ciencia marcada, nunca inventada</div>
+  <p>"Toda regla con base fisiológica lleva un badge de nivel de evidencia: <strong>consenso sólido · evidencia moderada · hipótesis · decisión de producto</strong>. El cuarto badge es el más importante: marca los números y reglas que <strong>NO provienen de evidencia científica</strong> sino de una decisión de diseño calibrable. <strong>Confundir decisiones de ingeniería con decisiones científicas es un error de integridad, no de estilo.</strong> Una regla sin badge es puramente estructural y no hace ningún reclamo fisiológico."</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Nivel</th><th>Qué afirma</th><th>Archivos</th></tr></thead>
+<tbody>
+<tr><td><strong>consenso sólido</strong></td><td>Respaldo científico establecido</td><td>3</td></tr>
+<tr><td><strong>evidencia moderada</strong></td><td>Respaldo real con matices o variabilidad individual</td><td>13</td></tr>
+<tr><td><strong>hipótesis</strong></td><td>Mecanismo propuesto sin validación externa</td><td>12</td></tr>
+<tr><td><strong>decisión de producto</strong></td><td>Umbral o default elegido por diseño — sin reclamo científico</td><td><strong>31</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="pregunta26">Pregunta 26 · ¿Qué sucede si cambia la evidencia científica?</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Objeto afectado</th><th>Mecanismo documentado</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td><strong>Una regla de handbook</strong></td><td>Se actualiza mediante un ADR nuevo — "nunca por deriva silenciosa"; revertir exige un ADR que supersede</td><td><span class="tag tag--implementado">documentado</span></td></tr>
+<tr><td><strong>El badge de una regla</strong></td><td>Derivado: cambiar el badge es cambiar la regla, luego exige ADR</td><td><span class="tag tag--especificado">derivado</span></td></tr>
+<tr><td><strong>Un umbral calibrable</strong></td><td>Los marcados <em>decisión de producto</em> se declaran explícitamente "calibrables", anticipando su ajuste</td><td><span class="tag tag--implementado">documentado</span></td></tr>
+<tr><td><strong>Una entrada de catálogo</strong></td><td><strong>Ninguno</strong></td><td><span class="tag tag--futuro">sin respaldo</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Para las reglas, la respuesta es completa</div>
+  <p>El ecosistema anticipa el cambio de evidencia: marca qué reglas dependen de ella, distingue las que son decisión de diseño, declara los umbrales calibrables y define el mecanismo de actualización (ADR, sin edición silenciosa). Es un diseño maduro, y funciona <strong>hasta el borde del catálogo</strong>.</p>
+</div>
+
+<h2 id="pregunta27">Pregunta 27 · ¿Cómo afecta a entradas existentes?</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">CL-D11 — el catálogo no participa del sistema de evidencia</div>
+  <p>El sistema de badges se aplica a las <strong>reglas de los handbooks</strong> y a ningún <strong>dato del catálogo</strong>. Ninguna fuente exige que una asignación de patrón, rol o zona de riesgo declare en qué se basa.</p>
+  <p>La asimetría es notable: una regla que dice "el descanso del principal es 120–180 s" debe llevar badge; una etiqueta que afirma "<strong>este ejercicio carga la rodilla en alto</strong>" no lleva ninguno — pese a ser la afirmación con más consecuencias de seguridad del ecosistema, y pese a que la fuente exige para ella "criterio biomecánico".</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">El sistema de evidencia se detiene en el borde del catálogo</div>
+<pre class="mermaid">
+graph LR
+  E["Cambio de evidencia<br/>científica"] --> R["Regla de handbook<br/>✅ ADR + badge actualizado"]
+  E --> U["Umbral calibrable<br/>✅ declarado ajustable"]
+  E -.->|"⛔ sin mecanismo"| C["Entrada de catálogo<br/>❌ no declara su base<br/>❌ nada la marca<br/>❌ nada la revisa"]
+</pre>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Consecuencia</th><th>Severidad</th></tr></thead>
+<tbody>
+<tr><td>No se puede saber en qué se basó una clasificación al asignarla</td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td>Un cambio de evidencia no identifica qué entradas dependían de ella</td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td>Sin estados, no hay forma de marcar entradas para reevaluación</td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td>Sin revisión periódica, nada provoca la reevaluación</td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td>Sin versionado por entrada, no se sabe cuáles se etiquetaron bajo el criterio anterior</td><td><span class="severity severity--alta">alta</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="cadena">La cadena rota</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Cinco eslabones, dos disponibles</div>
+  <p>Propagar un cambio de evidencia a las entradas existentes exigiría, en orden: <strong>(1)</strong> saber qué entradas dependían de esa evidencia → falta declaración de base (CL-D11); <strong>(2)</strong> marcarlas para reevaluación → faltan estados (CL-D05); <strong>(3)</strong> disparar la revisión → falta proceso de revisión; <strong>(4)</strong> registrar quién la reevaluó → falta autoría (CL-D09); <strong>(5)</strong> versionar el resultado → esto sí existe, a nivel de catálogo.</p>
+  <p>De los cinco eslabones, <strong>solo el último funciona</strong>. Y funciona sobre el objeto equivocado.</p>
+</div>
+
+<h2 id="doble">La doble naturaleza del cambio</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tipo de cambio de evidencia</th><th>Ejemplo del ecosistema</th><th>¿Anticipado?</th></tr></thead>
+<tbody>
+<tr><td><strong>Calibración</strong> — el mecanismo se mantiene, el número se ajusta</td><td>Los pesos 0.5/0.3/0.2 y el umbral 0.65 del índice de fatiga: "puntos de partida de producto que exigen calibración con datos reales"</td><td>✅ Sí — declarados calibrables</td></tr>
+<tr><td><strong>Refutación</strong> — el mecanismo deja de sostenerse</td><td>El deload preventivo, marcado <em>hipótesis</em>: "mecanismo nuevo de BREY, sin validación externa aún"</td><td>⚠️ Parcial — el badge lo advierte, no hay proceso si se refuta</td></tr>
+<tr><td><strong>Cambio de clasificación de un ejercicio</strong></td><td>—</td><td>❌ No contemplado</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">El badge advierte; no gobierna</div>
+  <p>Marcar una regla como <em>hipótesis</em> declara honestamente su fragilidad, pero no define qué ocurre si la hipótesis se refuta: no hay revisión programada, ni responsable, ni consecuencia declarada. El sistema de evidencia es excelente <strong>documentando el estado del conocimiento</strong> y no define ningún proceso <strong>para cuando ese estado cambia</strong>.</p>
+</div>
+
+<h2 id="resumen">Resumen</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Pregunta</th><th>Respuesta</th></tr></thead>
+<tbody>
+<tr><td><strong>26 ·</strong> ¿Qué sucede si cambia la evidencia científica?</td><td>Para <strong>reglas de handbook</strong>: se actualizan vía ADR, sin edición silenciosa. Para <strong>entradas de catálogo</strong>: nada documentado</td></tr>
+<tr><td><strong>27 ·</strong> ¿Cómo afecta a entradas existentes?</td><td>No las afecta, porque <strong>no hay forma de saber cuáles dependían de esa evidencia</strong> ni de marcarlas para revisión</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../12-correccion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 12 · Corrección y Rollback</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../14-impacto/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">14 · Impacto Aguas Abajo →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

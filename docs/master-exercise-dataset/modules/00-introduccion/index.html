@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>00 · Introducción — Master Exercise Dataset</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="introduccion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Sección 00 · Fundamento</p>
+<h1>Introducción</h1>
+<p class="lede">Esta es la especificación técnica del <strong>BREY Master Exercise Dataset</strong>: el activo central del ecosistema y la única fuente de verdad sobre qué ejercicios existen. No describe el sistema — <strong>lo define</strong>.</p>
+
+<div class="meta-row">
+  <span class="chip">Modelo congelado en v1.0</span>
+  <span class="chip">38 campos · 7 bloques</span>
+  <span class="chip">Objetivo: 220 ejercicios</span>
+</div>
+
+<h2 id="que-es">Qué es</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Definición normativa</div>
+  <p>El <strong>Master Exercise Dataset</strong> es la colección canónica de todos los ejercicios reconocidos por el ecosistema BREY, cada uno descrito según el modelo oficial de esta especificación. <strong>Un ejercicio existe si y solo si tiene una entrada en este dataset con estado <code>published</code>.</strong> Ninguna otra colección, lista o archivo del proyecto constituye catálogo.</p>
+</div>
+
+<h2 id="reemplaza">Qué reemplaza</h2>
+<p>Este dataset sustituye a cualquier catálogo disperso previo. A partir de v1.0:</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Fuente previa</th><th>Estatuto</th></tr></thead>
+<tbody>
+<tr><td>Cualquier listado de ejercicios en código de producto</td><td>Deja de ser catálogo — pasa a ser consumidor del dataset</td></tr>
+<tr><td>Fichas educativas dispersas</td><td>Se absorben como el bloque <em>Contenido</em> de cada entrada</td></tr>
+<tr><td>Menciones de ejercicios en documentación</td><td>Ilustrativas; sin valor de catálogo</td></tr>
+<tr><td>Cualquier colección futura paralela</td><td><strong>Prohibida</strong> — ver principio DS-01</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="consumidores">Quién depende de este dataset</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Consumidor</th><th>Qué lee</th></tr></thead>
+<tbody>
+<tr><td><strong>Knowledge Base</strong></td><td>El dataset completo; es su instancia canónica</td></tr>
+<tr><td><strong>Exercise Resolver</strong></td><td>Bloques de clasificación y elegibilidad</td></tr>
+<tr><td><strong>Workout Generator</strong></td><td>Resolución de slots: patrón, rol, equipo, nivel, zonas, capacidades</td></tr>
+<tr><td><strong>Progression Engine</strong></td><td>Relaciones de cadena y capacidades requeridas</td></tr>
+<tr><td><strong>Recovery Engine</strong></td><td>Zonas de riesgo y su intensidad</td></tr>
+<tr><td><strong>Search</strong></td><td>Nombres, alias, términos de búsqueda y clasificación</td></tr>
+<tr><td><strong>Filtros</strong></td><td>Todos los campos enumerados de clasificación</td></tr>
+<tr><td><strong>Editor</strong></td><td>El modelo completo, incluido el bloque de gobierno</td></tr>
+<tr><td><strong>Exercise Cards</strong></td><td>Bloques de identidad, contenido y media</td></tr>
+<tr><td><strong>API futura</strong></td><td>Proyecciones definidas en la sección <a href="../02-arquitectura/index.html">02</a></td></tr>
+<tr><td><strong>IA futura</strong></td><td>El grafo de relaciones y el contenido estructurado</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="alcance">Alcance de v1.0</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Esta versión define</th><th>Esta versión NO incluye</th></tr></thead>
+<tbody>
+<tr><td>El modelo completo de un Exercise — 38 campos</td><td>Las 220 fichas pobladas</td></tr>
+<tr><td>La identidad permanente y sus reglas</td><td>Biomecánica detallada de cada movimiento</td></tr>
+<tr><td>La organización y particionado del dataset</td><td>Las cadenas de progresión pobladas</td></tr>
+<tr><td>El versionado por entrada y del dataset</td><td>La asignación concreta de variantes</td></tr>
+<tr><td>El ciclo de estados y sus transiciones</td><td>Contenido educativo redactado</td></tr>
+<tr><td>El checklist de alta de un ejercicio</td><td>Media (imágenes, vídeo)</td></tr>
+<tr><td>El plan de cobertura hasta 220 entradas</td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Por qué la estructura primero</div>
+  <p>Poblar 220 fichas sobre un modelo que aún puede cambiar obliga a rehacerlas cada vez que el modelo cambie. Congelar el modelo antes de la primera ficha convierte el trabajo posterior en <strong>puramente aditivo</strong>: cada ejercicio se escribe una vez y no vuelve a tocarse por razones estructurales.</p>
+</div>
+
+<h2 id="congelacion">El compromiso de congelación</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Compromiso v1.0</div>
+  <p>Tras esta especificación, <strong>la estructura de un Exercise no vuelve a modificarse</strong>. Las únicas operaciones admitidas sobre el dataset son:</p>
+  <ol>
+    <li><strong>Añadir</strong> un ejercicio nuevo</li>
+    <li><strong>Revisar</strong> el contenido de un ejercicio existente (incrementando su revisión)</li>
+    <li><strong>Deprecar</strong> un ejercicio, declarando sucesor si lo hay</li>
+    <li><strong>Extender</strong> un vocabulario enumerado, de forma aditiva y versionada</li>
+  </ol>
+  <p>Cualquier otra operación —renombrar un campo, cambiar un tipo, eliminar un atributo— exige una versión mayor del dataset y una migración explícita. La <a href="../06-versionado/index.html">sección 06</a> fija el procedimiento.</p>
+</div>
+
+<h2 id="preguntas">Preguntas que responde esta especificación</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Pregunta</th><th>Sección</th></tr></thead>
+<tbody>
+<tr><td>¿Cómo se identifica un ejercicio?</td><td><a href="../03-identidad/index.html">03</a> · <a href="../09-ids/index.html">09</a> · <a href="../10-slugs/index.html">10</a></td></tr>
+<tr><td>¿Qué atributos tendrá?</td><td><a href="../04-modelo/index.html">04</a></td></tr>
+<tr><td>¿Cómo se organiza y almacena?</td><td><a href="../05-organizacion/index.html">05</a></td></tr>
+<tr><td>¿Cómo se nombran las versiones?</td><td><a href="../06-versionado/index.html">06</a></td></tr>
+<tr><td>¿Cómo se garantiza estabilidad?</td><td><a href="../01-filosofia/index.html">01</a> · <a href="../07-compatibilidad/index.html">07</a></td></tr>
+<tr><td>¿Cómo se mantiene la compatibilidad histórica?</td><td><a href="../07-compatibilidad/index.html">07</a></td></tr>
+<tr><td>¿Cómo crecerá el catálogo?</td><td><a href="../05-organizacion/index.html">05</a> · <a href="../17-roadmap/index.html">17</a></td></tr>
+<tr><td>¿Cómo se agregan ejercicios nuevos?</td><td><a href="../16-checklist/index.html">16</a></td></tr>
+<tr><td>¿Cómo se relacionan entre sí?</td><td><a href="../11-relaciones/index.html">11</a> a <a href="../14-regresiones/index.html">14</a></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="lenguaje">Lenguaje normativo</h2>
+<p>Esta especificación usa un vocabulario preciso. Su interpretación es la siguiente:</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Término</th><th>Significado</th></tr></thead>
+<tbody>
+<tr><td><strong>OBLIGATORIO</strong></td><td>Requisito absoluto. Una entrada que lo incumpla es inválida y no puede publicarse</td></tr>
+<tr><td><strong>PROHIBIDO</strong></td><td>La operación no está permitida bajo ninguna circunstancia</td></tr>
+<tr><td><strong>RECOMENDADO</strong></td><td>Debe seguirse salvo razón justificada y registrada</td></tr>
+<tr><td><strong>OPCIONAL</strong></td><td>Puede omitirse sin consecuencias sobre la validez</td></tr>
+<tr><td><strong>RESERVADO</strong></td><td>Existe en el modelo, sin uso en v1.0; su semántica futura está fijada</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="relacion">Relación con la documentación existente</h2>
+<p>Esta especificación es <strong>constructiva</strong>: toma las decisiones que la documentación previa dejó abiertas y las fija. Respeta y absorbe lo que ya estaba cerrado —los vocabularios de clasificación, la regla de identidad estable, la inmutabilidad de lo generado, la autoridad humana sobre el contenido— y añade lo que faltaba: identidad numérica permanente, ciclo de estados, versionado por entrada y trazabilidad de autoría.</p>
+<div class="callout callout--regla">
+  <div class="callout__label">Precedencia</div>
+  <p>Para todo lo relativo a <strong>la estructura, identidad, versionado, estados y organización del dataset</strong>, esta especificación es la autoridad. Para la <strong>semántica de los vocabularios de clasificación</strong> —qué significa cada patrón, rol o zona— la autoridad sigue siendo la ontología del ecosistema, que esta especificación incorpora sin alterar.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../../index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← Portada</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../01-filosofia/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">01 · Filosofía del Dataset →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

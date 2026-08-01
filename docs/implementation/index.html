@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BREY Implementation Handbook v1.0</title>
+<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+
+<div class="landing-topbar">
+  <span class="topbar__brand">
+    <span class="topbar__brand-dot"></span>
+    BREY <span class="topbar__brand-sub">Implementation Handbook</span>
+  </span>
+  <span class="topbar__version">v1.0</span>
+</div>
+
+<div class="landing-wrap">
+
+  <div class="hero">
+    <p class="eyebrow">Especificación de secuenciación · sin código</p>
+    <h1>Implementation Handbook</h1>
+    <p>Cómo se implementa BREY, paso por paso, sin tomar ninguna decisión durante el desarrollo. Orquesta los seis handbooks existentes y los hallazgos de la Architecture Review — no reescribe ninguno. Si una implementación futura lo contradice, este handbook tiene prioridad.</p>
+    <a class="hero-cta" href="modules/00-introduccion/index.html">Empezar →</a>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Fundamentos</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/00-introduccion/index.html"><div class="module-card__num">00</div><div class="module-card__title">Introducción</div><div class="module-card__desc">Los siete documentos de entrada y la regla absoluta de prioridad.</div></a>
+      <a class="module-card" href="modules/01-estrategia-general/index.html"><div class="module-card__num">01</div><div class="module-card__title">Estrategia general</div><div class="module-card__desc">Cinco reglas de secuenciación de las que se deriva todo lo demás.</div></a>
+      <a class="module-card" href="modules/02-dependencias/index.html"><div class="module-card__num">02</div><div class="module-card__title">Dependencias</div><div class="module-card__desc">El árbol corregido — sin el ciclo falso que el Engineering Handbook contenía.</div></a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Planificación</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/03-roadmap/index.html"><div class="module-card__num">03</div><div class="module-card__title">Roadmap</div><div class="module-card__desc">Cinco fases, con entrada y salida explícitas para cada una.</div></a>
+      <a class="module-card" href="modules/04-orden-construccion/index.html"><div class="module-card__num">04</div><div class="module-card__title">Orden de construcción</div><div class="module-card__desc">Los 20 pasos exactos — la respuesta directa a la pregunta central.</div></a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Construcción</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/05-migraciones/index.html"><div class="module-card__num">05</div><div class="module-card__title">Migraciones</div><div class="module-card__desc">M1–M4 en orden, más el mapeo canónico de las 25 variables del BCS.</div></a>
+      <a class="module-card" href="modules/06-backend/index.html"><div class="module-card__num">06</div><div class="module-card__title">Backend</div><div class="module-card__desc">Orden de repositorios y motores en las dos pistas paralelas.</div></a>
+      <a class="module-card" href="modules/07-frontend/index.html"><div class="module-card__num">07</div><div class="module-card__title">Frontend</div><div class="module-card__desc">Orden de componentes del BCS — y el gap declarado para los motores.</div></a>
+      <a class="module-card" href="modules/08-motores/index.html"><div class="module-card__num">08</div><div class="module-card__title">Motores</div><div class="module-card__desc">Recovery Engine → Motor BPS → Progression Engine, con Definition of Ready aplicada.</div></a>
+      <a class="module-card" href="modules/09-integracion/index.html"><div class="module-card__num">09</div><div class="module-card__title">Integración</div><div class="module-card__desc">Dónde convergen las dos pistas — el ciclo semanal completo.</div></a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Calidad</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/10-testing/index.html"><div class="module-card__num">10</div><div class="module-card__title">Testing</div><div class="module-card__desc">Cuándo se escribe cada nivel de prueba en relación con la construcción.</div></a>
+      <a class="module-card" href="modules/11-observabilidad/index.html"><div class="module-card__num">11</div><div class="module-card__title">Observabilidad</div><div class="module-card__desc">Logs antes que eventos, eventos antes que métricas, métricas antes que alertas.</div></a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Checklists y gobernanza</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/12-checklist-feature/index.html"><div class="module-card__num">12</div><div class="module-card__title">Checklist por Feature</div><div class="module-card__desc">El estado real de cada pieza del sistema hoy, y la matriz Feature→Release completa.</div></a>
+      <a class="module-card" href="modules/13-release-checklist/index.html"><div class="module-card__num">13</div><div class="module-card__title">Release Checklist</div><div class="module-card__desc">8 checklists — PR, Merge, Producción, Release, Testing, Seguridad, Performance, Accesibilidad.</div></a>
+      <a class="module-card" href="modules/14-adr/index.html"><div class="module-card__num">14</div><div class="module-card__title">ADR</div><div class="module-card__desc">IMP-ADR-01…06 — incluida la reconciliación del contrato de Recovery Engine.</div></a>
+      <a class="module-card" href="modules/15-glosario/index.html"><div class="module-card__num">15</div><div class="module-card__title">Glosario</div><div class="module-card__desc">Todo término propio de este handbook.</div></a>
+    </div>
+  </div>
+
+  <div class="landing-footer">BREY Implementation Handbook v1.0 — orquesta, no reescribe. El handbook tiene prioridad sobre el código.</div>
+
+</div>
+</body>
+</html>

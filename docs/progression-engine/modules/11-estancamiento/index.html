@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>11 · Estancamiento — Progression Engine Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="estancamiento" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 11 · Reglas</p>
+<h1>Estancamiento</h1>
+<p class="lede">Detección, confirmación, falsos positivos, falsos negativos, escalera de acciones y salida — la máquina de estados completa de un Slot que deja de progresar, formalizando PE-027–032.</p>
+
+<h2 id="objetivo">Objetivo</h2>
+<p>Que "estancamiento" sea un estado con entrada y salida bien definidas por Slot, nunca una etiqueta subjetiva aplicada de forma ad-hoc por otra parte del sistema.</p>
+
+<h2 id="estados">Máquina de estados por Slot</h2>
+<div class="diagram">
+<div class="diagram-label">Ciclo completo de un Slot respecto al estancamiento</div>
+<pre class="mermaid">
+stateDiagram-v2
+  [*] --> Normal
+  Normal --> Candidato: 3 apariciones evaluables sin avance (PE-027)
+  Candidato --> Normal: avance detectado antes de confirmar
+  Candidato --> Candidato: aparición excluida (PE-029) — reinicia contador
+  Candidato --> Confirmado: continuidad verificada (PE-028)
+  Confirmado --> Escalon1: variar variable secundaria (PE-031)
+  Escalon1 --> Normal: avance detectado (PE-032)
+  Escalon1 --> Escalon2: persiste 3 apariciones más
+  Escalon2 --> Normal: avance detectado (PE-032)
+  Escalon2 --> Escalon3: persiste tras deload preventivo
+  Escalon3 --> Normal: retrocedió eslabón, reinicia evaluación
+</pre>
+</div>
+
+<h2 id="tabla">Detección, confirmación y sus fallos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Concepto</th><th>Mecanismo</th></tr></thead>
+<tbody>
+<tr><td><strong>Detección</strong></td><td>3 apariciones evaluables consecutivas sin decisión de avance (PE-027) → candidato</td></tr>
+<tr><td><strong>Confirmación</strong></td><td>Las 3 apariciones deben ser estrictamente consecutivas en el registro, sin exclusión intermedia (PE-028)</td></tr>
+<tr><td><strong>Falso positivo</strong></td><td>Una Aparición excluida por incumplimiento o evento inesperado en medio del patrón invalida la candidatura (PE-029) — no era estancamiento, era no-intento</td></tr>
+<tr><td><strong>Falso negativo</strong></td><td>Un hueco (Slot no programado esa semana) pausa el contador sin perder el progreso previo, en vez de resetear a cero silenciosamente (PE-030)</td></tr>
+<tr><td><strong>Acciones</strong></td><td>Escalera de 3 pasos: variar variable secundaria → deload preventivo → retroceso de eslabón (PE-031)</td></tr>
+<tr><td><strong>Salida</strong></td><td>Cualquier decisión de avance evaluable limpia el estado, en cualquier escalón de la escalera (PE-032)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="casos-limite">Casos límite</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Comportamiento</th></tr></thead>
+<tbody>
+<tr><td>Estancamiento confirmado coincide con deload reactivo de Recovery</td><td>Recovery gana (precedencia 1) — la escalera de estancamiento se pausa, no se cancela; se retoma en el mismo escalón al volver</td></tr>
+<tr><td>Slot alcanza Escalón 3 (retroceso de eslabón) y el nuevo eslabón vuelve a estancarse de inmediato</td><td>Se re-evalúa desde Detección normalmente — no hay un "escalón 4" especial, el ciclo es el mismo con el nuevo eslabón como punto de partida</td></tr>
+<tr><td>Dos Slots del mismo Patrón×Rol en Tracks distintos</td><td>Cada Slot mantiene su propio contador — el estancamiento es por Slot, nunca agregado entre Tracks</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="contraejemplos">Contraejemplos</h2>
+<ul>
+  <li>3 apariciones sin avance con una de ellas excluida por incumplimiento NO confirma estancamiento (PE-029).</li>
+  <li>El motor NO retrocede un escalón macro completo como reacción a estancamiento — el máximo alcance de la escalera es un retroceso de eslabón de cadena, nunca de Microciclo/Mesociclo/Bloque/Nivel.</li>
+</ul>
+
+<h2 id="errores">Errores posibles</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Error</th><th>Tratamiento</th></tr></thead>
+<tbody>
+<tr><td><code>ESTADO_ESTANCAMIENTO_INCONSISTENTE</code></td><td>El contexto persistido indica un escalón de la escalera sin el historial de acciones previas que lo justifique — error de integridad de datos, no de negocio; se registra para investigación (14) y el Slot se trata como recién detectado</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="consecuencias">Consecuencias y trade-offs</h2>
+<p>El umbral fijo de 3 apariciones (heredado del Motor BPS Handbook para consistencia terminológica) es deliberadamente el mismo en ambos documentos — cambiarlo aquí sin cambiarlo allá crearía una contradicción entre handbooks. Cualquier futura recalibración debe proponerse en ambos documentos a la vez (17).</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../10-autorregulacion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 10 · Autorregulación</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../12-deload/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">12 · Deload →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

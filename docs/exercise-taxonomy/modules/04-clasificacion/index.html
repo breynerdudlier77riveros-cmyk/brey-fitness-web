@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>04 · Clasificación — Exercise Taxonomy Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="clasificacion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 04 · El ejercicio</p>
+<h1>Clasificación</h1>
+<p class="lede">La matriz completa de atributos: cuáles son obligatorios, cuáles opcionales, cuáles derivados, cuáles calculados en runtime y cuáles jamás deben persistirse. Y el veredicto atributo por atributo de los 34 solicitados para este handbook: 17 tienen respaldo documental, 17 son deuda.</p>
+
+<h2 id="estatutos">Los cinco estatutos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Estatuto</th><th>Significado</th><th>Consecuencia si falta</th></tr></thead>
+<tbody>
+<tr><td><span class="persist persist--persistente">obligatorio</span></td><td>Sin él la entrada de catálogo es inválida</td><td>El ejercicio es rechazado al validar el catálogo — nunca llega a ser elegible</td></tr>
+<tr><td><span class="persist persist--persistente">opcional</span></td><td>Puede estar ausente sin invalidar la entrada</td><td>Se pierde una capacidad concreta (p. ej. sin cadena no hay progresión de ejercicio)</td></tr>
+<tr><td><span class="persist persist--derivable">derivado</span></td><td>Se obtiene del vocabulario o de otro atributo; no se almacena en la ficha</td><td>N/A — duplicarlo en la ficha crearía una segunda fuente de verdad</td></tr>
+<tr><td><span class="persist persist--efimera">calculado</span></td><td>Se computa en cada consulta a partir de ficha + contexto del usuario</td><td>N/A — persistirlo lo volvería obsoleto en el instante siguiente</td></tr>
+<tr><td><span class="persist persist--efimera">nunca persistido</span></td><td>Existe solo durante una operación; guardarlo es un error de diseño</td><td>N/A</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="matriz-oficial">Matriz oficial de atributos del Ejercicio</h2>
+<p class="matrix-note">Los 15 atributos que el Architecture Handbook 04 publica en su tabla de "Atributos completos de un Ejercicio", con su estatuto y su estado real en el catálogo.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Atributo</th><th>Estatuto</th><th>Vocabulario</th><th>Estado en catálogo</th></tr></thead>
+<tbody>
+<tr><td><code>slug</code></td><td><span class="persist persist--persistente">obligatorio</span></td><td>identificador estable (P15)</td><td><span class="tag tag--implementado">existe</span></td></tr>
+<tr><td><code>nombre</code></td><td><span class="persist persist--persistente">obligatorio</span></td><td>texto</td><td><span class="tag tag--implementado">existe</span></td></tr>
+<tr><td><code>nombreIngles</code></td><td><span class="persist persist--persistente">opcional</span></td><td>texto</td><td><span class="tag tag--implementado">existe</span></td></tr>
+<tr><td><code>tipo</code></td><td><span class="persist persist--persistente">obligatorio</span></td><td><code>compuesto</code> · <code>aislamiento</code> · <code>peso-corporal</code></td><td><span class="tag tag--implementado">existe</span></td></tr>
+<tr><td><code>nivel</code></td><td><span class="persist persist--persistente">obligatorio</span></td><td><code>principiante</code> · <code>intermedio</code> · <code>avanzado</code></td><td><span class="tag tag--implementado">existe</span></td></tr>
+<tr><td><code>equipo[]</code></td><td><span class="persist persist--persistente">obligatorio</span></td><td>6 valores — módulo <a href="../08-equipamiento/index.html">08</a></td><td><span class="tag tag--implementado">existe</span></td></tr>
+<tr><td><code>musculoPrincipal</code></td><td><span class="persist persist--persistente">obligatorio</span></td><td>grupos musculares</td><td><span class="tag tag--implementado">existe</span></td></tr>
+<tr><td><code>musculosSecundarios[]</code></td><td><span class="persist persist--persistente">opcional</span></td><td>grupos musculares</td><td><span class="tag tag--implementado">existe</span></td></tr>
+<tr><td><code>descripcion</code>, <code>instrucciones[]</code>, <code>erroresComunes[]</code>, <code>beneficios[]</code></td><td><span class="persist persist--persistente">obligatorio</span></td><td>contenido educativo (texto libre, nunca parseado — TX-05)</td><td><span class="tag tag--implementado">existe</span></td></tr>
+<tr><td><code>sistemasVinculados[]</code></td><td><span class="persist persist--persistente">obligatorio</span></td><td>slugs de Sistema</td><td><span class="tag tag--implementado">existe</span></td></tr>
+<tr><td><code>patronPrimario</code></td><td><span class="persist persist--persistente">obligatorio</span> — <strong>sin él el ejercicio es inválido</strong></td><td>9 patrones — módulo <a href="../05-patrones/index.html">05</a></td><td><span class="tag tag--futuro">falta</span></td></tr>
+<tr><td><code>patronesSecundarios[]</code></td><td><span class="persist persist--persistente">opcional</span></td><td>9 patrones</td><td><span class="tag tag--futuro">falta</span></td></tr>
+<tr><td><code>rolesPosibles[]</code></td><td><span class="persist persist--persistente">obligatorio</span></td><td>5 roles — módulo <a href="../06-roles/index.html">06</a></td><td><span class="tag tag--futuro">falta</span></td></tr>
+<tr><td><code>modalidad</code></td><td><span class="persist persist--persistente">obligatorio</span></td><td>2 ejes ortogonales — módulo <a href="../07-modalidades/index.html">07</a></td><td><span class="tag tag--futuro">falta</span></td></tr>
+<tr><td><code>zonasRiesgo[]</code></td><td><span class="persist persist--persistente">obligatorio</span> (lista vacía válida)</td><td>{zona, intensidad} — 6 zonas</td><td><span class="tag tag--futuro">falta</span></td></tr>
+<tr><td><code>cadena</code></td><td><span class="persist persist--persistente">opcional</span> — pero sin ella no hay progresión de ejercicio</td><td>{anterior?, siguiente?}</td><td><span class="tag tag--futuro">falta</span></td></tr>
+<tr><td><code>capacidadesRequeridas[]</code></td><td><span class="persist persist--persistente">opcional</span></td><td>slugs de capacidad — módulo <a href="../09-capacidades-fisicas/index.html">09</a></td><td><span class="tag tag--futuro">falta</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Sobre la diferencia entre lista vacía y ausencia</div>
+  <p><code>zonasRiesgo: []</code> afirma "este ejercicio no carga ninguna zona en riesgo" — es una declaración etiquetada. <code>zonasRiesgo</code> ausente afirma "nadie lo ha evaluado todavía". Son estados distintos y el filtro de seguridad debe tratarlos distinto: el primero es elegible, el segundo no (TX-08). Ninguna fuente lo enuncia así explícitamente; se deduce de que "la existencia del filtro es de seguridad y no removible".</p>
+</div>
+
+<h2 id="derivados">Atributos derivados — nunca se almacenan en la ficha</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Dato</th><th>Se deriva de</th><th>Por qué no se almacena</th></tr></thead>
+<tbody>
+<tr><td>Patrón al que degrada</td><td>El vocabulario de patrones (<code>degradaA</code> es del <em>patrón</em>, no del ejercicio)</td><td>La degradación es propiedad del eje, no de cada entrada — duplicarla permitiría dos ejercicios del mismo patrón con degradaciones distintas</td></tr>
+<tr><td>Posición del ejercicio en la sesión</td><td>El <code>orden</code> del Rol (R-4)</td><td>El orden es del rol; el ejercicio solo declara qué roles admite</td></tr>
+<tr><td>Unidad de medida (repeticiones vs. segundos)</td><td>El eje de ejecución de <code>modalidad</code></td><td>Architecture Handbook 03, capa 11: "En isométricos la unidad es segundos, declarada por la modalidad del ejercicio"</td></tr>
+<tr><td>La cadena completa de una familia</td><td>Recorrer <code>cadena.anterior</code>/<code>cadena.siguiente</code></td><td>Cada eslabón declara solo a sus vecinos; la cadena entera es el recorrido</td></tr>
+<tr><td>¿Cuenta como volumen productivo?</td><td>El Rol asignado en el slot</td><td>Es propiedad del rol (módulo 06), no del ejercicio</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="calculados">Atributos calculados en runtime — nunca persistidos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Dato</th><th>Se calcula con</th><th>Por qué jamás se persiste</th></tr></thead>
+<tbody>
+<tr><td>Elegibilidad de un ejercicio para un slot</td><td>Ficha + equipo elegible + niveles + zonas del usuario + capacidades cumplidas</td><td>Depende del usuario y del momento: el mismo ejercicio es elegible hoy e inelegible mañana si el usuario declara una lesión</td></tr>
+<tr><td>El conjunto de candidatos de un slot</td><td>Todos los filtros del paso 0 de la resolución</td><td>Ídem — y persistirlo lo volvería obsoleto en cuanto cambie el catálogo o el perfil</td></tr>
+<tr><td>El ejercicio finalmente elegido</td><td>Los 6 pasos de <code>resolverEjercicioParaSlot</code></td><td>Lo que se persiste es la <strong>copia desnormalizada dentro del Workout</strong> (instancia), no una relación catálogo↔usuario</td></tr>
+<tr><td>Densidad de catálogo por Track</td><td>Recuento de candidatos por combinación</td><td>Métrica de observabilidad; el Architecture Handbook 04 la nombra como uso futuro del Diagnóstico</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Regla de no persistencia</div>
+  <p>Ningún dato del <strong>usuario</strong> se guarda jamás dentro de la ficha de un ejercicio. La Knowledge Base no conoce usuarios: recibe zonas, capacidades y equipo elegible como <em>valores</em> de entrada y devuelve un resultado. Un campo como "usuarios que pueden hacer este ejercicio" invertiría la dependencia y convertiría el catálogo en dato personal.</p>
+</div>
+
+<h2 id="veredicto">Veredicto de los 34 atributos solicitados</h2>
+<p class="matrix-note">Resultado del barrido documental completo. "Respaldo" significa que existe una definición en al menos un handbook; "parcial" significa que existe algo cercano con otro significado o alcance.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Atributo solicitado</th><th>Respaldo</th><th>Dónde / por qué</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Slug</td><td><span class="tag tag--implementado">sí</span></td><td>Architecture Handbook 04 + P15 — módulo <a href="../03-identidad/index.html">03</a></td></tr>
+<tr><td>2</td><td>Nombre</td><td><span class="tag tag--implementado">sí</span></td><td>Architecture Handbook 04 (+ <code>nombreIngles</code>)</td></tr>
+<tr><td>3</td><td>Alias</td><td><span class="tag tag--futuro">no</span></td><td>2 apariciones, ninguna sobre ejercicios — <a href="../16-preguntas-abiertas/index.html">TX-Q01</a></td></tr>
+<tr><td>4</td><td>Patrón</td><td><span class="tag tag--implementado">sí</span></td><td>9 patrones, primario + secundarios — módulo <a href="../05-patrones/index.html">05</a></td></tr>
+<tr><td>5</td><td>Roles</td><td><span class="tag tag--implementado">sí</span></td><td>5 roles — módulo <a href="../06-roles/index.html">06</a></td></tr>
+<tr><td>6</td><td>Modalidad</td><td><span class="tag tag--implementado">sí</span></td><td>2 ejes — módulo <a href="../07-modalidades/index.html">07</a></td></tr>
+<tr><td>7</td><td>Equipamiento</td><td><span class="tag tag--implementado">sí</span></td><td>6 valores cerrados — módulo <a href="../08-equipamiento/index.html">08</a></td></tr>
+<tr><td>8</td><td>Zona primaria</td><td><span class="tag tag--especificado">parcial</span></td><td>Existe <code>musculoPrincipal</code> (grupo muscular). El término "zona" designa en el ecosistema las <strong>zonas de riesgo articular</strong>, que son otro eje — colisión registrada en <a href="../15-adr/index.html">TX-ADR-02</a></td></tr>
+<tr><td>9</td><td>Zona secundaria</td><td><span class="tag tag--especificado">parcial</span></td><td>Existe <code>musculosSecundarios[]</code> — misma colisión de término</td></tr>
+<tr><td>10</td><td>Cadena cinética</td><td><span class="tag tag--futuro">no</span></td><td>0 apariciones. "Cadena" en el ecosistema significa <strong>cadena de progresión</strong>, no cadena cinética — <a href="../15-adr/index.html">TX-ADR-03</a></td></tr>
+<tr><td>11</td><td>Capacidad física</td><td><span class="tag tag--especificado">parcial</span></td><td>Existe <code>capacidad</code>, pero definida como <em>prerequisito demostrable</em> (gate), no como cualidad física — módulo <a href="../09-capacidades-fisicas/index.html">09</a></td></tr>
+<tr><td>12</td><td>Plano de movimiento</td><td><span class="tag tag--futuro">no</span></td><td>0 apariciones — <a href="../16-preguntas-abiertas/index.html">TX-Q02</a></td></tr>
+<tr><td>13</td><td>Bilateral / unilateral</td><td><span class="tag tag--implementado">sí</span></td><td>Eje de lateralidad de <code>modalidad</code></td></tr>
+<tr><td>14</td><td>Dominancia</td><td><span class="tag tag--futuro">no</span></td><td>0 apariciones como atributo. <code>dominante-rodilla</code>/<code>dominante-cadera</code> son <em>slugs de patrón</em>, no un eje de dominancia — <a href="../16-preguntas-abiertas/index.html">TX-Q03</a></td></tr>
+<tr><td>15</td><td>Tipo de contracción</td><td><span class="tag tag--futuro">no</span></td><td>0 apariciones. <code>dinamico</code>/<code>isometrico</code> es el eje de ejecución de la modalidad; no existe taxonomía concéntrica/excéntrica — <a href="../16-preguntas-abiertas/index.html">TX-Q04</a></td></tr>
+<tr><td>16</td><td>Tempo compatible</td><td><span class="tag tag--futuro">no</span></td><td>El tempo existe como <strong>prescripción</strong> (capa 14), no como atributo del ejercicio — <a href="../16-preguntas-abiertas/index.html">TX-Q05</a></td></tr>
+<tr><td>17</td><td>Rango de repeticiones permitido</td><td><span class="tag tag--futuro">no</span></td><td>El rango existe como prescripción (capa 11). Ninguna fuente declara un rango permitido <em>por ejercicio</em> — <a href="../16-preguntas-abiertas/index.html">TX-Q06</a></td></tr>
+<tr><td>18</td><td>Rango de duración permitido</td><td><span class="tag tag--futuro">no</span></td><td>Ídem, para isométricos — <a href="../16-preguntas-abiertas/index.html">TX-Q06</a></td></tr>
+<tr><td>19</td><td>Escalabilidad</td><td><span class="tag tag--futuro">no</span></td><td>6 apariciones, todas sobre escalabilidad de sistemas (BCS), ninguna sobre ejercicios — <a href="../16-preguntas-abiertas/index.html">TX-Q07</a></td></tr>
+<tr><td>20</td><td>Variaciones</td><td><span class="tag tag--implementado">sí</span></td><td><code>variantes[]</code> existe como <strong>texto libre sin estructura</strong> — precursor de la cadena, nunca parseado (TX-05)</td></tr>
+<tr><td>21</td><td>Progresiones</td><td><span class="tag tag--implementado">sí</span></td><td><code>cadena.siguiente</code> — módulo <a href="../12-progression-engine/index.html">12</a></td></tr>
+<tr><td>22</td><td>Regresiones</td><td><span class="tag tag--implementado">sí</span></td><td><code>cadena.anterior</code></td></tr>
+<tr><td>23</td><td>Contraindicaciones</td><td><span class="tag tag--futuro">no</span></td><td>1 aparición, y es para declararlo <strong>fuera de alcance</strong>: "responsabilidad de un motor dedicado con su propio handbook" (Progression Engine 10) — <a href="../16-preguntas-abiertas/index.html">TX-Q08</a></td></tr>
+<tr><td>24</td><td>Nivel requerido</td><td><span class="tag tag--especificado">parcial</span></td><td>Existen <code>nivel</code> y <code>capacidadesRequeridas[]</code>, pero el término "nivel requerido" tiene 0 apariciones y no se distingue de "recomendado"</td></tr>
+<tr><td>25</td><td>Nivel recomendado</td><td><span class="tag tag--futuro">no</span></td><td>0 apariciones — <a href="../16-preguntas-abiertas/index.html">TX-Q09</a></td></tr>
+<tr><td>26</td><td>Compatibilidad con sistemas</td><td><span class="tag tag--implementado">sí</span></td><td><code>sistemasVinculados[]</code></td></tr>
+<tr><td>27</td><td>Compatibilidad con fases</td><td><span class="tag tag--futuro">no</span></td><td>No existe vínculo ejercicio↔fase; el énfasis del Bloque modula la <em>prescripción</em>, no la elegibilidad — <a href="../16-preguntas-abiertas/index.html">TX-Q10</a></td></tr>
+<tr><td>28</td><td>Compatibilidad con bloques</td><td><span class="tag tag--futuro">no</span></td><td>Ídem — <a href="../16-preguntas-abiertas/index.html">TX-Q10</a></td></tr>
+<tr><td>29</td><td>Compatibilidad con objetivos</td><td><span class="tag tag--futuro">no</span></td><td>El objetivo es del Sistema y del Perfil; el Progression Engine lo declara <strong>ignorado</strong>: "ya fue resuelto aguas arriba" — <a href="../16-preguntas-abiertas/index.html">TX-Q11</a></td></tr>
+<tr><td>30</td><td>Compatibilidad con lesiones</td><td><span class="tag tag--implementado">sí</span></td><td><code>zonasRiesgo[]</code> + regla de exclusión por zona (se excluye <code>alto</code>)</td></tr>
+<tr><td>31</td><td>Compatibilidad con hemofilia</td><td><span class="tag tag--futuro">no</span></td><td>0 apariciones, y fuera del dominio: "El sistema NO diagnostica ni trata" — <a href="../16-preguntas-abiertas/index.html">TX-Q12</a></td></tr>
+<tr><td>32</td><td>Compatibilidad con equipamiento</td><td><span class="tag tag--implementado">sí</span></td><td><code>equipo[]</code> filtrado por el conjunto elegible del Track</td></tr>
+<tr><td>33</td><td>Compatibilidad con espacio físico</td><td><span class="tag tag--futuro">no</span></td><td>0 apariciones. El Track (<code>gym</code>/<code>casa</code>) es contexto de equipo, explícitamente no de espacio (ADR-005) — <a href="../16-preguntas-abiertas/index.html">TX-Q13</a></td></tr>
+<tr><td>34</td><td>Compatibilidad con tiempo disponible</td><td><span class="tag tag--futuro">no</span></td><td>El tiempo se gestiona por <strong>recorte de slots</strong> (R-G2) y por PE-009, ambos a nivel de sesión — ningún ejercicio declara duración propia — <a href="../16-preguntas-abiertas/index.html">TX-Q14</a></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="resumen">Resumen del veredicto</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Categoría</th><th>Cantidad</th><th>Atributos</th></tr></thead>
+<tbody>
+<tr><td>Con respaldo pleno</td><td><strong>13</strong></td><td>Slug, Nombre, Patrón, Roles, Modalidad, Equipamiento, Bilateral/unilateral, Variaciones, Progresiones, Regresiones, Compat. sistemas, Compat. lesiones, Compat. equipamiento</td></tr>
+<tr><td>Con respaldo parcial</td><td><strong>4</strong></td><td>Zona primaria, Zona secundaria, Capacidad física, Nivel requerido</td></tr>
+<tr><td>Sin respaldo — deuda documental</td><td><strong>17</strong></td><td>Alias, Cadena cinética, Plano de movimiento, Dominancia, Tipo de contracción, Tempo compatible, Rango de reps, Rango de duración, Escalabilidad, Contraindicaciones, Nivel recomendado, Compat. fases, Compat. bloques, Compat. objetivos, Compat. hemofilia, Compat. espacio, Compat. tiempo</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="arbol">Árbol de decisión — ¿de quién es este atributo?</h2>
+<div class="diagram">
+<div class="diagram-label">Para decidir si un dato nuevo pertenece al Ejercicio o a otra entidad</div>
+<pre class="mermaid">
+flowchart TD
+  Q1{"¿Cambia según<br/>QUIÉN entrena?"} -->|Sí| USR["Pertenece al USUARIO<br/>(Perfil / historial)"]
+  Q1 -->|No| Q2{"¿Cambia según<br/>CUÁNDO se entrena?"}
+  Q2 -->|Sí| PRE["Pertenece a la PRESCRIPCIÓN<br/>(Training Framework + Progression)"]
+  Q2 -->|No| Q3{"¿Es una DECISIÓN<br/>sobre qué hacer?"}
+  Q3 -->|Sí| MOT["Pertenece a un MOTOR"]
+  Q3 -->|No| Q4{"¿Describe el movimiento<br/>en sí, siempre igual?"}
+  Q4 -->|Sí| EJ["Pertenece al EJERCICIO<br/>(catálogo)"]
+  Q4 -->|No| Q5{"¿Es el registro de algo<br/>que ya ocurrió?"}
+  Q5 -->|Sí| LOG["Pertenece al WORKOUT LOG"]
+  Q5 -->|No| REV["Revisar: probablemente<br/>no es un atributo"]
+</pre>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../03-identidad/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 03 · Identidad</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../05-patrones/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">05 · Patrones →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

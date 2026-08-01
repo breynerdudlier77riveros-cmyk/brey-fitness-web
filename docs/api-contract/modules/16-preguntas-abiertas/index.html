@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>16 · Preguntas Abiertas — BREY API Contract Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="preguntas-abiertas" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 16 · Gobernanza</p>
+<h1>Preguntas Abiertas</h1>
+<p class="lede">Doce preguntas sin resolver — heredadas de handbooks anteriores o propias de este contrato. Ninguna se cierra aquí: hacerlo sería inventar una decisión de producto o de dominio que ningún handbook ha tomado todavía.</p>
+
+<div class="callout callout--nota">
+  <div class="callout__label">Por qué esta lista no se resuelve</div>
+  <p>Cerrar cualquiera de estas preguntas en este documento violaría la restricción explícita del encargo original: sin funcionalidad nueva, sin inventar. Cada una depende de un handbook futuro (Recovery Engine completo, Coach IA) o de una decisión de producto que corresponde a otro documento o a otro momento.</p>
+</div>
+
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Pregunta</th><th>Relacionado</th><th>Qué depende de la respuesta</th></tr></thead>
+<tbody>
+<tr><td>AP-01</td><td>¿Debe existir un rol Admin transversal sobre todos los Entrenadores, distinto de Usuario/Entrenador/Cliente/Anonymous?</td><td>03, API-ADR-05</td><td>Si la respuesta es sí, 03 necesitaría una quinta fila de actor y 13 necesitaría una política de RLS nueva que hoy ninguna tabla tiene</td></tr>
+<tr><td>AP-02</td><td>¿Cuál es el esquema exacto de <code>contexto</code> (jsonb) por cada uno de los 25 tipos de evento?</td><td>08, AR-013/AR-026</td><td>Heredada sin resolver del Engineering Handbook (07) — sin esquema fijo, el replay determinista no es verificable por prueba automática</td></tr>
+<tr><td>AP-03</td><td>¿Qué clave de idempotencia debe tener el <code>INSERT</code> de un EventoProgresión?</td><td>11, API-ADR-08, AR-027</td><td>Sin ella, un reintento de red puede duplicar un evento de auditoría hoy</td></tr>
+<tr><td>AP-04</td><td>¿Debe este catálogo migrar algún día a Route Handlers reales o a una API pública, o permanecer como Server Actions internas indefinidamente?</td><td>01, 02, API-ADR-01</td><td>Determina si el versionado explícito (10) se vuelve necesario, y cuándo</td></tr>
+<tr><td>AP-05</td><td>¿A partir de qué volumen de producción se justifica introducir request ID/trace ID/correlation ID?</td><td>14, API-ADR-07</td><td>Hoy el Observability Handbook lo descarta explícitamente por falta de un problema real — la pregunta es cuándo deja de ser cierto</td></tr>
+<tr><td>AP-06</td><td>¿Se necesita un endpoint de Health/Status, y para qué consumidor (monitor de uptime externo, panel interno)?</td><td>07</td><td>Sin un consumidor identificado, cualquier forma de respuesta que se diseñe hoy sería especulativa</td></tr>
+<tr><td>AP-07</td><td>¿<code>DELETE /bcs/clientes/{id}</code> (UC-04, eliminación permanente) debería tener un período de gracia reversible antes de volverse irreversible?</td><td>07, BCS Handbook</td><td>Hoy es irreversible desde el primer momento — cambiarlo requeriría una nueva Máquina de Estados de Cliente (Domain Model Handbook, 10) con un estado intermedio que hoy no existe</td></tr>
+<tr><td>AP-08</td><td>¿Qué valores numéricos de rate limiting aplicar cuando se implemente, y con qué mecanismo (Vercel Edge Config vs. middleware en <code>proxy.ts</code>)?</td><td>12, API-ADR-06</td><td>Ninguno de los dos mecanismos está descartado ni elegido por ningún handbook todavía</td></tr>
+<tr><td>AP-09</td><td>¿<code>progression_events.contexto</code> debería versionarse con un <code>schema_version</code> desde el día uno de la migración M2, o resolver primero AP-02?</td><td>08, 10, AR-013</td><td>Afecta si M2 (Implementation Handbook, 05) necesita una columna adicional que hoy no está en su especificación</td></tr>
+<tr><td>AP-10</td><td>¿La reactivación de un Cliente archivado necesita su propio evento nombrado (<code>cliente_reactivado</code>), o queda implícito dentro de <code>cliente_editado</code>?</td><td>07 (<code>POST /bcs/clientes/{id}/reactivar</code>)</td><td>Ningún handbook lo nombra explícitamente — este documento no inventa un evento nuevo para llenar el vacío (ver la nota de la propia tabla en 07)</td></tr>
+<tr><td>AP-11</td><td>¿Recovery Engine debería tener su propio handbook de dominio completo, en vez del contrato mínimo de IMP-ADR-02?</td><td>07, 08, Architecture Review AR-006</td><td>Heredada de la Architecture Review y del Domain Model Handbook (PA-12) — de responderse sí, el endpoint <code>POST /recovery-engine/evaluar</code> de este catálogo se expandiría con reglas reales, no solo el contrato de forma</td></tr>
+<tr><td>AP-12</td><td>¿<code>CATALOGO_INSUFICIENTE</code> y <code>EQUIVALENCIA_FALTANTE</code> deberían tener status 409 o 422? Este documento eligió 409 (conflicto de disponibilidad de catálogo) sobre 422 (validación semántica) por analogía con <code>SISTEMA_SIN_JERARQUIA</code>, sin que ningún handbook de origen especifique el status HTTP</td><td>09</td><td>No cambia el comportamiento de negocio — solo la clasificación HTTP; se documenta la elección para que una implementación futura la discuta en vez de heredarla en silencio</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="autoauditoria">Autoauditoría del Handbook</h2>
+<p>Verificación reproducible por herramienta (conteo directo sobre los archivos reales de este handbook), no por memoria — mismo estándar que la Architecture Review.</p>
+
+<ul>
+<li>✅ <strong>17 módulos creados</strong> (00 a 16), cada uno con su <code>index.html</code>, landing propio, <code>nav-data.js</code>, <code>search-index.js</code> y <code>layout.js</code> — verificado con <code>find modules -name index.html | wc -l</code> → 17.</li>
+<li>✅ <strong>45 endpoints documentados</strong> en el catálogo (07) — verificado contando cada badge <code>.method</code> renderizado → 45. No se alcanzaron "100+": inflar la cifra habría requerido inventar operaciones que ningún handbook de los nueve pide, violando la restricción explícita del encargo. Ver el propio lede de 07 para la justificación.</li>
+<li>✅ <strong>28 DTO oficiales documentados</strong> (08) — 10 Input DTO, 14 Output DTO, y los 4 DTO transversales (Error, Pagination, Event, Recovery) — verificado contando filas de cada tabla.</li>
+<li>✅ <strong>26 códigos de error catalogados</strong> (09) — 21 de dominio, 5 de infraestructura — verificado contando filas de cada tabla.</li>
+<li>✅ <strong>10 API-ADR creados</strong> (15) — verificado contando bloques <code>class="adr"</code> con <code>id="api-adr-NN"</code> → 10, sin huecos ni duplicados en la numeración.</li>
+<li>✅ <strong>3 diagramas Mermaid</strong> (02 ×2, 03 ×1) — verificado contando bloques <code>&lt;pre class="mermaid"&gt;</code>. Menos diagramas que otros handbooks porque el contenido de este documento es mayoritariamente tabular por instrucción explícita del encargo ("no código, solo tablas") — los diagramas se reservan para relaciones de flujo que una tabla no representa bien (arquitectura general, resolución de acceso).</li>
+<li>✅ <strong>50 tablas</strong> — verificado contando <code>&lt;table&gt;</code> en los 16 módulos de contenido (excluye la landing).</li>
+<li>✅ <strong>28 callouts</strong> de contexto/riesgo/nota/regla — verificado contando <code>class="callout callout--*"</code>.</li>
+<li>✅ <strong>Matrices explícitas presentes:</strong> Endpoint→Actor/DTO/Ownership/Evento (consolidada por subsistema en 07, con la justificación de diseño declarada en su propio encabezado), Error→Status (09), Endpoint→Rate Limit (12).</li>
+<li>✅ <strong>0 enlaces rotos</strong> — verificado extrayendo cada <code>href="../NN-slug/index.html"</code> de los 17 módulos y confirmando que las 17 rutas referenciadas coinciden exactamente con los 17 directorios reales de <code>modules/</code>.</li>
+<li>✅ <strong>0 IDs duplicados</strong> — verificado con un script que extrae todo atributo <code>id="…"</code> de cada archivo y confirma unicidad dentro del propio archivo (los <code>&lt;h2&gt;</code> sin <code>id</code> explícito reciben uno generado por <code>layout.js</code> en tiempo de carga, nunca colisionan con uno ya declarado en el HTML).</li>
+<li>✅ <strong>0 anclas rotas</strong> — el único enlace interno de ancla (<code>#…</code>) de este handbook es el generado dinámicamente por el TOC de <code>layout.js</code> a partir de los <code>&lt;h2&gt;</code> reales de cada página — por construcción, nunca puede desincronizarse (mismo mecanismo ya usado por los nueve handbooks anteriores).</li>
+<li>✅ <strong>Navegación prev/next</strong> presente en los 17 módulos, verificada en cadena continua 00→01→…→16 sin saltos ni ciclos.</li>
+<li>⚠️ <strong>Cobertura del contrato — honesta, no exhaustiva al 100%:</strong> este documento cubre el contrato de API de los siete dominios con handbook propio (Core Product, Diagnóstico, Motor BPS, Progression Engine, Recovery Engine mínimo, BCS) más el catálogo comercial. No cubre Coach IA (sin handbook), ni un futuro rol Admin (sin handbook), ni valores numéricos de rate limiting (sin decisión de producto) — los tres se documentan como ausencia explícita (API-ADR-04/05/06), no como omisión silenciosa.</li>
+<li>✅ <strong>Ninguna funcionalidad nueva propuesta:</strong> cada endpoint, DTO y evento de este documento cita el handbook y módulo exacto de donde proviene (07, 08). Donde una forma requería reconciliación (Veredicto de Recovery), se citó la reconciliación ya hecha por un documento superior (Implementation Handbook, IMP-ADR-01) en vez de proponer una nueva.</li>
+<li>✅ <strong>Jerarquía documental respetada:</strong> ninguna afirmación de este handbook contradice a la Architecture Review, el Implementation Handbook o el Domain Model Handbook. La única corrección aplicada (dirección Motor BPS↔Progression Engine, 02) cita AR-005 como autoridad, no una opinión propia de este documento.</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../15-api-adr/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 15 · API-ADR</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../../index.html">
+    <div class="pagenav__dir">Fin del handbook</div>
+    <div class="pagenav__title">Volver al índice →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

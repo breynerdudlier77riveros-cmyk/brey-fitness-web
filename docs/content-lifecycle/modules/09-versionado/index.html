@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>09 · Versionado — Content Lifecycle</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="versionado" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 09 · Estados y versiones</p>
+<h1>Versionado</h1>
+<p class="lede">Preguntas 19 y 20. El ecosistema versiona <strong>tres objetos con disciplina</strong> y ninguno de ellos es la entrada individual. Esa asimetría determina qué se puede auditar y qué no.</p>
+
+<h2 id="respuestas">Las dos respuestas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Pregunta</th><th>Respuesta</th><th>Evidencia</th></tr></thead>
+<tbody>
+<tr><td><strong>19 · ¿Existe versionado por entrada?</strong></td><td><strong>No</strong></td><td>Cero apariciones de versión, revisión o <em>changelog</em> por ejercicio en el ecosistema base</td></tr>
+<tr><td><strong>20 · ¿Existe versionado del catálogo?</strong></td><td><strong>Sí</strong></td><td>"versión de catálogo" en <strong>15 archivos</strong> — BPS-023 · ADR-009</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="tres">Los tres objetos versionados</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Objeto</th><th>Mecanismo</th><th>Dónde se registra</th><th>Fuente</th></tr></thead>
+<tbody>
+<tr><td><strong>El catálogo completo</strong></td><td>Identificador de versión por cambio</td><td>Campo obligatorio del evento <code>semana_generada</code></td><td>BPS-023 · ADR-009</td></tr>
+<tr><td><strong>Los contratos publicados</strong></td><td>Versión nueva junto a la anterior + ADR con razón y fecha de deprecación + migración de consumidores</td><td>El ADR</td><td>"Nunca mutación in-place de un contrato publicado"</td></tr>
+<tr><td><strong>Los documentos (handbooks/ADR)</strong></td><td>Un ADR nuevo que supersede al anterior</td><td>El ADR</td><td>"Revertir una requiere un ADR nuevo que la supersede, <strong>nunca edición silenciosa</strong>"</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">La disciplina común a los tres</div>
+  <p>Lo anterior <strong>se conserva</strong>, lo nuevo <strong>convive</strong>, y el cambio <strong>queda registrado con su razón</strong>. Es la aplicación de P3 (el historial permanece) y R-2 (Regla de Inmutabilidad) a tres objetos distintos. El ecosistema sabe versionar y lo hace con rigor — el problema es dónde no lo aplica.</p>
+</div>
+
+<h2 id="catalogo">Versión de catálogo, en detalle</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">BPS-023 · Toda generación registra la versión de catálogo</div>
+  <p>"El evento <code>semana_generada</code> incluye el identificador de versión (ADR-009). <strong>Justificación:</strong> reproducibilidad — sin versión, una generación pasada es irrecuperable tras cambios de contenido. <strong>Inválido:</strong> generación con 'la versión actual' sin registrarla. <strong>Consecuencia:</strong> campo obligatorio del evento."</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Propiedad</th><th>Valor</th></tr></thead>
+<tbody>
+<tr><td>Granularidad</td><td>Catálogo completo — un identificador por versión</td></tr>
+<tr><td>Obligatoriedad</td><td>Campo obligatorio del evento de generación</td></tr>
+<tr><td>Propósito declarado</td><td>Reproducibilidad de generaciones pasadas</td></tr>
+<tr><td>Efecto sobre lo generado</td><td><strong>Ninguno</strong> — "el cambio de catálogo aplica desde la siguiente generación" (R-2)</td></tr>
+<tr><td>Dónde vive el catálogo</td><td>Código versionado, no base de datos (ADR-009)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="ausente">Lo que la granularidad de catálogo no permite</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Deuda CL-D07 — sin versionado por entrada</div>
+  <p>Se puede saber que el catálogo cambió entre v1 y v2. No se puede saber <strong>qué entrada cambió, en qué atributo, por qué ni quién lo hizo</strong>.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Pregunta de auditoría</th><th>Respondible</th></tr></thead>
+<tbody>
+<tr><td>¿Qué versión de catálogo generó esta semana?</td><td>✅ Sí</td></tr>
+<tr><td>¿Cambió el catálogo entre dos generaciones?</td><td>✅ Sí</td></tr>
+<tr><td>¿Qué entrada cambió entre v1 y v2?</td><td>❌ No</td></tr>
+<tr><td>¿Qué atributo cambió?</td><td>❌ No</td></tr>
+<tr><td>¿Por qué se cambió?</td><td>❌ No</td></tr>
+<tr><td>¿Quién lo cambió y cuándo?</td><td>❌ No</td></tr>
+<tr><td>¿Cuántas veces se ha revisado esta entrada?</td><td>❌ No</td></tr>
+<tr><td>¿Se puede volver a una versión anterior de una entrada?</td><td>❌ No</td></tr>
+</tbody>
+</table>
+</div>
+<div class="diagram">
+<div class="diagram-label">Tres objetos versionados, uno sin versionar</div>
+<pre class="mermaid">
+graph TD
+  V1["Catálogo completo<br/>✅ versionado"] --> OK1["Reproducibilidad de<br/>generaciones pasadas"]
+  V2["Contratos<br/>✅ versión + ADR + fecha"] --> OK2["Migración ordenada<br/>de consumidores"]
+  V3["Documentos<br/>✅ ADR que supersede"] --> OK3["Evolución sin<br/>deriva silenciosa"]
+  V4["Entrada individual<br/>❌ sin versionar"] --> X1["No se sabe qué cambió"]
+  V4 --> X2["No se puede revertir<br/>una entrada"]
+  V4 --> X3["No se puede auditar<br/>una decisión concreta"]
+</pre>
+</div>
+
+<h2 id="convivencia">Pregunta 10 · ¿Cómo deberían convivir múltiples versiones?</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">No existe convivencia de versiones de una entrada</div>
+  <p>Con versionado únicamente a nivel de catálogo, <strong>no hay dos versiones de una entrada conviviendo</strong>: hay dos versiones del catálogo entero, y en cada una la entrada tiene un único estado. Nada permite que la versión antigua de un ejercicio siga disponible mientras la nueva se valida.</p>
+  <p>El precedente para hacerlo existe y está bien definido — la convivencia de contratos: "crear la versión nueva junto a la anterior… + migración de consumidores + deprecación del viejo". Se registra como precedente aplicable; adoptarlo sería crear una regla nueva.</p>
+</div>
+
+<h2 id="tipos">Tipos de cambio</h2>
+<p class="matrix-note">El ecosistema no publica una taxonomía de cambios para el catálogo. Lo que sigue deriva de consecuencias documentadas, no de una clasificación existente.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tipo</th><th>Qué cambia</th><th>Consecuencia documentada</th><th>Estatuto</th></tr></thead>
+<tbody>
+<tr><td>Cambio de identidad</td><td>El <code>slug</code></td><td><strong>Prohibido</strong> — inmutable de por vida</td><td><span class="tag tag--implementado">respaldado</span> · P15</td></tr>
+<tr><td>Cambio mayor</td><td>Un atributo de elegibilidad</td><td>Altera qué slots puede llenar; versión nueva</td><td><span class="tag tag--especificado">derivado</span></td></tr>
+<tr><td>Cambio menor</td><td>Un atributo descriptivo</td><td>No altera elegibilidad; versión nueva</td><td><span class="tag tag--especificado">derivado</span></td></tr>
+<tr><td>Corrección</td><td>Un error de dato</td><td>Indistinguible de un cambio menor</td><td><span class="tag tag--futuro">no distinguible</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">La distinción es derivable y no es oficial</div>
+  <p>Mayor/menor se deriva de una consecuencia real y verificable —si el cambio altera la elegibilidad o no—, pero <strong>ninguna fuente la enuncia</strong>. Y sin versionado por entrada ni campo de motivo, la distinción no puede aplicarse: no hay dónde declarar de qué tipo fue un cambio.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../08-fsm/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 08 · Máquinas de Estado</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../10-compatibilidad/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">10 · Compatibilidad Histórica →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

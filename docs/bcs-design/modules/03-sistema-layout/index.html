@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03 · Sistema de Layout — BCS Design System Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="sistema-layout" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 03 · Sistema visual</p>
+<h1>Sistema de Layout</h1>
+<p class="lede">Grid, espaciado, contenedores y breakpoints — heredados del App Shell real de BREY (<code>AppShell.tsx</code>), no reinventados para el BCS.</p>
+
+<div class="callout callout--nota">
+  <div class="callout__label">Heredado <span class="tag tag--heredado">heredado</span></div>
+  <p>El BCS vive dentro del App Shell privado ya construido (<code>src/components/app/AppShell.tsx</code>): sidebar colapsable persistida en <code>localStorage</code>, header fijo, contenedor <code>max-w-5xl</code> centrado con <code>px-4 md:px-8 py-6 md:py-10</code>. El dashboard del entrenador (07) no introduce un layout nuevo — es contenido dentro de ese contenedor ya existente.</p>
+</div>
+
+<h2 id="container">Container</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Propiedad</th><th>Valor</th></tr></thead>
+<tbody>
+<tr><td>Ancho máximo</td><td>1024px (<code>max-w-5xl</code>) — heredado, sin excepción para el BCS</td></tr>
+<tr><td>Padding horizontal</td><td>16px en mobile, 32px desde <code>md</code></td></tr>
+<tr><td>Padding vertical</td><td>24px en mobile, 40px desde <code>md</code></td></tr>
+<tr><td>Alineación</td><td>Centrado (<code>mx-auto</code>)</td></tr>
+</tbody>
+</table>
+</div>
+<p>La vista pública del cliente (08) usa el mismo ancho máximo de 1024px pero SIN el sidebar del entrenador — es un contenedor centrado de página completa, consistente con que nunca comparte componente de navegación con el panel privado (BCS Handbook, 01, IN-A1).</p>
+
+<h2 id="spacing">Escala de espaciado</h2>
+<p>Escala de Tailwind ya en uso en todo BREY — el BCS no introduce una escala propia.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Token</th><th>Valor</th><th>Uso típico en el BCS</th></tr></thead>
+<tbody>
+<tr><td><code>1</code></td><td>4px</td><td>Separación entre ícono y texto en un badge</td></tr>
+<tr><td><code>2</code></td><td>8px</td><td>Gap entre elementos inline de un componente</td></tr>
+<tr><td><code>3</code></td><td>12px</td><td>Padding interno de badges y chips</td></tr>
+<tr><td><code>4</code></td><td>16px</td><td>Padding de Metric Card, gap entre tarjetas en mobile</td></tr>
+<tr><td><code>6</code></td><td>24px</td><td>Gap entre secciones del Dashboard en mobile</td></tr>
+<tr><td><code>8</code></td><td>32px</td><td>Padding horizontal del container en desktop</td></tr>
+<tr><td><code>10</code></td><td>40px</td><td>Padding vertical del container en desktop</td></tr>
+<tr><td><code>12</code></td><td>48px</td><td>Separación entre bloques mayores del Reporte (ej. Ficha actual → Histórico)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="grid">Grid de tarjetas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Breakpoint</th><th>Columnas de Metric Cards (06)</th></tr></thead>
+<tbody>
+<tr><td>Mobile (&lt;640px)</td><td>1 columna</td></tr>
+<tr><td>Tablet (640–1023px)</td><td>2 columnas</td></tr>
+<tr><td>Desktop (≥1024px)</td><td>3 columnas</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="breakpoints">Breakpoints</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Nombre</th><th>Ancho</th><th>Comportamiento del BCS</th></tr></thead>
+<tbody>
+<tr><td>Mobile</td><td>&lt;640px</td><td>Sidebar oculto tras menú, 1 columna, Dashboard prioriza tarjetas de cliente sobre gráficos</td></tr>
+<tr><td>Tablet (<code>sm</code>–<code>md</code>)</td><td>640–1023px</td><td>2 columnas de Metric Cards, sidebar aún colapsable</td></tr>
+<tr><td>Desktop (<code>lg</code>+)</td><td>≥1024px</td><td>Sidebar expandido por defecto, 3 columnas, TOC lateral disponible en pantallas de documentación</td></tr>
+<tr><td>Ultra wide (<code>2xl</code>+)</td><td>≥1536px</td><td>El container permanece en 1024px, nunca se estira — más espacio en blanco a los lados, nunca más columnas de las especificadas (Respiración, 01; decisión formal en BCSD-ADR-05, 20)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="contraejemplos">Contraejemplos</h2>
+<ul>
+  <li>El Dashboard NUNCA excede <code>max-w-5xl</code> en ninguna resolución — una pantalla ultra wide no gana más columnas, gana más margen.</li>
+  <li>La vista pública del cliente NUNCA renderiza el sidebar del entrenador, ni siquiera oculto en el DOM.</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../02-arquitectura-experiencia/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 02 · Arquitectura de experiencia</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../04-sistema-tipografico/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">04 · Sistema tipográfico →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

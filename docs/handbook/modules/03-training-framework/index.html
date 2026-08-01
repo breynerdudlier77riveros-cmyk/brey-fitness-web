@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03 · Training Framework — BREY Architecture Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="training-framework" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 03 · Arquitectura</p>
+<h1>Training Framework</h1>
+<p class="lede">La jerarquía completa de un programa: quince capas, de la decisión comercial (Sistema) a la anotación humana (Notas). Cada capa decide una sola cosa a una sola escala de tiempo (P4), y las capas de Sistema a Microciclo son plantilla mientras que de Sesión hacia abajo son instancia inmutable (P5).</p>
+
+<div class="meta-row">
+  <span class="chip">15 capas</span>
+  <span class="chip">Sistema → Notas</span>
+  <span class="chip">Plantilla ≠ Instancia (P5)</span>
+</div>
+
+<h2 id="objetivo">Objetivo, alcance y dependencias</h2>
+<p><strong>Objetivo:</strong> que "un programa de entrenamiento" tenga una definición formal única que motores, generador, player y base de datos compartan. <strong>Alcance:</strong> la estructura y las reglas de relación entre capas — no el contenido concreto (catálogo) ni las reglas de elegibilidad de ejercicios (módulo 04). <strong>Depende de:</strong> los principios (01). <strong>Dependido por:</strong> 04, 05, 06, 07, 08.</p>
+
+<h2 id="jerarquia">La jerarquía completa</h2>
+<div class="diagram">
+<div class="diagram-label">Quince capas, con el límite plantilla/instancia marcado</div>
+<pre class="mermaid">
+graph TD
+  A[1 · Sistema] --> B[2 · Track]
+  B --> C[3 · Nivel]
+  C --> D[4 · Bloque]
+  D --> E[5 · Mesociclo]
+  E --> F[6 · Microciclo]
+  F --> G[7 · Sesión]
+  G --> H["8 · Patrón de movimiento (slot)"]
+  H --> I[9 · Ejercicio]
+  I --> J[10 · Series]
+  I --> K[11 · Repeticiones]
+  I --> L[12 · Intensidad]
+  I --> M[13 · Descanso]
+  I --> N[14 · Tempo]
+  I --> O[15 · Notas]
+  subgraph PLANTILLA["PLANTILLA — catálogo autorizado por humanos (P14)"]
+    A; B; C; D; E; F
+  end
+  subgraph INSTANCIA["INSTANCIA — generada por usuario, inmutable (P5)"]
+    G; H; I; J; K; L; M; N; O
+  end
+</pre>
+</div>
+
+<h2 id="capas">Definición completa de cada capa</h2>
+<p>Formato fijo por capa: representa · almacena · decide · <strong>nunca decide</strong> · relación con vecinas.</p>
+
+<h3 id="c1">1 · Sistema</h3>
+<div class="table-wrap"><table><tbody>
+<tr><td><strong>Representa</strong></td><td>El producto comercial y dominio de objetivo. Catálogo actual: Hipertrofia, Calistenia, Híbrido, Fuerza, Elite.</td></tr>
+<tr><td><strong>Almacena</strong></td><td>Slug estable (P15), identidad, duración total, disponibilidad, precio, lista de Tracks que ofrece.</td></tr>
+<tr><td><strong>Decide</strong></td><td>El objetivo general y el universo de Tracks/Bloques disponibles.</td></tr>
+<tr><td><strong>Nunca decide</strong></td><td>Qué ejercicio hace el usuario un martes — cinco capas de distancia intencional.</td></tr>
+<tr><td><strong>Relación</strong></td><td>Raíz. Padre de N Tracks. Elite declara explícitamente jerarquía vacía (ver casos inválidos).</td></tr>
+</tbody></table></div>
+
+<h3 id="c2">2 · Track</h3>
+<div class="table-wrap"><table><tbody>
+<tr><td><strong>Representa</strong></td><td>La variante de contexto/equipo del mismo Sistema: <code>gym</code> · <code>casa</code> · <code>ambos</code>. Definición adoptada por ADR-005 (contexto, no sub-objetivo) — conecta el dato ya recolectado <code>lugar_entrenamiento</code>.</td></tr>
+<tr><td><strong>Almacena</strong></td><td>El conjunto de etiquetas de equipo elegible que filtra el catálogo hacia abajo.</td></tr>
+<tr><td><strong>Decide</strong></td><td>Qué subconjunto del catálogo de ejercicios es válido para este usuario.</td></tr>
+<tr><td><strong>Nunca decide</strong></td><td>La progresión de carga ni el nivel de entrada — dos personas del mismo Track pueden estar en Niveles distintos.</td></tr>
+<tr><td><strong>Relación</strong></td><td>Hijo de Sistema; padre de Nivel. El mapeo exacto equipo→Track es contenido pendiente (Roadmap H2).</td></tr>
+</tbody></table></div>
+
+<h3 id="c3">3 · Nivel</h3>
+<div class="table-wrap"><table><tbody>
+<tr><td><strong>Representa</strong></td><td>El punto de entrada y de progresión de habilidad/fuerza dentro del Track. Corresponde a <code>profiles.nivel_actual</code>. Lo asigna el Diagnóstico; lo muta el Progression Engine — nadie más.</td></tr>
+<tr><td><strong>Almacena</strong></td><td>Qué Bloques habilita, y el techo/piso de complejidad de movimiento permitido.</td></tr>
+<tr><td><strong>Decide</strong></td><td>El rango de dificultad e intensidad accesible.</td></tr>
+<tr><td><strong>Nunca decide</strong></td><td>Duración de Bloques ni días de entrenamiento — eso es logística del Perfil, no habilidad. Tampoco es <code>nivel_experiencia</code> (autopercibido) — confusión prohibida (P12, Glosario).</td></tr>
+<tr><td><strong>Relación</strong></td><td>Hijo de Track; padre de Bloque. Única capa de plantilla cuyo puntero por-usuario cambia con el tiempo.</td></tr>
+</tbody></table></div>
+
+<h3 id="c4">4 · Bloque</h3>
+<div class="table-wrap"><table><tbody>
+<tr><td><strong>Representa</strong></td><td>Un período con énfasis fisiológico específico. Formaliza las <code>fases[]</code> del catálogo actual ("Fundamentos y Técnica", "Hipertrofia Científica"…). La periodización por bloques con énfasis es práctica establecida de la programación deportiva. <span class="ev ev--moderada">evidencia moderada</span></td></tr>
+<tr><td><strong>Almacena</strong></td><td>Énfasis (técnica/volumen/intensidad/definición), duración en semanas, tipo de periodización (v1: siempre <code>lineal</code> — campo declarado para ramificar a futuro sin romper), defaults de descanso e intensidad que las capas inferiores heredan.</td></tr>
+<tr><td><strong>Decide</strong></td><td>El objetivo fisiológico del período y cuántos Mesociclos lo componen.</td></tr>
+<tr><td><strong>Nunca decide</strong></td><td>El ejercicio exacto de una sesión — solo el carácter que esa sesión debe tener.</td></tr>
+<tr><td><strong>Relación</strong></td><td>Hijo de Nivel; padre de 1..N Mesociclos.</td></tr>
+</tbody></table></div>
+
+<h3 id="c5">5 · Mesociclo</h3>
+<div class="table-wrap"><table><tbody>
+<tr><td><strong>Representa</strong></td><td>Sub-tramo del Bloque con estructura de carga consistente, 2–6 semanas, cerrando en descarga o test.</td></tr>
+<tr><td><strong>Almacena</strong></td><td>El patrón de progresión semana a semana (ej. RPE 7→8→9→descarga) y cuál semana es descarga programada.</td></tr>
+<tr><td><strong>Decide</strong></td><td>Cómo sube la dificultad de una semana a la siguiente dentro del tramo.</td></tr>
+<tr><td><strong>Nunca decide</strong></td><td>El objetivo del Bloque ni los patrones entrenados — eso ya lo fijó el Bloque.</td></tr>
+<tr><td><strong>Relación</strong></td><td>Hijo de Bloque; padre de N Microciclos (uno por semana).</td></tr>
+</tbody></table></div>
+
+<h3 id="c6">6 · Microciclo</h3>
+<div class="table-wrap"><table><tbody>
+<tr><td><strong>Representa</strong></td><td>La semana concreta — la plantilla de qué tipo de sesión toca cada día.</td></tr>
+<tr><td><strong>Almacena</strong></td><td>Número ideal de sesiones y el rol/carácter de cada una (ej. "empuje pesado", "tracción + core"), con separación mínima de recuperación entre sesiones del mismo patrón.</td></tr>
+<tr><td><strong>Decide</strong></td><td>La distribución semanal, conciliada contra <code>dias_por_semana</code> real por la Regla de Frecuencia (abajo).</td></tr>
+<tr><td><strong>Nunca decide</strong></td><td>El ejercicio ni la prescripción numérica — solo el rol de cada sesión.</td></tr>
+<tr><td><strong>Relación</strong></td><td>Hijo de Mesociclo; padre (como plantilla) de las Sesiones que el Generator materializa. Última capa de plantilla.</td></tr>
+</tbody></table></div>
+
+<h3 id="c7">7 · Sesión</h3>
+<div class="table-wrap"><table><tbody>
+<tr><td><strong>Representa</strong></td><td>El entrenamiento de un día concreto, ya materializado para un usuario. Corresponde a una fila de <code>workouts</code>.</td></tr>
+<tr><td><strong>Almacena</strong></td><td>Fecha planificada, duración estimada, lista ordenada de slots (Patrón×Rol) con su resolución completa desnormalizada (P5: copia lo que necesita; no hace join a plantillas en lectura).</td></tr>
+<tr><td><strong>Decide</strong></td><td>Cuántos slots caben, dado <code>duracion_sesion_min</code>, y su orden por prioridad de fatiga del Rol.</td></tr>
+<tr><td><strong>Nunca decide</strong></td><td>Nada después de generada — es instancia inmutable. La ejecución registra sobre el log, no muta el plan.</td></tr>
+<tr><td><strong>Relación</strong></td><td>Originada por un Microciclo; padre de slots de Patrón. Frontera plantilla/instancia.</td></tr>
+</tbody></table></div>
+
+<h3 id="c8">8 · Patrón de movimiento (slot)</h3>
+<div class="table-wrap"><table><tbody>
+<tr><td><strong>Representa</strong></td><td>La unidad biomecánica de programación (P7). Un slot es <strong>Patrón × Rol</strong> — nunca patrón solo. Vocabulario completo en el módulo 04.</td></tr>
+<tr><td><strong>Almacena</strong></td><td>Slug del patrón, rol, y las reglas de degradación heredadas del patrón.</td></tr>
+<tr><td><strong>Decide</strong></td><td>QUÉ tipo de movimiento ocurre en esa posición de la sesión.</td></tr>
+<tr><td><strong>Nunca decide</strong></td><td>El ejercicio final ni la prescripción — abre el slot que la resolución de la Knowledge Base llena.</td></tr>
+<tr><td><strong>Relación</strong></td><td>Hijo de Sesión; se resuelve a exactamente un Ejercicio.</td></tr>
+</tbody></table></div>
+
+<h3 id="c9">9 · Ejercicio</h3>
+<div class="table-wrap"><table><tbody>
+<tr><td><strong>Representa</strong></td><td>El movimiento concreto elegido para el slot, con toda su ficha de ontología (04).</td></tr>
+<tr><td><strong>Almacena</strong></td><td>En la instancia: slug + nombre desnormalizado + modalidad de ejecución (determina si el Player muestra contador de reps o cronómetro).</td></tr>
+<tr><td><strong>Decide</strong></td><td>La ejecución técnica específica dentro del patrón ya fijado.</td></tr>
+<tr><td><strong>Nunca decide</strong></td><td>Su propia prescripción — series/reps/intensidad/descanso/tempo vienen de Bloque/Nivel + ajuste vigente del Progression Engine.</td></tr>
+<tr><td><strong>Relación</strong></td><td>Hijo del slot; padre de las seis hojas de prescripción (10–15).</td></tr>
+</tbody></table></div>
+
+<h3 id="c10">10 · Series</h3>
+<div class="table-wrap"><table><tbody>
+<tr><td><strong>Representa</strong></td><td>Número de sets prescritos para ese ejercicio en esa sesión. El volumen (series duras semanales por grupo/patrón) es un driver primario de hipertrofia con dosis-respuesta y retornos decrecientes. <span class="ev ev--moderada">evidencia moderada</span></td></tr>
+<tr><td><strong>Almacena</strong></td><td>El número base del Mesociclo/Nivel × multiplicador vigente (descarga, ajuste micro).</td></tr>
+<tr><td><strong>Decide</strong></td><td>El volumen de esa entrada.</td></tr>
+<tr><td><strong>Nunca decide</strong></td><td>Reps ni intensidad — hermanas paralelas, no jerárquicas.</td></tr>
+</tbody></table></div>
+
+<h3 id="c11">11 · Repeticiones</h3>
+<div class="table-wrap"><table><tbody>
+<tr><td><strong>Representa</strong></td><td>Rango objetivo por serie (ej. 6–8), no número fijo — el rango es lo que permite la doble progresión (05). En isométricos la unidad es segundos, declarada por la modalidad del ejercicio.</td></tr>
+<tr><td><strong>Almacena</strong></td><td>Rango min–max o duración objetivo.</td></tr>
+<tr><td><strong>Decide</strong></td><td>El estímulo por serie.</td></tr>
+<tr><td><strong>Nunca decide</strong></td><td>El descanso — lo fija el énfasis del Bloque + Rol, no el número de reps.</td></tr>
+</tbody></table></div>
+
+<h3 id="c12">12 · Intensidad</h3>
+<div class="table-wrap"><table><tbody>
+<tr><td><strong>Representa</strong></td><td>El esfuerzo objetivo en RPE/RIR. La escala RPE basada en RIR es una herramienta validada de prescripción en entrenamiento de fuerza, con precisión menor en principiantes. <span class="ev ev--moderada">evidencia moderada</span> Consecuencia de diseño: Nivel Inicial usa progresión fija con RPE solo educativo; la autorregulación plena entra desde Intermedio. <span class="ev ev--producto">decisión de producto</span></td></tr>
+<tr><td><strong>Almacena</strong></td><td>Objetivo prescrito; el real capturado vive en el log (09), nunca aquí.</td></tr>
+<tr><td><strong>Decide</strong></td><td>Cuánto debería costar la serie.</td></tr>
+<tr><td><strong>Nunca decide</strong></td><td>Avances de Nivel — eso es agregado de ventana del Progression Engine, jamás de una serie.</td></tr>
+</tbody></table></div>
+
+<h3 id="c13">13 · Descanso</h3>
+<div class="table-wrap"><table><tbody>
+<tr><td><strong>Representa</strong></td><td>Tiempo entre series. Descansos ≥2 min en compuestos pesados favorecen rendimiento y ganancias vs. descansos cortos; los accesorios toleran descansos menores. <span class="ev ev--moderada">evidencia moderada</span></td></tr>
+<tr><td><strong>Almacena</strong></td><td>Segundos objetivo, default por Rol (principal 120–180s · accesorio 60–120s · activación mínimo · core-final 45–90s · metabólico 30–60s) modulado por énfasis del Bloque. Los números concretos son calibrables. <span class="ev ev--producto">decisión de producto</span></td></tr>
+<tr><td><strong>Decide</strong></td><td>Nada más allá de sí mismo.</td></tr>
+<tr><td><strong>Nunca decide</strong></td><td>—. Hoja terminal junto con Tempo y Notas.</td></tr>
+</tbody></table></div>
+
+<h3 id="c14">14 · Tempo</h3>
+<div class="table-wrap"><table><tbody>
+<tr><td><strong>Representa</strong></td><td>La cadencia del movimiento, notación de 4 dígitos <code>excéntrica-pausa-concéntrica-pausa</code> (ej. <code>3-1-1-0</code>). Los tempos deliberadamente muy lentos no ofrecen ventaja hipertrófica sobre cadencias controladas; la excéntrica controlada es recomendable. <span class="ev ev--moderada">evidencia moderada</span></td></tr>
+<tr><td><strong>Almacena</strong></td><td>La notación, cuando se prescribe. Default: <code>controlado</code> (sin notación explícita) — el tempo explícito se reserva para Bloques con énfasis técnico y trabajo de skills de calistenia. <span class="ev ev--producto">decisión de producto</span></td></tr>
+<tr><td><strong>Decide</strong></td><td>La cadencia objetivo de ejecución.</td></tr>
+<tr><td><strong>Nunca decide</strong></td><td>La intensidad — un tempo lento no sustituye la prescripción de RPE, la acompaña.</td></tr>
+</tbody></table></div>
+
+<h3 id="c15">15 · Notas</h3>
+<div class="table-wrap"><table><tbody>
+<tr><td><strong>Representa</strong></td><td>El canal humano→humano: instrucción libre del contenido al usuario ("agarre supino", "pausa de 1s en el pecho", "si molesta la muñeca, cambia a agarre neutro").</td></tr>
+<tr><td><strong>Almacena</strong></td><td>Texto libre, opcional, por ejercicio o por sesión.</td></tr>
+<tr><td><strong>Decide</strong></td><td>Nada — informa.</td></tr>
+<tr><td><strong>Nunca decide</strong></td><td><strong>Invariante duro:</strong> ningún motor parsea Notas jamás. Todo lo decidible vive en campos estructurados; si una nota contiene información que un motor necesitaría, el modelo de datos tiene un vacío que se resuelve con un campo nuevo, no leyendo texto libre.</td></tr>
+</tbody></table></div>
+
+<h2 id="reglas">Reglas del framework</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">R-1 · Regla de Frecuencia</div>
+  <p><code>sesionesSemanales</code> del Bloque es ideal, nunca mínimo obligatorio. El Microciclo real usa <code>mín(ideal, dias_por_semana)</code>. Si real &lt; ideal: el volumen semanal se redistribuye, la extensión estimada del Bloque se comunica al usuario explícitamente, y el desajuste sostenido queda como señal (no se corrige en silencio).</p>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">R-2 · Regla de Inmutabilidad</div>
+  <p>Editar plantillas nunca altera instancias generadas (P5). El cambio de catálogo aplica desde la siguiente generación.</p>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">R-3 · Regla de Patrón</div>
+  <p>Ninguna capa por encima del slot referencia ejercicios por nombre (P7). La preferencia editorial se expresa vía cadenas de progresión y Notas.</p>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">R-4 · Regla de Orden por Rol</div>
+  <p>Dentro de una Sesión, los slots se ordenan por prioridad de fatiga del Rol: activación → principal → accesorio → core-final → metabólico. El Generator no puede alterar este orden relativo.</p>
+</div>
+
+<h2 id="pseudocodigo">Pseudocódigo — resolución de frecuencia</h2>
+<pre class="codeblock">
+<span class="kw">FUNCIÓN</span> resolverFrecuenciaSemana(bloque, mesociclo, perfil):
+  ideal <span class="kw">←</span> bloque.sesionesSemanales
+  real <span class="kw">←</span> perfil.dias_por_semana        <span class="cm">// obligatorio: el gate del Motor BPS ya lo garantizó</span>
+
+  <span class="kw">SI</span> real <span class="kw">>=</span> ideal <span class="kw">ENTONCES</span>
+    <span class="kw">RETORNAR</span> plantillaMicrociclo(mesociclo.semanaActual, sesiones: ideal)
+  <span class="kw">SI NO</span>
+    volumen <span class="kw">←</span> redistribuir(bloque.volumenSemanal, sobre: real)
+    extension <span class="kw">←</span> estimarExtension(ideal, real, bloque.duracionSemanas)
+    <span class="kw">EMITIR</span> aviso(<span class="str">"Diseñado para {ideal} días; con {real}, este Bloque tomará ~{extension} semanas más."</span>)
+    <span class="kw">RETORNAR</span> plantillaMicrociclo(mesociclo.semanaActual, sesiones: real, volumen)
+</pre>
+
+<h2 id="casos">Casos normales, límite e inválidos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Tipo</th><th>Comportamiento</th></tr></thead>
+<tbody>
+<tr><td>Usuario con 3 días para un Bloque de 4</td><td>Normal</td><td>R-1: 3 sesiones, volumen redistribuido, extensión comunicada.</td></tr>
+<tr><td>Fin del último Mesociclo del último Bloque</td><td>Límite</td><td>Sistema completado — transición gestionada por Motor BPS (07), no por este framework.</td></tr>
+<tr><td>Bloque de 4 semanas con un solo Mesociclo</td><td>Normal</td><td>Válido — Mesociclo colapsa 1:1 con el Bloque; su semana final sigue siendo descarga programada.</td></tr>
+<tr><td>Elite entra a generación de jerarquía</td><td>Inválido</td><td>Rechazo explícito (P6): Elite declara jerarquía vacía, es coaching 1:1 (ADR-012).</td></tr>
+<tr><td>Microciclo con 0 sesiones</td><td>Inválido</td><td>Plantilla malformada — error de catálogo, nunca llega a generación.</td></tr>
+<tr><td><code>dias_por_semana = 7</code> con ideal 3</td><td>Límite</td><td>Se generan las 3 ideales; los días extra NO se rellenan con volumen no autorizado (P14). Sugerencias de actividad complementaria = contenido, no motor.</td></tr>
+<tr><td>Cambio de Track a mitad de Microciclo</td><td>Límite</td><td>Las sesiones ya generadas se conservan (P5); el Track nuevo aplica desde la próxima generación. Excepción: la sustitución EN VIVO del Player (09) sí usa el Track vigente.</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="ejemplo">Ejemplo completo — cadena resuelta de 15 capas</h2>
+<div class="table-wrap">
+<table>
+<tbody>
+<tr><td><strong>Sistema</strong></td><td>Hipertrofia</td></tr>
+<tr><td><strong>Track</strong></td><td><code>gym</code></td></tr>
+<tr><td><strong>Nivel</strong></td><td>Intermedio</td></tr>
+<tr><td><strong>Bloque</strong></td><td>Hipertrofia Científica · énfasis volumen · periodización lineal · semanas 5–8</td></tr>
+<tr><td><strong>Mesociclo</strong></td><td>1 de 1 · progresión RPE 7→8→8→descarga</td></tr>
+<tr><td><strong>Microciclo</strong></td><td>Semana 2 · 4 sesiones (Empuje / Tracción / Pierna / Empuje)</td></tr>
+<tr><td><strong>Sesión</strong></td><td>Día 1 "Empuje" · 60 min estimados</td></tr>
+<tr><td><strong>Slot</strong></td><td><code>empuje-horizontal</code> × <code>principal</code></td></tr>
+<tr><td><strong>Ejercicio</strong></td><td>Press banca (dinámico, bilateral)</td></tr>
+<tr><td><strong>Series</strong></td><td>4</td></tr>
+<tr><td><strong>Repeticiones</strong></td><td>6–8</td></tr>
+<tr><td><strong>Intensidad</strong></td><td>RPE 8 (semana 2 del mesociclo)</td></tr>
+<tr><td><strong>Descanso</strong></td><td>150 s (principal, énfasis volumen)</td></tr>
+<tr><td><strong>Tempo</strong></td><td>controlado (sin notación explícita)</td></tr>
+<tr><td><strong>Notas</strong></td><td>"Pausa de 1 segundo en el pecho — es parte del énfasis de este Bloque."</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="tradeoffs">Trade-offs y decisiones descartadas</h2>
+<div class="callout callout--tradeoff">
+  <div class="callout__label">Bloque y Mesociclo separados</div>
+  <p>Muchos Bloques actuales caben en un Mesociclo. Se separan igual: fusionarlos y dividirlos después sería migración de datos real; la capa extra hoy solo cuesta vocabulario.</p>
+</div>
+<div class="callout callout--descartado">
+  <div class="callout__label">Track como sub-objetivo</div>
+  <p>Descartado (ADR-005): la definición contexto/equipo conecta un dato real ya recolectado; la alternativa no tenía dato esperando.</p>
+</div>
+<div class="callout callout--descartado">
+  <div class="callout__label">Tempo obligatorio en toda prescripción</div>
+  <p>Descartado: la evidencia no justifica prescribir cadencia numérica universal <span class="ev ev--moderada">evidencia moderada</span>, y el costo de captura/fricción en el Player sería alto. Tempo explícito solo donde el énfasis lo amerita.</p>
+</div>
+<div class="callout callout--descartado">
+  <div class="callout__label">Notas machine-readable ("etiquetas embebidas en el texto")</div>
+  <p>Descartado: viola el invariante de la capa 15. Lo decidible se estructura; lo humano queda humano.</p>
+</div>
+
+<h2 id="riesgos">Riesgos, deuda y extensiones</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Riesgo — extensión de Bloque no comunicada</div>
+  <p>Si R-1 se implementa sin el aviso, el programa "no avanza" desde la percepción del usuario. El aviso es parte de la regla, no un extra.</p>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Deuda — plantillas de Bloque/Mesociclo/Microciclo no existen aún</div>
+  <p>Este módulo define su forma; el contenido real (con criterio de entrenador) es el bloqueante #1 del Roadmap.</p>
+</div>
+<div class="callout callout--escala">
+  <div class="callout__label">Extensión — periodización no lineal</div>
+  <p>El campo <code>tipoPeriodizacion</code> del Bloque (hoy siempre <code>lineal</code>) permite ramificar a ondulante o por temporada deportiva sin que Mesociclo→Notas cambien su contrato.</p>
+</div>
+
+<h2 id="preguntas">Preguntas abiertas</h2>
+<ul>
+  <li>¿La separación mínima de recuperación entre sesiones del mismo patrón (Microciclo) se especifica en horas o en "días de calendario"? Propuesta pendiente de criterio de entrenador — Roadmap H2.</li>
+  <li>¿La notación de tempo se muestra siempre en el Player o solo cuando es explícita? Decisión de UX del módulo 09, no de este.</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../02-arquitectura-general/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 02 · Arquitectura General</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../04-knowledge-base/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">04 · Knowledge Base →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

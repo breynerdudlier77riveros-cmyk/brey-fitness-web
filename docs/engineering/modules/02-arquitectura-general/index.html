@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>02 · Arquitectura General — Engineering Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="arquitectura-general" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 02 · Fundamentos</p>
+<h1>Arquitectura General</h1>
+<p class="lede">El ecosistema completo, de extremo a extremo: capas, bounded contexts, dependencias entre módulos, y el mapa de dónde vive cada uno de los 10 diagramas y las 10 matrices que este handbook exige.</p>
+
+<h2 id="diagrama-general">Diagrama de arquitectura completa</h2>
+<div class="diagram">
+<div class="diagram-label">Frontend → Application → Domain → Infrastructure → Supabase → Storage → Servicios externos</div>
+<pre class="mermaid">
+graph TD
+  FE["Frontend<br/>(03)"] --> APP["Application<br/>Server Actions / Casos de uso (04)"]
+  APP --> DOM["Domain<br/>Motores, reglas de negocio puras"]
+  DOM --> INFRA["Infrastructure<br/>Repositorios (04)"]
+  INFRA --> SB["Supabase<br/>Postgres + RLS + Auth (05, 08)"]
+  INFRA --> ST["Storage<br/>Fotografías, archivos (08)"]
+  APP -.-> EXT["Servicios externos<br/>Plausible Analytics"]
+</pre>
+</div>
+
+<h2 id="capas">Las cuatro capas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Capa</th><th>Responsabilidad</th><th>Nunca contiene</th></tr></thead>
+<tbody>
+<tr><td>Frontend</td><td>Presentación, interacción, estado de UI (03)</td><td>Reglas de negocio, acceso directo a Supabase</td></tr>
+<tr><td>Application</td><td>Orquesta casos de uso vía Server Actions — valida entrada, invoca dominio, invoca repositorios (04)</td><td>Cálculo de reglas de negocio propio, SQL directo</td></tr>
+<tr><td>Domain</td><td>Motores y reglas de negocio puras — funciones deterministas sin I/O (FT-03)</td><td>Cualquier import de Supabase, Next.js o React</td></tr>
+<tr><td>Infrastructure</td><td>Repositorios, adaptadores de Supabase Storage, integraciones externas (04)</td><td>Reglas de negocio, decisiones de presentación</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="bounded-contexts">Bounded contexts</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Contexto</th><th>Estado</th><th>Handbook de dominio</th></tr></thead>
+<tbody>
+<tr><td>Core Product (perfil, entrenamientos)</td><td><span class="tag tag--implementado">implementado</span></td><td>Architecture Handbook</td></tr>
+<tr><td>Diagnóstico BPS</td><td><span class="tag tag--implementado">implementado</span></td><td>Architecture Handbook</td></tr>
+<tr><td>Motor BPS</td><td><span class="tag tag--especificado">especificado</span></td><td>Motor BPS Handbook</td></tr>
+<tr><td>Progression Engine</td><td><span class="tag tag--especificado">especificado</span></td><td>Progression Engine Handbook</td></tr>
+<tr><td>Body Composition System</td><td><span class="tag tag--especificado">especificado</span></td><td>BCS Handbook</td></tr>
+<tr><td>Workout Generator, Workout Player, Recovery Engine, Nutrición, Programas, Coach IA, Hábitos, Lesiones</td><td><span class="tag tag--futuro">futuro</span></td><td>Ninguno aún</td></tr>
+</tbody>
+</table>
+</div>
+<p>Cada bounded context es, en términos de este handbook, un candidato a su propia carpeta de dominio (03/04) y su propio conjunto de tablas con prefijo propio (05) — nunca comparten tabla ni tipo de dominio entre sí salvo a través de un contrato explícito (06).</p>
+
+<h2 id="matriz-modulo-dependencias">Matriz Módulo → Dependencias</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Módulo</th><th>Depende de</th></tr></thead>
+<tbody>
+<tr><td>Core Product</td><td>Supabase Auth, tabla <code>profiles</code></td></tr>
+<tr><td>Diagnóstico BPS</td><td>Ninguno (motor puro, sin persistencia hoy)</td></tr>
+<tr><td>Motor BPS <span class="tag tag--especificado">especificado</span></td><td>Diagnóstico BPS (activación), Progression Engine, Recovery Engine</td></tr>
+<tr><td>Progression Engine <span class="tag tag--especificado">especificado</span></td><td>Es invocado por Motor BPS (orquestación) — no depende de él; depende de: Recovery Engine (veredicto), Knowledge Base</td></tr>
+<tr><td>Body Composition System <span class="tag tag--especificado">especificado</span></td><td>Identidad del entrenador (Supabase Auth) — sin dependencia de otros motores (BCS Handbook, 01)</td></tr>
+<tr><td>BCS Design System <span class="tag tag--especificado">especificado</span></td><td>Sistema de diseño real de BREY (<code>src/components/brand/</code>), BCS Handbook</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="feature-dominio">Matriz Feature → Dominio</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Feature de usuario</th><th>Bounded context</th></tr></thead>
+<tbody>
+<tr><td>Editar perfil</td><td>Core Product</td></tr>
+<tr><td>Ver calendario/historial de entrenamientos</td><td>Core Product</td></tr>
+<tr><td>Responder el Diagnóstico</td><td>Diagnóstico BPS</td></tr>
+<tr><td>Recibir una nueva semana de entrenamiento</td><td>Motor BPS + Progression Engine (futuro)</td></tr>
+<tr><td>Ver el reporte de composición corporal de un cliente</td><td>Body Composition System (futuro)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="mapa-diagramas">Mapa de los 10 diagramas exigidos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Diagrama</th><th>Vive en</th></tr></thead>
+<tbody>
+<tr><td>Arquitectura general</td><td>Este módulo (arriba)</td></tr>
+<tr><td>Frontend</td><td><a href="../03-frontend-architecture/index.html#diagrama">03 · Frontend Architecture</a></td></tr>
+<tr><td>Backend</td><td><a href="../04-backend-architecture/index.html#diagrama">04 · Backend Architecture</a></td></tr>
+<tr><td>Database</td><td><a href="../05-database-handbook/index.html#diagrama-er">05 · Database Handbook</a></td></tr>
+<tr><td>Eventos</td><td><a href="../07-domain-events/index.html#diagrama">07 · Domain Events</a></td></tr>
+<tr><td>Autenticación</td><td><a href="../08-security-handbook/index.html#diagrama-auth">08 · Security Handbook</a></td></tr>
+<tr><td>RLS</td><td><a href="../08-security-handbook/index.html#diagrama-rls">08 · Security Handbook</a></td></tr>
+<tr><td>Deployment</td><td><a href="../12-deployment-handbook/index.html#diagrama">12 · Deployment Handbook</a></td></tr>
+<tr><td>Observabilidad</td><td><a href="../11-observability-handbook/index.html#diagrama">11 · Observability Handbook</a></td></tr>
+<tr><td>Dependencias / Flujos</td><td>Este módulo (arriba y abajo)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="flujo-request">Flujo de una request típica</h2>
+<div class="diagram">
+<div class="diagram-label">De la carga de página a la respuesta</div>
+<pre class="mermaid">
+sequenceDiagram
+  participant U as Usuario
+  participant PX as proxy.ts
+  participant SC as Server Component
+  participant SA as Server Action
+  participant REPO as Repositorio
+  participant PG as Postgres (RLS)
+  U->>PX: GET /app/perfil
+  PX->>PX: revalida sesión (UX, no seguridad real)
+  PX-->>U: continúa o redirige a /login
+  U->>SC: renderiza página
+  SC->>REPO: getProfile(supabase, userId)
+  REPO->>PG: select * from profiles (RLS evalúa)
+  PG-->>REPO: fila o vacío
+  REPO-->>SC: Profile mapeado
+  U->>SA: submit de formulario
+  SA->>REPO: updateProfile(supabase, userId, patch)
+  REPO->>PG: update ... where id = userId (RLS evalúa)
+</pre>
+</div>
+
+<h2 id="mapa-matrices">Mapa de las 10 matrices exigidas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Matriz</th><th>Vive en</th></tr></thead>
+<tbody>
+<tr><td>Módulo → Dependencias</td><td>Este módulo (arriba)</td></tr>
+<tr><td>Feature → Dominio</td><td>Este módulo (arriba)</td></tr>
+<tr><td>Servicio → Repositorio</td><td><a href="../04-backend-architecture/index.html#matriz-servicio-repositorio">04 · Backend Architecture</a></td></tr>
+<tr><td>Repositorio → Tabla</td><td><a href="../04-backend-architecture/index.html#matriz-repositorio-tabla">04 · Backend Architecture</a></td></tr>
+<tr><td>Dominio → Storage</td><td><a href="../05-database-handbook/index.html#matriz-dominio-storage">05 · Database Handbook</a></td></tr>
+<tr><td>DTO → Caso de uso</td><td><a href="../06-api-handbook/index.html#matriz-dto-caso-uso">06 · API Handbook</a></td></tr>
+<tr><td>Evento → Productor</td><td><a href="../07-domain-events/index.html#matriz-evento-productor">07 · Domain Events</a></td></tr>
+<tr><td>Evento → Consumidor</td><td><a href="../07-domain-events/index.html#matriz-evento-consumidor">07 · Domain Events</a></td></tr>
+<tr><td>Policy → Recurso</td><td><a href="../08-security-handbook/index.html#matriz-policy-recurso">08 · Security Handbook</a></td></tr>
+<tr><td>Error → Recuperación</td><td><a href="../11-observability-handbook/index.html#matriz-error-recuperacion">11 · Observability Handbook</a></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="invariantes">Invariantes de arquitectura</h2>
+<ul>
+  <li><strong>IN-E1:</strong> el Domain nunca importa de Next.js, React ni Supabase — es portable por definición (FT-13).</li>
+  <li><strong>IN-E2:</strong> toda escritura a Supabase pasa por un repositorio (04) — ningún componente de Frontend llama <code>supabase.from()</code> directamente, salvo la excepción documentada de <code>Navbar.tsx</code> (04).</li>
+  <li><strong>IN-E3:</strong> la seguridad real nunca depende únicamente de la capa de Application — RLS (08) es la barrera final incluso si Application tiene un bug.</li>
+  <li><strong>IN-E4:</strong> ningún bounded context futuro se construye sin antes tener su propio handbook de dominio (00, 15).</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../01-filosofia-tecnica/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 01 · Filosofía Técnica</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../03-frontend-architecture/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">03 · Frontend Architecture →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

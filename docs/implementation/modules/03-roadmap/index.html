@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03 · Roadmap — Implementation Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="roadmap" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 03 · Planificación</p>
+<h1>Roadmap</h1>
+<p class="lede">Cinco fases. Cada una tiene una condición de entrada (qué debe estar cerrado antes de empezarla) y una condición de salida (qué desbloquea).</p>
+
+<div class="diagram">
+<div class="diagram-label">Las cinco fases — la Fase 1 se divide en dos pistas paralelas</div>
+<pre class="mermaid">
+graph TD
+  F0["Fase 0 — Fundación"] --> F1A["Fase 1 · Pista A — BCS"]
+  F0 --> F1B["Fase 1 · Pista B — Motores"]
+  F1A --> F2["Fase 2 — Integración"]
+  F1B --> F2
+  F2 --> F3["Fase 3 — Endurecimiento"]
+  F3 --> F4["Fase 4 — Expansión futura"]
+</pre>
+</div>
+
+<div class="phase">
+<div class="phase__head"><span class="phase__id">FASE 0</span></div>
+<h3>Fundación</h3>
+<p><strong>Entrada:</strong> ninguna — es el punto de partida.</p>
+<p><strong>Contenido:</strong> IMP-ADR-01 (forma canónica del Veredicto de Recovery, 14), migración de endurecimiento RLS (05, M1), verificación de que Core Product sigue en estado <span class="status status--verificado">verificado</span>.</p>
+<p><strong>Salida:</strong> desbloquea las dos pistas de la Fase 1 en paralelo.</p>
+</div>
+
+<div class="phase">
+<div class="phase__head"><span class="phase__id">FASE 1 · PISTA A</span></div>
+<h3>Body Composition System</h3>
+<p><strong>Entrada:</strong> Fase 0 cerrada; IMP-ADR-06 (mapeo de columnas del BCS, 14) aceptado.</p>
+<p><strong>Contenido:</strong> migración de tablas BCS (05, M3) → repositorios y casos de uso del BCS (06) → componentes del BCS Design System (07).</p>
+<p><strong>Salida:</strong> BCS listo para uso real por un entrenador — no depende de la Pista B para funcionar.</p>
+</div>
+
+<div class="phase">
+<div class="phase__head"><span class="phase__id">FASE 1 · PISTA B</span></div>
+<h3>Motores</h3>
+<p><strong>Entrada:</strong> Fase 0 cerrada.</p>
+<p><strong>Contenido:</strong> contrato mínimo de Recovery Engine (IMP-ADR-01) → migración de <code>progression_events</code> (05, M2) → Motor BPS (orquestador) y Progression Engine (lógica pura de las 39 reglas) construidos en paralelo entre sí (02) → Diagnóstico BPS conectado a persistencia real (hoy efímero).</p>
+<p><strong>Salida:</strong> ambos motores listos para integrarse entre sí.</p>
+</div>
+
+<div class="phase">
+<div class="phase__head"><span class="phase__id">FASE 2</span></div>
+<h3>Integración</h3>
+<p><strong>Entrada:</strong> Fase 1 Pista B cerrada (Motor BPS y Progression Engine ya existen individualmente).</p>
+<p><strong>Contenido:</strong> pipeline completo de invocación Motor BPS → Recovery → Progression Engine end-to-end (09), primer ciclo semanal real ejecutado sobre datos de un usuario de prueba.</p>
+<p><strong>Salida:</strong> el ciclo de progresión automática funciona de extremo a extremo.</p>
+</div>
+
+<div class="phase">
+<div class="phase__head"><span class="phase__id">FASE 3</span></div>
+<h3>Endurecimiento</h3>
+<p><strong>Entrada:</strong> Fase 2 cerrada.</p>
+<p><strong>Contenido:</strong> cobertura de testing de los casos críticos (10), instrumentación de observabilidad completa (11), aplicación de los índices de base de datos ya especificados y nunca aplicados (Engineering Handbook, 05).</p>
+<p><strong>Salida:</strong> el sistema está listo para producción con usuarios reales en volumen, no solo en modo demo.</p>
+</div>
+
+<div class="phase">
+<div class="phase__head"><span class="phase__id">FASE 4</span></div>
+<h3>Expansión futura</h3>
+<p><strong>Entrada:</strong> Fase 3 cerrada.</p>
+<p><strong>Contenido:</strong> Workout Generator, Workout Player, Nutrición, Programas, Coach IA, Hábitos, Lesiones — ninguno tiene handbook de dominio propio todavía. Fuera del alcance operativo de este roadmap hasta que exista su especificación (00, Engineering Handbook).</p>
+<p><strong>Salida:</strong> n/a — cada módulo nuevo repite el ciclo completo desde su propio handbook de dominio.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../02-dependencias/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 02 · Dependencias</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../04-orden-construccion/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">04 · Orden de construcción →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

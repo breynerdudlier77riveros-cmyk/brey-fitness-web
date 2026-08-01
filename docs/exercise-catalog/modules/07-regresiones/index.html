@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>07 · Regresiones — Exercise Catalog</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="regresiones" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 07 · Relaciones</p>
+<h1>Regresiones</h1>
+<p class="lede">La regresión no es un atributo propio: es <strong>una dirección de lectura de la cadena</strong>. El catálogo declara <code>cadena.anterior</code>; quién retrocede, cuándo y por qué es decisión de otro dueño.</p>
+
+<h2 id="que-es">Qué declara el catálogo</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">La cadena solo declara el orden</div>
+  <p>"La cadena de progresión <strong>ordena una familia de ejercicios por dificultad</strong>". El catálogo aporta un único dato relevante para la regresión: <code>cadena.anterior</code> — el eslabón de dificultad inmediatamente inferior dentro del mismo patrón.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Aspecto</th><th>Contrato</th></tr></thead>
+<tbody>
+<tr><td>Atributo</td><td><code>cadena.anterior</code> — parte del atributo 20 del modelo</td></tr>
+<tr><td>Cardinalidad</td><td>Exactamente 0 o 1 — "la cadena es lineal en v1"</td></tr>
+<tr><td>Restricción de patrón</td><td>El eslabón anterior comparte <code>patronPrimario</code> — "un eslabón nunca cruza de patrón"</td></tr>
+<tr><td>Restricción estructural</td><td>Sin ciclos (A→B→A es inválido)</td></tr>
+<tr><td>Autoridad sobre el orden</td><td>Criterio de entrenador (P14) — la estructura la valida ingeniería</td></tr>
+<tr><td>Estado en el catálogo</td><td><span class="tag tag--futuro">vacío</span> — 0 de 19</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="quien-decide">Quién decide retroceder</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">El catálogo no retrocede a nadie</div>
+  <p>"Avanzar/retroceder de eslabón es decisión del <strong>Progression Engine</strong>; la cadena solo declara el orden". El catálogo es un mapa; la navegación es de otro.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Mecanismo</th><th>Regla</th><th>Qué provoca</th></tr></thead>
+<tbody>
+<tr><td>Escalera de estancamiento</td><td>PE-031, escalón 3</td><td>"Si persiste tras el deload, retroceder eslabón de cadena — <strong>nunca escalón macro completo</strong>"</td></tr>
+<tr><td>Sustitución por elegibilidad</td><td>Paso 2 de la resolución</td><td>Si el eslabón vigente no es elegible, se toma "el más cercano al vigente" — que puede ser el anterior</td></tr>
+<tr><td>Retroceso de escalón macro</td><td>PE-017</td><td><strong>No es regresión de ejercicio</strong> — mueve el puntero de jerarquía, no el eslabón</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Regresión de eslabón ≠ retroceso de escalón</div>
+  <p>Son mecanismos independientes y la fuente lo subraya: "Retroceso de escalón macro completo (PE-017) — <strong>nunca es una acción de esta escalera</strong>, son mecanismos independientes". Solo el primero toca el catálogo: cambia qué ejercicio resuelve el slot. El segundo cambia la plantilla vigente y no toca ninguna entrada.</p>
+</div>
+
+<h2 id="diagrama">Dirección de lectura</h2>
+<div class="diagram">
+<div class="diagram-label">Una sola estructura, dos direcciones, dos disparadores distintos</div>
+<pre class="mermaid">
+graph LR
+  A["Eslabón A<br/><i>menor dificultad</i>"] -->|"cadena.siguiente"| B["Eslabón B<br/><i>vigente</i>"]
+  B -->|"cadena.siguiente"| C["Eslabón C<br/><i>mayor dificultad</i>"]
+  B -.->|"cadena.anterior<br/>REGRESIÓN"| A
+  PE31["PE-031 escalón 3<br/>estancamiento persistente"] -.-> A
+  PASO2["Paso 2 de resolución<br/>vigente no elegible"] -.-> A
+</pre>
+</div>
+
+<h2 id="contrato">Obligaciones que impone al catálogo</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Obligación</th><th>Verificable por</th></tr></thead>
+<tbody>
+<tr><td>Si A declara <code>siguiente: B</code>, B debería declarar <code>anterior: A</code></td><td>Máquina — <span class="tag tag--futuro">coherencia bidireccional no declarada por ninguna fuente</span></td></tr>
+<tr><td>El eslabón anterior existe como entrada del catálogo</td><td>Máquina — integridad referencial</td></tr>
+<tr><td>El eslabón anterior comparte patrón primario</td><td>Máquina</td></tr>
+<tr><td>No se forma ciclo</td><td>Máquina</td></tr>
+<tr><td>El anterior es realmente de menor dificultad</td><td><strong>Solo criterio humano</strong></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">La coherencia bidireccional no está especificada</div>
+  <p>La estructura <code>{anterior?, siguiente?}</code> permite que A declare a B como siguiente sin que B declare a A como anterior. Ninguna fuente exige la reciprocidad, y el caso de ramificación (dos cadenas compartiendo raíz) sugiere que la asimetría puede ser intencional. Se documenta sin resolver — deuda <a href="../17-roadmap/index.html">CT-D07</a>.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../06-variaciones/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 06 · Variaciones</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../08-progresiones/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">08 · Progresiones →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>08 · Microprogresión — Progression Engine Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="microprogresion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 08 · Reglas</p>
+<h1>Microprogresión</h1>
+<p class="lede">La mecánica completa de cómo cambia una Prescripción vigente, ciclo a ciclo, para las 10 variables del dominio. Este módulo explica el <em>comportamiento</em> del subsistema; las reglas atómicas individuales (PE-001–012) viven en 07.</p>
+
+<h2 id="objetivo">Objetivo</h2>
+<p>Que la mecánica de ajuste de una Prescripción sea reproducible sin ambigüedad: qué variable cambia, cuándo, con qué magnitud relativa, y en qué orden cuando varias podrían cambiar el mismo ciclo.</p>
+
+<h2 id="alcance">Alcance</h2>
+<p>Las 10 variables de la Prescripción vigente: peso, repeticiones, series, tempo, descanso, RPE objetivo, RIR, duración, volumen, densidad — su gobierno individual y su interacción.</p>
+
+<h2 id="no-alcance">No alcance</h2>
+<p>Decisiones de escalón jerárquico (Microciclo/Mesociclo/Bloque/Nivel) — eso es macroprogresión (09). Interpretación de fatiga/dolor/sueño — eso es frontera de Recovery (10).</p>
+
+<h2 id="tabla-variables">Las 10 variables y su gobierno</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Variable</th><th>Regla</th><th>Cadencia de señal</th><th>Cadencia de decisión</th></tr></thead>
+<tbody>
+<tr><td>Peso / carga</td><td>PE-001</td><td>Por aparición</td><td>Por ciclo (tras 2 apariciones)</td></tr>
+<tr><td>Repeticiones</td><td>PE-002 / PE-003</td><td>Por aparición</td><td>Por ciclo</td></tr>
+<tr><td>Series</td><td>PE-004</td><td>Por Microciclo</td><td>Por Microciclo</td></tr>
+<tr><td>Tempo</td><td>PE-005</td><td>N/A (no reactivo)</td><td>Por Bloque</td></tr>
+<tr><td>Descanso</td><td>PE-006</td><td>Por aparición</td><td>Por ciclo</td></tr>
+<tr><td>RPE objetivo</td><td>PE-007</td><td>Por aparición</td><td>Por ciclo (tras patrón)</td></tr>
+<tr><td>RIR objetivo</td><td>PE-008</td><td>Por aparición</td><td>Por ciclo (tras patrón)</td></tr>
+<tr><td>Duración de sesión</td><td>PE-009</td><td>Por aparición</td><td>Por ciclo (tras 3 apariciones)</td></tr>
+<tr><td>Volumen</td><td>PE-010</td><td>Por Microciclo</td><td>Por Microciclo</td></tr>
+<tr><td>Densidad</td><td>PE-011</td><td>Por ciclo (derivada)</td><td>N/A — solo reportada</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="flujo">Diagrama de flujo — evaluación micro de un Slot</h2>
+<div class="diagram">
+<div class="diagram-label">Orden real de evaluación dentro del paso 4 del pipeline (06)</div>
+<pre class="mermaid">
+flowchart TD
+  A["¿Aparición evaluable? (PE-021/022)"] -- No --> Z["Excluida — no altera Prescripción"]
+  A -- Sí --> B["¿Señal RPE/RIR fuera de banda? (PE-007/008)"]
+  B -- No --> C["Sin cambio esta aparición"]
+  B -- Sí --> D{"¿Techo de repeticiones alcanzado?"}
+  D -- Sí, tipo carga externa --> E["PE-001: sube carga"]
+  D -- Sí, tipo patrón corporal --> F["PE-003: avanza eslabón"]
+  D -- No --> G["PE-002: sube repeticiones dentro del rango"]
+  E --> H["PE-012 árbitro si compite con otra variable"]
+  F --> H
+  G --> H
+  H --> I["Nueva Prescripción vigente"]
+</pre>
+</div>
+
+<h2 id="casos-limite">Casos límite</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Comportamiento</th></tr></thead>
+<tbody>
+<tr><td>Slot completamente nuevo (sin Prescripción vigente previa)</td><td>Usa el default de la cadena (Knowledge Base) — no hay "progresión" ese ciclo, es punto de partida</td></tr>
+<tr><td>Dos variables elegibles el mismo ciclo (ej. carga y descanso)</td><td>Ambas se aplican si son independientes; si comparten el mismo eje de esfuerzo, rige PE-012</td></tr>
+<tr><td>RPE en banda pero cumplimiento parcial</td><td>PE-021 excluye la Aparición antes de que PE-007 la lea — el cumplimiento parcial invalida la lectura de esfuerzo</td></tr>
+<tr><td>Slot con prescripción mixta (RPE en unas series, RIR en otras dentro de la misma sesión)</td><td>No soportado en v1 — cada Slot usa exactamente un sistema de esfuerzo por Mesociclo (ver 19, pregunta abierta)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="contraejemplos">Contraejemplos</h2>
+<ul>
+  <li>El motor NO sube carga y repeticiones en el mismo ciclo para el mismo Slot (PE-012 lo impide explícitamente).</li>
+  <li>El motor NO reduce tempo por fatiga reportada — PE-005 es una prohibición explícita, no una omisión.</li>
+  <li>El motor NO evalúa progresión sobre una Aparición marcada no-evaluable, ni parcialmente.</li>
+</ul>
+
+<h2 id="errores">Errores posibles</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Error</th><th>Causa</th><th>Tratamiento</th></tr></thead>
+<tbody>
+<tr><td><code>PRESCRIPCION_INCOHERENTE</code></td><td>La Prescripción vigente recibida tiene un campo fuera de los límites duros del programa (ej. RIR negativo)</td><td>Error de invocación — el pipeline aborta antes de evaluar (06, paso 2)</td></tr>
+<tr><td><code>SISTEMA_ESFUERZO_MIXTO</code></td><td>Un Slot llega con RPE y RIR objetivo simultáneos</td><td>Error de invocación — viola la exclusión mutua de PE-007/008</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="consecuencias">Consecuencias y trade-offs</h2>
+<p>Restringir a un único sistema de esfuerzo por Slot (RPE o RIR, nunca ambos) simplifica el árbitro de conflictos a costa de flexibilidad de programación — un entrenador que quiera mezclarlos dentro de la misma sesión no puede hacerlo en v1. Se documenta como deuda de alcance, no como bug (19).</p>
+
+<h2 id="alternativas">Alternativas descartadas</h2>
+<p>Se consideró permitir "progresión combinada" (subir carga Y repeticiones el mismo ciclo cuando el RPE está muy por debajo del objetivo, no solo levemente). Descartada porque introduce una segunda banda de umbral (no solo "en/fuera de banda" sino "cuánto fuera") sin evidencia que respalde el punto de corte — habría sido una regla 🔴 disfrazada de 🟡. Se prefiere el mecanismo más simple y auditable.</p>
+
+<h2 id="extensiones">Extensiones futuras</h2>
+<p>Progresión combinada condicionada a un nuevo nivel de evidencia validado; soporte a sistemas de esfuerzo mixtos dentro de una sesión — ambas quedan en el roadmap (18) y preguntas abiertas (19).</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../07-reglas-negocio/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 07 · Reglas de Negocio</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../09-macroprogresion/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">09 · Macroprogresión →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

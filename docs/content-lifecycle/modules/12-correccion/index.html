@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>12 · Corrección y Rollback — Content Lifecycle</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="correccion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 12 · Garantías</p>
+<h1>Corrección y Rollback</h1>
+<p class="lede">Preguntas 24 y 25. El rollback es el único elemento del ciclo que el ecosistema <strong>declara explícitamente inexistente</strong> — con esas palabras, y en otro dominio. La corrección existe, pero es indistinguible de cualquier otra modificación.</p>
+
+<h2 id="rollback">Pregunta 24 · Evidencia de rollback</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Declarado inexistente, con esas palabras</div>
+  <p>El término aparece en 4 archivos y todos se refieren a migraciones de base de datos. Uno de ellos lo declara sin ambigüedad: <strong>"no existe hoy un mecanismo formal de rollback de migración; revertir un cambio de esquema…"</strong>. Otro lo marca como <span class="tag tag--futuro">futuro</span>.</p>
+  <p>Para el <strong>catálogo</strong> el recuento es cero: ninguna fuente contempla revertir una entrada a un estado anterior.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Objeto</th><th>¿Rollback documentado?</th><th>Evidencia</th></tr></thead>
+<tbody>
+<tr><td>Migración de base de datos</td><td><strong>Declarado inexistente</strong></td><td>"No existe hoy un mecanismo formal de rollback de migración"</td></tr>
+<tr><td>Contrato publicado</td><td>No — pero hay convivencia de versiones</td><td>"Versión nueva junto a la anterior + deprecación"</td></tr>
+<tr><td>Decisión documental (ADR)</td><td>Sí, en forma de supersesión</td><td>"Revertir una requiere un ADR nuevo que la supersede, <strong>nunca edición silenciosa</strong>"</td></tr>
+<tr><td><strong>Entrada de catálogo</strong></td><td><strong>No existe</strong></td><td>Cero apariciones</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Por qué el rollback de una entrada es hoy imposible</div>
+  <p>Revertir una entrada exigiría poder identificar su estado anterior. Sin versionado por entrada (CL-D07) no existe ese estado anterior como objeto recuperable: solo existen dos versiones del <em>catálogo completo</em>, y volver a la anterior revertiría también todos los demás cambios que contuviera. El rollback por entrada no está prohibido — <strong>es inexpresable</strong>.</p>
+</div>
+
+<h2 id="correccion">Pregunta 25 · Cómo se documenta una corrección</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Requisito</th><th>Estado</th><th>Fuente</th></tr></thead>
+<tbody>
+<tr><td>Genera una versión de catálogo nueva</td><td>✅ Obligatorio</td><td>BPS-023</td></tr>
+<tr><td>No altera nada ya generado</td><td>✅ Garantizado</td><td>R-2 · P5</td></tr>
+<tr><td>El <code>slug</code> no cambia</td><td>✅ Obligatorio</td><td>P15</td></tr>
+<tr><td>Queda constancia de que fue una corrección</td><td>❌ No</td><td>Sin campo de motivo</td></tr>
+<tr><td>Queda constancia de qué se corrigió</td><td>❌ No</td><td>Sin versionado por entrada</td></tr>
+<tr><td>Queda constancia de quién la hizo</td><td>❌ No</td><td>Sin registro de autoría</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">CL-D10 — corregir y actualizar son la misma operación</div>
+  <p>Un error de dato y un cambio de criterio producen exactamente el mismo resultado: atributos distintos y una versión de catálogo nueva. <strong>Nada distingue "esto estaba mal" de "esto lo pensamos de otra forma"</strong> — y son editorialmente muy distintas: la primera sugiere revisar entradas similares por si comparten el defecto; la segunda no.</p>
+</div>
+
+<h2 id="modelo">El modelo de corrección que sí existe</h2>
+<p class="matrix-note">El ecosistema resuelve la corrección con rigor en tres objetos. Ninguno es la entrada de catálogo.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Objeto</th><th>Cómo se corrige</th><th>Qué conserva</th></tr></thead>
+<tbody>
+<tr><td><strong>Una Medición del BCS</strong></td><td>Se crea una nueva vigente y se anula la anterior — "nunca se edita en sitio"</td><td>Ambas quedan en el historial completo</td></tr>
+<tr><td><strong>Un WorkoutLog</strong></td><td>"Tras el cierre, el log es inmutable — la corrección es un <strong>evento nuevo</strong>"</td><td>El log original, intacto</td></tr>
+<tr><td><strong>Un ADR</strong></td><td>Un ADR nuevo que lo supersede</td><td>El ADR anterior, visible</td></tr>
+<tr><td><strong>Una entrada de catálogo</strong></td><td>Edición en sitio + versión de catálogo nueva</td><td>Nada del estado anterior de la entrada</td></tr>
+</tbody>
+</table>
+</div>
+<div class="diagram">
+<div class="diagram-label">Tres objetos corrigen sin destruir; el catálogo edita en sitio</div>
+<pre class="mermaid">
+graph TD
+  M["Medición"] -->|"crea nueva + anula anterior"| MC["✅ ambas en el historial"]
+  L["WorkoutLog"] -->|"corrección = evento nuevo"| LC["✅ log original intacto"]
+  A["ADR"] -->|"ADR nuevo que supersede"| AC["✅ anterior visible"]
+  E["Entrada de catálogo"] -->|"edición en sitio"| EC["❌ estado anterior<br/>no recuperable"]
+</pre>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">La excepción es el catálogo</div>
+  <p>El patrón del ecosistema es consistente y explícito: <strong>corregir nunca destruye lo anterior</strong>. Se enuncia tres veces con tres formulaciones distintas — "nunca se edita en sitio", "la corrección es un evento nuevo", "nunca edición silenciosa". La entrada de catálogo es el único objeto que se corrige editándose, y no porque alguien lo haya decidido así: porque no existe el mecanismo alternativo.</p>
+</div>
+
+<h2 id="disparadores">Cómo llega una corrección</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Disparador</th><th>Origen</th><th>Naturaleza</th></tr></thead>
+<tbody>
+<tr><td><code>CATALOGO_INSUFICIENTE</code></td><td>Paso 5 de la resolución, con la combinación exacta que falló</td><td>Reactivo</td></tr>
+<tr><td>Rechazo por validación estructural</td><td>Validación del catálogo</td><td>Preventivo, pero ciego al contenido</td></tr>
+<tr><td>Descargas reactivas repetidas</td><td>Recovery — "la plantilla probablemente prescribe de más"</td><td>Reactivo, indirecto</td></tr>
+<tr><td>Conflicto escalado</td><td>Proceso de etiquetado</td><td>Preventivo — sin registro</td></tr>
+<tr><td>Revisión periódica</td><td>—</td><td><span class="tag tag--futuro">no existe</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Todos los disparadores reales son reactivos</div>
+  <p>Los tres documentados se activan cuando algo <em>ya falló</em>. El único preventivo —la validación estructural— no puede ver errores de contenido. En consecuencia, un error de clasificación que no produzca fallo no tiene ningún mecanismo documentado que lo lleve a corrección.</p>
+</div>
+
+<h2 id="resumen">Resumen</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Operación</th><th>Proceso</th><th>Autoridad</th><th>Registro</th></tr></thead>
+<tbody>
+<tr><td><strong>Corregir</strong></td><td>⚠️ Indistinguible de actualizar</td><td>✅ Contenido · P14</td><td>❌ Sin motivo ni autoría</td></tr>
+<tr><td><strong>Rollback</strong></td><td>❌ Inexpresable</td><td>❌</td><td>❌</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../11-trazabilidad/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 11 · Trazabilidad y Auditoría</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../13-evidencia-cientifica/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">13 · Evidencia Científica →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

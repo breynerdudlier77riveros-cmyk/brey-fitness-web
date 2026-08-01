@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>17 · Roadmap y Auditoría — Exercise Catalog</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="roadmap" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 17 · Gobernanza</p>
+<h1>Roadmap y Auditoría Final</h1>
+<p class="lede">Medición del contrato del catálogo y de lo que falta para publicar el primero real. Todas las cifras son recuentos sobre el modelo documentado, no estimaciones.</p>
+
+<h2 id="modelo">Auditoría del modelo Exercise</h2>
+<p class="matrix-note">25 atributos evaluados: los 21 del modelo documentado más los 4 que el contrato del catálogo debería definir y que ninguna fuente respalda.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Categoría</th><th>N.º</th><th>Atributos</th></tr></thead>
+<tbody>
+<tr><td><strong>✅ Completamente respaldados</strong></td><td><strong>15</strong></td><td><code>slug</code>, <code>nombre</code>, <code>nombreIngles</code>, <code>tipo</code>, <code>nivel</code>, <code>musculoPrincipal</code>, <code>musculosSecundarios</code>, <code>descripcion</code>, <code>instrucciones</code>, <code>erroresComunes</code>, <code>beneficios</code>, <code>patronPrimario</code>, <code>modalidad</code>, <code>zonasRiesgo</code>, <code>cadena</code></td></tr>
+<tr><td><strong>⚠️ Parcialmente respaldados</strong></td><td><strong>6</strong></td><td><code>equipo[]</code> (semántica conjunción/disyunción sin declarar) · <code>sistemasVinculados[]</code> (sin consumidor) · <code>patronesSecundarios[]</code> (sin consumidor) · <code>rolesPosibles[]</code> (sin límite de cardinalidad) · <code>capacidadesRequeridas[]</code> (vocabulario abierto sin proceso de alta) · <code>variantes[]</code> (relación con <code>cadena</code> sin definir)</td></tr>
+<tr><td><strong>❌ Inexistentes</strong></td><td><strong>4</strong></td><td>alias · sinónimos · estado · versión por entrada</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Porcentaje del modelo completamente especificado</div>
+  <p><strong>15 de 25 = 60,0 %.</strong> Sumando los parcialmente respaldados, el 84,0 % del modelo tiene alguna definición; el 16,0 % restante no existe en ninguna fuente.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Reparto del modelo evaluado</div>
+<pre class="mermaid">
+graph TD
+  M["25 atributos evaluados"] --> A["✅ 15 completos<br/>60,0 %"]
+  M --> B["⚠️ 6 parciales<br/>24,0 %"]
+  M --> C["❌ 4 inexistentes<br/>16,0 %"]
+  C --> D["Los 4 son del ciclo de vida<br/>y la identidad extendida:<br/>alias · sinónimos · estado · versión"]
+</pre>
+</div>
+
+<h2 id="compatibilidades">Auditoría de compatibilidades</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Estado</th><th>N.º</th><th>Detalle</th></tr></thead>
+<tbody>
+<tr><td>Existen y son operativas</td><td><strong>1</strong></td><td>Equipamiento — con ambigüedad pendiente</td></tr>
+<tr><td>Existen pero no operativas</td><td><strong>4</strong></td><td>Lesiones · Sistema · Nivel · Modalidad</td></tr>
+<tr><td>Sin respaldo documental</td><td><strong>9</strong></td><td>Hemofilia · espacio físico · tiempo disponible · objetivos · fases · bloques · mesociclos/microciclos · edad/sexo · condiciones especiales</td></tr>
+<tr><td><strong>Total evaluadas</strong></td><td><strong>14</strong></td><td>7,1 % operativas</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="criterio-editorial">Atributos que requieren criterio editorial</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Atributo</th><th>Estado en los 19</th><th>¿Por diseño o por omisión?</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>patronPrimario</code></td><td>Vacío</td><td>Por omisión — no existe criterio de elección</td></tr>
+<tr><td>2</td><td><code>patronesSecundarios[]</code></td><td>Vacío</td><td>Por omisión</td></tr>
+<tr><td>3</td><td><code>rolesPosibles[]</code></td><td>Vacío</td><td>Por omisión — la definición de rol orienta parcialmente</td></tr>
+<tr><td>4</td><td><code>modalidad</code></td><td>Vacío</td><td>Por omisión — las consecuencias permiten verificar, no decidir</td></tr>
+<tr><td>5</td><td><code>zonasRiesgo[]</code></td><td>Vacío</td><td><strong>Por diseño</strong> — "exige etiquetado con criterio biomecánico"</td></tr>
+<tr><td>6</td><td><code>cadena</code></td><td>Vacío</td><td><strong>Por diseño</strong> — "el orden lo autoriza criterio de entrenador"</td></tr>
+<tr><td>7</td><td><code>capacidadesRequeridas[]</code></td><td>Vacío</td><td>Por omisión — vocabulario abierto sin proceso</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">7 atributos requieren criterio editorial · 2 de ellos irreduciblemente</div>
+  <p>Cinco lo requieren porque nadie escribió la regla — son deuda saldable con una decisión documental. Dos lo requieren <strong>por diseño declarado</strong> del ecosistema y no deben cerrarse nunca: la intensidad de zona de riesgo y el orden de la cadena.</p>
+</div>
+
+<h2 id="documentables">Cuántos ejercicios podrían documentarse hoy</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Nivel de documentación</th><th>Ejercicios</th><th>Atributos cubiertos</th><th>Sin inventar nada</th></tr></thead>
+<tbody>
+<tr><td>Identidad + ficha educativa</td><td><strong>19 de 19</strong></td><td>14 de 21 (66,7 %)</td><td>✅ Sí — ya existen en el repositorio</td></tr>
+<tr><td>Clasificación descriptiva (tipo, nivel, equipo, músculos)</td><td><strong>19 de 19</strong></td><td>Incluido en los 14</td><td>✅ Sí</td></tr>
+<tr><td>Clasificación de elegibilidad (patrón, rol, modalidad, zonas)</td><td><strong>0 de 19</strong></td><td>0 de 4</td><td>❌ Exigiría criterio biomecánico</td></tr>
+<tr><td>Relaciones (cadena, capacidades)</td><td><strong>0 de 19</strong></td><td>0 de 2</td><td>❌ Exigiría autorización de entrenador</td></tr>
+<tr><td><strong>Entrada oficial completa (CT-01)</strong></td><td><strong>0 de 19</strong></td><td>—</td><td>❌ Faltan 4 obligatorios en todas</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">La respuesta precisa</div>
+  <p><strong>19 ejercicios pueden documentarse hoy sin inventar información, pero solo hasta el 66,7 % de su modelo.</strong> Ninguno puede publicarse como entrada oficial del catálogo, porque a los 19 les faltan los mismos cuatro atributos obligatorios: <code>patronPrimario</code>, <code>rolesPosibles</code>, <code>modalidad</code> y <code>zonasRiesgo</code>.</p>
+</div>
+
+<h2 id="dependencias">Dependencias</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Hacia</th><th>N.º</th><th>Qué toma</th></tr></thead>
+<tbody>
+<tr><td><strong>Exercise Taxonomy</strong></td><td>5</td><td>Inventario de los 21 atributos · estatutos (obligatorio/opcional/derivado) · fronteras Ejercicio ≠ Prescripción ≠ Workout ≠ Slot · estatuto de identidad del <code>slug</code> · distinción ausencia ≠ lista vacía</td></tr>
+<tr><td><strong>Exercise Tagging</strong></td><td>4</td><td>Proceso de 7 pasos (condición 3 de CT-01) · validaciones estructurales y de contenido · checklist de etiquetado · protocolo de escalado</td></tr>
+<tr><td><strong>Training Framework</strong></td><td>4</td><td>Capa 9 (el Ejercicio nunca decide su prescripción) · R-2 (inmutabilidad) · R-3 (ninguna capa superior nombra ejercicios) · frontera plantilla/instancia</td></tr>
+<tr><td><strong>Architecture Handbook 04</strong></td><td>—</td><td>Fuente primaria de toda la ontología, vía Taxonomy</td></tr>
+<tr><td><strong>Domain Model</strong></td><td>1</td><td>Catálogo de máquinas de estado — usado para verificar que Exercise no tiene ninguna</td></tr>
+<tr><td><strong>Implementation Handbook</strong></td><td>1</td><td>Orden de construcción y declaración de bloqueantes</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="deudas">Deuda documental registrada</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>ID</th><th>Deuda</th><th>Módulo</th><th>Severidad</th></tr></thead>
+<tbody>
+<tr><td><code>CT-D01</code></td><td>No existe mecanismo de obsolescencia de atributos</td><td><a href="../02-modelo-exercise/index.html">02</a></td><td><span class="severity severity--media">media</span></td></tr>
+<tr><td><code>CT-D02</code></td><td>No existe atributo <code>alias</code></td><td><a href="../03-identidad/index.html">03</a></td><td><span class="severity severity--media">media</span></td></tr>
+<tr><td><code>CT-D03</code></td><td>No existen sinónimos de nombre de ejercicio</td><td><a href="../03-identidad/index.html">03</a></td><td><span class="severity severity--media">media</span></td></tr>
+<tr><td><code>CT-D04</code></td><td>No existe versionado por entrada</td><td><a href="../12-versionado/index.html">12</a></td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td><code>CT-D05</code></td><td>No existe ciclo de vida (Draft/Approved/Deprecated/Archived)</td><td><a href="../11-estados/index.html">11</a></td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td><code>CT-D06</code></td><td>La relación <code>variantes[]</code> ↔ <code>cadena</code> no está definida</td><td><a href="../06-variaciones/index.html">06</a></td><td><span class="severity severity--media">media</span></td></tr>
+<tr><td><code>CT-D07</code></td><td>La coherencia bidireccional de la cadena no está exigida</td><td><a href="../07-regresiones/index.html">07</a></td><td><span class="severity severity--media">media</span></td></tr>
+<tr><td><code>CT-D08</code></td><td>PE-003 exige "carga externa vs. patrón corporal" y "admite carga añadida" — ningún atributo los expresa</td><td><a href="../08-progresiones/index.html">08</a></td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td><code>CT-D09</code></td><td>Sin estado de retirada, la integridad de cadena queda expuesta</td><td><a href="../10-integridad/index.html">10</a></td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td><code>CT-D10</code></td><td>P14 exige trazar la autoría y no hay dónde registrarla</td><td><a href="../13-mantenimiento/index.html">13</a></td><td><span class="severity severity--critica">crítica</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="bloqueantes">Bloqueantes para publicar el primer catálogo real</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Bloqueante</th><th>Impide</th><th>Dueño</th></tr></thead>
+<tbody>
+<tr><td>B-1</td><td><strong>Etiquetado de los 7 atributos</strong> que requieren criterio editorial</td><td><strong>Publicar</strong> — ninguna entrada cumple CT-01</td><td>Contenido (Roadmap #2)</td></tr>
+<tr><td>B-2</td><td><strong>CT-D10</strong> · sin registro de autoría</td><td><strong>Cumplir P14</strong> — la autorización no queda trazada</td><td>Decisión documental</td></tr>
+<tr><td>B-3</td><td><strong>CT-D05</strong> · sin ciclo de vida</td><td><strong>Operar</strong> — no se puede retirar una entrada sin borrarla (CTA-02)</td><td>Decisión documental (Domain Model 10)</td></tr>
+<tr><td>B-4</td><td><strong>CT-D08</strong> · atributos que PE-003 exige y no existen</td><td><strong>Usar</strong> — la progresión no puede bifurcar</td><td>Decisión documental</td></tr>
+<tr><td>B-5</td><td>Ambigüedad conjunción/disyunción de <code>equipo[]</code></td><td><strong>Validar</strong> — no se sabe qué debe contener la lista</td><td>Decisión documental</td></tr>
+<tr><td>B-6</td><td>Sin mapeo Nivel de usuario ↔ <code>nivel</code> de ejercicio</td><td><strong>Usar</strong> — el filtro de elegibilidad no es computable</td><td>Decisión documental</td></tr>
+<tr><td>B-7</td><td>El Perfil no captura lesiones como zonas estructuradas</td><td><strong>Usar</strong> — el filtro de seguridad no funciona ni con el catálogo completo</td><td>Ingeniería</td></tr>
+</tbody>
+</table>
+</div>
+<div class="diagram">
+<div class="diagram-label">Qué bloquea qué — solo B-1 impide empezar</div>
+<pre class="mermaid">
+graph TD
+  B1["B-1 · etiquetado editorial<br/>7 atributos"] --> PUB["⛔ PUBLICAR<br/>la primera entrada"]
+  B2["B-2 · sin registro de autoría"] --> GOB["⚠ GOBERNAR<br/>cumplir P14"]
+  B3["B-3 · sin ciclo de vida"] --> OPE["⚠ OPERAR<br/>retirar sin borrar"]
+  B4["B-4 · PE-003 sin atributos"] --> USO["⛔ USAR<br/>progresión bifurcada"]
+  B5["B-5 · equipo ambiguo"] --> VAL["⚠ VALIDAR"]
+  B6["B-6 · sin mapeo de nivel"] --> USO
+  B7["B-7 · Perfil no estructurado"] --> USO
+</pre>
+</div>
+
+<h2 id="roadmap">Roadmap — qué falta para un catálogo completo</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Fase</th><th>Trabajo</th><th>Dueño</th><th>Desbloquea</th></tr></thead>
+<tbody>
+<tr><td><strong>1 · Decisiones documentales</strong></td><td>Ciclo de vida (CT-D05) · registro de autoría (CT-D10) · atributos de PE-003 (CT-D08) · semántica de <code>equipo[]</code> · mapeo de niveles</td><td>Documentación</td><td>Que el etiquetado produzca entradas gobernables</td></tr>
+<tr><td><strong>2 · Etiquetado editorial</strong></td><td>Los 7 atributos × 19 ejercicios, con el proceso del Tagging Handbook</td><td>Contenido</td><td>Las primeras entradas oficiales</td></tr>
+<tr><td><strong>3 · Modelo de Perfil</strong></td><td>Capturar lesiones como zonas estructuradas</td><td>Ingeniería</td><td>El filtro de seguridad</td></tr>
+<tr><td><strong>4 · Cobertura</strong></td><td>Ampliar el catálogo hasta cubrir las combinaciones patrón × rol × track × nivel</td><td>Contenido</td><td>Que la generación no caiga en <code>CATALOGO_INSUFICIENTE</code></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">El orden importa</div>
+  <p>La fase 1 debe preceder a la 2: etiquetar 19 ejercicios sin registro de autoría ni ciclo de vida produce un catálogo que cumple CT-01 pero incumple P14 — entradas correctas cuya autorización no puede rastrearse, que es exactamente lo que el principio existe para evitar.</p>
+</div>
+
+<h2 id="metricas">Métricas del handbook</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Métrica</th><th>Valor</th></tr></thead>
+<tbody>
+<tr><td>Módulos</td><td>18 (00–17)</td></tr>
+<tr><td>Atributos del modelo documentados</td><td>21</td></tr>
+<tr><td>Atributos evaluados (modelo + solicitados ausentes)</td><td>25</td></tr>
+<tr><td>Compatibilidades evaluadas</td><td>14</td></tr>
+<tr><td>Principios (CT-01…08)</td><td>8</td></tr>
+<tr><td>ADR (CT-ADR-01…06)</td><td>6</td></tr>
+<tr><td>Anti-patterns (CTA-01…12)</td><td>12</td></tr>
+<tr><td>Ítems del checklist de publicación</td><td>23</td></tr>
+<tr><td>Deudas documentales (CT-D01…10)</td><td>10</td></tr>
+<tr><td>Bloqueantes</td><td>7</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="estado">Estado final</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Veredicto</div>
+  <p>El <strong>Exercise Catalog v1.0 está completo como contrato</strong>: define el modelo de 21 atributos con su estatuto, las cuatro condiciones de existencia, la integridad, el mapa de relaciones, el checklist de publicación de 23 ítems y la autoridad de mantenimiento. <strong>El 60,0 % del modelo está completamente especificado</strong>, el 84,0 % tiene alguna definición.</p>
+  <p><strong>El catálogo oficial tiene hoy cero entradas</strong>, y eso es correcto: los 19 ejercicios del repositorio están documentados al 66,7 % de su modelo y a los 19 les faltan los mismos cuatro atributos obligatorios. Publicarlos ahora violaría CT-01, y sin ciclo de vida ni registro de autoría serían indistinguibles de entradas aprobadas.</p>
+  <p>De los siete bloqueantes, <strong>solo uno impide empezar</strong> (el etiquetado editorial); los seis restantes son decisiones documentales o de modelo que conviene resolver antes, para que el trabajo editorial produzca un catálogo gobernable y no solo poblado.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../16-anti-patterns/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 16 · Anti-patterns</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../../index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">Portada →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

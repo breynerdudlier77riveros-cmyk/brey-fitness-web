@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>12 · Escalabilidad — BCS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="escalabilidad" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 12 · Sistema y gobernanza</p>
+<h1>Escalabilidad</h1>
+<p class="lede">Cuánto debe soportar el sistema hoy, y qué decisiones de diseño evitan que crecer mañana requiera rediseñar el dominio.</p>
+
+<h2 id="volumen">Volumen esperado</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Dimensión</th><th>Escala esperada v1</th></tr></thead>
+<tbody>
+<tr><td>Entrenadores</td><td>1 (single-tenant, 16) — la arquitectura no lo impide crecer, pero v1 no lo necesita</td></tr>
+<tr><td>Clientes por entrenador</td><td>Decenas a un par de cientos — el rango típico de una cartera de entrenamiento personal presencial</td></tr>
+<tr><td>Mediciones por cliente</td><td>Ilimitadas por diseño (00) — un cliente de varios años puede acumular cientos de Mediciones</td></tr>
+<tr><td>Fotografías</td><td>0–1 por Medición — potencialmente cientos por cliente en el tiempo</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="single-tenant">Single-tenant hoy, multi-tenant-ready por diseño</h2>
+<p>El agregado Cliente ya referencia (implícitamente en v1, explícitamente si se activa multi-entrenador) al entrenador propietario — la separación en tres agregados (02) y las políticas de RLS ya escritas pensando en múltiples entrenadores (08) significan que soportar más de un entrenador en el futuro es una extensión de configuración, no un rediseño del dominio. Se documenta formalmente como ADR (16).</p>
+
+<h2 id="paginacion">Paginación e historial</h2>
+<p>El listado de Clientes y el historial de Mediciones de un Cliente se consultan siempre paginados o acotados por rango de fechas — nunca se carga "todo el historial de todos los clientes" en una sola operación. El Reporte (04) de un Cliente individual sí puede cargar su historial completo, porque está acotado a un solo Cliente, cuyo volumen máximo razonable (cientos de Mediciones) es manejable sin paginación adicional en v1.</p>
+
+<h2 id="rendimiento-reporte">Rendimiento del Reporte con historiales grandes</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Consideración</th><th>Tratamiento</th></tr></thead>
+<tbody>
+<tr><td>Gráfico de tendencia con cientos de puntos</td><td>El módulo 07 ya exige que la visualización no degrade legibilidad — la implementación puede resumir por rango de fechas seleccionable sin que esto sea una regla de dominio, es una decisión de presentación</td></tr>
+<tr><td>Cálculo del Reporte on-demand (IN-D3, 02)</td><td>Al no persistirse un snapshot, cada visualización recalcula sobre el historial vigente — aceptable en el volumen esperado; si el volumen creciera órdenes de magnitud, cachear el cálculo sería una optimización de infraestructura, no un cambio de modelo (17)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="casos-limite">Casos límite</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Comportamiento</th></tr></thead>
+<tbody>
+<tr><td>Un cliente con 10 años de historial (500+ Mediciones)</td><td>El sistema debe seguir funcionando — es el caso de diseño explícito de "historial ilimitado" (00), no un caso extremo a ignorar</td></tr>
+<tr><td>Múltiples entrenadores creados antes de que exista UI para gestionarlos</td><td>No aplica en v1 — el sistema no expone forma de crear un segundo entrenador; la extensión es de roadmap (14), la arquitectura de datos ya lo permite</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../11-privacidad/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 11 · Privacidad</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../13-api-interna/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">13 · API Interna →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>00 · Introducción — Engineering Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="introduccion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 00 · Fundamentos</p>
+<h1>Introducción</h1>
+<p class="lede">El handbook técnico definitivo del ecosistema BREY: cómo se construye cualquier módulo, no qué hace cada uno. Single Source of Truth de arquitectura técnica. Si el código futuro lo contradice, el handbook tiene prioridad.</p>
+
+<div class="meta-row">
+  <span class="chip">Autoridad: handbook &gt; código</span>
+  <span class="chip">Aplica a todo el ecosistema, no a un solo módulo</span>
+  <span class="chip">Sin código, sin migraciones, sin APIs generadas</span>
+</div>
+
+<h2 id="objetivo">Objetivo</h2>
+<p>Especificar cómo debe construirse cualquier módulo futuro de BREY — Body Composition, Diagnóstico BPS, Workout Generator, Workout Player, Progression Engine, Recovery Engine, Motor BPS, Nutrición, Programas, Coach IA, Hábitos, Lesiones, y cualquiera que venga después — con suficiente rigor para que un desarrollador nuevo no tenga que tomar ninguna decisión arquitectónica fundamental por su cuenta.</p>
+
+<h2 id="proposito">Propósito</h2>
+<p>Los cinco handbooks de dominio ya existentes (Architecture, Motor BPS, Progression Engine, Body Composition System, BCS Design System) especifican <em>qué</em> hace cada motor o sistema y <em>cómo se ve</em>. Ninguno especifica, de forma unificada y transversal, <em>cómo se construye técnicamente</em> cualquiera de ellos: qué carpeta usar, qué patrón de repositorio seguir, cómo nombrar una tabla, cómo versionar un evento, cómo desplegar. Ese es el vacío que este documento cierra.</p>
+
+<h2 id="alcance">Alcance</h2>
+<p>Aplica a la totalidad del ecosistema técnico de BREY:</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Módulo</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>Core Product (perfil, entrenamientos, progreso)</td><td><span class="tag tag--implementado">implementado</span></td></tr>
+<tr><td>Diagnóstico BPS</td><td><span class="tag tag--implementado">implementado</span> (motor de reglas, sin persistencia de resultado aún — Architecture Handbook)</td></tr>
+<tr><td>Motor BPS</td><td><span class="tag tag--especificado">especificado</span> (Motor BPS Handbook)</td></tr>
+<tr><td>Progression Engine</td><td><span class="tag tag--especificado">especificado</span> (Progression Engine Handbook)</td></tr>
+<tr><td>Body Composition System</td><td><span class="tag tag--especificado">especificado</span> (BCS Handbook + BCS Design System Handbook)</td></tr>
+<tr><td>Workout Generator, Workout Player, Recovery Engine</td><td><span class="tag tag--futuro">futuro</span> (citados como consumidores/productores en handbooks existentes, sin handbook propio aún)</td></tr>
+<tr><td>Nutrición, Programas, Coach IA, Hábitos, Lesiones</td><td><span class="tag tag--futuro">futuro</span> (sin handbook de dominio todavía)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="no-alcance">No alcance</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Fuera de este documento</th><th>Dónde vive</th></tr></thead>
+<tbody>
+<tr><td>Reglas de negocio de un motor específico (qué es estancamiento, cómo se calcula IMC)</td><td>El handbook de dominio correspondiente (Architecture, Motor BPS, Progression Engine, BCS)</td></tr>
+<tr><td>Diseño visual, componentes de UI, tokens de color/spacing/motion</td><td>BCS Design System Handbook — y su futura generalización a todo el ecosistema (15)</td></tr>
+<tr><td>Cualquier línea de código, migración SQL, endpoint generado</td><td>No pertenece a ningún handbook — este documento se detiene en la especificación</td></tr>
+<tr><td>Roadmap de producto/negocio (features, pricing, fechas de lanzamiento)</td><td>Fuera del ecosistema de handbooks técnicos</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="como-leer">Cómo leer este handbook</h2>
+<p>Toda afirmación sobre el estado de una pieza del sistema lleva una de tres etiquetas — nunca se mezclan ni se dejan implícitas:</p>
+<p>
+<span class="tag tag--implementado">implementado</span>
+<span class="tag tag--especificado">especificado</span>
+<span class="tag tag--futuro">futuro</span>
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Etiqueta</th><th>Significa</th></tr></thead>
+<tbody>
+<tr><td><span class="tag tag--implementado">implementado</span></td><td>Existe en el código real de BREY hoy — verificado contra el repositorio, no supuesto</td></tr>
+<tr><td><span class="tag tag--especificado">especificado</span></td><td>Un contrato completo ya existe en un handbook de dominio (Motor BPS, Progression Engine, BCS), pero ningún código lo implementa todavía</td></tr>
+<tr><td><span class="tag tag--futuro">futuro</span></td><td>Ni siquiera especificado en detalle — candidato de roadmap (15)</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Por qué esta distinción es la más importante del documento</div>
+  <p>Un handbook técnico que no distingue "esto ya existe" de "esto está diseñado pero no construido" induce a error: un desarrollador podría asumir que <code>progression_events</code> ya es una tabla real porque el Progression Engine Handbook la especifica en detalle. No lo es — hoy existen exactamente 5 tablas en producción (05). Esta etiqueta se aplica sin excepción en los 17 módulos.</p>
+</div>
+
+<h2 id="relacion">Relación con los demás handbooks</h2>
+<div class="diagram">
+<div class="diagram-label">La familia completa de handbooks de BREY — este documento es transversal, no un eslabón más de la cadena de dominio</div>
+<pre class="mermaid">
+graph TD
+  AH["Architecture Handbook v1.0<br/>(marco: principios, jerarquía, ontología)"]
+  MB["Motor BPS Handbook v1.0<br/>(orquestador)"]
+  PE["Progression Engine Handbook v1.0"]
+  BCS["BCS Handbook v1.0<br/>(dominio de composición corporal)"]
+  BCSD["BCS Design System Handbook v1.0<br/>(diseño visual del BCS)"]
+  ENG["Engineering Handbook v1.0<br/>(este documento — cómo se construye todo)"]
+
+  AH --> MB
+  MB --> PE
+  AH --> BCS
+  BCS --> BCSD
+
+  ENG -.->|"gobierna la construcción técnica de"| AH
+  ENG -.->|"gobierna la construcción técnica de"| MB
+  ENG -.->|"gobierna la construcción técnica de"| PE
+  ENG -.->|"gobierna la construcción técnica de"| BCS
+  ENG -.->|"gobierna la construcción técnica de"| BCSD
+</pre>
+</div>
+<p>Los handbooks de dominio deciden <em>qué</em> construir. La BCS Design System Handbook decide <em>cómo se ve</em>. Este handbook decide <em>cómo se construye técnicamente</em> cualquiera de los anteriores — capas, contratos, base de datos, seguridad, testing, despliegue. Ninguno de los cinco handbooks previos queda invalidado ni reescrito; este documento es una nueva dimensión ortogonal a todos ellos.</p>
+
+<h2 id="metodologia">Metodología de este documento</h2>
+<p>Cada afirmación técnica de este handbook fue verificada contra el código real de BREY (<code>package.json</code>, <code>src/</code>, <code>supabase/</code>, configuración de TypeScript/ESLint) antes de escribirse — no es una aspiración genérica de "buenas prácticas", es una descripción precisa de decisiones ya tomadas, más la especificación de las que aún faltan.</p>
+
+<div class="pagenav">
+  <div></div>
+  <a class="pagenav__item pagenav__item--next" href="../01-filosofia-tecnica/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">01 · Filosofía Técnica →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

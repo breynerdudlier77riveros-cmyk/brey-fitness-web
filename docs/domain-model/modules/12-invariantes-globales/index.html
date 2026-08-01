@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>12 · Invariantes Globales — Domain Model Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="invariantes-globales" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 12 · Comportamiento</p>
+<h1>Invariantes Globales</h1>
+<p class="lede">Treinta reglas que nunca pueden violarse, clasificadas por severidad. Cada una cita su fuente — ninguna es nueva, todas ya estaban implícitas o explícitas en los módulos 01–11 o en un handbook anterior.</p>
+
+<div class="callout callout--riesgo">
+  <div class="callout__label">Corrección respecto a un ejemplo del encargo original</div>
+  <p>El encargo de este handbook incluye, como ejemplo ilustrativo, "Nunca existe un Reporte sin Medición". El BCS Handbook (04) ya especifica explícitamente lo contrario: un Cliente sin ninguna Medición registrada SÍ tiene Reporte — un estado vacío explícito ("Sin mediciones registradas"), nunca un error. Adoptar la regla del ejemplo literalmente contradiría un handbook ya cerrado, lo cual el propio encargo prohíbe. Este módulo la reemplaza por IN-24 (un Reporte nunca se persiste independientemente de sus Mediciones fuente) y añade IN-25 (nunca existe un Reporte para un Cliente inexistente), que capturan la misma intención — "el Reporte siempre depende de su Cliente" — sin contradecir la regla del estado vacío.</p>
+</div>
+
+<h2 id="identity-diagnostics">Identity y Diagnóstico</h2>
+
+<div class="invariant"><div class="invariant__num">IN-01</div><div class="invariant__body"><span class="severity severity--critica">crítica</span><p>Nunca existe un Usuario sin su Perfil correspondiente — la relación es 1:1 obligatoria desde la creación (Architecture Handbook).</p></div></div>
+<div class="invariant"><div class="invariant__num">IN-02</div><div class="invariant__body"><span class="severity severity--critica">crítica</span><p>Nunca existe un Diagnóstico sin el Usuario que lo origina.</p></div></div>
+<div class="invariant"><div class="invariant__num">IN-03</div><div class="invariant__body"><span class="severity severity--alta">alta</span><p>Nunca existe una Respuesta fuera de un Diagnóstico — no tiene identidad ni ciclo de vida propios (DX-02).</p></div></div>
+<div class="invariant"><div class="invariant__num">IN-04</div><div class="invariant__body"><span class="severity severity--media">media</span><p>Un Diagnóstico en estado completado nunca vuelve a en curso — retomar crea un Diagnóstico nuevo (P3, 10).</p></div></div>
+<div class="invariant"><div class="invariant__num">IN-05</div><div class="invariant__body"><span class="severity severity--critica">crítica</span><p>Nunca existe un Programa en estado activo sin un Diagnóstico completado previo (Motor BPS Handbook, T3–T5; 10).</p></div></div>
+<div class="invariant"><div class="invariant__num">IN-06</div><div class="invariant__body"><span class="severity severity--critica">crítica</span><p>Nunca existe un Programa sin un Usuario con posición activa apuntando a él (<code>profiles.sistema_actual</code>/<code>nivel_actual</code>, 13).</p></div></div>
+
+<h2 id="core-training">Core Training</h2>
+
+<div class="invariant"><div class="invariant__num">IN-07</div><div class="invariant__body"><span class="severity severity--critica">crítica</span><p>Nunca existe un Bloque fuera de un Programa.</p></div></div>
+<div class="invariant"><div class="invariant__num">IN-08</div><div class="invariant__body"><span class="severity severity--alta">alta</span><p>Nunca existe un Mesociclo fuera de un Bloque.</p></div></div>
+<div class="invariant"><div class="invariant__num">IN-09</div><div class="invariant__body"><span class="severity severity--alta">alta</span><p>Nunca existe un Microciclo fuera de un Mesociclo.</p></div></div>
+<div class="invariant"><div class="invariant__num">IN-10</div><div class="invariant__body"><span class="severity severity--critica">crítica</span><p>Nunca existe un Workout sin un Usuario propietario.</p></div></div>
+<div class="invariant"><div class="invariant__num">IN-11</div><div class="invariant__body"><span class="severity severity--alta">alta</span><p>Nunca existe un Slot fuera de un Workout.</p></div></div>
+<div class="invariant"><div class="invariant__num">IN-12</div><div class="invariant__body"><span class="severity severity--critica">crítica</span><p>Nunca existe un Diagnóstico en estado completado sin un ResultadoDiagnóstico asociado (10).</p></div></div>
+<div class="invariant"><div class="invariant__num">IN-13</div><div class="invariant__body"><span class="severity severity--alta">alta</span><p>Nunca existe una Serie fuera de un Slot ejecutado, dentro de un WorkoutLog.</p></div></div>
+<div class="invariant"><div class="invariant__num">IN-14</div><div class="invariant__body"><span class="severity severity--media">media</span><p>Un Slot nunca referencia un Ejercicio por nombre directo — solo por Patrón×Rol (P7).</p></div></div>
+<div class="invariant"><div class="invariant__num">IN-15</div><div class="invariant__body"><span class="severity severity--alta">alta</span><p>Un Workout en estado completado o perdido nunca vuelve a planificado — estado final sin retorno (FT-09).</p></div></div>
+<div class="invariant"><div class="invariant__num">IN-16</div><div class="invariant__body"><span class="severity severity--media">media</span><p><code>nivel_actual</code> y <code>nivel_experiencia</code> nunca se sincronizan ni se confunden automáticamente entre sí (ADR-003, 04).</p></div></div>
+
+<h2 id="progresion-recovery">Progresión y Recuperación</h2>
+
+<div class="invariant"><div class="invariant__num">IN-17</div><div class="invariant__body"><span class="severity severity--critica">crítica</span><p>Nunca existe una Prescripción sin el Slot que la recibe — relación 1:1 obligatoria (PR-01).</p></div></div>
+<div class="invariant"><div class="invariant__num">IN-18</div><div class="invariant__body"><span class="severity severity--media">media</span><p>RPE y RIR nunca coexisten como reporte válido dentro de la misma Serie (PE-ADR-05, VO-07/VO-08).</p></div></div>
+<div class="invariant"><div class="invariant__num">IN-19</div><div class="invariant__body"><span class="severity severity--critica">crítica</span><p>Nunca existe un EventoProgresión sin el Usuario que lo origina.</p></div></div>
+<div class="invariant"><div class="invariant__num">IN-20</div><div class="invariant__body"><span class="severity severity--alta">alta</span><p>Un EventoProgresión, una vez insertado, nunca se edita ni se borra — append-only (FT-09).</p></div></div>
+<div class="invariant"><div class="invariant__num">IN-21</div><div class="invariant__body"><span class="severity severity--critica">crítica</span><p>Ninguna SeñalFatiga ni Dolor crudo sale de Recovery Engine hacia otro contexto — solo su EstadoRecuperación ya resuelto (P8, 09-diagrama 9).</p></div></div>
+
+<h2 id="composicion-corporal">Composición Corporal</h2>
+
+<div class="invariant"><div class="invariant__num">IN-22</div><div class="invariant__body"><span class="severity severity--critica">crítica</span><p>Nunca existe una Medición sin un Cliente válido — <code>clienteId</code> obligatorio en todo su ciclo de vida (BCS-IN-D5).</p></div></div>
+<div class="invariant"><div class="invariant__num">IN-23</div><div class="invariant__body"><span class="severity severity--alta">alta</span><p>Una Medición vigente nunca se edita en sitio — toda corrección crea una Medición nueva y anula la anterior (BCS-IN-D1).</p></div></div>
+<div class="invariant"><div class="invariant__num">IN-24</div><div class="invariant__body"><span class="severity severity--media">media</span><p>Un Reporte nunca se persiste independientemente de sus Mediciones fuente — siempre se computa on-demand (BCS-IN-D3).</p></div></div>
+<div class="invariant"><div class="invariant__num">IN-25</div><div class="invariant__body"><span class="severity severity--alta">alta</span><p>Nunca existe un Reporte para un Cliente inexistente — puede existir con cero Mediciones (estado vacío explícito), nunca sin Cliente (BCS Handbook, 04).</p></div></div>
+<div class="invariant"><div class="invariant__num">IN-26</div><div class="invariant__body"><span class="severity severity--critica">crítica</span><p>Nunca existe un EnlacePúblico sin un Cliente válido.</p></div></div>
+<div class="invariant"><div class="invariant__num">IN-27</div><div class="invariant__body"><span class="severity severity--alta">alta</span><p>Nunca existen dos EnlacesPúblicos en estado Activo simultáneos para el mismo Cliente (BCS Handbook, 09-IN-1).</p></div></div>
+<div class="invariant"><div class="invariant__num">IN-28</div><div class="invariant__body"><span class="severity severity--alta">alta</span><p>Un EnlacePúblico revocado nunca se reactiva — compartir de nuevo siempre crea un token distinto (BCS-IN-D4).</p></div></div>
+<div class="invariant"><div class="invariant__num">IN-29</div><div class="invariant__body"><span class="severity severity--critica">crítica</span><p>Un Cliente eliminado dispara revocación en cascada de todos sus EnlacesPúblicos (BCS Handbook, UC-04, 10).</p></div></div>
+<div class="invariant"><div class="invariant__num">IN-30</div><div class="invariant__body"><span class="severity severity--media">media</span><p>Un Cliente en estado Eliminado nunca retorna a Activo ni a Archivado — terminal (BCS-IN-D2).</p></div></div>
+
+<h2 id="transversales">Transversales</h2>
+
+<div class="invariant"><div class="invariant__num">IN-31</div><div class="invariant__body"><span class="severity severity--critica">crítica</span><p>Nunca existe una relación de dominio directa entre Usuario y Cliente — la identidad del Usuario autoriza la operación sobre un Cliente, nunca implica propiedad de dominio entre ambos (09-diagrama 13).</p></div></div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../11-eventos-dominio/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 11 · Eventos del Dominio</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../13-mapeo-persistencia/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">13 · Mapeo a Persistencia →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

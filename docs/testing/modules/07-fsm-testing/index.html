@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>07 · FSM Testing — BREY Testing Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="fsm-testing" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 07 · Niveles</p>
+<h1>FSM Testing</h1>
+<p class="lede">Las 15 transiciones del Motor BPS y las tres máquinas de estado del BCS — cada transición válida necesita un caso que la ejecute, y cada transición inválida necesita un caso que la rechace.</p>
+
+<h2 id="matriz-fsm-motor-bps">Matriz FSM → Casos — Motor BPS (T1–T15)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>T</th><th>De → A</th><th>Caso válido</th><th>Caso inválido a rechazar</th></tr></thead>
+<tbody>
+<tr><td>T1</td><td>sin_diagnostico → diagnosticado</td><td>Diagnóstico completado con resultado válido</td><td>Diagnóstico incompleto no transiciona</td></tr>
+<tr><td>T2</td><td>diagnosticado → diagnosticado</td><td>Retoma de Diagnóstico — nueva fila, punteros intactos (BPS-012)</td><td>Retoma no debe alterar punteros existentes</td></tr>
+<tr><td>T3</td><td>diagnosticado → pendiente_perfil</td><td><code>compra_confirmada</code> con <code>transaccion_id</code> nuevo</td><td><code>transaccion_id</code> repetido no re-ejecuta la transición (idempotencia)</td></tr>
+<tr><td>T4</td><td>sin_diagnostico → pendiente_diagnostico</td><td><code>compra_confirmada</code> sin resultado vigente</td><td>Nunca escribe punteros en este caso (BPS-003)</td></tr>
+<tr><td>T5</td><td>pendiente_diagnostico → pendiente_perfil</td><td>Diagnóstico completado tras compra pendiente</td><td>Sin resultado válido, permanece en <code>pendiente_diagnostico</code></td></tr>
+<tr><td>T6</td><td>pendiente_perfil → activo</td><td>Los 3 campos de gate presentes</td><td>Falta un campo de gate → permanece en <code>pendiente_perfil</code></td></tr>
+<tr><td>T7</td><td>activo → pendiente_perfil</td><td>Ciclo detecta gate roto (campo de gate ausente)</td><td>Gate completo no dispara esta transición</td></tr>
+<tr><td>T8</td><td>activo → en_descarga</td><td><code>exigeDescarga.procede: true</code></td><td><code>procede: false</code> no transiciona</td></tr>
+<tr><td>T9</td><td>en_descarga → activo</td><td>Cierre de microciclo de descarga</td><td>Descarga en curso no revierte antes del cierre</td></tr>
+<tr><td>T10</td><td>activo → en_pausa</td><td>Lesión mayor o pausa voluntaria, con motivo</td><td>Sin motivo explícito, la transición es inválida (evento requiere razón, P2)</td></tr>
+<tr><td>T11</td><td>activo → en_pausa</td><td>≥21 días sin log (BPS-025, MBPS-ADR-02)</td><td>20 días exactos no dispara — verificar el límite exacto</td></tr>
+<tr><td>T12</td><td>en_pausa → activo</td><td>Reanuda con pausa ≤30 días</td><td>Debe continuar donde estaba, sin retroceso</td></tr>
+<tr><td>T13</td><td>en_pausa → activo</td><td>Reanuda con pausa &gt;30 días</td><td>Debe proponer retroceso de 1 Mesociclo — verificar que es propuesto, no forzado</td></tr>
+<tr><td>T14</td><td>activo → sistema_completado</td><td>Último Microciclo del último Bloque</td><td>Bloque incompleto no completa el Sistema</td></tr>
+<tr><td>T15a/b</td><td>sistema_completado → diagnosticado/pendiente_perfil</td><td>Re-diagnóstico o nueva compra tras completar</td><td>Historial debe permanecer intacto tras la transición (punteros reemplazados, no el log)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="estados-imposibles">Casos de reparación de estados imposibles</h2>
+<p>Motor BPS Handbook especifica una tabla de estados imposibles y su reparación — cada fila de esa tabla es un caso de test que construye deliberadamente el estado corrupto (vía inserción directa de datos de fixture, nunca vía el flujo normal) y verifica que el mecanismo de reparación/detección (evento <code>anomalia</code>) se dispara correctamente.</p>
+
+<h2 id="diagrama-fsm-mbps">Diagrama — cobertura de la FSM completa</h2>
+<div class="diagram">
+<div class="diagram-label">8 estados, 15 transiciones — ninguno sin al menos un caso válido y uno inválido</div>
+<pre class="mermaid">
+stateDiagram-v2
+  [*] --> sin_diagnostico
+  sin_diagnostico --> diagnosticado: T1
+  sin_diagnostico --> pendiente_diagnostico: T4
+  diagnosticado --> diagnosticado: T2
+  diagnosticado --> pendiente_perfil: T3
+  pendiente_diagnostico --> pendiente_perfil: T5
+  pendiente_perfil --> activo: T6
+  activo --> pendiente_perfil: T7
+  activo --> en_descarga: T8
+  en_descarga --> activo: T9
+  activo --> en_pausa: T10
+  activo --> en_pausa: T11
+  en_pausa --> activo: T12
+  en_pausa --> activo: T13
+  activo --> sistema_completado: T14
+  sistema_completado --> diagnosticado: T15a
+  sistema_completado --> pendiente_perfil: T15b
+</pre>
+</div>
+
+<h2 id="fsm-bcs">Las tres máquinas de estado del BCS</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>FSM</th><th>Transición</th><th>Caso válido</th><th>Caso inválido a rechazar</th></tr></thead>
+<tbody>
+<tr><td>Cliente</td><td>Activo → Archivado</td><td>UC-03</td><td>—</td></tr>
+<tr><td>Cliente</td><td>Archivado → Activo</td><td>Reactivación</td><td>—</td></tr>
+<tr><td>Cliente</td><td>Activo/Archivado → Eliminado</td><td>UC-04</td><td>Eliminado → Activo/Archivado — terminal, debe rechazarse siempre (IN-30)</td></tr>
+<tr><td>Medición</td><td>Vigente → Anulada</td><td>UC-06, crea nueva vigente en la misma operación</td><td>Anulada → Vigente — nunca ocurre, debe rechazarse (BCS-ADR-03)</td></tr>
+<tr><td>EnlacePúblico</td><td>Activo → Revocado</td><td>UC-08, o reemplazo automático por UC-07</td><td>Revocado → Activo — nunca reactiva, debe rechazarse (IN-28)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../06-engine-testing/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 06 · Engine Testing</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../08-event-testing/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">08 · Event Testing →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>02 · Modelo de Exercise — Exercise Catalog</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="modelo-exercise" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 02 · El contrato</p>
+<h1>Modelo oficial de Exercise</h1>
+<p class="lede">Los 21 atributos que componen una entrada de catálogo, cada uno con su estatuto. Más las tres categorías que el modelo contempla y que hoy están vacías: derivados, reservados y obsoletos.</p>
+
+<h2 id="fuente">Fuente del modelo</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Delegación, no redefinición</div>
+  <p>Los 21 atributos y sus estatutos provienen de la tabla "Atributos completos de un Ejercicio" del Architecture Handbook 04, consolidada por el Exercise Taxonomy Handbook. Este módulo los <strong>enumera y organiza como contrato de catálogo</strong>; no añade ni modifica ninguno. La columna "Estado" refleja si el atributo está poblado en los 19 ejercicios existentes.</p>
+</div>
+
+<h2 id="obligatorios">Atributos obligatorios (15)</h2>
+<p class="matrix-note">Sin cualquiera de estos, la entrada no cumple CT-01 y no existe en el catálogo.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Atributo</th><th>Vocabulario / tipo</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>slug</code></td><td>Identificador estable (P15)</td><td><span class="tag tag--implementado">poblado</span></td></tr>
+<tr><td>2</td><td><code>nombre</code></td><td>Texto</td><td><span class="tag tag--implementado">poblado</span></td></tr>
+<tr><td>3</td><td><code>tipo</code></td><td><code>compuesto</code> · <code>aislamiento</code> · <code>peso-corporal</code></td><td><span class="tag tag--implementado">poblado</span></td></tr>
+<tr><td>4</td><td><code>nivel</code></td><td><code>principiante</code> · <code>intermedio</code> · <code>avanzado</code></td><td><span class="tag tag--implementado">poblado</span></td></tr>
+<tr><td>5</td><td><code>equipo[]</code></td><td>6 valores cerrados</td><td><span class="tag tag--implementado">poblado</span></td></tr>
+<tr><td>6</td><td><code>musculoPrincipal</code></td><td>Grupos musculares</td><td><span class="tag tag--implementado">poblado</span></td></tr>
+<tr><td>7</td><td><code>descripcion</code></td><td>Texto libre — nunca parseado</td><td><span class="tag tag--implementado">poblado</span></td></tr>
+<tr><td>8</td><td><code>instrucciones[]</code></td><td>Texto libre</td><td><span class="tag tag--implementado">poblado</span></td></tr>
+<tr><td>9</td><td><code>erroresComunes[]</code></td><td>Texto libre</td><td><span class="tag tag--implementado">poblado</span></td></tr>
+<tr><td>10</td><td><code>beneficios[]</code></td><td>Texto libre</td><td><span class="tag tag--implementado">poblado</span></td></tr>
+<tr><td>11</td><td><code>sistemasVinculados[]</code></td><td>Slugs de Sistema</td><td><span class="tag tag--implementado">poblado</span></td></tr>
+<tr><td>12</td><td><code>patronPrimario</code></td><td>1 de 9 patrones — <strong>sin él la entrada es inválida</strong></td><td><span class="tag tag--futuro">vacío</span></td></tr>
+<tr><td>13</td><td><code>rolesPosibles[]</code></td><td>Subconjunto de 5 roles</td><td><span class="tag tag--futuro">vacío</span></td></tr>
+<tr><td>14</td><td><code>modalidad</code></td><td>ejecución × lateralidad</td><td><span class="tag tag--futuro">vacío</span></td></tr>
+<tr><td>15</td><td><code>zonasRiesgo[]</code></td><td>{zona, intensidad} — lista vacía válida, ausencia no</td><td><span class="tag tag--futuro">vacío</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="opcionales">Atributos opcionales (6)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Atributo</th><th>Consecuencia de omitirlo</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>16</td><td><code>nombreIngles</code></td><td>Ninguna declarada</td><td><span class="tag tag--implementado">poblado</span></td></tr>
+<tr><td>17</td><td><code>musculosSecundarios[]</code></td><td>Ninguna declarada</td><td><span class="tag tag--implementado">poblado</span></td></tr>
+<tr><td>18</td><td><code>variantes[]</code></td><td>Ninguna — es texto libre sin consumidor</td><td><span class="tag tag--implementado">poblado</span></td></tr>
+<tr><td>19</td><td><code>patronesSecundarios[]</code></td><td>Ninguna — ningún consumidor documentado los lee</td><td><span class="tag tag--futuro">vacío</span></td></tr>
+<tr><td>20</td><td><code>cadena</code></td><td><strong>Sin cadena no hay progresión de ejercicio</strong></td><td><span class="tag tag--futuro">vacío</span></td></tr>
+<tr><td>21</td><td><code>capacidadesRequeridas[]</code></td><td>El ejercicio no tiene gate de prerequisito</td><td><span class="tag tag--futuro">vacío</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Opcional no significa prescindible</div>
+  <p><code>cadena</code> es formalmente opcional, pero su ausencia elimina toda la progresión de ejercicio para ese slot: PE-003 no tiene eslabón al que avanzar y PE-031 no tiene eslabón al que retroceder. La fuente lo enuncia así: "No (pero <strong>sin cadena no hay progresión de ejercicio</strong>)".</p>
+</div>
+
+<h2 id="derivados">Atributos derivados (no se almacenan)</h2>
+<p class="matrix-note">No forman parte de los 21: se calculan a partir del vocabulario o de otro atributo. Almacenarlos crearía una segunda fuente de verdad.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Dato</th><th>Se deriva de</th><th>Dueño real</th></tr></thead>
+<tbody>
+<tr><td>Patrón al que degrada</td><td><code>degradaA</code> del vocabulario de patrones</td><td>El patrón, no el ejercicio</td></tr>
+<tr><td>Posición en la sesión</td><td>El <code>orden</code> del Rol (R-4)</td><td>El rol</td></tr>
+<tr><td>Descanso base</td><td>Rango por Rol, modulado por énfasis</td><td>El rol + el Bloque</td></tr>
+<tr><td>¿Cuenta como volumen productivo?</td><td>El Rol asignado en el slot</td><td>El rol</td></tr>
+<tr><td>Unidad de medida (reps vs. segundos)</td><td>El eje de ejecución de <code>modalidad</code></td><td>La modalidad</td></tr>
+<tr><td>La cadena completa de la familia</td><td>Recorrido de <code>anterior</code>/<code>siguiente</code></td><td>Cálculo sobre el catálogo</td></tr>
+<tr><td>Elegibilidad para un slot</td><td>Ficha + contexto de usuario</td><td>Cálculo en cada consulta — nunca persistido</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="reservados">Atributos reservados</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">No existe ningún atributo reservado — pero sí valores reservados</div>
+  <p>El barrido no encuentra ningún atributo de Exercise declarado como "reservado para uso futuro". Lo que sí existe es el concepto a nivel de <strong>vocabulario</strong>: los patrones <code>locomocion</code> y <code>rotacion-potencia</code> son slugs reservados "para fijar identidad antes de tener contenido", y se activan "agregando ejercicios etiquetados — cero cambio estructural".</p>
+  <p>La categoría queda por tanto <strong>vacía en el modelo de Exercise</strong>, y documentada como mecanismo aplicable a vocabularios.</p>
+</div>
+
+<h2 id="obsoletos">Atributos obsoletos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Candidato</th><th>Evidencia</th><th>¿Declarado obsoleto?</th></tr></thead>
+<tbody>
+<tr><td><code>variantes[]</code></td><td>La fuente lo llama "<strong>precursor sin estructura</strong>" de <code>cadena</code> — implica sucesión</td><td><strong>No</strong> — ninguna fuente lo declara obsoleto ni fija su retirada</td></tr>
+<tr><td>Cualquier otro</td><td>—</td><td>No existe ningún atributo marcado como obsoleto</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">No existe mecanismo de obsolescencia de atributos</div>
+  <p>El barrido de los términos <code>deprecated</code> (0 archivos), <code>obsoleto</code> (1 archivo, sobre vigencia de diagnóstico) y <code>deprecación</code> (4 archivos, todos sobre <strong>contratos de API</strong>) confirma que no existe proceso de obsolescencia para atributos del catálogo. El único patrón de deprecación documentado del ecosistema es el de contratos publicados — "nunca mutación in-place de un contrato publicado", con ADR y migración — y está fuera de este dominio. Deuda <a href="../17-roadmap/index.html">CT-D01</a>.</p>
+</div>
+
+<h2 id="resumen">Resumen del modelo</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Categoría</th><th>N.º</th><th>Poblados en los 19</th><th>Vacíos</th></tr></thead>
+<tbody>
+<tr><td>Obligatorios</td><td>15</td><td>11</td><td>4</td></tr>
+<tr><td>Opcionales</td><td>6</td><td>3</td><td>3</td></tr>
+<tr><td><strong>Total del modelo</strong></td><td><strong>21</strong></td><td><strong>14</strong></td><td><strong>7</strong></td></tr>
+<tr><td>Derivados (fuera del modelo)</td><td>7</td><td colspan="2">Nunca se almacenan</td></tr>
+<tr><td>Reservados</td><td>0</td><td colspan="2">Categoría vacía</td></tr>
+<tr><td>Obsoletos</td><td>0</td><td colspan="2">Sin mecanismo declarado</td></tr>
+</tbody>
+</table>
+</div>
+<div class="diagram">
+<div class="diagram-label">Los 21 atributos y su reparto real</div>
+<pre class="mermaid">
+graph TD
+  M["Modelo Exercise<br/>21 atributos"] --> OB["Obligatorios · 15"]
+  M --> OP["Opcionales · 6"]
+  OB --> OB1["11 poblados<br/>identidad + ficha educativa"]
+  OB --> OB2["4 vacíos<br/>patrón · roles · modalidad · zonas"]
+  OP --> OP1["3 poblados<br/>nombreIngles · músculos sec. · variantes"]
+  OP --> OP2["3 vacíos<br/>patrones sec. · cadena · capacidades"]
+  OB2 --> B["⛔ Bloquean la existencia<br/>de TODA entrada (CT-01)"]
+</pre>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../01-filosofia/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 01 · Filosofía</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../03-identidad/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">03 · Identidad →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

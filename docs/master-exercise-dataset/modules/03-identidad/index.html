@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03 · Identidad — Master Exercise Dataset</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="identidad" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Sección 03 · El Exercise</p>
+<h1>Identidad</h1>
+<p class="lede">Un ejercicio se identifica por <strong>dos</strong> valores, ambos inmutables y con propósitos distintos: un <code>id</code> numérico que ninguna persona necesita leer, y un <code>slug</code> legible que ninguna máquina necesita interpretar.</p>
+
+<h2 id="dualidad">La dualidad</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th></th><th><code>id</code></th><th><code>slug</code></th></tr></thead>
+<tbody>
+<tr><td><strong>Ejemplo</strong></td><td><code>EX-0042</code></td><td><code>press-banca-barra</code></td></tr>
+<tr><td><strong>Función</strong></td><td>Clave primaria del dataset</td><td>Identificador legible y estable</td></tr>
+<tr><td><strong>Lo usan</strong></td><td>Referencias internas, relaciones, snapshots, eventos</td><td>URLs, búsqueda, desempate, conversación humana</td></tr>
+<tr><td><strong>Significado</strong></td><td><strong>Ninguno</strong> — es un número</td><td>Describe el ejercicio</td></tr>
+<tr><td><strong>Mutabilidad</strong></td><td>Inmutable de por vida</td><td>Inmutable de por vida</td></tr>
+<tr><td><strong>Se reutiliza</strong></td><td>Nunca</td><td>Nunca</td></tr>
+<tr><td><strong>Unicidad</strong></td><td>Global en el dataset</td><td>Global en el dataset</td></tr>
+<tr><td><strong>Se asigna</strong></td><td>Automáticamente, secuencial</td><td>Por derivación del nombre canónico</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Por qué dos y no uno</div>
+  <p>El <code>id</code> no significa nada, y por eso <strong>nunca hay motivo para cambiarlo</strong>: ninguna discusión editorial sobre nomenclatura puede afectarle. El <code>slug</code> sí significa, y por eso es útil en URLs, búsquedas y conversación — pero precisamente por significar, alguien querrá cambiarlo algún día. Al separarlos, esa presión recae sobre el nombre display, que sí es libre, y no sobre la identidad.</p>
+</div>
+
+<h2 id="que-identifica">Qué identifica realmente a un ejercicio</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Criterio de identidad</div>
+  <p>Dos entradas describen <strong>el mismo ejercicio</strong> si y solo si comparten: el mismo <strong>patrón primario</strong>, la misma <strong>modalidad</strong> (ejecución y lateralidad) y el mismo <strong>gesto ejecutado</strong>. Si difieren en cualquiera de los tres, son ejercicios distintos y reciben IDs distintos.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Situación</th><th>¿Mismo ejercicio?</th><th>Razón</th></tr></thead>
+<tbody>
+<tr><td>Cambia el implemento y el gesto se conserva</td><td><strong>No</strong> — entrada nueva, relacionada como variante</td><td>El equipo determina elegibilidad; dos elegibilidades distintas exigen dos entradas</td></tr>
+<tr><td>Cambia el agarre o el ángulo, alterando el gesto</td><td><strong>No</strong> — entrada nueva</td><td>Gesto distinto</td></tr>
+<tr><td>Cambia la lateralidad (bilateral → unilateral)</td><td><strong>No</strong> — entrada nueva</td><td>La modalidad forma parte de la identidad</td></tr>
+<tr><td>Cambia el nombre con que se muestra</td><td>Sí — misma entrada</td><td>El nombre display es presentación, no identidad</td></tr>
+<tr><td>Se corrige la clasificación de un eje</td><td>Sí — misma entrada, revisión nueva</td><td>Corregir una etiqueta no cambia el movimiento</td></tr>
+<tr><td>Cambia la dificultad percibida del mismo gesto</td><td>Sí — misma entrada</td><td>El nivel es clasificación, no identidad</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">El criterio es deliberadamente estricto</div>
+  <p>Ante duda, la respuesta correcta es <strong>crear una entrada nueva</strong>. Dos entradas relacionadas como variantes describen la realidad con precisión y cuestan un ID; una sola entrada que intenta cubrir dos gestos produce una clasificación que no es cierta para ninguno de los dos, y ese error se propaga a la resolución de slots.</p>
+</div>
+
+<h2 id="campos">Los cinco campos de identidad</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Campo</th><th>Tipo</th><th>Obligatorio</th><th>Mutable</th><th>Sección</th></tr></thead>
+<tbody>
+<tr><td><code>id</code></td><td>Identificador <code>EX-NNNN</code></td><td>OBLIGATORIO</td><td>Nunca</td><td><a href="../09-ids/index.html">09</a></td></tr>
+<tr><td><code>slug</code></td><td>Cadena kebab-case ASCII</td><td>OBLIGATORIO</td><td>Nunca</td><td><a href="../10-slugs/index.html">10</a></td></tr>
+<tr><td><code>name_canonical</code></td><td>Texto</td><td>OBLIGATORIO</td><td>Solo por revisión mayor</td><td><a href="../08-convenciones-nombres/index.html">08</a></td></tr>
+<tr><td><code>name_display</code></td><td>Texto</td><td>OBLIGATORIO</td><td>Libremente</td><td><a href="../08-convenciones-nombres/index.html">08</a></td></tr>
+<tr><td><code>name_short</code></td><td>Texto ≤ 24 caracteres</td><td>OBLIGATORIO</td><td>Libremente</td><td><a href="../08-convenciones-nombres/index.html">08</a></td></tr>
+</tbody>
+</table>
+</div>
+<div class="diagram">
+<div class="diagram-label">Gradiente de estabilidad — de la identidad pura a la presentación libre</div>
+<pre class="mermaid">
+graph LR
+  ID["id · EX-0042<br/><b>jamás cambia</b><br/>sin significado"] --> SL["slug · press-banca-barra<br/><b>jamás cambia</b><br/>con significado"]
+  SL --> NC["name_canonical<br/>cambia por revisión mayor"]
+  NC --> ND["name_display<br/>cambia libremente"]
+  ND --> NS["name_short<br/>cambia libremente"]
+</pre>
+</div>
+
+<h2 id="reglas">Reglas de identidad</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Regla</th><th>Estatuto</th></tr></thead>
+<tbody>
+<tr><td>ID-1</td><td>El <code>id</code> se asigna en el alta y no se modifica jamás</td><td>OBLIGATORIO</td></tr>
+<tr><td>ID-2</td><td>Un <code>id</code> nunca se reutiliza, ni siquiera tras archivar la entrada</td><td>OBLIGATORIO</td></tr>
+<tr><td>ID-3</td><td>El <code>slug</code> se asigna en el alta y no se modifica jamás</td><td>OBLIGATORIO</td></tr>
+<tr><td>ID-4</td><td>Un <code>slug</code> nunca se reutiliza para otro ejercicio</td><td>OBLIGATORIO</td></tr>
+<tr><td>ID-5</td><td>Toda referencia interna del dataset usa <code>id</code>, nunca <code>slug</code></td><td>OBLIGATORIO</td></tr>
+<tr><td>ID-6</td><td>Dos entradas no pueden compartir <code>name_canonical</code></td><td>OBLIGATORIO</td></tr>
+<tr><td>ID-7</td><td>Dos entradas <strong>sí</strong> pueden compartir <code>name_display</code> si su contexto las distingue</td><td>OPCIONAL</td></tr>
+<tr><td>ID-8</td><td>Corregir un <code>slug</code> mal formado exige entrada nueva + deprecación de la anterior con sucesor</td><td>OBLIGATORIO</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">ID-8 · La única vía para corregir un slug</div>
+  <p>Un slug mal escrito no se renombra. Se crea la entrada correcta con <code>id</code> y <code>slug</code> nuevos, y la anterior pasa a <code>deprecated</code> declarando a la nueva como <code>superseded_by</code>. Es más caro que un renombrado y es lo único que no rompe las referencias históricas — que es exactamente la propiedad por la que existe la identidad permanente.</p>
+</div>
+
+<h2 id="resolucion">Resolución de identidad</h2>
+<p>Cualquier consumidor puede localizar un ejercicio por tres vías, con esta precedencia:</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Orden</th><th>Vía</th><th>Garantía</th><th>Uso previsto</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Por <code>id</code></td><td>Exacta y permanente — siempre resuelve, incluso a entradas archivadas</td><td>Referencias internas, historial, snapshots</td></tr>
+<tr><td>2</td><td>Por <code>slug</code></td><td>Exacta y permanente</td><td>URLs, enlaces, desempate determinista</td></tr>
+<tr><td>3</td><td>Por nombre o alias</td><td><strong>No garantizada</strong> — puede devolver varios resultados o ninguno</td><td>Búsqueda de usuario únicamente</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Prohibición de resolución por nombre</div>
+  <p>Ningún proceso automático resuelve un ejercicio por su nombre o alias. La búsqueda por texto es una función de interfaz para personas; su resultado nunca alimenta una decisión del sistema. Toda decisión automática parte de un <code>id</code>.</p>
+</div>
+
+<h2 id="ejemplo">Ejemplo de bloque de identidad</h2>
+<p class="matrix-note">Ilustra la <em>forma</em> del bloque. Los valores son de demostración y no constituyen una entrada del dataset.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Campo</th><th>Valor de demostración</th></tr></thead>
+<tbody>
+<tr><td><code>id</code></td><td><code>EX-0042</code></td></tr>
+<tr><td><code>slug</code></td><td><code>ejemplo-demostrativo-barra</code></td></tr>
+<tr><td><code>name_canonical</code></td><td>Ejemplo Demostrativo con Barra</td></tr>
+<tr><td><code>name_display</code></td><td>Ejemplo Demostrativo</td></tr>
+<tr><td><code>name_short</code></td><td>Ejemplo</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../02-arquitectura/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 02 · Arquitectura</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../04-modelo/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">04 · Modelo Oficial →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

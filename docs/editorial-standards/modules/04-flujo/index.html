@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>04 · Flujo Editorial — Editorial Standards</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="flujo" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 04 · Gobierno</p>
+<h1>Flujo Editorial</h1>
+<p class="lede">Siete pasos solicitados: Solicitud → Creación → Revisión → Corrección → Aprobación → Publicación → Mantenimiento. <strong>Uno está completo, tres son parciales y tres no existen.</strong> Este módulo documenta exactamente dónde se rompe.</p>
+
+<h2 id="auditoria">Auditoría paso a paso</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Paso</th><th>Estado</th><th>Qué existe</th><th>Qué falta</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><strong>Solicitud</strong></td><td><span class="tag tag--futuro">no existe</span></td><td>Nada. <code>flujo editorial</code>: 0 archivos</td><td>Cómo se pide una entrada nueva, quién puede pedirla, qué información aporta</td></tr>
+<tr><td>2</td><td><strong>Creación</strong></td><td><span class="tag tag--especificado">parcial</span></td><td>El proceso de etiquetado de 7 pasos y su checklist de 30 ítems</td><td>El disparador: el proceso describe cómo etiquetar, no cómo se decide que algo debe etiquetarse</td></tr>
+<tr><td>3</td><td><strong>Revisión</strong></td><td><span class="tag tag--futuro">no existe</span></td><td>Nada. <code>revisión técnica</code> 0 · <code>revisión científica</code> 0</td><td>Todo el aparato — módulo <a href="../10-revision/index.html">10</a></td></tr>
+<tr><td>4</td><td><strong>Corrección</strong></td><td><span class="tag tag--especificado">parcial</span></td><td>La cola editorial recibe los defectos con detalle (12 archivos)</td><td>Quién la procesa, en qué plazo, con qué prioridad</td></tr>
+<tr><td>5</td><td><strong>Aprobación</strong></td><td><span class="tag tag--futuro">no existe</span></td><td>Nada. <code>aprobación</code>: 0 archivos · <code>aprobador</code>: 0</td><td>El acto formal de aprobar y su registro</td></tr>
+<tr><td>6</td><td><strong>Publicación</strong></td><td><span class="tag tag--implementado">completo</span></td><td>Checklist de 23 ítems, 22 verificables, con secciones de existencia, completitud, integridad y versionado</td><td>Solo el ítem de autoría (D-01)</td></tr>
+<tr><td>7</td><td><strong>Mantenimiento</strong></td><td><span class="tag tag--especificado">parcial</span></td><td>P14 define la autoridad; la cola editorial define el circuito de entrada</td><td>Retirada y fusión — módulo <a href="../12-mantenimiento/index.html">12</a></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Dónde se rompe el flujo, exactamente</div>
+  <p>El flujo se rompe en <strong>tres puntos</strong>, y los tres comparten causa: <strong>no existe un ciclo de vida de la entrada</strong> (ED-D01).</p>
+  <ul>
+    <li><strong>Entrada (paso 1):</strong> sin estado "solicitado" no hay dónde registrar una petición pendiente.</li>
+    <li><strong>Control (pasos 3 y 5):</strong> sin estados "en revisión" y "aprobado", ni la revisión ni la aprobación pueden ser actos — solo pueden ser efectos de la completitud.</li>
+    <li><strong>Salida (paso 7, retirada):</strong> sin estado "retirado" la única forma de retirar es borrar, que CT-07 prohíbe.</li>
+  </ul>
+</div>
+
+<h2 id="diagrama">El flujo solicitado frente al real</h2>
+<div class="diagram">
+<div class="diagram-label">Verde: existe · Ámbar: parcial · Rojo: no existe</div>
+<pre class="mermaid">
+flowchart TD
+  S["1 · Solicitud<br/>❌ no existe"] -.-> C["2 · Creación<br/>⚠ etiquetado sí,<br/>disparador no"]
+  C -.-> R["3 · Revisión<br/>❌ no existe"]
+  R -.-> CO["4 · Corrección<br/>⚠ cola editorial<br/>sin destinatario"]
+  CO -.-> A["5 · Aprobación<br/>❌ no existe"]
+  A --> P["6 · Publicación<br/>✅ checklist 23 ítems"]
+  P --> M["7 · Mantenimiento<br/>⚠ sin retirada<br/>ni fusión"]
+  M -.->|"cola editorial"| CO
+</pre>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">El único paso completo es el último antes de existir</div>
+  <p>Publicación es el paso mejor especificado de los siete — y es el que verifica que todo lo anterior ocurrió. La ironía es exacta: el ecosistema sabe comprobar el resultado de un proceso que no tiene definido.</p>
+</div>
+
+<h2 id="funciona">El flujo que sí funciona hoy</h2>
+<p>Descartando los pasos inexistentes, queda un circuito reducido pero real y enteramente derivado de fuentes:</p>
+<div class="diagram">
+<div class="diagram-label">Lo derivable de la documentación existente, sin inventar nada</div>
+<pre class="mermaid">
+flowchart LR
+  E["Entrada candidata"] --> T["Etiquetado<br/>7 pasos · Tagging"]
+  T -->|"conflicto sin regla"| ESC["Escalado<br/>TG-07 · autoridad de contenido"]
+  ESC --> T
+  T --> V1["Validación estructural<br/>Ingeniería"]
+  V1 -->|falla| COLA["Cola editorial<br/>con detalle del defecto"]
+  V1 --> V2["Validación de contenido<br/>Contenido · P14"]
+  V2 -->|falla| COLA
+  V2 --> PUB["Publicación<br/>checklist 23 ítems"]
+  PUB --> VER["Nueva versión de catálogo<br/>BPS-023"]
+  COLA --> E
+</pre>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Etapa del circuito real</th><th>Fuente</th></tr></thead>
+<tbody>
+<tr><td>Etiquetado en 7 pasos</td><td>Exercise Tagging Handbook</td></tr>
+<tr><td>Escalado ante ausencia de regla</td><td>TG-07 · derivado de P14</td></tr>
+<tr><td>Doble validación (estructura / contenido)</td><td>Regla 4 de la cadena</td></tr>
+<tr><td>Cola editorial con detalle</td><td>Architecture Handbook 04 · 08</td></tr>
+<tr><td>Checklist de publicación</td><td>Exercise Catalog Handbook</td></tr>
+<tr><td>Versión de catálogo</td><td>BPS-023 · ADR-009</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Lo que este circuito no puede hacer</div>
+  <p>Funciona para <strong>producir</strong> entradas, no para <strong>gobernarlas</strong>: no registra quién autorizó, no permite trabajar en borrador, no distingue revisión de creación, y no tiene salida — una entrada publicada no puede retirarse. Es un circuito de fabricación sin control de calidad formal ni ciclo de retirada.</p>
+</div>
+
+<h2 id="deuda">Deudas del flujo</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>ID</th><th>Deuda</th><th>Bloquea</th><th>Severidad</th></tr></thead>
+<tbody>
+<tr><td><code>ED-D03</code></td><td>No existe proceso de solicitud de entrada nueva</td><td>Priorizar el trabajo editorial</td><td><span class="severity severity--media">media</span></td></tr>
+<tr><td><code>ED-D04</code></td><td>No existe proceso de revisión</td><td>Detectar errores de contenido antes de publicar</td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td><code>ED-D05</code></td><td>No existe acto formal de aprobación</td><td>Cumplir ED-01 y P14</td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td><code>ED-D06</code></td><td>La cola editorial no tiene destinatario ni SLA declarados</td><td>Cerrar el ciclo de corrección</td><td><span class="severity severity--alta">alta</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../03-roles/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 03 · Roles Editoriales</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../05-autoridad/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">05 · Autoridad →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

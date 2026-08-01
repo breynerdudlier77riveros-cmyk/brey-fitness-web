@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BREY Testing Handbook v1.0</title>
+<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+
+<div class="landing-topbar">
+  <span class="topbar__brand">
+    <span class="topbar__brand-dot"></span>
+    BREY <span class="topbar__brand-sub">Testing Handbook</span>
+  </span>
+  <span class="topbar__version">v1.0</span>
+</div>
+
+<div class="landing-wrap">
+
+  <div class="hero">
+    <p class="eyebrow">Cómo se verifica lo que ya está especificado</p>
+    <h1>BREY Testing Handbook</h1>
+    <p>Qué se prueba, en qué nivel, con qué caso y contra qué matriz — para todo el ecosistema BREY. Sin código, sin Jest, sin Vitest, sin Playwright: solo la especificación completa de verificación que cierra AR-024, derivada únicamente de lo que los ocho handbooks existentes ya definen.</p>
+    <a class="hero-cta" href="modules/00-introduccion/index.html">Empezar por la Introducción →</a>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Empezar</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/00-introduccion/index.html">
+        <div class="module-card__num">00</div>
+        <div class="module-card__title">Introducción</div>
+        <div class="module-card__desc">Propósito, alcance, no-alcance, jerarquía documental y prioridad sobre la implementación.</div>
+      </a>
+      <a class="module-card" href="modules/01-filosofia-testing/index.html">
+        <div class="module-card__num">01</div>
+        <div class="module-card__title">Filosofía de Testing</div>
+        <div class="module-card__desc">Por qué el dominio ya es testeable sin test runner — determinismo, pureza y el plan de pruebas que ya está escrito.</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Fundamentos</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/02-arquitectura-pruebas/index.html">
+        <div class="module-card__num">02</div>
+        <div class="module-card__title">Arquitectura de Pruebas</div>
+        <div class="module-card__desc">Los tres niveles — Unit, Integration, E2E — su entorno y su orden de introducción.</div>
+      </a>
+      <a class="module-card" href="modules/03-convenciones-globales/index.html">
+        <div class="module-card__num">03</div>
+        <div class="module-card__title">Convenciones Globales</div>
+        <div class="module-card__desc">Naming, organización, factories, fixtures, mocks y determinismo — sin excepción.</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Niveles</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/04-unit-testing/index.html">
+        <div class="module-card__num">04</div>
+        <div class="module-card__title">Unit Testing</div>
+        <div class="module-card__desc">Funciones puras: motores, validadores, mappers — sin mocks, sin I/O.</div>
+      </a>
+      <a class="module-card" href="modules/05-domain-testing/index.html">
+        <div class="module-card__num">05</div>
+        <div class="module-card__title">Domain Testing</div>
+        <div class="module-card__desc">Invariantes, ownership y reglas de negocio — el catálogo de casos límite ya escrito, convertido en plan de pruebas.</div>
+      </a>
+      <a class="module-card" href="modules/06-engine-testing/index.html">
+        <div class="module-card__num">06</div>
+        <div class="module-card__title">Engine Testing</div>
+        <div class="module-card__desc">Motor BPS, Progression Engine, Recovery Engine, Workout Generator y Player — una suite por motor.</div>
+      </a>
+      <a class="module-card" href="modules/07-fsm-testing/index.html">
+        <div class="module-card__num">07</div>
+        <div class="module-card__title">FSM Testing</div>
+        <div class="module-card__desc">Las 15 transiciones del Motor BPS y las tres máquinas de estado del BCS, caso por caso.</div>
+      </a>
+      <a class="module-card" href="modules/08-event-testing/index.html">
+        <div class="module-card__num">08</div>
+        <div class="module-card__title">Event Testing</div>
+        <div class="module-card__desc">Replay determinista, idempotencia y el gap real de <code>contexto</code> — documentado, no inventado.</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Superficies</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/09-database-testing/index.html">
+        <div class="module-card__num">09</div>
+        <div class="module-card__title">Database Testing</div>
+        <div class="module-card__desc">Constraints, RLS y migraciones — una prueba de violación por regla protegida.</div>
+      </a>
+      <a class="module-card" href="modules/10-api-testing/index.html">
+        <div class="module-card__num">10</div>
+        <div class="module-card__title">API Testing</div>
+        <div class="module-card__desc">Los 45 endpoints del contrato, uno por uno, con su tipo de prueba de integración.</div>
+      </a>
+      <a class="module-card" href="modules/11-ui-testing/index.html">
+        <div class="module-card__num">11</div>
+        <div class="module-card__title">UI Testing</div>
+        <div class="module-card__desc">Componentes, accesibilidad y la paridad público/privado del Reporte del BCS.</div>
+      </a>
+      <a class="module-card" href="modules/12-regression-testing/index.html">
+        <div class="module-card__num">12</div>
+        <div class="module-card__title">Regression Testing</div>
+        <div class="module-card__desc">La lista roja — lo que nunca debe volver a romperse, con su bug real de origen.</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Gobernanza</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/13-coverage/index.html">
+        <div class="module-card__num">13</div>
+        <div class="module-card__title">Coverage</div>
+        <div class="module-card__desc">Sin objetivo numérico global — trazabilidad regla→test como cobertura real.</div>
+      </a>
+      <a class="module-card" href="modules/14-testing-adr/index.html">
+        <div class="module-card__num">14</div>
+        <div class="module-card__title">Testing ADR</div>
+        <div class="module-card__desc">Diez decisiones que cierran AR-024 y documentan AR-025/026/013 sin resolverlas.</div>
+      </a>
+      <a class="module-card" href="modules/15-anti-patterns/index.html">
+        <div class="module-card__num">15</div>
+        <div class="module-card__title">Anti-patterns</div>
+        <div class="module-card__desc">Quince formas reales de que un test mienta sobre lo que prueba.</div>
+      </a>
+      <a class="module-card" href="modules/16-preguntas-abiertas/index.html">
+        <div class="module-card__num">16</div>
+        <div class="module-card__title">Preguntas Abiertas</div>
+        <div class="module-card__desc">Lo pendiente, las contradicciones detectadas en otros handbooks, y la autoauditoría cuantitativa.</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="landing-footer">BREY Testing Handbook v1.0 — cómo se verifica, nunca qué se construye. El handbook tiene prioridad sobre cualquier suite real futura.</div>
+
+</div>
+</body>
+</html>

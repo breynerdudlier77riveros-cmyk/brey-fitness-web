@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>00 · Introducción — Progression Engine Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="introduccion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 00 · Fundamentos</p>
+<h1>Introducción</h1>
+<p class="lede">El Progression Engine decide, con datos reales del historial, cuánto debería costar el próximo esfuerzo prescrito — a nivel de serie (micro) y a nivel de posición en la jerarquía de entrenamiento (macro). Este documento profundiza exclusivamente ese motor. No reescribe el Architecture Handbook ni el Motor BPS Handbook — los presupone, los cita, y donde los extiende lo declara explícitamente.</p>
+
+<div class="meta-row">
+  <span class="chip">Autoridad: handbook &gt; código</span>
+  <span class="chip">Profundiza el módulo 05 del Motor BPS Handbook</span>
+  <span class="chip">Especificación de dominio, no de implementación</span>
+</div>
+
+<h2 id="objetivo">Objetivo</h2>
+<p>Que un equipo de ingeniería distinto del que escribió este documento pueda implementar el Progression Engine completo sin hacer una sola pregunta de dominio. Toda cifra, umbral y regla fisiológica está clasificada por nivel de evidencia; toda decisión de producto está declarada como tal, nunca disfrazada de ciencia.</p>
+
+<h2 id="alcance">Alcance</h2>
+<ul>
+  <li>El modelo conceptual de lo que el motor observa y decide (03).</li>
+  <li>El contrato completo de entradas que consume (04).</li>
+  <li>El modelo de decisión con precedencia explícita, sin ponderaciones (05).</li>
+  <li>El pipeline interno de 9 pasos (06).</li>
+  <li>El catálogo completo de reglas PE-001…PE-XXX (07) y su mecánica detallada por subsistema: microprogresión (08), macroprogresión (09), autorregulación (10), estancamiento (11), deload (12).</li>
+  <li>Su integración con el resto del sistema, observabilidad, modelo de datos, gobernanza y términos (13–20).</li>
+</ul>
+
+<h2 id="no-alcance">No alcance</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Fuera de este documento</th><th>Dónde vive</th></tr></thead>
+<tbody>
+<tr><td>Qué Sistema/Track/Nivel de entrada asigna el Diagnóstico</td><td>Architecture Handbook (02, 07) / Motor BPS Handbook (06)</td></tr>
+<tr><td>Interpretación de fatiga, dolor, sueño y la decisión de descarga</td><td>Recovery Engine (su propio handbook — pendiente). Aquí solo se documenta cómo el Progression Engine <em>obedece</em> su veredicto, nunca cómo lo calcula</td></tr>
+<tr><td>Orquestación del ciclo semanal completo, activación, máquina de estados del usuario</td><td>Motor BPS Handbook (05, 06, 07)</td></tr>
+<tr><td>Selección/sustitución de ejercicios, ontología de patrones y roles</td><td>Knowledge Base (Architecture Handbook, 04)</td></tr>
+<tr><td>Ejecución en tiempo real, captura de series, offline</td><td>Workout Player (Architecture Handbook, 09)</td></tr>
+<tr><td>Cualquier línea de código, tipo TypeScript, esquema SQL</td><td>No pertenece a ningún handbook de dominio</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="dependencias">Dependencias de este documento</h2>
+<ul>
+  <li><strong>Architecture Handbook v1.0</strong> — principios P1–P16 (en particular P1 determinismo, P2 explicabilidad, P4 una capa/una decisión, P5 plantilla≠instancia, P6 fallo visible, P7 patrón sobre ejercicio, P8 seguridad antes que progreso, P11 evidencia marcada), Training Framework (jerarquía de 15 capas), Knowledge Base (cadenas de progresión).</li>
+  <li><strong>Motor BPS Handbook v1.0</strong> — BPS-007/019 (Recovery precede, el orquestador consume veredictos no señales), BPS-022 (fecha explícita), la definición de ventana móvil y los DTOs Veredicto/Decisión ya contratados en su módulo 04.</li>
+</ul>
+
+<h2 id="consumidores-productores">Consumidores y productores de este documento</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th></th><th>Quién</th></tr></thead>
+<tbody>
+<tr><td><strong>Productores del contenido</strong></td><td>Este handbook mismo (dominio) — ningún otro documento define reglas de progresión; si aparece una en código sin origen aquí, es deuda a registrar (17)</td></tr>
+<tr><td><strong>Consumidores</strong></td><td>El Motor BPS (invoca al motor, aplica sus transiciones), el Workout Generator (recibe la prescripción vigente), el equipo de ingeniería que lo implemente, y el propio Recovery Engine (lee la prioridad P8 desde aquí, no la redefine)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="rol">Cómo leer las cuatro etiquetas de evidencia</h2>
+<p>Toda afirmación con base fisiológica lleva exactamente una:</p>
+<p>
+<span class="eb eb--fuerte">🟢 Evidencia fuerte</span>
+<span class="eb eb--moderada">🟡 Evidencia moderada</span>
+<span class="eb eb--producto">🟠 Decisión de producto BREY</span>
+<span class="eb eb--hipotesis">🔴 Hipótesis pendiente</span>
+</p>
+<p>Nunca se mezclan dos en una misma afirmación, y una cifra o umbral concreto (un porcentaje, un número de sesiones, un multiplicador) es <strong>por definición</strong> 🟠 salvo que exista literatura que valide ese número exacto — la existencia de evidencia sobre el fenómeno general (ej. "el RPE es una herramienta válida") no vuelve automáticamente 🟢 al umbral específico que BREY eligió (ej. "banda de ±1"). Esta distinción es la más importante de todo el documento y se aplica sin excepción en los módulos 08–12.</p>
+
+<h2 id="relacion">Relación con los demás documentos — mapa de autoridad</h2>
+<div class="diagram">
+<div class="diagram-label">Jerarquía de especificación</div>
+<pre class="mermaid">
+graph TD
+  AH["Architecture Handbook v1.0<br/>(marco: principios, jerarquía, ontología, contratos)"] --> MB["Motor BPS Handbook v1.0<br/>(el orquestador)"]
+  MB -->|"módulo 05 apunta aquí"| PE["Progression Engine Handbook v1.0<br/>(este documento)"]
+  AH -.->|"principios heredados directo"| PE
+  PE -.->|"cita, nunca redefine"| RE["Recovery Engine Handbook<br/>(pendiente)"]
+</pre>
+</div>
+
+<div class="pagenav">
+  <div></div>
+  <a class="pagenav__item pagenav__item--next" href="../01-filosofia/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">01 · Filosofía →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

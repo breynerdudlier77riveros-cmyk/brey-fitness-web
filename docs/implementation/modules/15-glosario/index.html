@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>15 · Glosario — Implementation Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="glosario" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 15 · Checklists y gobernanza</p>
+<h1>Glosario</h1>
+<p class="lede">Todo término propio de este handbook, en orden alfabético.</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr><th>Término</th><th>Definición</th></tr></thead>
+<tbody>
+<tr><td><strong>bloqueado</strong> (estado)</td><td>Tiene una precondición real sin cumplir — no puede empezar hoy (00, 12)</td></tr>
+<tr><td><strong>contrato mínimo</strong></td><td>La forma de datos estrictamente necesaria para desbloquear a los consumidores de un motor sin handbook completo — el caso de Recovery Engine (08, IMP-ADR-02)</td></tr>
+<tr><td><strong>Definition of Done</strong></td><td>Criterio para marcar una pieza como <span class="status status--implementado">implementado</span> o <span class="status status--verificado">verificado</span> (01)</td></tr>
+<tr><td><strong>Definition of Ready</strong></td><td>Criterio para empezar a construir una pieza — handbook auditado, contratos resueltos, sin brecha de seguridad abierta (01)</td></tr>
+<tr><td><strong>en progreso</strong> (estado)</td><td>Parcialmente construido — ejemplo real: el motor de Diagnóstico BPS, implementado pero sin persistencia (12)</td></tr>
+<tr><td><strong>Fase</strong></td><td>Una de las 5 etapas del Roadmap (03) — 0 Fundación, 1 Pista A/B, 2 Integración, 3 Endurecimiento, 4 Expansión futura</td></tr>
+<tr><td><strong>implementado</strong> (estado)</td><td>Construido y funcional, pendiente del checklist de Release para ser <span class="status status--verificado">verificado</span> (00)</td></tr>
+<tr><td><strong>IMP-ADR</strong></td><td>Decisión de arquitectura propia de este handbook — de secuenciación u orquestación, nunca de dominio (14)</td></tr>
+<tr><td><strong>no iniciado</strong> (estado)</td><td>Sin precondición pendiente, pero sin trabajo empezado todavía (12)</td></tr>
+<tr><td><strong>orquestar</strong></td><td>Fijar orden y condiciones de entrada/salida entre piezas ya especificadas — lo único que hace este handbook (00)</td></tr>
+<tr><td><strong>Pista A / Pista B</strong></td><td>Los dos flujos de trabajo paralelos de la Fase 1 — BCS (A) y Motores (B), autorizados a correr en paralelo por IMP-ADR-03 (02, 03)</td></tr>
+<tr><td><strong>verificado</strong> (estado)</td><td>Implementado y confirmado con el checklist de Release completo — el estado más alto de la escala (00, 13)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../14-adr/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 14 · ADR</div>
+  </a>
+  <div></div>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

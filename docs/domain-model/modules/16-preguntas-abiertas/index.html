@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>16 · Preguntas Abiertas — Domain Model Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="preguntas-abiertas" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 16 · Gobernanza</p>
+<h1>Preguntas Abiertas</h1>
+<p class="lede">Doce preguntas sin resolver. Ninguna se responde en este documento — cerrarlas aquí sería inventar una decisión de producto o de dominio que nadie ha tomado todavía.</p>
+
+<div class="callout callout--nota">
+  <div class="callout__label">Por qué esta lista no se resuelve</div>
+  <p>El objetivo de este módulo es dejar constancia explícita de la incertidumbre real, no eliminarla con una decisión apresurada. Resolver cualquiera de estas preguntas aquí violaría la restricción del encargo original: "No resolverlas".</p>
+</div>
+
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Pregunta</th><th>Módulos relacionados</th><th>Qué depende de la respuesta</th></tr></thead>
+<tbody>
+<tr><td>PA-01</td><td>¿Un Cliente puede tener múltiples Entrenadores (Usuarios) asociados, o el modelo asume uno solo de forma implícita?</td><td>06, 08, 09</td><td>Si la respuesta es sí, Cliente necesitaría una relación N:N con Usuario que hoy no existe en ningún handbook — cambiaría BC-01 y el diagrama 13 de 09</td></tr>
+<tr><td>PA-02</td><td>¿Se versionan los Programas, o cada activación de un mismo Sistema simplemente reemplaza la posición anterior sin dejar rastro de versión?</td><td>03, 13</td><td>Afecta si "reactivar un Sistema completado" debería considerarse un Programa nuevo con historial propio o una simple reactivación de posición</td></tr>
+<tr><td>PA-03</td><td>¿Se archivan los Diagnósticos antiguos de un Usuario, o todos permanecen igualmente visibles sin distinción de vigencia más allá de los 6 meses de DX-01?</td><td>04, 15 (DM-ADR-07)</td><td>Afecta si el listado de Diagnósticos de un Usuario necesita un estado adicional ("archivado") o si "vigente/no vigente" ya es suficiente</td></tr>
+<tr><td>PA-04</td><td>¿Se permite comparar Mediciones de distintos dispositivos dentro del mismo HistorialMediciones, o cada dispositivo debería tratarse como una serie independiente?</td><td>06, 07 (VO-03, VO-06)</td><td>Afecta si HistorialMediciones necesita agrupar por dispositivo antes de mostrar tendencias, dado que varias variables (VO-03, VO-06) ya están marcadas como no comparables entre fabricantes</td></tr>
+<tr><td>PA-05</td><td>¿Se soportan Programas colaborativos, donde un Coach ajusta manualmente lo que Progression Engine generó, más allá del Override ya modelado?</td><td>03, 11 (evento <code>override_usuario</code>)</td><td>El catálogo de eventos (11) ya reserva <code>origen=coach</code> sin ningún tipo asignado — esta pregunta es la razón exacta de esa reserva</td></tr>
+<tr><td>PA-06</td><td>¿Debería el Reporte poder "congelarse" como snapshot exportable, en vez de ser siempre la vista más actual?</td><td>06 (BC-04), 13 (DM-ADR-08)</td><td>Heredada sin resolver del BCS Handbook (17) — de responderse sí, contradiría directamente BCS-IN-D3 y requeriría una nueva entidad persistente</td></tr>
+<tr><td>PA-07</td><td>¿Qué clave de idempotencia debería tener el <code>INSERT</code> de un EventoProgresión, más allá de la que ya tiene la activación del Motor BPS?</td><td>11</td><td>Heredada sin resolver del Engineering Handbook (07) — afecta si un reintento de red puede duplicar un EventoProgresión hoy</td></tr>
+<tr><td>PA-08</td><td>¿Cómo debería el sistema manejar Clientes menores de edad, dado que los rangos de referencia de los Objetos de Valor de composición corporal son de población adulta?</td><td>07 (VO-01–06)</td><td>Heredada sin resolver del BCS Handbook (17) — de responderse sí, cada Objeto de Valor de 07 necesitaría un segundo rango de validación por edad</td></tr>
+<tr><td>PA-09</td><td>¿Debería existir una relación explícita entre un EventoProgresión y el Diagnóstico que originó el Programa en el que ocurrió, para trazabilidad completa de extremo a extremo?</td><td>05, 09, 11</td><td>Hoy la trazabilidad se reconstruye indirectamente (Usuario → Diagnóstico vigente en la fecha del evento); una relación explícita simplificaría auditorías pero añadiría una referencia que ningún handbook ha pedido todavía</td></tr>
+<tr><td>PA-10</td><td>¿Un EnlacePúblico debería poder tener fecha de expiración automática, además de la revocación manual ya modelada?</td><td>06 (BC-05), 10</td><td>Cambiaría la máquina de estados de EnlacePúblico (10) de dos estados a tres (Activo/Expirado/Revocado) y añadiría una transición temporal que hoy no existe</td></tr>
+<tr><td>PA-11</td><td>¿Se permite que un mismo Ejercicio resuelva simultáneamente más de un Slot dentro del mismo Workout (por ejemplo, en un superset)?</td><td>03 (CT-06, CT-07)</td><td>Afecta si la relación Slot→Ejercicio (09, diagrama 4) sigue siendo estrictamente 1:1 por Workout o necesita permitir resolución compartida</td></tr>
+<tr><td>PA-12</td><td>¿Debería el Recovery Engine tener su propio handbook de dominio, dado que este documento repetidamente declara sus entidades internas (SeñalFatiga, Dolor) fuera de alcance?</td><td>05 (PR-05), 07 (VO-09, VO-10), 14 (IN-21)</td><td>Heredada de la Architecture Review (AR-006) — de responderse sí, varias entidades hoy marcadas "fuera de alcance" en este handbook pasarían a especificarse en un documento nuevo, no en este</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../15-adr/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 15 · ADR del Modelo de Dominio</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../../index.html">
+    <div class="pagenav__dir">Fin del handbook</div>
+    <div class="pagenav__title">Volver al índice →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

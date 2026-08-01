@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>02 · Ciclo de Vida — Editorial Standards</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="ciclo-vida" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 02 · Gobierno</p>
+<h1>Ciclo de Vida del Conocimiento</h1>
+<p class="lede">Cinco fases: nacer, evolucionar, revisarse, publicarse y retirarse. <strong>Dos existen, una es parcial y dos no existen en absoluto</strong> — y las dos ausentes lo son por la misma causa: no hay estados.</p>
+
+<h2 id="fases">Las cinco fases, auditadas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Fase</th><th>Estado</th><th>Qué existe</th><th>Qué falta</th></tr></thead>
+<tbody>
+<tr><td><strong>Nace</strong></td><td><span class="tag tag--implementado">existe</span></td><td>El proceso de etiquetado (7 pasos) y las 4 condiciones de existencia (CT-01)</td><td>Un disparador formal: nada define cómo se solicita una entrada nueva</td></tr>
+<tr><td><strong>Evoluciona</strong></td><td><span class="tag tag--especificado">parcial</span></td><td>Toda modificación genera versión de catálogo (BPS-023); R-2 protege lo generado</td><td>Versionado por entrada: no se sabe <em>qué</em> evolucionó</td></tr>
+<tr><td><strong>Se revisa</strong></td><td><span class="tag tag--futuro">no existe</span></td><td>Nada. <code>revisión técnica</code> y <code>revisión científica</code>: 0 archivos</td><td>Todo el aparato de revisión — módulo <a href="../10-revision/index.html">10</a></td></tr>
+<tr><td><strong>Se publica</strong></td><td><span class="tag tag--implementado">existe</span></td><td>Checklist de publicación de 23 ítems, 22 verificables</td><td>El ítem de autoría (D-01), el único no verificable</td></tr>
+<tr><td><strong>Se retira</strong></td><td><span class="tag tag--futuro">no existe</span></td><td>Nada</td><td>Estados y mecanismo de retirada</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="estados">Los estados: verificación en dos frentes</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Deuda documental ED-D01 — no existe ciclo de vida formal de una entrada</div>
+  <p><strong>Frente 1 · Barrido de términos:</strong> <code>draft</code> 0 archivos · <code>borrador</code> 0 · <code>approved</code> 0 · <code>deprecated</code> 0 · <code>archived</code> 0. Las 30 coincidencias de "archivado" corresponden a la máquina de estados de <em>Cliente del BCS</em>; las 4 de "deprecación", a <em>contratos de API</em>.</p>
+  <p><strong>Frente 2 · Catálogo de máquinas de estado:</strong> el Domain Model publica cinco FSM —Diagnóstico, Programa, Workout, Medición, EnlacePúblico— y <strong>Exercise no está entre ellas</strong>.</p>
+  <p>Este handbook <strong>no los inventa</strong>. Un ciclo de vida definido aquí sería una sexta máquina de estados fuera del módulo que las centraliza, sin pasar por la jerarquía documental.</p>
+</div>
+
+<h2 id="implicito">El ciclo de vida implícito que sí existe</h2>
+<p>Sin estados declarados, una entrada solo puede estar en dos situaciones, y ambas se <strong>derivan</strong> de la completitud de sus atributos, no de un campo que las declare:</p>
+<div class="diagram">
+<div class="diagram-label">El único ciclo de vida derivable hoy — binario, sin memoria</div>
+<pre class="mermaid">
+stateDiagram-v2
+  [*] --> candidato: alguien empieza a etiquetar
+  candidato --> candidato: se completan atributos
+  candidato --> oficial: cumple las 4 condiciones (CT-01)
+  oficial --> candidato: se detecta un atributo inválido
+  oficial --> [*]: ⛔ NO EXISTE transición de retirada
+  note right of candidato
+    "candidato" no es un estado declarado:
+    es la ausencia de completitud
+  end note
+</pre>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Situación</th><th>Cómo se determina</th><th>Limitación</th></tr></thead>
+<tbody>
+<tr><td><strong>Candidato</strong></td><td>Le falta algún atributo obligatorio</td><td>Indistinguible de una entrada abandonada o defectuosa</td></tr>
+<tr><td><strong>Oficial</strong></td><td>Cumple las 4 condiciones de existencia</td><td>No registra quién lo aprobó ni cuándo</td></tr>
+<tr><td><strong>Retirada</strong></td><td><strong>No expresable</strong></td><td>La única forma práctica sería borrar la entrada — prohibido por CT-07</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="consecuencias">Consecuencias de la ausencia</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Consecuencia editorial</th><th>Severidad</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><strong>No se puede trabajar en borrador.</strong> Una entrada a medio etiquetar es indistinguible de una defectuosa; no hay forma de señalar "en curso"</td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td>2</td><td><strong>No se puede aprobar formalmente.</strong> La transición candidato→oficial ocurre por completitud, no por decisión — lo que contradice ED-01</td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td>3</td><td><strong>No se puede retirar.</strong> CT-07 prohíbe borrar y no hay estado alternativo — la regla es correcta e inejecutable</td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td>4</td><td><strong>No se puede marcar para re-revisión.</strong> Tras un cambio de vocabulario, nada permite señalar qué entradas deben reevaluarse</td><td><span class="severity severity--media">media</span></td></tr>
+<tr><td>5</td><td><strong>La cola editorial no tiene destino de estado.</strong> Un error detectado se registra, pero la entrada afectada no cambia de estado</td><td><span class="severity severity--media">media</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">La consecuencia estructural</div>
+  <p>Sin estados, <strong>la aprobación no es un acto sino un efecto</strong>: una entrada se vuelve oficial porque se completó, no porque alguien la aprobó. Eso invierte exactamente la relación que P14 establece — el ecosistema quiere que la autorización sea la causa, y hoy es una coincidencia.</p>
+</div>
+
+<h2 id="precedentes">Precedentes disponibles en el ecosistema</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Precedente</th><th>Dónde</th><th>Qué resuelve</th><th>¿Aplicable directamente?</th></tr></thead>
+<tbody>
+<tr><td>FSM de Cliente del BCS</td><td>Domain Model 10</td><td>Distingue archivado <strong>reversible</strong> de eliminación permanente</td><td>No — otro dominio; adoptarla sería crear una regla nueva</td></tr>
+<tr><td>Deprecación de contratos</td><td>Engineering / API Contract</td><td>Versión nueva junto a la anterior + ADR con razón y fecha; "nunca mutación in-place"</td><td>No — se refiere a contratos publicados, no a catálogo</td></tr>
+<tr><td>Estados de Workout</td><td>Domain Model 10</td><td><code>planificado → completado / perdido</code>, con estados finales</td><td>No — instancia, no plantilla</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Tres soluciones al alcance, ninguna adoptable aquí</div>
+  <p>El ecosistema ya resolvió el problema del ciclo de vida <strong>tres veces</strong>, en tres dominios distintos. Que ninguna se haya extendido al catálogo no es una carencia de diseño: es que nadie ha tomado esa decisión. Registrarlo con sus precedentes es lo máximo que este handbook puede aportar sin invadir la autoridad documental.</p>
+</div>
+
+<h2 id="requisitos">Qué haría falta para cerrar ED-D01</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Elemento</th><th>Quién debe definirlo</th></tr></thead>
+<tbody>
+<tr><td>Vocabulario de estados y su cardinalidad</td><td>Decisión documental — Domain Model 10</td></tr>
+<tr><td>Transiciones válidas y sus guards</td><td>Domain Model 10, donde viven las otras cinco FSM</td></tr>
+<tr><td>Qué estados son elegibles para resolución de slots</td><td>Architecture Handbook 04</td></tr>
+<tr><td>Quién autoriza cada transición</td><td>Ya respondido por P14: autoridad de contenido</td></tr>
+<tr><td>Dónde se registra la transición</td><td>Modelo de datos — ver módulo <a href="../08-trazabilidad/index.html">08</a></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../01-filosofia/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 01 · Filosofía Editorial</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../03-roles/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">03 · Roles Editoriales →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

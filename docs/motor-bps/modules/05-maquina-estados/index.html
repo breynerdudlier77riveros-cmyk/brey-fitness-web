@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>05 · Máquina de Estados — Motor BPS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="maquina-estados" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 05 · Comportamiento</p>
+<h1>Máquina de Estados</h1>
+<p class="lede">La FSM completa del usuario: 8 estados, 15 transiciones con guards, estados imposibles y su reparación, y los caminos de recuperación. Idéntica en estados al módulo 07 del marco; este módulo la formaliza con la tabla exhaustiva de transiciones que aquel no detalla.</p>
+
+<h2 id="estados">Los 8 estados</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Estado</th><th>Significado</th><th>Genera</th><th>¿Terminal?</th></tr></thead>
+<tbody>
+<tr><td><code>sin_diagnostico</code></td><td>Registrado, sin evaluar</td><td>No</td><td>No (inicial)</td></tr>
+<tr><td><code>diagnosticado</code></td><td>Resultado emitido, sin compra</td><td>No</td><td>No</td></tr>
+<tr><td><code>pendiente_diagnostico</code></td><td>Compra confirmada sin Diagnóstico (R-M2)</td><td>No</td><td>No</td></tr>
+<tr><td><code>pendiente_perfil</code></td><td>Activado, gate de Perfil sin pasar</td><td>No</td><td>No</td></tr>
+<tr><td><code>activo</code></td><td>Ciclo normal</td><td><strong>Sí</strong></td><td>No</td></tr>
+<tr><td><code>en_descarga</code></td><td>Semana con multiplicador de descarga</td><td><strong>Sí</strong> (reducida)</td><td>No</td></tr>
+<tr><td><code>en_pausa</code></td><td>Lesión mayor, pausa voluntaria o inactividad (BPS-025)</td><td>No</td><td>No</td></tr>
+<tr><td><code>sistema_completado</code></td><td>Último Bloque cerrado</td><td>No</td><td><strong>Sí, del ciclo del Sistema</strong> — no de la cuenta: salidas hacia re-diagnóstico o nueva compra</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="fsm">Diagrama</h2>
+<div class="diagram">
+<div class="diagram-label">FSM completa con las 15 transiciones (T1–T15)</div>
+<pre class="mermaid">
+stateDiagram-v2
+  [*] --> sin_diagnostico: registro
+  sin_diagnostico --> diagnosticado: T1 diagnóstico completado
+  diagnosticado --> diagnosticado: T2 re-toma (sin efecto en punteros)
+  diagnosticado --> pendiente_perfil: T3 compra confirmada [resultado vigente]
+  sin_diagnostico --> pendiente_diagnostico: T4 compra confirmada [sin resultado]
+  pendiente_diagnostico --> pendiente_perfil: T5 diagnóstico completado
+  pendiente_perfil --> activo: T6 perfil deportivo completo
+  activo --> pendiente_perfil: T7 campo de gate eliminado del Perfil
+  activo --> en_descarga: T8 Recovery exige [programada o reactiva]
+  en_descarga --> activo: T9 descarga completada (cierre del microciclo)
+  activo --> en_pausa: T10 lesión mayor / pausa voluntaria
+  activo --> en_pausa: T11 auto-pausa [21 días sin log — BPS-025]
+  en_pausa --> activo: T12 reanudación [≤30 días]
+  en_pausa --> activo: T13 reanudación [>30 días → retroceso propuesto]
+  activo --> sistema_completado: T14 último Bloque cerrado
+  sistema_completado --> diagnosticado: T15a re-diagnóstico
+  sistema_completado --> pendiente_perfil: T15b compra de otro Sistema
+</pre>
+</div>
+
+<h2 id="transiciones">Tabla de transiciones — evento, guard, efectos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>T</th><th>De → A</th><th>Evento disparador</th><th>Guard (condición necesaria)</th><th>Efectos</th></tr></thead>
+<tbody>
+<tr><td>T1</td><td>sin_diagnostico → diagnosticado</td><td>Diagnóstico completado</td><td>Resultado válido (03/V-1)</td><td>Persistir diagnosis; evento</td></tr>
+<tr><td>T2</td><td>diagnosticado → diagnosticado</td><td>Re-toma del Diagnóstico</td><td>—</td><td>Nueva diagnosis persistida; punteros intactos (BPS-012)</td></tr>
+<tr><td>T3</td><td>diagnosticado → pendiente_perfil</td><td><code>compra_confirmada</code></td><td>transaccionId nuevo (idempotencia 06); sistema comprado disponible</td><td>Punteros sistema/nivel escritos; evento <code>activacion</code></td></tr>
+<tr><td>T4</td><td>sin_diagnostico → pendiente_diagnostico</td><td><code>compra_confirmada</code></td><td>Ídem T3; sin resultado vigente</td><td>Compra registrada; SIN punteros aún (BPS-003); evento</td></tr>
+<tr><td>T5</td><td>pendiente_diagnostico → pendiente_perfil</td><td>Diagnóstico completado</td><td>Resultado válido</td><td>Punteros escritos con nivelEntrada; evento <code>activacion</code></td></tr>
+<tr><td>T6</td><td>pendiente_perfil → activo</td><td>Perfil actualizado</td><td>Los 3 campos de gate presentes (03/G2)</td><td>Evento; el próximo ciclo ya genera</td></tr>
+<tr><td>T7</td><td>activo → pendiente_perfil</td><td>Ciclo semanal detecta gate roto</td><td>Algún campo de gate ausente (usuario lo borró)</td><td>Evento <code>gate_fallado</code>; semanas ya generadas se conservan (P5)</td></tr>
+<tr><td>T8</td><td>activo → en_descarga</td><td>Ciclo: veredicto Recovery</td><td><code>exigeDescarga.si</code></td><td>Evento descarga_*; generación con multiplicador</td></tr>
+<tr><td>T9</td><td>en_descarga → activo</td><td>Cierre del microciclo de descarga</td><td>—</td><td>Evento; Progression vuelve a evaluar el próximo ciclo</td></tr>
+<tr><td>T10</td><td>activo → en_pausa</td><td>Usuario declara lesión mayor o pausa</td><td>—</td><td>Evento con motivo; sin generación ni evaluación macro</td></tr>
+<tr><td>T11</td><td>activo → en_pausa</td><td>Ciclo: inactividad</td><td>≥21 días sin log (BPS-025 — extensión de este handbook <span class="ev ev--producto">decisión de producto</span>)</td><td>Evento motivo=inactividad; comunicación al usuario</td></tr>
+<tr><td>T12</td><td>en_pausa → activo</td><td>Usuario reanuda</td><td>Pausa ≤ 30 días</td><td>Evento; continúa donde estaba</td></tr>
+<tr><td>T13</td><td>en_pausa → activo</td><td>Usuario reanuda</td><td>Pausa &gt; 30 días</td><td>Evento; retroceso de un Mesociclo PROPUESTO (aceptable/ajustable — el detraining es real, su magnitud varía <span class="ev ev--moderada">evidencia moderada</span>; la regla 30d/1 mesociclo <span class="ev ev--producto">decisión de producto</span>)</td></tr>
+<tr><td>T14</td><td>activo → sistema_completado</td><td>Ciclo: fin de estructura</td><td>Último Microciclo del último Bloque cerrado</td><td>Evento <code>sistema_completado</code>; punteros del Sistema se conservan como registro hasta T15</td></tr>
+<tr><td>T15a/b</td><td>sistema_completado → diagnosticado / pendiente_perfil</td><td>Re-diagnóstico / nueva compra</td><td>Según T1/T3</td><td>Punteros del Sistema anterior reemplazados; el historial completo permanece (P3)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="imposibles">Estados imposibles — detección y reparación</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Combinación imposible</th><th>Cómo podría ocurrir</th><th>Reparación</th></tr></thead>
+<tbody>
+<tr><td><code>activo</code> con <code>sistema_actual</code> null</td><td>Bug de escritura parcial</td><td>Replay de eventos (IN-5) → estado real; evento <code>anomalia</code>; si el replay tampoco lo explica, degradar a <code>diagnosticado</code>/<code>sin_diagnostico</code> según exista diagnosis</td></tr>
+<tr><td><code>activo</code>/<code>pendiente_perfil</code> con <code>nivel_actual</code> null</td><td>Activación sin nivelEntrada (violación de BPS-003)</td><td>Degradar a <code>pendiente_diagnostico</code>; evento <code>anomalia</code></td></tr>
+<tr><td><code>en_descarga</code> sin Mesociclo vigente</td><td>Estructura de catálogo cambiada bajo los pies</td><td>La instancia generada manda (P5) — completar la semana materializada; anomalía a ingeniería</td></tr>
+<tr><td>Dos punteros de Sistema (imposible por esquema: escalar)</td><td>No puede representarse</td><td>— (el modelo de datos lo excluye; multi-sistema está en "nunca")</td></tr>
+<tr><td>Evento posterior a un estado terminal sin transición de salida (ej. <code>avanza</code> tras <code>sistema_completado</code>)</td><td>Ciclo ejecutado por error</td><td>El guard de estados generativos (BPS-013) lo rechaza antes; si el evento ya existe: anomalía, se ignora en el replay con marca</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Regla de reparación</div>
+  <p>La reparación NUNCA borra eventos (P3): reconstruye el puntero desde el replay, registra <code>anomalia</code> con el diagnóstico completo, y solo entonces aplica la degradación de estado más conservadora que los eventos justifiquen. Un estado imposible es siempre un bug a investigar — la reparación existe para que el usuario no quede atrapado mientras tanto.</p>
+</div>
+
+<h2 id="recuperacion">Recuperación — replay determinista</h2>
+<pre class="codeblock">
+<span class="kw">FUNCIÓN</span> recomputarEstado(eventos ordenados por created_at, secuencia):
+  estado <span class="kw">←</span> sin_diagnostico
+  <span class="kw">PARA</span> cada e <span class="kw">EN</span> eventos:
+    <span class="kw">SI</span> transicionValida(estado, e) <span class="kw">ENTONCES</span> estado <span class="kw">←</span> aplicar(estado, e)
+    <span class="kw">SI NO</span> marcar(e, <span class="str">"ignorado_en_replay"</span>) <span class="cm">// jamás borrar — P3</span>
+  <span class="kw">RETORNAR</span> estado
+<span class="cm">// Propiedad exigida (IN-5): recomputarEstado es determinista y total —</span>
+<span class="cm">// cualquier secuencia de eventos produce exactamente un estado, siempre el mismo.</span>
+</pre>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../04-salidas/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 04 · Salidas</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../06-regla-activacion/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">06 · Regla de Activación →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

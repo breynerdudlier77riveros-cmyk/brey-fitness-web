@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>09 · Errores — BREY API Contract Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="errores" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 09 · Operación</p>
+<h1>Errores</h1>
+<p class="lede">Todo código de error de dominio, infraestructura, autenticación, autorización y validación del ecosistema, con su status HTTP. Ningún error es "algo salió mal" — cada uno nombra qué falló (P6, Architecture Handbook).</p>
+
+<div class="meta-row">
+  <span class="chip">26 códigos de error</span>
+  <span class="chip">SNAKE_CASE = dominio · snake_case = infraestructura</span>
+</div>
+
+<h2 id="convencion">Convención de nombres</h2>
+<p>Un código de error en <code>SNAKE_CASE</code> (mayúsculas) es un error de dominio — ya nombrado por un handbook de negocio (Motor BPS Handbook, BCS Handbook). Un código en <code>snake_case</code> (minúsculas) es un error de infraestructura — el patrón real ya usado por los dos Route Handlers existentes (Engineering Handbook, 06). Este documento no unifica las dos convenciones porque ninguna contradice a la otra — cada una ya identifica de un vistazo a qué categoría pertenece el fallo.</p>
+
+<h2 id="dominio">Errores de dominio</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Código</th><th>Status</th><th>Significado</th><th>Emisor</th><th>Acción esperada</th></tr></thead>
+<tbody>
+<tr><td><code>SISTEMA_NO_ACTIVO</code></td><td>409</td><td>Generación sin Sistema activo</td><td>Motor BPS</td><td>Dirigir a Diagnóstico/compra</td></tr>
+<tr><td><code>DIAGNOSTICO_REQUERIDO</code></td><td>409</td><td>Compra sin nivel de entrada (R-M2)</td><td>Motor BPS</td><td>Dirigir al Diagnóstico</td></tr>
+<tr><td><code>PERFIL_INCOMPLETO</code></td><td>422</td><td>Gate de perfil (R-M3) — <code>detalle.campos_faltantes</code> exacto</td><td>Motor BPS</td><td>Formulario de Perfil con los campos faltantes</td></tr>
+<tr><td><code>ACTIVACION_SIN_COMPRA</code></td><td>403</td><td>Intento de activar sin transacción (R-M1)</td><td>Motor BPS</td><td>No existe camino legítimo — error de programación del llamador</td></tr>
+<tr><td><code>CATALOGO_INSUFICIENTE</code></td><td>409</td><td>Slot sin ejercicio elegible — <code>detalle: {slot, patron, rol, track, nivel, exclusiones}</code></td><td>Workout Generator</td><td>Mensaje de producto + reporte a cola editorial</td></tr>
+<tr><td><code>EQUIVALENCIA_FALTANTE</code></td><td>409</td><td>Sustitución dinámico↔isométrico sin entrada autorizada</td><td>Workout Generator</td><td>Igual que <code>CATALOGO_INSUFICIENTE</code></td></tr>
+<tr><td><code>SISTEMA_SIN_JERARQUIA</code></td><td>409</td><td>Sistema 1:1 (ej. Elite) en flujo de generación automática</td><td>Motor BPS / Workout Generator</td><td>Camino de coaching humano, no de motor</td></tr>
+<tr><td><code>SESION_EN_OTRO_DISPOSITIVO</code></td><td>409</td><td>Conflicto de propiedad de sesión de Workout Player</td><td>Workout Player</td><td>Modo solo-lectura en el segundo dispositivo</td></tr>
+<tr><td><code>ENTRADA_INVALIDA</code></td><td>400</td><td>Entrada del Motor BPS fuera de los límites de frontera (V-1) — nunca por ausencia de un campo opcional</td><td>Motor BPS</td><td>Corregir la entrada — nunca reintentar tal cual</td></tr>
+<tr><td><code>CLIENTE_NO_ENCONTRADO</code></td><td>404</td><td>Cliente inexistente o no propiedad del Entrenador</td><td>BCS</td><td>Volver al listado</td></tr>
+<tr><td><code>CLIENTE_ELIMINADO</code></td><td>404</td><td>Operación sobre un Cliente en estado <code>Eliminado</code> (terminal, IN-30)</td><td>BCS</td><td>No hay recuperación — el Cliente no existe para efectos de negocio</td></tr>
+<tr><td><code>CLIENTE_YA_ARCHIVADO</code></td><td>409</td><td>Archivar un Cliente ya <code>archivado</code></td><td>BCS</td><td>No-op informativo, no reintentar</td></tr>
+<tr><td><code>NOMBRE_VACIO</code></td><td>422</td><td>Precondición de <code>CrearCliente</code> (UC-01) incumplida</td><td>BCS</td><td>Corregir el formulario</td></tr>
+<tr><td><code>FECHA_FUTURA</code></td><td>422</td><td>Fecha de Medición posterior a hoy</td><td>BCS</td><td>Corregir la fecha</td></tr>
+<tr><td><code>VALOR_FUERA_DE_RANGO_FISICO</code></td><td>422</td><td>Cualquier variable de masa &gt; Peso total, u otro límite físico imposible (BCS Handbook, 03)</td><td>BCS</td><td>Corregir el valor — distinto de una advertencia (06)</td></tr>
+<tr><td><code>MEDICION_NO_ENCONTRADA</code></td><td>404</td><td>Medición inexistente</td><td>BCS</td><td>Volver al historial</td></tr>
+<tr><td><code>MEDICION_YA_ANULADA</code></td><td>409</td><td>Corregir una Medición ya <code>anulada</code></td><td>BCS</td><td>Corregir la vigente actual, no la histórica</td></tr>
+<tr><td><code>ENLACE_NO_ENCONTRADO</code></td><td>404</td><td>EnlacePúblico inexistente (operación del Entrenador, no del token público — ver <code>TOKEN_INVALIDO</code>)</td><td>BCS</td><td>Volver al panel de Cliente</td></tr>
+<tr><td><code>ENLACE_YA_REVOCADO</code></td><td>409</td><td>Revocar un enlace ya <code>revocado</code></td><td>BCS</td><td>No-op informativo</td></tr>
+<tr><td><code>TOKEN_INVALIDO</code></td><td>404</td><td>Token de EnlacePúblico inexistente — deliberadamente indistinguible de <code>TOKEN_REVOCADO</code></td><td>BCS</td><td>"Enlace no disponible" — nunca revela si existió</td></tr>
+<tr><td><code>TOKEN_REVOCADO</code></td><td>404</td><td>Token que existió pero ya no es válido — mismo mensaje que <code>TOKEN_INVALIDO</code> de cara al actor Anonymous</td><td>BCS</td><td>Igual que <code>TOKEN_INVALIDO</code> (BCS Handbook, 10)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="infraestructura">Errores de infraestructura</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Código</th><th>Status</th><th>Origen real</th></tr></thead>
+<tbody>
+<tr><td><code>invalid_body</code></td><td>400</td><td><code>app/api/lead</code>, <code>app/api/contacto</code> — JSON malformado</td></tr>
+<tr><td><code>invalid_email</code></td><td>400</td><td><code>app/api/lead</code> — falla la regex de validación</td></tr>
+<tr><td><code>invalid_fields</code></td><td>400</td><td><code>app/api/contacto</code> — campos obligatorios vacíos</td></tr>
+<tr><td><code>not_configured</code></td><td>503</td><td>Secreto de servidor ausente (<code>BREVO_API_KEY</code>)</td></tr>
+<tr><td><code>provider_error</code></td><td>502</td><td>Proveedor externo (Brevo) respondió con error no reconocido</td></tr>
+</tbody>
+</table>
+</div>
+<p class="matrix-note">Estos cinco códigos son reales, de <code>/api/lead</code> y <code>/api/contacto</code> — fuera del dominio de negocio de BREY (00), pero el único precedente de infraestructura ya implementado. Cualquier endpoint futuro de este catálogo que integre un servicio externo reutiliza esta misma convención.</p>
+
+<h2 id="autenticacion-autorizacion">Errores de autenticación y autorización</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Situación</th><th>Status</th><th>Regla</th></tr></thead>
+<tbody>
+<tr><td>Sin sesión válida (<code>getUser()</code> falla) y el endpoint la exige</td><td>401</td><td>Security Handbook (Engineering, 08)</td></tr>
+<tr><td>Sesión válida, pero <code>auth.uid()</code> no es dueño del recurso</td><td>403</td><td>13 — nunca se filtra si el recurso existe pertenece a otro; ver siguiente fila</td></tr>
+<tr><td>Recurso de otro Usuario/Entrenador (RLS ya lo excluye de la consulta)</td><td>404</td><td>Preferido sobre 403 cuando RLS ya hace invisible la fila — no revela existencia de datos ajenos, mismo principio que <code>TOKEN_INVALIDO</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="validacion">Errores de validación</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Capa</th><th>Status</th><th>Ejemplo</th></tr></thead>
+<tbody>
+<tr><td>Forma (sintáctica) — 05</td><td>400</td><td><code>invalid_body</code>, tipo de campo incorrecto</td></tr>
+<tr><td>Semántica de negocio (dentro de rango, gate cumplido)</td><td>422</td><td><code>PERFIL_INCOMPLETO</code>, <code>VALOR_FUERA_DE_RANGO_FISICO</code></td></tr>
+<tr><td>Conflicto de estado (transición inválida)</td><td>409</td><td><code>MEDICION_YA_ANULADA</code>, <code>SESION_EN_OTRO_DISPOSITIVO</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="matriz-error-status">Matriz Error → Status (consolidada)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Status</th><th>Códigos</th></tr></thead>
+<tbody>
+<tr><td>400</td><td><code>invalid_body</code>, <code>invalid_email</code>, <code>invalid_fields</code>, <code>ENTRADA_INVALIDA</code></td></tr>
+<tr><td>401</td><td>Sin sesión válida (sin código de dominio propio — ver 13)</td></tr>
+<tr><td>403</td><td><code>ACTIVACION_SIN_COMPRA</code>, ownership cruzado no cubierto por RLS</td></tr>
+<tr><td>404</td><td><code>CLIENTE_NO_ENCONTRADO</code>, <code>CLIENTE_ELIMINADO</code>, <code>MEDICION_NO_ENCONTRADA</code>, <code>ENLACE_NO_ENCONTRADO</code>, <code>TOKEN_INVALIDO</code>, <code>TOKEN_REVOCADO</code></td></tr>
+<tr><td>409</td><td><code>SISTEMA_NO_ACTIVO</code>, <code>DIAGNOSTICO_REQUERIDO</code>, <code>CATALOGO_INSUFICIENTE</code>, <code>EQUIVALENCIA_FALTANTE</code>, <code>SISTEMA_SIN_JERARQUIA</code>, <code>SESION_EN_OTRO_DISPOSITIVO</code>, <code>CLIENTE_YA_ARCHIVADO</code>, <code>MEDICION_YA_ANULADA</code>, <code>ENLACE_YA_REVOCADO</code></td></tr>
+<tr><td>422</td><td><code>PERFIL_INCOMPLETO</code>, <code>NOMBRE_VACIO</code>, <code>FECHA_FUTURA</code>, <code>VALOR_FUERA_DE_RANGO_FISICO</code></td></tr>
+<tr><td>429</td><td>Sin código de dominio — ver 12</td></tr>
+<tr><td>502</td><td><code>provider_error</code></td></tr>
+<tr><td>503</td><td><code>not_configured</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="callout callout--nota">
+  <div class="callout__label">Nota — <code>VENTANA_INSUFICIENTE</code> y <code>SEMANA_YA_GENERADA</code> no están en esta matriz</div>
+  <p>Ambos son casos de negocio válidos, no errores de cara al actor: <code>VENTANA_INSUFICIENTE</code> resuelve internamente a la decisión <code>sostiene</code> (Progression Engine Handbook, 04) y se registra en el <code>contexto</code> del evento, nunca se devuelve como <code>ok: false</code>; <code>SEMANA_YA_GENERADA</code> devuelve <code>ok: true</code> con la semana ya existente (idempotencia, 11). Incluirlos aquí como "error" contradiría su propia especificación de origen.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../08-dto-oficiales/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 08 · DTO Oficiales</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../10-versionado/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">10 · Versionado →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

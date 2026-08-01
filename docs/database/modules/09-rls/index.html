@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>09 · RLS — BREY Database Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="rls" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 09 · Esquema físico</p>
+<h1>RLS</h1>
+<p class="lede">La política real de Row Level Security por tabla — qué operación permite cada una hoy. AR-018 (Architecture Review) quedó aplicado en Sprint 0.</p>
+
+<div class="meta-row">
+  <span class="chip">ENG-ADR-04 — RLS es la barrera real</span>
+  <span class="chip">AR-018 aplicado — Sprint 0</span>
+</div>
+
+<h2 id="rls-como-barrera">RLS como barrera real, no el código de aplicación</h2>
+<p>Sin <code>ENABLE ROW LEVEL SECURITY</code>, las políticas de una tabla nunca se evalúan y cualquier poseedor de la <code>anon key</code> puede leer/escribir todo — "el error más común y silencioso de Supabase" (Security Handbook, Engineering 08). Toda tabla de este documento asume RLS como la barrera de autorización de última instancia; una comprobación de ownership en una Server Action es una conveniencia de UX (mensaje de error temprano), nunca el único guardarraíl (ENG-ADR-04).</p>
+
+<h2 id="flujo-acceso">Diagrama — resolución de acceso</h2>
+<div class="diagram">
+<div class="diagram-label">Aplica a las 9 tablas, salvo la lectura pública de <code>systems</code> y la resolución de token de <code>bcs_enlaces_publicos</code></div>
+<pre class="mermaid">
+flowchart TD
+  Q["Query a Postgres"] --> P{"¿RLS habilitado<br/>en la tabla?"}
+  P -- No --> D["Todo visible/editable —<br/>brecha de seguridad, nunca aceptable"]
+  P -- Sí --> E{"¿Existe policy<br/>para esta operación?"}
+  E -- No --> N["Denegado por defecto"]
+  E -- Sí --> A{"¿auth.uid() satisface<br/>la condición de la policy?"}
+  A -- No --> N
+  A -- Sí --> OK["Fila visible/editable"]
+</pre>
+</div>
+
+<h2 id="matriz-completa">Matriz completa — operación permitida por tabla</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tabla</th><th>SELECT</th><th>INSERT</th><th>UPDATE</th><th>DELETE</th></tr></thead>
+<tbody>
+<tr><td><code>systems</code></td><td>Público (incl. Anonymous)</td><td>Ninguno (gestión vía dashboard/service role)</td><td>Ninguno</td><td>Ninguno</td></tr>
+<tr><td><code>profiles</code></td><td>Propio</td><td>Trigger de sistema (<code>handle_new_user</code>)</td><td>Propio — <strong>sin distinción de columna (brecha, ver abajo)</strong></td><td>Ninguno explícito</td></tr>
+<tr><td><code>diagnoses</code></td><td>Propio</td><td>Propio</td><td><strong>Ninguno, a propósito</strong> — inmutable (P3)</td><td><strong>Ninguno, a propósito</strong></td></tr>
+<tr><td><code>workouts</code></td><td>Propio</td><td>Propio</td><td>Propio — limitado en la práctica a la transición de <code>estado</code> (RLS no distingue por columna)</td><td><strong>Ninguno — AR-018 aplicado (Sprint 0)</strong></td></tr>
+<tr><td><code>workout_logs</code></td><td>Propio</td><td>Propio</td><td><strong>Ninguno, a propósito</strong> — AR-018 aplicado (Sprint 0)</td><td><strong>Ninguno — AR-018 aplicado (Sprint 0)</strong></td></tr>
+<tr><td><code>progression_events</code></td><td>Propio</td><td>Propio</td><td><strong>Ninguno, a propósito</strong> — append-only (P3)</td><td><strong>Ninguno, a propósito</strong></td></tr>
+<tr><td><code>bcs_clientes</code></td><td>Entrenador dueño únicamente</td><td>Entrenador (crea sus propios Clientes)</td><td>Entrenador dueño</td><td>Solo vía UC-04 (eliminación permanente) — nunca DELETE directo sin pasar por la lógica de cascada de enlaces (05)</td></tr>
+<tr><td><code>bcs_mediciones</code></td><td>Entrenador dueño; Anonymous con token <code>activo</code> del Cliente (solo lectura del Reporte computado, nunca de la fila directamente)</td><td>Entrenador dueño del Cliente referenciado</td><td><strong>Ninguno, a propósito</strong> — corrección = anula + crea (BCS-ADR-03)</td><td><strong>Ninguno, a propósito</strong></td></tr>
+<tr><td><code>bcs_enlaces_publicos</code></td><td>Entrenador dueño (gestión); resolución de <code>token</code>→Reporte para cualquier portador, solo si <code>activo</code></td><td>Entrenador dueño del Cliente referenciado</td><td>Entrenador dueño (solo transición <code>activo→revocado</code>)</td><td>Ninguno — la revocación es UPDATE de <code>estado</code>, nunca DELETE físico (IN-28)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="diagrama-append-only">Diagrama — las tres tablas append-only</h2>
+<div class="diagram">
+<div class="diagram-label"><code>diagnoses</code>, <code>progression_events</code> y <code>bcs_mediciones</code> comparten UPDATE/DELETE ausentes a propósito</div>
+<pre class="mermaid">
+flowchart TD
+  INS["INSERT permitido"] --> ROW["Fila creada"]
+  ROW -.->|"UPDATE — PROHIBIDO"| ROW
+  ROW -.->|"DELETE — PROHIBIDO"| X["✕"]
+  ROW --> NEW["Corrección = nueva fila<br/>(la anterior permanece o se anula, nunca se edita)"]
+</pre>
+</div>
+
+<h2 id="brecha-workouts">AR-018 — aplicado en Sprint 0</h2>
+<div class="callout callout--escala">
+  <div class="callout__label">workouts / workout_logs ya no permiten DELETE</div>
+  <p>Las políticas originales de <code>workouts</code>/<code>workout_logs</code> eran <strong>"CRUD propio"</strong> (<code>for all</code>) — más permisivas de lo que la Inmutabilidad de historial (FT-09) exige. M1 (Implementation Handbook, 05; IMP-ADR-04) quedó aplicado: <code>workout_logs</code> → solo <code>select</code>+<code>insert</code> propios; <code>workouts</code> → <code>select</code>+<code>insert</code>+<code>update</code> propio (limitado en la práctica a la transición de <code>estado</code>, aunque RLS de Postgres no restringe por columna). <strong>El <code>delete</code> desapareció de ambas</strong> — ver <code>supabase/schema.sql</code> y <code>supabase/migration_rls_endurecimiento.sql</code>.</p>
+</div>
+
+<h2 id="brecha-profiles">Brecha real y conocida — profiles sin distinción de columna</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">La política de UPDATE de profiles no distingue quién escribe qué columna</div>
+  <p>La política real permite editar cualquier columna propia — incluidas <code>sistema_actual</code>/<code>nivel_actual</code>, que deberían escribirse exclusivamente por el proceso de Diagnóstico/Motor BPS (03, 04). Postgres RLS no restringe por columna de forma nativa — cerrar esta brecha requiere un mecanismo adicional (trigger de validación, o un camino de escritura de servidor separado con su propia autorización) no especificado todavía por ningún handbook. Se documenta como riesgo heredado, no resuelto aquí (16).</p>
+</div>
+
+<h2 id="anonymous-unico">El único acceso sin autenticación — resolución de token</h2>
+<p>La resolución <code>token</code> → Reporte de <code>bcs_enlaces_publicos</code>/<code>bcs_mediciones</code> es la única operación de todo el ecosistema ejecutable por un actor sin sesión (Security Handbook, Engineering 08; BCS Handbook, 10) — condicionada estrictamente a que el token exista y su <code>estado</code> sea <code>activo</code>. El dominio nunca ve el token en sí mismo dentro de la capa de negocio — su resolución vive en la capa de aplicación (BCS Handbook, IN-A2).</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../08-eventos-persistidos/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 08 · Eventos Persistidos</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../10-consistencia/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">10 · Consistencia →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

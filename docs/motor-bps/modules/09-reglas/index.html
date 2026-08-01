@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>09 · Reglas de negocio — Motor BPS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="reglas" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 09 · Reglas</p>
+<h1>Reglas de negocio</h1>
+<p class="lede">Las 25 reglas normativas del Motor, numeradas BPS-001…BPS-025. Prioridades: <strong>Crítica</strong> (violarla es un incidente), <strong>Alta</strong> (violarla es un bug que corrige el próximo ciclo), <strong>Media</strong> (calibrable/de producto). Formato fijo: descripción, justificación, ejemplo válido, ejemplo inválido, consecuencia.</p>
+
+<h2 id="activacion">Activación y autoridad (001–008)</h2>
+
+<div class="bizrule" id="bps-001"><span class="bizrule__prio">Crítica</span><div class="bizrule__id">BPS-001</div><h3>La activación exige compra confirmada</h3><dl>
+<dt>Descripción</dt><dd>Los punteros de Sistema solo se escriben al procesar un <code>compra_confirmada</code> con transaccionId nuevo.</dd>
+<dt>Justificación</dt><dd>Los Sistemas son productos pagos; activar sin transacción regala el contenido premium (ADR-002 del marco).</dd>
+<dt>Válido</dt><dd>T3: diagnóstico → compra → punteros escritos.</dd>
+<dt>Inválido</dt><dd>Un flag de "modo demo" que escribe sistema_actual sin compra.</dd>
+<dt>Consecuencia</dt><dd>Sin camino de código hacia la activación fuera del handler de compra; su existencia es <code>ACTIVACION_SIN_COMPRA</code>.</dd></dl></div>
+
+<div class="bizrule" id="bps-002"><span class="bizrule__prio">Crítica</span><div class="bizrule__id">BPS-002</div><h3>El Diagnóstico recomienda; jamás activa</h3><dl>
+<dt>Descripción</dt><dd>Completar el Diagnóstico (primera vez o re-toma) nunca escribe punteros.</dd>
+<dt>Justificación</dt><dd>Una sola autoridad de activación (06); dos caminos = estados inconsistentes.</dd>
+<dt>Válido</dt><dd>T1/T2: el resultado se persiste como diagnosis, los punteros quedan intactos.</dd>
+<dt>Inválido</dt><dd>"Como ya pagó antes, la re-toma actualiza su nivel automáticamente."</dd>
+<dt>Consecuencia</dt><dd>El re-diagnóstico con Sistema activo es informativo (C-03).</dd></dl></div>
+
+<div class="bizrule" id="bps-003"><span class="bizrule__prio">Crítica</span><div class="bizrule__id">BPS-003</div><h3>Nunca nivel por defecto</h3><dl>
+<dt>Descripción</dt><dd>Sin nivelEntrada del Diagnóstico, no hay activación completa — la compra espera (<code>pendiente_diagnostico</code>).</dd>
+<dt>Justificación</dt><dd>El nivel es un dato de seguridad: un default pone a un principiante en contenido avanzado (P6 — sin defaults silenciosos).</dd>
+<dt>Válido</dt><dd>T4→T5: compra directa espera al Diagnóstico.</dd>
+<dt>Inválido</dt><dd>"Asignar Nivel Inicial mientras tanto para que pueda empezar."</dd>
+<dt>Consecuencia</dt><dd><code>nivel_actual</code> null es incompatible con estados generativos (estado imposible, 05).</dd></dl></div>
+
+<div class="bizrule" id="bps-004"><span class="bizrule__prio">Crítica</span><div class="bizrule__id">BPS-004</div><h3>Gate de Perfil deportivo</h3><dl>
+<dt>Descripción</dt><dd>Sin días + lugar + zonas declaradas (aunque sea "ninguna"), no hay generación.</dd>
+<dt>Justificación</dt><dd>Generar sin conocer lesiones o disponibilidad produce contenido potencialmente inseguro o inviable.</dd>
+<dt>Válido</dt><dd>Usuario declara "ninguna lesión" → gate pasa (declarado ≠ ausente).</dd>
+<dt>Inválido</dt><dd>Generar asumiendo "sin lesiones" porque el campo está vacío.</dd>
+<dt>Consecuencia</dt><dd>T6/T7; error <code>PERFIL_INCOMPLETO</code>.</dd></dl></div>
+
+<div class="bizrule" id="bps-005"><span class="bizrule__prio">Alta</span><div class="bizrule__id">BPS-005</div><h3>El Perfil se lee fresco en cada ciclo</h3><dl>
+<dt>Descripción</dt><dd>Ningún dato de Perfil se congela en la activación (IN-6).</dd>
+<dt>Justificación</dt><dd>La logística del usuario cambia; decidir sobre una copia vieja genera planes inviables en silencio.</dd>
+<dt>Válido</dt><dd>Cambio de días el martes → la generación del domingo lo usa.</dd>
+<dt>Inválido</dt><dd>Cachear el Perfil de la activación "por rendimiento".</dd>
+<dt>Consecuencia</dt><dd>Fallo de lectura de Perfil aborta el ciclo (mapa de fallos, 07) — jamás degrada a copia vieja.</dd></dl></div>
+
+<div class="bizrule" id="bps-006"><span class="bizrule__prio">Crítica</span><div class="bizrule__id">BPS-006</div><h3><code>nivel_experiencia</code> jamás alimenta decisiones</h3><dl>
+<dt>Descripción</dt><dd>El campo autopercibido del Perfil no es entrada de ningún camino del Motor (03/G2).</dd>
+<dt>Justificación</dt><dd>ADR-003 del marco: la autoevaluación no es señal de seguridad ni de programación; <code>nivel_actual</code> es de otro dueño.</dd>
+<dt>Válido</dt><dd>UI lo muestra en el perfil del usuario como autodescripción.</dd>
+<dt>Inválido</dt><dd>"Si dice Avanzado, saltar el gate de capacidades."</dd>
+<dt>Consecuencia</dt><dd>Cualquier lectura por el Motor es defecto reportable.</dd></dl></div>
+
+<div class="bizrule" id="bps-007"><span class="bizrule__prio">Crítica</span><div class="bizrule__id">BPS-007</div><h3>Recovery precede a Progression, sin excepción</h3><dl>
+<dt>Descripción</dt><dd>Orden fijo del ciclo (IN-7); un veredicto de descarga es terminal para la progresión de ese ciclo.</dd>
+<dt>Justificación</dt><dd>P8 del marco; C-01.</dd>
+<dt>Válido</dt><dd>Pipeline pasos 6-9.</dd>
+<dt>Inválido</dt><dd>"Evaluar ambos y decidir según cuál tenga señal más fuerte."</dd>
+<dt>Consecuencia</dt><dd>En semana de descarga no existe evento de progresión — su ausencia es información.</dd></dl></div>
+
+<div class="bizrule" id="bps-008"><span class="bizrule__prio">Crítica</span><div class="bizrule__id">BPS-008</div><h3>Un solo Sistema activo</h3><dl>
+<dt>Descripción</dt><dd><code>sistema_actual</code> es escalar; una nueva compra cierra ordenadamente el anterior (C-07).</dd>
+<dt>Justificación</dt><dd>Modelo comercial y de datos; el multi-sistema paralelo está en "nunca" del marco.</dd>
+<dt>Válido</dt><dd>Cambio Hipertrofia→Híbrido: cierre + activación, historial íntegro.</dd>
+<dt>Inválido</dt><dd>Alternar dos sistemas por días de la semana.</dd>
+<dt>Consecuencia</dt><dd>El esquema lo impide; el flujo de cambio es el único camino.</dd></dl></div>
+
+<h2 id="estado">Estado y trazabilidad (009–014)</h2>
+
+<div class="bizrule" id="bps-009"><span class="bizrule__prio">Crítica</span><div class="bizrule__id">BPS-009</div><h3>Elite no entra al pipeline de generación</h3><dl>
+<dt>Descripción</dt><dd>Sistemas con jerarquía vacía (Elite) activan comercialmente pero el ciclo los rechaza con <code>SISTEMA_SIN_JERARQUIA</code>.</dd>
+<dt>Justificación</dt><dd>ADR-012 del marco: coaching 1:1 humano; un programa genérico disfrazado violaría la honestidad del producto.</dd>
+<dt>Válido</dt><dd>Compra de Elite → estado registrado, camino humano.</dd>
+<dt>Inválido</dt><dd>"Generarle el programa de Híbrido mientras tanto."</dd>
+<dt>Consecuencia</dt><dd>Guard en el paso 1 del ciclo.</dd></dl></div>
+
+<div class="bizrule" id="bps-010"><span class="bizrule__prio">Crítica</span><div class="bizrule__id">BPS-010</div><h3>Toda transición emite exactamente un evento con razón</h3><dl>
+<dt>Descripción</dt><dd>IN-4; razones NOT NULL; contexto con métricas/umbrales vigentes.</dd>
+<dt>Justificación</dt><dd>P2/P3 del marco — sin esto, la promesa de explicabilidad es decorativa.</dd>
+<dt>Válido</dt><dd><code>retrocede</code> con adherencia y umbral en contexto.</dd>
+<dt>Inválido</dt><dd>Transición aplicada con "evento pendiente de escribir después".</dd>
+<dt>Consecuencia</dt><dd>Transición y evento son atómicos: o ambos, o ninguno.</dd></dl></div>
+
+<div class="bizrule" id="bps-011"><span class="bizrule__prio">Crítica</span><div class="bizrule__id">BPS-011</div><h3>El estado es recomputable desde los eventos — y los eventos ganan</h3><dl>
+<dt>Descripción</dt><dd>IN-5; replay determinista (05).</dd>
+<dt>Justificación</dt><dd>SSoT (01); repara corrupción sin inventar historia.</dd>
+<dt>Válido</dt><dd>Puntero corrupto → reconstrucción por replay + anomalía.</dd>
+<dt>Inválido</dt><dd>"Corregir" editando el puntero a mano sin evento.</dd>
+<dt>Consecuencia</dt><dd>El test de replay es parte de la definición de terminado del Motor (13).</dd></dl></div>
+
+<div class="bizrule" id="bps-012"><span class="bizrule__prio">Alta</span><div class="bizrule__id">BPS-012</div><h3>Nada re-evalúa el Sistema automáticamente</h3><dl>
+<dt>Descripción</dt><dd>Ni historial, ni cambio de objetivo, ni re-diagnóstico mutan <code>sistema_actual</code> (IN-1).</dd>
+<dt>Justificación</dt><dd>"El sistema te cambió de producto solo" es una sorpresa comercialmente inaceptable.</dd>
+<dt>Válido</dt><dd>Re-diagnóstico muestra "hoy te recomendaríamos X" como información.</dd>
+<dt>Inválido</dt><dd>Migración automática al detectar mejor encaje.</dd>
+<dt>Consecuencia</dt><dd>El cambio real siempre pasa por compra (C-07).</dd></dl></div>
+
+<div class="bizrule" id="bps-013"><span class="bizrule__prio">Alta</span><div class="bizrule__id">BPS-013</div><h3>El ciclo solo corre en estados generativos</h3><dl>
+<dt>Descripción</dt><dd>Solo <code>activo</code> y <code>en_descarga</code> ejecutan el pipeline (paso 1).</dd>
+<dt>Justificación</dt><dd>Evaluar/generar en pausa o pre-gate produce efectos sin sentido y eventos basura.</dd>
+<dt>Válido</dt><dd>Ciclo en <code>en_pausa</code> → termina sin efectos.</dd>
+<dt>Inválido</dt><dd>Generar "por adelantado" a un usuario en <code>pendiente_perfil</code>.</dd>
+<dt>Consecuencia</dt><dd>Guard universal previo a todo lo demás.</dd></dl></div>
+
+<div class="bizrule" id="bps-014"><span class="bizrule__prio">Alta</span><div class="bizrule__id">BPS-014</div><h3>Generación semanal idempotente</h3><dl>
+<dt>Descripción</dt><dd>Una semana (usuario × microciclo) se genera una vez; reintentos devuelven la existente.</dd>
+<dt>Justificación</dt><dd>Idempotencia (01); schedulers duplicados y reintentos de red son inevitables.</dd>
+<dt>Válido</dt><dd>Doble ejecución → <code>SEMANA_YA_GENERADA</code> con la semana original.</dd>
+<dt>Inválido</dt><dd>Regenerar pisando la anterior.</dd>
+<dt>Consecuencia</dt><dd>Unicidad a nivel de datos (paso 12 del pipeline).</dd></dl></div>
+
+<h2 id="ciclo-reglas">Ciclo y generación (015–020)</h2>
+
+<div class="bizrule" id="bps-015"><span class="bizrule__prio">Alta</span><div class="bizrule__id">BPS-015</div><h3>Invalidación solo sin ejecución iniciada</h3><dl>
+<dt>Descripción</dt><dd>Una semana generada solo puede invalidarse (para regenerar) si ninguna de sus sesiones fue iniciada, y siempre con evento.</dd>
+<dt>Justificación</dt><dd>P5: lo ejecutado (aunque sea parcialmente) es historia — regenerarlo la falsificaría.</dd>
+<dt>Válido</dt><dd>Cambio de Track el lunes antes de entrenar → invalidar + regenerar con evento.</dd>
+<dt>Inválido</dt><dd>Regenerar el jueves con dos sesiones ya ejecutadas.</dd>
+<dt>Consecuencia</dt><dd>Con ejecución iniciada, los cambios esperan al próximo ciclo (C-04/C-08).</dd></dl></div>
+
+<div class="bizrule" id="bps-016"><span class="bizrule__prio">Media</span><div class="bizrule__id">BPS-016</div><h3>Reanudación &gt; 30 días propone retroceso de un Mesociclo</h3><dl>
+<dt>Descripción</dt><dd>T13 — propuesta ajustable, no imposición. Umbral y magnitud <span class="ev ev--producto">decisión de producto</span>; el detraining es real y variable <span class="ev ev--moderada">evidencia moderada</span>.</dd>
+<dt>Justificación</dt><dd>Re-entrar donde se quedó tras meses es riesgo; imponer el retroceso viola la autonomía (P10).</dd>
+<dt>Válido</dt><dd>45 días fuera → "te proponemos retomar un Mesociclo atrás" con opción de ajustar.</dd>
+<dt>Inválido</dt><dd>Retroceso silencioso sin comunicación, o re-entrada ciega sin propuesta.</dd>
+<dt>Consecuencia</dt><dd>Evento <code>reanudacion</code> con la propuesta y la elección final.</dd></dl></div>
+
+<div class="bizrule" id="bps-017"><span class="bizrule__prio">Alta</span><div class="bizrule__id">BPS-017</div><h3>Cambios de Perfil aplican desde la próxima generación</h3><dl>
+<dt>Descripción</dt><dd>Track/días/duración nuevos jamás regeneran retroactivamente (C-04/C-08/C-12).</dd>
+<dt>Justificación</dt><dd>P5; el usuario ve una semana estable, no un plan que muta bajo sus pies.</dd>
+<dt>Válido</dt><dd>Excepción única: BPS-015 (invalidación explícita sin ejecución).</dd>
+<dt>Inválido</dt><dd>Mutar las sesiones restantes de la semana en curso.</dd>
+<dt>Consecuencia</dt><dd>La sustitución en vivo del Player cubre el intervalo (con Track vigente).</dd></dl></div>
+
+<div class="bizrule" id="bps-018"><span class="bizrule__prio">Alta</span><div class="bizrule__id">BPS-018</div><h3>Fin del último Bloque → <code>sistema_completado</code></h3><dl>
+<dt>Descripción</dt><dd>T14, detectado en el paso 11 del ciclo contra la estructura del catálogo.</dd>
+<dt>Justificación</dt><dd>El Sistema tiene fin definido (16-24 semanas); sin este estado, el ciclo generaría contra una estructura agotada.</dd>
+<dt>Válido</dt><dd>Semana final cerrada → evento con duración real vs. planificada.</dd>
+<dt>Inválido</dt><dd>Repetir el último Microciclo indefinidamente.</dd>
+<dt>Consecuencia</dt><dd>Salidas: T15a (re-diagnóstico) o T15b (nueva compra) — pregunta de renovación abierta en 16.</dd></dl></div>
+
+<div class="bizrule" id="bps-019"><span class="bizrule__prio">Crítica</span><div class="bizrule__id">BPS-019</div><h3>El Motor consume veredictos, no señales</h3><dl>
+<dt>Descripción</dt><dd>RPE, adherencia y fatiga son entradas de Recovery/Progression; el Motor solo lee sus DTOs de salida. Excepción estructural: existencia de semana/ejecución y fecha del último log (03).</dd>
+<dt>Justificación</dt><dd>P4 — interpretar señales en el orquestador duplicaría la lógica de los motores y crearía dos verdades.</dd>
+<dt>Válido</dt><dd>Paso 5-6 del pipeline: leer ventana → pasarla → recibir veredicto.</dd>
+<dt>Inválido</dt><dd>"Si el RPE promedio es alto, el Motor decide descargar directamente."</dd>
+<dt>Consecuencia</dt><dd>La frontera es auditable: el Motor no contiene umbrales fisiológicos.</dd></dl></div>
+
+<div class="bizrule" id="bps-020"><span class="bizrule__prio">Alta</span><div class="bizrule__id">BPS-020</div><h3>Todo gate fallado nombra exactamente qué falta</h3><dl>
+<dt>Descripción</dt><dd><code>PERFIL_INCOMPLETO</code> lleva la lista de campos; <code>DIAGNOSTICO_REQUERIDO</code> el motivo (ausente/expirado).</dd>
+<dt>Justificación</dt><dd>P6: un fallo accionable; "completa tu perfil" sin detalle es fricción inútil.</dd>
+<dt>Válido</dt><dd>"Faltan: días por semana, zonas de lesión."</dd>
+<dt>Inválido</dt><dd>"No se pudo generar tu entrenamiento."</dd>
+<dt>Consecuencia</dt><dd>Payload estructurado obligatorio (04).</dd></dl></div>
+
+<h2 id="determinismo-reglas">Determinismo y contexto (021–025)</h2>
+
+<div class="bizrule" id="bps-021"><span class="bizrule__prio">Crítica</span><div class="bizrule__id">BPS-021</div><h3>El Motor nunca decide contenido</h3><dl>
+<dt>Descripción</dt><dd>Ejercicios, patrones, prescripciones y sustituciones son de KB/Generator; el Motor solo decide CUÁNDO y CON QUÉ CONTEXTO invocar.</dd>
+<dt>Justificación</dt><dd>P4/P14 del marco; el orquestador no conoce la ontología.</dd>
+<dt>Válido</dt><dd>Paso 13: invocación con microciclo/perfil/prescripción/veredicto.</dd>
+<dt>Inválido</dt><dd>El Motor "corrige" un slot del plan generado.</dd>
+<dt>Consecuencia</dt><dd><code>CATALOGO_INSUFICIENTE</code> se propaga, jamás se parchea.</dd></dl></div>
+
+<div class="bizrule" id="bps-022"><span class="bizrule__prio">Alta</span><div class="bizrule__id">BPS-022</div><h3>La fecha es entrada explícita del ciclo</h3><dl>
+<dt>Descripción</dt><dd>Ninguna lógica del Motor lee el reloj ad-hoc; la fecha llega como parámetro (extensión de este handbook, ADR-M03).</dd>
+<dt>Justificación</dt><dd>Determinismo (01): re-ejecutar un ciclo para auditoría debe dar el mismo resultado.</dd>
+<dt>Válido</dt><dd>Replay de un ciclo de hace 3 meses con su fecha original.</dd>
+<dt>Inválido</dt><dd><code>hoy()</code> dentro de un guard.</dd>
+<dt>Consecuencia</dt><dd>Los tests del Motor no necesitan mocks de reloj — solo parámetros.</dd></dl></div>
+
+<div class="bizrule" id="bps-023"><span class="bizrule__prio">Alta</span><div class="bizrule__id">BPS-023</div><h3>Toda generación registra la versión de catálogo</h3><dl>
+<dt>Descripción</dt><dd>El evento <code>semana_generada</code> incluye el identificador de versión (ADR-009 del marco).</dd>
+<dt>Justificación</dt><dd>Reproducibilidad: sin versión, una generación pasada es irrecuperable tras cambios de contenido.</dd>
+<dt>Válido</dt><dd>Auditoría: "esa semana se generó con catálogo v2026.07.19".</dd>
+<dt>Inválido</dt><dd>Generación con "la versión actual" sin registrarla.</dd>
+<dt>Consecuencia</dt><dd>Campo obligatorio del evento.</dd></dl></div>
+
+<div class="bizrule" id="bps-024"><span class="bizrule__prio">Media</span><div class="bizrule__id">BPS-024</div><h3>Las restricciones temporales de zona expiran solas y se extienden por evento</h3><dl>
+<dt>Descripción</dt><dd>Vigencia de 14 días desde el evento de dolor (Recovery); la extensión es un evento nuevo, nunca edición del anterior.</dd>
+<dt>Justificación</dt><dd>P3; una restricción eterna por un dolor puntual castiga de más, y editarla rompería la auditoría.</dd>
+<dt>Válido</dt><dd>Dolor el día 1 → restricción hasta día 15; nuevo reporte el día 10 → nueva restricción hasta día 24.</dd>
+<dt>Inválido</dt><dd>Alargar la restricción original mutándola.</dd>
+<dt>Consecuencia</dt><dd>El ciclo calcula vigencia contra la fecha explícita (BPS-022).</dd></dl></div>
+
+<div class="bizrule" id="bps-025"><span class="bizrule__prio">Media</span><div class="bizrule__id">BPS-025</div><h3>Auto-pausa por inactividad a los 21 días</h3><dl>
+<dt>Descripción</dt><dd>T11: ≥21 días sin log → <code>en_pausa</code> motivo inactividad, con comunicación. Extensión de este handbook (ADR-M02); umbral <span class="ev ev--producto">decisión de producto</span> calibrable.</dd>
+<dt>Justificación</dt><dd>Sin ella, el ciclo generaría semanas eternamente para nadie, y la ventana vacía haría ruido en los motores (paso 4 antes que 5, pipeline).</dd>
+<dt>Válido</dt><dd>21 días sin actividad → pausa + mensaje de re-enganche honesto.</dd>
+<dt>Inválido</dt><dd>Seguir generando 12 semanas a un usuario ausente; o pausar sin evento ni comunicación.</dd>
+<dt>Consecuencia</dt><dd>La reanudación pasa por T12/T13 con su propuesta de re-entrada.</dd></dl></div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../08-conflictos/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 08 · Resolución de conflictos</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../10-casos-limite/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">10 · Casos límite →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

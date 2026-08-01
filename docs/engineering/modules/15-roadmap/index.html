@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>15 · Roadmap — Engineering Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="roadmap" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 15 · Estándares y gobernanza</p>
+<h1>Roadmap</h1>
+<p class="lede">Toda deuda técnica y decisión pendiente mencionada en los 14 módulos anteriores, consolidada en un solo lugar — nada nuevo se introduce aquí, todo ya fue citado con su contexto.</p>
+
+<h2 id="deuda-tecnica">Deuda técnica activa</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Deuda</th><th>Origen</th><th>Impacto</th></tr></thead>
+<tbody>
+<tr><td>RLS de <code>workouts</code>/<code>workout_logs</code> más permisivo de lo necesario ("CRUD propio" incluye delete)</td><td>08</td><td>Alto — un usuario puede borrar su propio historial, violando FT-09 (Inmutabilidad)</td></tr>
+<tr><td><code>progression_events</code> no existe — Motor BPS y Progression Engine no pueden persistir ninguna decisión</td><td>05, 07</td><td>Alto — bloquea la implementación de ambos motores</td></tr>
+<tr><td>Sin sincronización entre <code>workouts.estado</code> y <code>workout_logs</code> completados</td><td>05 (ya documentado en <code>schema.sql</code> original)</td><td>Medio — un <code>workouts.estado='planificado'</code> puede coexistir con un log ya completado</td></tr>
+<tr><td>Sin Prettier — riesgo de diffs de formato mezclados con cambios funcionales</td><td>13</td><td>Bajo-medio — fricción de revisión de PRs</td></tr>
+<tr><td>Cero infraestructura de testing</td><td>10</td><td>Alto a medida que crece la complejidad de los motores</td></tr>
+<tr><td>Sin rate limiting en ningún endpoint</td><td>08</td><td>Medio — expuesto a enumeración de tokens/fuerza bruta a escala</td></tr>
+<tr><td>Sin CI configurado (<code>.github/workflows</code> no existe)</td><td>12</td><td>Medio — lint/build no se verifican automáticamente antes de merge</td></tr>
+<tr><td>Un solo proyecto de Supabase para todos los entornos (probable)</td><td>12</td><td>Alto — pruebas en Preview podrían escribir sobre datos de producción</td></tr>
+<tr><td>Sin política de backups documentada</td><td>12</td><td>Alto una vez existan datos de usuarios reales en volumen</td></tr>
+<tr><td>Sin logger estructurado, sin health checks, sin alertas</td><td>11</td><td>Medio — un fallo silencioso solo se descubre revisando logs manualmente</td></tr>
+<tr><td>Clave de idempotencia para <code>INSERT</code> de eventos no definida</td><td>07</td><td>Medio — riesgo de eventos duplicados ante reintento de red</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="refactors">Refactors previstos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Refactor</th><th>Trigger</th></tr></thead>
+<tbody>
+<tr><td>Dividir <code>types.ts</code>/<code>utils.ts</code> por dominio</td><td>Cuando superen ~400 líneas o mezclen dominios no relacionados (03)</td></tr>
+<tr><td>Extraer <code>hooks/</code>, <code>contexts/</code>, <code>features/</code> como carpetas propias</td><td>Umbral específico ya definido por carpeta (03)</td></tr>
+<tr><td>Introducir capa de Application Services</td><td>Primer caso de uso que orqueste ≥2 repositorios (ENG-ADR-01)</td></tr>
+<tr><td>Migrar <code>workouts</code>/<code>workout_logs</code> a jsonb normalizado</td><td>El día que una consulta necesite filtrar por campo interno de <code>ejercicios</code> (ENG-ADR-05)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="tecnologias-candidatas">Tecnologías candidatas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Necesidad</th><th>Candidato</th><th>Estado de decisión</th></tr></thead>
+<tbody>
+<tr><td>Test runner</td><td>Vitest (afinidad con el ecosistema Vite/ESM ya usado por Tailwind v4/Next 16) o Jest</td><td>No decidido</td></tr>
+<tr><td>E2E</td><td>Playwright</td><td>No decidido</td></tr>
+<tr><td>Jobs/Schedulers (04, BE-09)</td><td>Vercel Cron Jobs (ya disponible en la plataforma actual) o <code>pg_cron</code> de Supabase</td><td>No decidido</td></tr>
+<tr><td>Monitoreo de aplicación</td><td>Sentry (integración estándar con Next.js/Vercel)</td><td>No decidido</td></tr>
+<tr><td>Rate limiting</td><td>Vercel Edge Config / Upstash Ratelimit</td><td>No decidido</td></tr>
+<tr><td>Formateo</td><td>Prettier con plugin de Tailwind (ordena clases automáticamente)</td><td>No decidido, pero identificado como gap concreto (13)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="arquitectura-futura">Arquitectura futura</h2>
+<p>La activación de los bounded contexts <span class="tag tag--futuro">futuro</span> (00, 02) — Workout Generator, Workout Player, Recovery Engine, Nutrición, Programas, Coach IA, Hábitos, Lesiones — sigue siempre el mismo orden: primero su handbook de dominio (siguiendo el patrón ya usado por Motor BPS/Progression Engine/BCS), después su implementación técnica bajo las reglas ya fijadas por este documento. Ningún módulo nuevo se construye "directo a código" saltándose la especificación.</p>
+
+<h2 id="limites-conocidos">Límites conocidos</h2>
+<ul>
+  <li>Un solo entrenador en el BCS (single-tenant, BCS-ADR-04) — la arquitectura ya lo soporta multi-tenant, pero no hay UI para activarlo.</li>
+  <li>Sin exportación a PDF/PNG implementada aún (BCS Design System Handbook, 14) — solo especificada.</li>
+  <li>Sin captura automática desde dispositivos de bioimpedancia (BCS Handbook, 00) — todo registro es manual hoy.</li>
+  <li>Diagnóstico BPS corre efímero, sin persistir resultado — la tabla <code>diagnoses</code> existe pero no tiene escritor implementado.</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../14-adr/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 14 · ADR</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../16-glosario/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">16 · Glosario →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

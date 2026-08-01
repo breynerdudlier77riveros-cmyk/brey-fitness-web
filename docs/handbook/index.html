@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BREY Architecture Handbook v1.0</title>
+<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+
+<div class="landing-topbar">
+  <span class="topbar__brand">
+    <span class="topbar__brand-dot"></span>
+    BREY <span class="topbar__brand-sub">Architecture Handbook</span>
+  </span>
+  <span class="topbar__version">v1.0</span>
+</div>
+
+<div class="landing-wrap">
+
+  <div class="hero">
+    <p class="eyebrow">Fuente única de verdad del dominio</p>
+    <h1>BREY Architecture Handbook</h1>
+    <p>La especificación completa del sistema operativo de entrenamiento: principios, jerarquía, ontología, motores, ejecución, datos y contratos. Todo el código futuro implementa este documento — si se contradicen, el handbook es el correcto.</p>
+    <a class="hero-cta" href="modules/00-introduccion/index.html">Empezar por la Introducción →</a>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Empezar</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/00-introduccion/index.html">
+        <div class="module-card__num">00</div>
+        <div class="module-card__title">Introducción</div>
+        <div class="module-card__desc">Propósito, alcance, objetivos, qué es y qué NO es BREY, y cómo leer este documento.</div>
+      </a>
+      <a class="module-card" href="modules/01-principios/index.html">
+        <div class="module-card__num">01</div>
+        <div class="module-card__title">Principios Fundamentales</div>
+        <div class="module-card__desc">Los 16 principios no negociables (P1–P16), ordenados por precedencia, con ejemplos y contraejemplos.</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Arquitectura</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/02-arquitectura-general/index.html">
+        <div class="module-card__num">02</div>
+        <div class="module-card__title">Arquitectura General</div>
+        <div class="module-card__desc">Capas, bounded contexts, flujo maestro, matriz de dependencias e invariantes del sistema.</div>
+      </a>
+      <a class="module-card" href="modules/03-training-framework/index.html">
+        <div class="module-card__num">03</div>
+        <div class="module-card__title">Training Framework</div>
+        <div class="module-card__desc">Las 15 capas: Sistema → Track → Nivel → Bloque → Mesociclo → Microciclo → Sesión → Patrón → Ejercicio → Series → Reps → Intensidad → Descanso → Tempo → Notas.</div>
+      </a>
+      <a class="module-card" href="modules/04-knowledge-base/index.html">
+        <div class="module-card__num">04</div>
+        <div class="module-card__title">Knowledge Base</div>
+        <div class="module-card__desc">La ontología: patrones, roles, etiquetas, zonas de riesgo, capacidades, cadenas y reglas de sustitución.</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Motores</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/05-progression-engine/index.html">
+        <div class="module-card__num">05</div>
+        <div class="module-card__title">Progression Engine</div>
+        <div class="module-card__desc">Doble progresión, micro-ajuste por RPE, macro-evaluación, estancamiento — con evidencia marcada.</div>
+      </a>
+      <a class="module-card" href="modules/06-recovery-engine/index.html">
+        <div class="module-card__num">06</div>
+        <div class="module-card__title">Recovery Engine</div>
+        <div class="module-card__desc">Fatiga, DOMS vs. dolor, descargas programadas y reactivas — con precedencia sobre la progresión.</div>
+      </a>
+      <a class="module-card" href="modules/07-motor-bps/index.html">
+        <div class="module-card__num">07</div>
+        <div class="module-card__title">Motor BPS</div>
+        <div class="module-card__desc">El orquestador: Regla de Activación, gates, máquina de estados del usuario y resolución de conflictos.</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Ejecución</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/08-workout-generator/index.html">
+        <div class="module-card__num">08</div>
+        <div class="module-card__title">Workout Generator</div>
+        <div class="module-card__desc">El ensamblador plantilla→instancia: selección, filtrado, sustitución, recorte por tiempo y fallo visible.</div>
+      </a>
+      <a class="module-card" href="modules/09-workout-player/index.html">
+        <div class="module-card__num">09</div>
+        <div class="module-card__title">Workout Player</div>
+        <div class="module-card__desc">Captura por serie, eventos, offline, sincronización, conflictos y la máquina de estados de la sesión.</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Plataforma</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/10-arquitectura-datos/index.html">
+        <div class="module-card__num">10</div>
+        <div class="module-card__title">Arquitectura de Datos</div>
+        <div class="module-card__desc">Tablas, campos, tipos, FKs, índices, RLS, formas jsonb, versionado y política de migraciones.</div>
+      </a>
+      <a class="module-card" href="modules/11-api-interna/index.html">
+        <div class="module-card__num">11</div>
+        <div class="module-card__title">API Interna</div>
+        <div class="module-card__desc">Repositorios, servicios, DTOs, eventos, catálogo de errores tipados y versionado de contratos.</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Gobernanza</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/12-adr/index.html">
+        <div class="module-card__num">12</div>
+        <div class="module-card__title">Decisiones (ADR)</div>
+        <div class="module-card__desc">Las 14 decisiones de arquitectura: contexto, alternativas descartadas y consecuencias.</div>
+      </a>
+      <a class="module-card" href="modules/13-roadmap/index.html">
+        <div class="module-card__num">13</div>
+        <div class="module-card__title">Roadmap</div>
+        <div class="module-card__desc">Qué es v1, qué es v2, qué nunca pertenecerá al sistema, y las preguntas abiertas consolidadas.</div>
+      </a>
+      <a class="module-card" href="modules/14-glosario/index.html">
+        <div class="module-card__num">14</div>
+        <div class="module-card__title">Glosario</div>
+        <div class="module-card__desc">Todos los términos, sinónimos registrados y las confusiones más peligrosas marcadas.</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="landing-footer">BREY Architecture Handbook v1.0 — especificación de dominio. El handbook tiene prioridad sobre el código.</div>
+
+</div>
+</body>
+</html>

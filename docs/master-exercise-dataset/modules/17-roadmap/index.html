@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>17 · Roadmap — Master Exercise Dataset</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="roadmap" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Sección 17 · Operación</p>
+<h1>Roadmap de Construcción</h1>
+<p class="lede">Cinco fases de 0 a 220 ejercicios. El orden no es arbitrario: cada fase produce un dataset <strong>utilizable</strong> al terminar, no un avance parcial hacia algo que solo sirve al final.</p>
+
+<h2 id="principio">Principio de secuenciación</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Cada fase cierra con un dataset funcional</div>
+  <p>Al final de cada fase el dataset es publicable, sus invariantes se cumplen y los consumidores pueden leerlo. No existe una fase cuyo resultado intermedio sea inconsistente ni una que solo tenga sentido si se completa la siguiente.</p>
+  <p>Consecuencia práctica: el trabajo puede detenerse al final de cualquier fase sin dejar nada roto.</p>
+</div>
+
+<h2 id="fases">Las cinco fases</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Fase</th><th>Nombre</th><th>Entradas al cerrar</th><th>Versión</th><th>Qué habilita</th></tr></thead>
+<tbody>
+<tr><td><strong>1</strong></td><td>Semilla</td><td>18</td><td><code>1.1.0</code></td><td>Valida el modelo contra ejercicios reales</td></tr>
+<tr><td><strong>2</strong></td><td>Núcleo</td><td>70</td><td><code>1.2.0</code></td><td>Generación semanal con cobertura básica</td></tr>
+<tr><td><strong>3</strong></td><td>Cobertura</td><td>150</td><td><code>1.3.0</code></td><td>Resolución robusta en cualquier contexto de equipo</td></tr>
+<tr><td><strong>4</strong></td><td>Grafo</td><td>190</td><td><code>1.4.0</code></td><td><strong>Progresión y regresión reales</strong></td></tr>
+<tr><td><strong>5</strong></td><td>Completitud</td><td>220</td><td><code>1.5.0</code></td><td>Cobertura objetivo alcanzada</td></tr>
+</tbody>
+</table>
+</div>
+<div class="diagram">
+<div class="diagram-label">Progresión de las cinco fases</div>
+<pre class="mermaid">
+graph LR
+  F1["FASE 1<br/>Semilla<br/><b>18</b>"] --> F2["FASE 2<br/>Núcleo<br/><b>70</b>"]
+  F2 --> F3["FASE 3<br/>Cobertura<br/><b>150</b>"]
+  F3 --> F4["FASE 4<br/>Grafo<br/><b>190</b><br/><i>+ cadenas</i>"]
+  F4 --> F5["FASE 5<br/>Completitud<br/><b>220</b>"]
+  F1 -.-> V1["modelo validado"]
+  F2 -.-> V2["generación semanal"]
+  F3 -.-> V3["resolución robusta"]
+  F4 -.-> V4["progresión real"]
+  F5 -.-> V5["objetivo alcanzado"]
+</pre>
+</div>
+
+<h2 id="f1">Fase 1 · Semilla — 18 entradas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Aspecto</th><th>Decisión</th></tr></thead>
+<tbody>
+<tr><td>Composición</td><td><strong>2 entradas por cada uno de los 7 patrones activos</strong> = 14, más 4 variantes para ejercitar el grafo de variantes</td></tr>
+<tr><td>Criterio de selección</td><td>Los ejercicios más universales de cada patrón, con el menor requisito de equipo posible</td></tr>
+<tr><td>Relaciones</td><td>Solo variantes. <strong>Sin cadenas.</strong></td></tr>
+<tr><td>Objetivo real</td><td>Someter el modelo de 38 campos a ejercicios reales <em>antes</em> de replicarlo 200 veces</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">La fase 1 es la última oportunidad barata de tocar el modelo</div>
+  <p>Si al rellenar 18 fichas reales aparece un campo que falta o un enumerado insuficiente, corregirlo cuesta 18 entradas revisadas. Con 150 hechas, el mismo cambio es una versión MAYOR con revisión de todos los consumidores.</p>
+  <p>Por eso la fase 1 termina con una <strong>decisión explícita</strong>: o el modelo se confirma tal cual y queda congelado de forma definitiva, o se corrige aquí. Después de la fase 1, el compromiso de congelación de la <a href="../00-introduccion/index.html">sección 00</a> es irrevocable en la práctica.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Criterio de cierre de la fase 1</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Las 18 entradas están <code>published</code></td></tr>
+<tr><td>2</td><td>Ninguna tiene <code>risk_zones: null</code></td></tr>
+<tr><td>3</td><td>Los 49 invariantes se cumplen</td></tr>
+<tr><td>4</td><td>Los 7 patrones activos tienen al menos 2 entradas</td></tr>
+<tr><td>5</td><td>Existe al menos un conjunto de variantes con 3 hojas</td></tr>
+<tr><td>6</td><td><strong>Decisión registrada</strong>: el modelo se confirma o se corrige</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="f2">Fase 2 · Núcleo — 70 entradas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Aspecto</th><th>Decisión</th></tr></thead>
+<tbody>
+<tr><td>Composición</td><td>+52 entradas — entre 7 y 8 por patrón activo, repartidas entre los 5 roles</td></tr>
+<tr><td>Criterio</td><td><strong>Cobertura de rol</strong>: cada patrón activo debe tener al menos una entrada por rol aplicable</td></tr>
+<tr><td>Equipo</td><td>Prioridad a <code>peso-corporal</code>, después <code>mancuernas</code> y <code>barra</code></td></tr>
+<tr><td>Relaciones</td><td>Variantes. Sin cadenas.</td></tr>
+<tr><td>Lotes</td><td>Por patrón — un patrón por lote, revisable de forma independiente</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Al cerrar la fase 2 el producto ya genera semanas</div>
+  <p>Con una entrada por cada combinación patrón × rol, el generador puede construir un microciclo completo. La calidad de la resolución será básica —pocas alternativas por slot— pero el circuito completo funciona de extremo a extremo. Es el primer hito con valor visible.</p>
+</div>
+
+<h2 id="f3">Fase 3 · Cobertura — 150 entradas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Aspecto</th><th>Decisión</th></tr></thead>
+<tbody>
+<tr><td>Composición</td><td>+80 entradas, dirigidas por la <strong>auditoría de cobertura</strong></td></tr>
+<tr><td>Criterio</td><td>Cerrar combinaciones <em>rol × equipo × nivel</em> sin ninguna entrada elegible</td></tr>
+<tr><td>Método</td><td>Se enumeran las combinaciones vacías y se crean entradas <strong>solo</strong> para ellas</td></tr>
+<tr><td>Equipo</td><td>Se completan <code>maquina</code>, <code>cables</code> y <code>kettlebell</code></td></tr>
+<tr><td>Relaciones</td><td>Se cierran los conjuntos de variantes de cada patrón</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">La fase 3 la dirige la auditoría, no la intuición</div>
+  <p>A partir de 70 entradas, «¿qué falta?» deja de tener respuesta evidente. La auditoría de cobertura de la <a href="../15-mantenimiento/index.html">sección 15</a> produce la lista de huecos reales, y cada entrada nueva cierra uno identificado. Es lo que evita que la fase 3 se convierta en añadir los ejercicios que a alguien le vienen a la cabeza.</p>
+</div>
+
+<h2 id="f4">Fase 4 · Grafo — 190 entradas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Aspecto</th><th>Decisión</th></tr></thead>
+<tbody>
+<tr><td>Composición</td><td>+40 entradas, en su mayoría <strong>eslabones intermedios</strong> de cadena</td></tr>
+<tr><td>Trabajo principal</td><td><strong>Construir las cadenas de progresión de los 7 patrones activos</strong></td></tr>
+<tr><td>Precondición</td><td>Las 5 precondiciones de la <a href="../13-progresiones/index.html">sección 13</a>, patrón por patrón</td></tr>
+<tr><td>Criterio de entrada nueva</td><td>Un salto de cadena que no supera RG-1 exige un eslabón intermedio</td></tr>
+<tr><td>Verificación</td><td>Las 10 comprobaciones del grafo, más <code>CAD-1…7</code> y <code>REG-1…6</code></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Es la fase más exigente en criterio</div>
+  <p>Clasificar un ejercicio se apoya en enumerados; encadenar dos exige afirmar que uno es consistentemente más exigente que otro, y que el salto es abordable en ambos sentidos. Ninguna de las dos afirmaciones se puede verificar mecánicamente — PG-3, PG-4 y RG-1 son editoriales por definición.</p>
+  <p>Por eso el grafo se construye <strong>al final</strong>, sobre un catálogo ya poblado donde los eslabones intermedios existen o se pueden identificar con precisión. Encadenar en la fase 2 habría producido cadenas de dos eslabones con saltos que después habría que rehacer, y cada reconexión es una revisión <code>major</code> en dos entradas.</p>
+</div>
+
+<h2 id="f5">Fase 5 · Completitud — 220 entradas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Aspecto</th><th>Decisión</th></tr></thead>
+<tbody>
+<tr><td>Composición</td><td>+30 entradas — incluye las <strong>12 de <code>locomocion</code></strong>, que activan el patrón reservado</td></tr>
+<tr><td>Criterio</td><td>Alcanzar la distribución objetivo de la <a href="../05-organizacion/index.html">sección 05</a></td></tr>
+<tr><td>Trabajo adicional</td><td>Revisión de los conjuntos de variantes contra VL-1 y VL-3</td></tr>
+<tr><td>Cierre</td><td>Auditoría de cobertura final; los huecos que queden se registran, no se rellenan a la fuerza</td></tr>
+<tr><td>Fuera de alcance</td><td><code>rotacion-potencia</code> permanece reservado; <code>substitutes</code> y los campos de Media siguen RESERVADOS</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="hitos">Hitos y métricas de avance</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Métrica</th><th>F1</th><th>F2</th><th>F3</th><th>F4</th><th>F5</th></tr></thead>
+<tbody>
+<tr><td>Entradas <code>published</code></td><td>18</td><td>70</td><td>150</td><td>190</td><td>220</td></tr>
+<tr><td>Patrones con colección poblada</td><td>7</td><td>7</td><td>7</td><td>7</td><td><strong>8</strong></td></tr>
+<tr><td>Conjuntos de variantes cerrados</td><td>1</td><td>—</td><td><strong>todos</strong></td><td>todos</td><td>todos</td></tr>
+<tr><td>Cadenas construidas</td><td>0</td><td>0</td><td>0</td><td><strong>7</strong></td><td>7</td></tr>
+<tr><td>Entradas con <code>risk_zones</code> evaluadas</td><td colspan="5"><strong>100 % en todas las fases</strong> — V6 lo impone</td></tr>
+<tr><td>Invariantes cumplidos</td><td colspan="5"><strong>49 / 49 en todas las fases</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="reglas">Reglas de ejecución del roadmap</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Regla</th></tr></thead>
+<tbody>
+<tr><td>RM-1</td><td>Una fase no empieza hasta que la anterior cumple todos sus criterios de cierre</td></tr>
+<tr><td>RM-2</td><td>Dentro de una fase, los lotes son por patrón y pueden ejecutarse en paralelo — ORG garantiza que no colisionan</td></tr>
+<tr><td>RM-3</td><td>Cada lote pasa por el <a href="../16-checklist/index.html">checklist de 28 ítems</a>, entrada por entrada</td></tr>
+<tr><td>RM-4</td><td>Ninguna entrada se publica sin aprobación de un segundo — la regla de los dos pares de ojos</td></tr>
+<tr><td>RM-5</td><td>El cierre de fase publica una versión MENOR del dataset</td></tr>
+<tr><td>RM-6</td><td>Las cifras objetivo son de planificación; el criterio real de cierre es la <strong>cobertura</strong>, no el recuento</td></tr>
+<tr><td>RM-7</td><td>Si una fase revela una carencia del modelo, se registra y se decide explícitamente si justifica una versión MAYOR</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">RM-6 · La cifra no es el objetivo</div>
+  <p>220 es una estimación de cuántas entradas hacen falta para cubrir las combinaciones que el producto necesita. Si la cobertura se alcanza con 195, la fase 5 cierra con 195. Si a 220 quedan huecos reales, se registran como deuda y se decide si abrir una fase 6. Publicar entradas para llegar a una cifra redonda contradice el ítem 3 del checklist.</p>
+</div>
+
+<h2 id="despues">Después de v1.5</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Candidato</th><th>Naturaleza</th><th>Precondición</th></tr></thead>
+<tbody>
+<tr><td>Activar <code>rotacion-potencia</code></td><td>Versión MENOR — la colección ya existe vacía</td><td>Que el producto tenga un uso definido para el patrón</td></tr>
+<tr><td>Poblar los campos de Media</td><td>Versión MENOR — los campos ya existen RESERVADOS</td><td>Modelo de gestión de recursos decidido</td></tr>
+<tr><td>Poblar <code>substitutes</code></td><td>Versión MENOR — el campo ya existe RESERVADO</td><td>Evidencia de que la resolución por clasificación es insuficiente</td></tr>
+<tr><td>Nombre en inglés</td><td>Campo opcional nuevo — MENOR, no MAYOR</td><td>Modelo de localización decidido</td></tr>
+<tr><td>Ampliar más allá de 220</td><td>Versión MENOR</td><td>Huecos de cobertura reales identificados por auditoría</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Los cinco candidatos son versiones MENORES</div>
+  <p>No es casualidad: es el resultado de haber reservado campos y colecciones en v1.0. Cada uno de estos cinco pasos habría sido una versión MAYOR —con revisión de los once consumidores— si el modelo se hubiera diseñado solo para lo que hoy se necesita. Reservar es lo que hace que congelar la estructura sea sostenible en vez de asfixiante.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../16-checklist/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 16 · Checklist</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../../index.html">
+    <div class="pagenav__dir">Volver</div>
+    <div class="pagenav__title">Índice del dataset →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>06 · Evidencia — Editorial Standards</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="evidencia" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 06 · Garantías</p>
+<h1>Evidencia</h1>
+<p class="lede">La garantía editorial más sólida del ecosistema: un sistema de <strong>cuatro niveles de evidencia</strong> aplicado en 31 archivos, con una regla de integridad explícita. Existe, funciona y está en uso — lo que falta es su aplicación al catálogo.</p>
+
+<h2 id="sistema">El sistema de cuatro niveles</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Ciencia marcada, nunca inventada</div>
+  <p>"Toda regla con base fisiológica lleva un badge de nivel de evidencia: <strong>consenso sólido · evidencia moderada · hipótesis · decisión de producto</strong>. El cuarto badge es el más importante: marca los números y reglas que <strong>NO provienen de evidencia científica</strong> sino de una decisión de diseño calibrable (umbrales, pesos de fórmulas, defaults). <strong>Confundir decisiones de ingeniería con decisiones científicas es un error de integridad, no de estilo.</strong> Una regla sin badge es puramente estructural/de software y no hace ningún reclamo fisiológico."</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Nivel</th><th>Qué afirma</th><th>Archivos que lo usan</th></tr></thead>
+<tbody>
+<tr><td><strong>consenso sólido</strong></td><td>Respaldo científico establecido y no discutido</td><td>3</td></tr>
+<tr><td><strong>evidencia moderada</strong></td><td>Respaldo real pero con matices o variabilidad individual</td><td>13</td></tr>
+<tr><td><strong>hipótesis</strong></td><td>Mecanismo propuesto sin validación externa</td><td>12</td></tr>
+<tr><td><strong>decisión de producto</strong></td><td>Umbral, peso o default elegido por diseño — <strong>ningún reclamo científico</strong></td><td><strong>31</strong></td></tr>
+<tr><td><em>sin badge</em></td><td>Regla estructural o de software, sin reclamo fisiológico</td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">El nivel más usado es el que declara ausencia de ciencia</div>
+  <p><em>Decisión de producto</em> aparece en 31 archivos, más del doble que cualquier otro. No es una debilidad del ecosistema: es la prueba de que la disciplina se aplica. La mayoría de los números de un sistema de entrenamiento son elecciones de diseño, y marcarlos como tales es exactamente lo que evita presentarlos como ciencia.</p>
+</div>
+
+<h2 id="requisitos">Evidencia requerida por tipo de cambio</h2>
+<p class="matrix-note">Derivado del sistema de badges y de la asignación de autoridad del módulo <a href="../05-autoridad/index.html">05</a>. Las filas marcadas <span class="tag tag--futuro">deuda</span> no tienen requisito documentado.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tipo de cambio</th><th>Evidencia requerida</th><th>Autoridad</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td><strong>Nueva regla con base fisiológica</strong></td><td>Badge de nivel obligatorio</td><td>Documentación</td><td><span class="tag tag--implementado">documentado</span></td></tr>
+<tr><td><strong>Nuevo umbral o peso numérico</strong></td><td>Badge <em>decisión de producto</em> + declararlo calibrable</td><td>Documentación</td><td><span class="tag tag--implementado">documentado</span></td></tr>
+<tr><td><strong>Cambio de una regla publicada</strong></td><td>ADR con razón; "nunca mutación in-place"</td><td>Documentación</td><td><span class="tag tag--implementado">documentado</span></td></tr>
+<tr><td><strong>Divergencia código ↔ handbook</strong></td><td>Corregir el código o ADR nuevo</td><td>Documentación</td><td><span class="tag tag--implementado">documentado</span></td></tr>
+<tr><td><strong>Ampliar un vocabulario cerrado</strong></td><td>Decisión documental explícita</td><td>Documentación</td><td><span class="tag tag--especificado">implícito</span></td></tr>
+<tr><td><strong>Nuevo ejercicio en el catálogo</strong></td><td>—</td><td>Contenido</td><td><span class="tag tag--futuro">deuda ED-D09</span></td></tr>
+<tr><td><strong>Asignar <code>patronPrimario</code></strong></td><td>—</td><td>Contenido</td><td><span class="tag tag--futuro">deuda</span></td></tr>
+<tr><td><strong>Asignar intensidad de zona de riesgo</strong></td><td>"Criterio biomecánico" — cualidad exigida, no evidencia especificada</td><td>Contenido</td><td><span class="tag tag--especificado">parcial</span></td></tr>
+<tr><td><strong>Definir el orden de una cadena</strong></td><td>"Criterio de entrenador" — ídem</td><td>Contenido</td><td><span class="tag tag--especificado">parcial</span></td></tr>
+<tr><td><strong>Cambiar la clasificación de una entrada</strong></td><td>—</td><td>Contenido</td><td><span class="tag tag--futuro">deuda</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Deuda ED-D09 — el catálogo no hereda el sistema de evidencia</div>
+  <p>El sistema de badges se aplica rigurosamente a las <strong>reglas de los handbooks</strong> y a ningún <strong>dato del catálogo</strong>. Ninguna fuente exige que una asignación de patrón, rol o zona de riesgo declare en qué se basa. La asimetría es notable: una regla que dice "el descanso del principal es 120–180 s" debe llevar badge; una etiqueta que afirma "este ejercicio carga la rodilla en alto" no lleva ninguno — pese a ser la afirmación con más consecuencias de seguridad de todo el ecosistema.</p>
+</div>
+
+<h2 id="regla-integridad">La regla de integridad</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Confundir ingeniería con ciencia es un error de integridad</div>
+  <p>El enunciado del Architecture Handbook es inusualmente severo: no dice que sea impreciso ni desaconsejable, dice que es <strong>"un error de integridad, no de estilo"</strong>. Para la gobernanza editorial esto tiene una consecuencia directa: presentar una decisión de producto sin su badge no es una omisión de formato, es una afirmación falsa sobre el origen de una regla.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Árbol de decisión — qué badge corresponde</div>
+<pre class="mermaid">
+flowchart TD
+  R["Regla o dato nuevo"] --> Q1{"¿Hace algún reclamo<br/>fisiológico?"}
+  Q1 -- No --> SB["Sin badge<br/>regla estructural / de software"]
+  Q1 -- Sí --> Q2{"¿El reclamo proviene<br/>de evidencia externa?"}
+  Q2 -- No --> DP["decisión de producto<br/><b>+ declarar calibrable</b>"]
+  Q2 -- Sí --> Q3{"¿Cuál es la solidez<br/>de esa evidencia?"}
+  Q3 -->|establecida| CS["consenso sólido"]
+  Q3 -->|con matices| EM["evidencia moderada"]
+  Q3 -->|sin validar| HI["hipótesis"]
+</pre>
+</div>
+
+<h2 id="ejemplos">Cómo se aplica hoy — ejemplos del propio ecosistema</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Regla</th><th>Badge</th><th>Qué declara el badge</th></tr></thead>
+<tbody>
+<tr><td>Los pesos 0.5 / 0.3 / 0.2 del índice de fatiga y el umbral 0.65</td><td><em>decisión de producto</em></td><td>"Son puntos de partida de producto que exigen calibración… presentarlos como ciencia sería una violación de P11"</td></tr>
+<tr><td>El uso de RPE/RIR para autorregular carga</td><td><em>evidencia moderada</em></td><td>Respaldo real; la banda numérica exacta es aparte</td></tr>
+<tr><td>El ancho de banda ±1 de RPE</td><td><em>decisión de producto</em></td><td>Umbral sin validación externa de ese valor específico</td></tr>
+<tr><td>El deload preventivo ante estancamiento</td><td><em>hipótesis</em></td><td>"Mecanismo nuevo de BREY, sin validación externa aún"</td></tr>
+<tr><td>El efecto del sueño en la recuperación</td><td><em>consenso sólido</em></td><td>Establecido</td></tr>
+</tbody>
+</table>
+</div>
+<p>La misma regla puede llevar <strong>dos badges</strong> cuando su mecanismo y su calibración tienen orígenes distintos — es el caso de PE-001, marcada <em>evidencia moderada</em> para el uso de RPE y <em>decisión de producto</em> para la magnitud del incremento. Es la forma más honesta del sistema y la que este handbook recomienda preservar.</p>
+
+<h2 id="conservacion">Conservación de la evidencia</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Requisito</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>El badge acompaña a la regla en el documento</td><td><span class="tag tag--implementado">cumplido</span></td></tr>
+<tr><td>Un cambio de badge exige ADR</td><td><span class="tag tag--especificado">derivado</span> — "nunca mutación in-place"</td></tr>
+<tr><td>La fuente concreta de la evidencia se cita</td><td><span class="tag tag--futuro">no exigido</span> — los badges no llevan referencia bibliográfica</td></tr>
+<tr><td>Los datos del catálogo declaran su base</td><td><span class="tag tag--futuro">deuda ED-D09</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../05-autoridad/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 05 · Autoridad</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../07-versionado/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">07 · Versionado →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

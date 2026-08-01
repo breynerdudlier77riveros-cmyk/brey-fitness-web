@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>06 · Versionado — Master Exercise Dataset</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="versionado" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Sección 06 · Estabilidad</p>
+<h1>Versionado</h1>
+<p class="lede">Existen <strong>dos versiones independientes</strong>: la del dataset como conjunto, y la <code>rev</code> de cada entrada. Confundirlas es el error que hace que un catálogo deje de ser auditable.</p>
+
+<h2 id="dos-niveles">Los dos niveles</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th></th><th>Versión del dataset</th><th><code>rev</code> de la entrada</th></tr></thead>
+<tbody>
+<tr><td><strong>Formato</strong></td><td><code>MAYOR.MENOR.PARCHE</code></td><td>Entero ≥ 1</td></tr>
+<tr><td><strong>Ámbito</strong></td><td>El conjunto completo</td><td>Un ejercicio</td></tr>
+<tr><td><strong>Responde a</strong></td><td>«¿Puede mi consumidor leer esto?»</td><td>«¿Cambió este ejercicio desde que lo vi?»</td></tr>
+<tr><td><strong>Avanza</strong></td><td>Al publicar un lote de cambios</td><td>En cada revisión aprobada de esa entrada</td></tr>
+<tr><td><strong>La consultan</strong></td><td>Consumidores, para validar compatibilidad</td><td>Auditoría, historial, snapshots</td></tr>
+<tr><td><strong>Retrocede</strong></td><td>Nunca</td><td>Nunca</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Independencia</div>
+  <p>Una entrada puede ir por <code>rev: 7</code> mientras el dataset está en <code>1.3.0</code>, y otra por <code>rev: 1</code>. La <code>rev</code> <strong>no</strong> se sincroniza con la versión del dataset ni con la de otras entradas. Cada ejercicio lleva su propio contador desde su alta.</p>
+</div>
+
+<h2 id="dataset">Versión del dataset</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Componente</th><th>Avanza cuando</th><th>Efecto en consumidores</th></tr></thead>
+<tbody>
+<tr><td><strong>MAYOR</strong></td><td>El <a href="../04-modelo/index.html">modelo de 38 campos</a> cambia de forma incompatible</td><td><strong>Ruptura</strong> — todo consumidor debe revisarse antes de adoptarla</td></tr>
+<tr><td><strong>MENOR</strong></td><td>Se añaden ejercicios, se extiende un vocabulario de forma aditiva, o se activa un patrón reservado</td><td>Compatible — nada deja de funcionar</td></tr>
+<tr><td><strong>PARCHE</strong></td><td>Se corrigen datos de entradas existentes sin cambiar clasificación ni relaciones</td><td>Compatible — ningún consumidor necesita actuar</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Qué constituye exactamente un cambio MAYOR</div>
+  <p>Solo estas seis operaciones, y ninguna otra:</p>
+  <ul>
+    <li>Añadir un campo <strong>obligatorio</strong> al modelo</li>
+    <li>Eliminar un campo del modelo</li>
+    <li>Renombrar un campo</li>
+    <li>Cambiar el tipo o la cardinalidad de un campo</li>
+    <li>Eliminar o renombrar un valor de un enumerado</li>
+    <li>Cambiar los campos que expone una proyección</li>
+  </ul>
+  <p><strong>Añadir un campo opcional no es MAYOR</strong> si ninguna entrada existente queda inválida y ninguna proyección lo incluye por defecto. Es la única extensión estructural compatible que admite el modelo congelado — y por eso los campos RESERVADOS existen desde v1.0.</p>
+</div>
+
+<h2 id="rev">La <code>rev</code> de la entrada</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Regla</th><th>Detalle</th></tr></thead>
+<tbody>
+<tr><td>Valor inicial</td><td>Toda entrada nace con <code>rev: 1</code> al crearse en <code>draft</code></td></tr>
+<tr><td>Incremento</td><td>+1 por cada revisión <strong>aprobada</strong> que modifique cualquier campo salvo <code>status</code> y <code>rev</code></td></tr>
+<tr><td>Cambio de estado solo</td><td><strong>No</strong> incrementa <code>rev</code> — pasar de <code>approved</code> a <code>published</code> no cambia el contenido</td></tr>
+<tr><td>Trabajo en <code>draft</code></td><td>No incrementa <code>rev</code> — la entrada aún no ha sido publicada, no hay nada de lo que divergir</td></tr>
+<tr><td>Registro</td><td>Cada incremento añade una fila a <code>revisions</code>: <code>rev</code>, fecha, autor, tipo, motivo</td></tr>
+<tr><td>Retroceso</td><td>Imposible. Revertir un cambio es una revisión nueva que restaura el valor anterior</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="tipos">Clasificación del cambio de una entrada</h2>
+<p class="matrix-note">Cada fila de <code>revisions</code> lleva un <code>type</code>. Determina qué controles exige el cambio y si obliga a avisar a los consumidores.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th><code>type</code></th><th>Qué toca</th><th>Ejemplos</th><th>Requiere aprobación</th><th>Impacto en el usuario</th></tr></thead>
+<tbody>
+<tr><td><code>major</code></td><td>Clasificación, elegibilidad o relaciones</td><td>Cambia <code>pattern_primary</code>; se añade una zona de riesgo; cambia <code>chain_next</code>; cambia <code>load_type</code></td><td><strong>Sí</strong></td><td>Puede cambiar qué se le prescribe</td></tr>
+<tr><td><code>minor</code></td><td>Contenido sustantivo</td><td>Se reescribe la descripción; se añaden instrucciones o errores comunes</td><td><strong>Sí</strong></td><td>Ve texto distinto; su plan no cambia</td></tr>
+<tr><td><code>fix</code></td><td>Correcciones sin efecto semántico</td><td>Errata; puntuación; ordenar una lista; <code>name_short</code></td><td>No</td><td>Ninguno</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Regla de clasificación conservadora</div>
+  <p>Ante duda entre dos tipos, se elige <strong>siempre el más alto</strong>. Un <code>major</code> etiquetado como <code>fix</code> pasa sin aprobación un cambio que altera lo que se prescribe a una persona. El coste de sobreclasificar es una revisión de más; el de subclasificar es un cambio de elegibilidad no revisado.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Cómo se decide el tipo de revisión</div>
+<pre class="mermaid">
+flowchart TD
+  A["Cambio en una entrada publicada"] --> B{"¿Toca Clasificación,<br/>Elegibilidad o Relaciones?"}
+  B -->|"Sí"| MJ["type: major<br/>aprobación obligatoria"]
+  B -->|"No"| C{"¿Cambia el significado<br/>de algún texto?"}
+  C -->|"Sí"| MN["type: minor<br/>aprobación obligatoria"]
+  C -->|"No"| D{"¿Hay alguna duda?"}
+  D -->|"Sí"| MN
+  D -->|"No"| FX["type: fix<br/>sin aprobación"]
+  MJ --> R["rev + 1 · fila en revisions[]"]
+  MN --> R
+  FX --> R
+</pre>
+</div>
+
+<h2 id="nomenclatura">Nomenclatura de versiones</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Elemento</th><th>Forma</th><th>Ejemplo</th></tr></thead>
+<tbody>
+<tr><td>Versión del dataset</td><td><code>MAYOR.MENOR.PARCHE</code>, sin prefijo</td><td><code>1.4.2</code></td></tr>
+<tr><td>Referencia a una versión publicada</td><td><code>dataset@MAYOR.MENOR.PARCHE</code></td><td><code>dataset@1.4.2</code></td></tr>
+<tr><td>Revisión de una entrada</td><td><code>ID#rev</code></td><td><code>EX-0042#7</code></td></tr>
+<tr><td>Versión del modelo</td><td>Coincide con el MAYOR del dataset</td><td>modelo v1 ⇔ dataset <code>1.x.y</code></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label"><code>EX-0042#7</code> es la unidad de auditoría</div>
+  <p>Un <code>id</code> solo dice <em>qué</em> ejercicio. Un <code>id#rev</code> dice <strong>qué ejercicio y en qué estado</strong>. Es la referencia correcta en un informe de incidencia, en una discusión editorial o al reconstruir por qué una sesión de hace ocho meses contenía lo que contenía.</p>
+</div>
+
+<h2 id="publicacion">Publicación de una versión</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Paso</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Todas las entradas del lote alcanzan <code>status: published</code></td></tr>
+<tr><td>2</td><td>Se regenera el índice maestro desde las nueve colecciones</td></tr>
+<tr><td>3</td><td>Se verifican los invariantes <code>ARQ-1…6</code> y <code>ORG-1…6</code></td></tr>
+<tr><td>4</td><td>Se verifican las 13 condiciones de publicación <code>V1…V13</code> en cada entrada del lote</td></tr>
+<tr><td>5</td><td>Se determina el componente a avanzar según la tabla de arriba</td></tr>
+<tr><td>6</td><td>Se registra la versión con su fecha y el resumen de lo incluido</td></tr>
+<tr><td>7</td><td>Si el avance es MAYOR, se notifica a los consumidores <strong>antes</strong> de publicar</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Una versión nunca se modifica</div>
+  <p>Publicada una versión, su contenido es inmutable. Un error encontrado después se corrige publicando la siguiente, nunca reescribiendo la anterior. Es lo que permite que un consumidor afirme «funcionaba contra <code>dataset@1.4.2</code>» y que la afirmación signifique algo.</p>
+</div>
+
+<h2 id="consumidores">Compromiso con los consumidores</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Garantía</th><th>Alcance</th></tr></thead>
+<tbody>
+<tr><td>Dentro de una misma MAYOR, ningún campo desaparece ni cambia de tipo</td><td>Absoluta</td></tr>
+<tr><td>Dentro de una misma MAYOR, ningún valor de enumerado se elimina ni se renombra</td><td>Absoluta</td></tr>
+<tr><td>Un <code>id</code> publicado sigue resolviendo en todas las versiones futuras</td><td>Absoluta · DS-02, DS-03</td></tr>
+<tr><td>Un <code>slug</code> publicado sigue resolviendo en todas las versiones futuras</td><td>Absoluta · ID-3, ID-4</td></tr>
+<tr><td>Una entrada publicada no desaparece del dataset</td><td>Absoluta · DS-03</td></tr>
+<tr><td>Una entrada publicada sigue siendo elegible</td><td><strong>No garantizado</strong> — puede pasar a <code>deprecated</code></td></tr>
+<tr><td>La clasificación de una entrada no cambia</td><td><strong>No garantizado</strong> — puede corregirse por revisión <code>major</code></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Las dos últimas filas son deliberadas</div>
+  <p>El dataset garantiza <strong>resolubilidad</strong> permanente, no <strong>estabilidad de contenido</strong> permanente. Un ejercicio mal clasificado debe poder corregirse: congelar también la clasificación convertiría cada error en definitivo. La estabilidad la aporta el snapshot mínimo de <code>R6</code>, que hace que corregir una ficha nunca reescriba el historial.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../05-organizacion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 05 · Organización</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../07-compatibilidad/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">07 · Compatibilidad →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>01 · Filosofía — Motor BPS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="filosofia" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 01 · Fundamentos</p>
+<h1>Filosofía</h1>
+<p class="lede">Los principios operativos del Motor, leídos desde la perspectiva del orquestador. Heredan de los P1–P16 del Architecture Handbook; aquí cada uno se traduce a su consecuencia concreta dentro de este componente. Cuando dos choquen, el orden de esta página es la precedencia.</p>
+
+<h2 id="ssot">1 · Single Source of Truth</h2>
+<p>El estado del usuario tiene exactamente una fuente: la secuencia de eventos del Motor (módulo 04) más el puntero materializado que la resume. Ningún otro componente infiere el estado por su cuenta (ej. "si tiene sistema_actual, está activo" es una inferencia prohibida — <code>pendiente_perfil</code> también tiene sistema_actual). Consecuencia dura: toda pregunta sobre el estado se responde consultando al Motor, y el puntero siempre es recomputable desde los eventos (BPS-011). Si puntero y eventos difieren, los eventos son la verdad y el puntero se reconstruye — nunca al revés.</p>
+
+<h2 id="determinismo">2 · Determinismo</h2>
+<p>Mismo (eventos previos + entradas del ciclo + versión de catálogo + fecha explícita) → misma decisión, siempre. Dos consecuencias no obvias: (a) <strong>la fecha/hora es una entrada declarada del ciclo, jamás leída ad-hoc</strong> dentro de la lógica (BPS-022) — sin esto, re-ejecutar un ciclo para auditoría daría otro resultado; (b) no existe aleatoriedad en ningún punto: desempates, selecciones y ordenamientos usan orden estable total (definido en el marco: nivel asc, slug asc).</p>
+
+<h2 id="predictibilidad">3 · Predictibilidad</h2>
+<p>Un usuario (o un ingeniero de soporte) debe poder anticipar qué hará el Motor la próxima semana leyendo su estado actual y las reglas de este handbook — sin ejecutar nada. Por eso las reglas están numeradas (BPS-XXX, módulo 09), los umbrales son públicos dentro del documento, y no hay comportamiento "emergente": si algo sorprende, o es un bug o es una regla sin documentar (y ambas cosas se corrigen).</p>
+
+<h2 id="no-ia">4 · No IA, no azar</h2>
+<p>Ninguna decisión del Motor proviene de un modelo generativo ni de un generador aleatorio (ADR-001 del marco). La IA solo podrá existir detrás de contratos existentes con validación determinista de su salida — y aun entonces, nunca dentro del Motor: el orquestador es precisamente la pieza que debe ser aburrida, literal y verificable. La creatividad vive en el contenido autorizado por humanos, no en la coordinación.</p>
+
+<h2 id="explicabilidad">5 · Explicabilidad</h2>
+<p>Cada transición de estado, cada activación, cada gate fallado y cada invocación de generación lleva una razón legible construida en el momento de la decisión — no reconstruida después. El formato de razón es plantillado por tipo de evento (módulo 13) para que el texto sea consistente y traducible. Un evento sin razón es inválido a nivel de datos (NOT NULL en <code>progression_events.razones</code>).</p>
+
+<h2 id="fallo-visible">6 · Fallo visible</h2>
+<p>Cuando falta información para decidir con seguridad, el Motor emite un error tipado con el detalle exacto (catálogo en módulo 04) — nunca un default silencioso. Matiz heredado del marco: esta regla gobierna ANTES de la sesión; durante una sesión en vivo la prioridad se invierte hacia "no bloquear al usuario" — pero eso es territorio del Player, no del Motor: el Motor nunca actúa a mitad de una sesión.</p>
+
+<h2 id="trazabilidad">7 · Trazabilidad</h2>
+<p>La pregunta "¿por qué estoy aquí?" se responde con una cadena completa de eventos: activación → transiciones → generaciones, cada una con origen, razones y contexto (las métricas y umbrales vigentes al decidir). El contexto congelado es lo que permite auditar una decisión de hace seis meses aunque los umbrales hayan cambiado desde entonces.</p>
+
+<h2 id="idempotencia">8 · Idempotencia</h2>
+<p>Toda operación del Motor es segura de repetir: activar dos veces con la misma transacción no duplica activación (módulo 06); generar dos veces la misma semana devuelve la existente (<code>SEMANA_YA_GENERADA</code>); replay de eventos de sincronización no duplica efectos. La idempotencia no es una optimización — es lo que hace inofensivos los reintentos de red, los webhooks re-entregados y los dobles clics.</p>
+
+<h2 id="separacion">9 · Separación entre decisión y ejecución</h2>
+<p>El Motor decide y planifica; jamás ejecuta ni registra. La frontera exacta: el Motor termina cuando las filas de <code>workouts</code> existen; el Player empieza cuando el usuario abre una. Entre ambos no hay canal lateral — el Player no consulta al Motor durante la sesión, y el Motor no observa la sesión en curso. Se reencuentran en el historial, al ciclo siguiente. Esta separación es la que permite que el Player funcione 100% offline.</p>
+
+<h2 id="precedencia">Precedencia entre principios</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Conflicto</th><th>Gana</th><th>Ejemplo</th></tr></thead>
+<tbody>
+<tr><td>Explicabilidad vs. rendimiento del ciclo</td><td>Explicabilidad</td><td>Construir y persistir el contexto del evento no es opcional aunque encarezca el ciclo</td></tr>
+<tr><td>Idempotencia vs. frescura de datos</td><td>Idempotencia</td><td>Reinvocar el ciclo NO regenera una semana existente aunque el Perfil haya cambiado — el cambio aplica al siguiente ciclo (P5 del marco)</td></tr>
+<tr><td>Predictibilidad vs. "mejora oportunista"</td><td>Predictibilidad</td><td>El Motor nunca aprovecha un ciclo para hacer algo no especificado (ej. "ya que estamos, ajustar X")</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../00-introduccion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 00 · Introducción</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../02-arquitectura/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">02 · Arquitectura General →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

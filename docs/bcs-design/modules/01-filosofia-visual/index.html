@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>01 · Filosofía visual — BCS Design System Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="filosofia-visual" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 01 · Fundamentos</p>
+<h1>Filosofía visual</h1>
+<p class="lede">Diez principios, cada uno con su consecuencia práctica exacta en el BCS. Todo módulo posterior de este handbook debe poder trazarse a al menos uno de estos diez sin contradecirlo.</p>
+
+<h2 id="principios">Los diez principios</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Principio</th><th>Significa en el BCS</th><th>Ejemplo</th><th>Contraejemplo</th></tr></thead>
+<tbody>
+<tr><td><strong>Minimalismo</strong></td><td>Cada pantalla muestra lo que el entrenador necesita ahora, no todo lo que existe</td><td>El dashboard prioriza los últimos 3 clientes con actividad reciente</td><td>Una tabla con las 25 variables de todos los clientes visible a la vez sin jerarquía</td></tr>
+<tr><td><strong>Claridad</strong></td><td>Ninguna cifra se muestra sin su unidad y su etiqueta</td><td>"78.2 kg" nunca solo "78.2"</td><td>Un número suelto que el usuario debe adivinar a qué variable pertenece</td></tr>
+<tr><td><strong>Jerarquía</strong></td><td>El dato más importante de cada pantalla es visualmente el más grande/prominente</td><td>El peso actual en el resumen ejecutivo domina sobre las 24 variables secundarias</td><td>Todas las variables con el mismo tamaño de fuente y peso visual</td></tr>
+<tr><td><strong>Consistencia</strong></td><td>El mismo dato se representa igual en cualquier pantalla donde aparezca</td><td>Grasa corporal siempre en rojo/naranja de advertencia si sube, nunca verde en una pantalla y azul en otra</td><td>Colores de "mejora" invertidos entre el dashboard y el reporte público</td></tr>
+<tr><td><strong>Contraste</strong></td><td>Texto y datos críticos cumplen ratio de contraste accesible sobre el fondo oscuro de marca (15)</td><td>Texto secundario en <code>rgba(255,255,255,.72)</code>, nunca por debajo del mínimo legible</td><td>Texto de advertencia en un gris que se confunde con el fondo</td></tr>
+<tr><td><strong>Respiración</strong></td><td>El espaciado nunca se comprime para caber más — se paginan o colapsan secciones (03)</td><td>Espaciado generoso entre Ficha de medición y Comparación</td><td>Reducir el padding de las tarjetas para que quepan 10 métricas más en la pantalla</td></tr>
+<tr><td><strong>Escaneabilidad</strong></td><td>Un entrenador con prisa entre clientes debe entender el estado en &lt;3 segundos</td><td>Badge de tendencia (↑/↓/→) junto a cada métrica clave</td><td>Obligar a leer un párrafo de texto para saber si el cliente mejoró</td></tr>
+<tr><td><strong>Accesibilidad</strong></td><td>Ninguna información se comunica solo por color (15)</td><td>Una tendencia negativa lleva ícono + texto, no solo color rojo</td><td>Un badge de "valor sospechoso" (BCS Handbook, 03) que es solo un punto rojo sin texto</td></tr>
+<tr><td><strong>Determinismo</strong></td><td>El mismo dato produce siempre la misma representación visual — sin aleatoriedad ni animación que cambie el significado</td><td>Un gráfico de tendencia reconstruido desde el mismo historial se ve siempre igual</td><td>Colores de estado que varían según la sesión del navegador</td></tr>
+<tr><td><strong>Explicabilidad</strong></td><td>Toda clasificación visual (06 del BCS Handbook) es trazable a su badge de procedencia (00 del BCS Handbook) en la interfaz</td><td>Una barra de progreso con el ícono de procedencia visible al lado</td><td>Una clasificación "alto/normal/bajo" sin ninguna indicación de su fuente</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="relacion-leyes">Relación con las leyes existentes</h2>
+<p>Estos diez principios no contradicen la Ley 2 ("un color, un significado") ni la Ley 7 ("primitivas antes que páginas") ya presentes en el código real de BREY (00) — los extienden al dominio específico de datos de salud. Consistencia y Explicabilidad son, en términos prácticos, la Ley 2 aplicada a badges de tendencia y de procedencia respectivamente.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../00-introduccion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 00 · Introducción</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../02-arquitectura-experiencia/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">02 · Arquitectura de experiencia →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

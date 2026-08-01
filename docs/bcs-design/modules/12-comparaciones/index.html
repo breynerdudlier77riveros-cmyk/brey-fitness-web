@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>12 · Comparaciones — BCS Design System Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="comparaciones" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 12 · Datos y visualización</p>
+<h1>Comparaciones</h1>
+<p class="lede">Cómo se ve, visualmente, comparar dos mediciones cualesquiera del historial de un cliente (BCS Handbook, 05).</p>
+
+<h2 id="seleccion">Selección de fechas</h2>
+<p>Dos selectores de fecha (heredado <code>Select</code>, 06) — por defecto, la medición más reciente vs. la inmediatamente anterior. El entrenador puede cambiar cualquiera de las dos a cualquier Medición vigente del historial, sin restricción de orden cronológico.</p>
+
+<h2 id="layout">Layout de la comparación</h2>
+<div class="diagram">
+<div class="diagram-label">Dos columnas + una columna de diferencia central</div>
+<pre class="mermaid">
+graph LR
+  A["Fecha A<br/>(anterior)"] --- D["Diferencia<br/>(Indicador BCS-C06)"] --- B["Fecha B<br/>(reciente)"]
+</pre>
+</div>
+<p>En mobile, las tres columnas colapsan a un layout vertical: Fecha A, luego Fecha B, luego la Diferencia debajo de cada fila de variable — nunca se elimina la columna de diferencia, solo cambia su posición (03).</p>
+
+<h2 id="clasificacion-cambio">Clasificación del cambio</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tipo de cambio</th><th>Umbral</th><th>Tratamiento visual</th></tr></thead>
+<tbody>
+<tr><td>Cambio positivo</td><td>Delta en la dirección de "mejora" (BCS Handbook, 05) y por encima del umbral de insignificancia</td><td>Indicador Emerald + flecha (06)</td></tr>
+<tr><td>Cambio negativo</td><td>Delta en dirección de "retroceso" y por encima del umbral</td><td>Indicador Red + flecha</td></tr>
+<tr><td>Cambio insignificante</td><td>Delta absoluto por debajo del umbral de la variable (ej. peso &lt;0.2 kg, %grasa &lt;0.3pp) — <span class="tag tag--nuevo">nuevo</span>, decisión de producto sin base clínica, solo evita ruido visual</td><td>Indicador Neutral + flecha horizontal (→)</td></tr>
+<tr><td>Sin dirección de mejora asignada</td><td>Peso, IMC (BCS Handbook, 05)</td><td>Indicador Neutral siempre, independientemente de la magnitud</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="agrupacion-orden">Agrupación y orden</h2>
+<p>Las variables se agrupan en la comparación exactamente igual que en el catálogo del BCS Handbook (03): Antropometría, Composición, Agua, Metabólicos — nunca reordenadas por "más cambio primero", porque eso rompería la consistencia de posición que el entrenador ya memoriza entre pantallas (01, Consistencia).</p>
+
+<h2 id="contraejemplos">Contraejemplos</h2>
+<ul>
+  <li>La comparación NUNCA muestra una variable presente solo en una de las dos fechas como si el delta fuera 0 — se omite esa fila con nota "no disponible en ambas mediciones" (BCS Handbook, 05).</li>
+  <li>El umbral de "insignificante" NUNCA se presenta como un hallazgo clínico — es puramente una decisión de reducir ruido visual.</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../11-sistema-graficos/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 11 · Sistema de gráficos</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../13-estados/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">13 · Estados →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

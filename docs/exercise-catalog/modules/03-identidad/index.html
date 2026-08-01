@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03 · Identidad — Exercise Catalog</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="identidad" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 03 · El contrato</p>
+<h1>Identidad de una entrada</h1>
+<p class="lede">De las seis formas de identidad que el contrato del catálogo debería definir, <strong>dos existen y cuatro no</strong>. Este módulo documenta las dos y declara las cuatro con el resultado exacto del barrido.</p>
+
+<h2 id="slug">Slug — el identificador</h2>
+<div class="table-wrap">
+<table>
+<tbody>
+<tr><td><strong>Estatuto</strong></td><td>Obligatorio · atributo 1 del modelo</td></tr>
+<tr><td><strong>Mutabilidad</strong></td><td><strong>Inmutable de por vida.</strong> Sobrevive a todo cambio de nombre, clasificación o disponibilidad</td></tr>
+<tr><td><strong>Unicidad</strong></td><td>Único dentro del catálogo de ejercicios; espacio de nombres separado del de patrones</td></tr>
+<tr><td><strong>Respaldo</strong></td><td>P15 · Architecture Handbook 04 — "Slug estable desde el nacimiento"</td></tr>
+<tr><td><strong>Convención de formación</strong></td><td><span class="tag tag--futuro">no publicada</span> — ninguna fuente define cómo se construye un slug nuevo</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">El slug participa en un criterio observable por el usuario</div>
+  <p>No es un identificador puramente interno: el desempate de la resolución de slots es "nivel ascendente, <strong>luego slug ascendente</strong>". Cambiar un slug altera qué ejercicio se elige ante empate — otra razón por la que es inmutable.</p>
+</div>
+
+<h2 id="nombre">Nombre y nombre en inglés</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Atributo</th><th>Estatuto</th><th>Mutabilidad</th><th>Unicidad exigida</th></tr></thead>
+<tbody>
+<tr><td><code>nombre</code></td><td>Obligatorio</td><td>Mutable por decisión editorial</td><td><span class="tag tag--futuro">no declarada</span></td></tr>
+<tr><td><code>nombreIngles</code></td><td>Opcional</td><td>Mutable</td><td><span class="tag tag--futuro">no declarada</span></td></tr>
+</tbody>
+</table>
+</div>
+<p>El nombre es <strong>presentación, no identidad</strong>: puede corregirse libremente sin afectar a cadenas, Workouts históricos ni eventos. La contrapartida es que ninguna fuente prohíbe que dos entradas compartan nombre — una colisión legal pero confusa.</p>
+
+<h2 id="ausentes">Las cuatro formas de identidad sin respaldo</h2>
+<p class="matrix-note">Barrido realizado sobre los <code>.html</code> del repositorio documental, excluyendo los dos handbooks previos de la trilogía del recuento de evidencia independiente.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Solicitado</th><th>Resultado del barrido</th><th>Veredicto</th></tr></thead>
+<tbody>
+<tr><td><strong>Alias</strong></td><td>2 archivos: API Contract 01 ("alias del mismo concepto", sobre nomenclatura de API) y Engineering 13 (convenciones de código). <strong>Ninguna sobre ejercicios.</strong></td><td><span class="tag tag--futuro">deuda CT-D02</span></td></tr>
+<tr><td><strong>Sinónimos</strong></td><td>10 archivos, todos sobre el <strong>Lenguaje Ubicuo</strong> (glosario de términos del dominio) o sobre variables de medición del BCS. Ninguno sobre nombres de ejercicio.</td><td><span class="tag tag--futuro">deuda CT-D03</span></td></tr>
+<tr><td><strong>Versionado por ejercicio</strong></td><td>La versión existe a nivel de <strong>catálogo completo</strong> (BPS-023, ADR-009). Ninguna fuente declara versión, revisión ni changelog por entrada.</td><td><span class="tag tag--futuro">deuda CT-D04</span> — ver módulo <a href="../12-versionado/index.html">12</a></td></tr>
+<tr><td><strong>Estado</strong></td><td><code>draft</code>, <code>approved</code>, <code>deprecated</code>, <code>archived</code>: <strong>0 archivos cada uno</strong>. Domain Model 10 publica FSM para 5 entidades y Exercise no está entre ellas.</td><td><span class="tag tag--futuro">deuda CT-D05</span> — ver módulo <a href="../11-estados/index.html">11</a></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Un precedente existe, pero en otro dominio</div>
+  <p>El Lenguaje Ubicuo del Domain Model sí establece una disciplina de sinónimos: "cada concepto tiene exactamente un término canónico; <strong>los sinónimos se registran como sinónimos</strong>; las confusiones frecuentes se marcan". Es un patrón de gobernanza aplicable por analogía — pero se refiere a términos del dominio, no a nombres de ejercicio. Aplicarlo aquí como si fuera norma sería extender una regla fuera de su alcance declarado.</p>
+</div>
+
+<h2 id="consecuencias">Consecuencias prácticas de las ausencias</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Ausencia</th><th>Qué impide hoy</th></tr></thead>
+<tbody>
+<tr><td>Alias / sinónimos</td><td>No se puede resolver búsqueda por nombre alternativo ni desambiguar nombres regionales. El único sinónimo expresable es <code>nombreIngles</code>: uno, y solo en un idioma.</td></tr>
+<tr><td>Estado</td><td>No se puede distinguir una entrada en preparación de una aprobada, ni marcar una como retirada — lo que colisiona con CT-07 (nunca se borra).</td></tr>
+<tr><td>Versión por entrada</td><td>No se puede saber qué cambió en un ejercicio concreto entre dos versiones de catálogo, solo que el catálogo cambió.</td></tr>
+<tr><td>Unicidad de nombre</td><td>Dos entradas pueden mostrar el mismo nombre al usuario sin que ninguna validación lo detecte.</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="arbol">Árbol de decisión — ¿misma entrada o entrada nueva?</h2>
+<div class="diagram">
+<div class="diagram-label">Cuándo corregir en sitio y cuándo crear una entrada distinta</div>
+<pre class="mermaid">
+flowchart TD
+  Q1{"¿Cambia el movimiento<br/>ejecutado?"} -- Sí --> NEW["ENTRADA NUEVA<br/>slug nuevo"]
+  Q1 -- No --> Q2{"¿Cambia el patrón<br/>primario?"}
+  Q2 -- Sí --> ESC["Escalar: si el patrón cambia,<br/>probablemente era otro ejercicio"]
+  Q2 -- No --> Q3{"¿Cambia solo nombre,<br/>ficha o clasificación<br/>secundaria?"}
+  Q3 -- Sí --> SAME["MISMA entrada · slug intacto<br/>+ nueva versión de catálogo"]
+  Q3 -- No --> SAME
+  NEW --> R["⚠ La entrada anterior NO se borra (CT-07)<br/>— pero no existe estado que la retire"]
+</pre>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../02-modelo-exercise/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 02 · Modelo de Exercise</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../04-clasificacion/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">04 · Clasificación →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

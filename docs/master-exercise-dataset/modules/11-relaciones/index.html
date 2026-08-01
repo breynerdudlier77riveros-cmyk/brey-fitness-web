@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>11 · Relaciones — Master Exercise Dataset</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="relaciones" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Sección 11 · Relaciones</p>
+<h1>Modelo de Relaciones</h1>
+<p class="lede">El dataset no es una lista: es un <strong>grafo</strong>. Cinco tipos de arista, todas declaradas por <code>id</code>, todas verificables mecánicamente. Esta sección define su forma; las secciones 12–14 definen su semántica.</p>
+
+<h2 id="aristas">Las cinco aristas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Arista</th><th>Campo</th><th>Card.</th><th>Dirección</th><th>Recíproca de</th><th>Sección</th></tr></thead>
+<tbody>
+<tr><td><strong>Es variante de</strong></td><td><code>variant_of</code></td><td>0..1</td><td>hijo → raíz</td><td><code>variants</code></td><td><a href="../12-variantes/index.html">12</a></td></tr>
+<tr><td><strong>Tiene variante</strong></td><td><code>variants</code></td><td>0..N</td><td>raíz → hijos</td><td><code>variant_of</code></td><td><a href="../12-variantes/index.html">12</a></td></tr>
+<tr><td><strong>Progresa a</strong></td><td><code>chain_next</code></td><td>0..1</td><td>fácil → difícil</td><td><code>chain_previous</code></td><td><a href="../13-progresiones/index.html">13</a></td></tr>
+<tr><td><strong>Regresa a</strong></td><td><code>chain_previous</code></td><td>0..1</td><td>difícil → fácil</td><td><code>chain_next</code></td><td><a href="../14-regresiones/index.html">14</a></td></tr>
+<tr><td><strong>Sustituible por</strong></td><td><code>substitutes</code></td><td>0..N</td><td>simétrica</td><td>sí misma</td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Regla de reciprocidad</div>
+  <p>Las cuatro primeras aristas forman <strong>dos pares recíprocos</strong>. Si <code>EX-0042.chain_next = EX-0043</code>, entonces <code>EX-0043.chain_previous</code> <strong>debe</strong> ser <code>EX-0042</code>. Una arista declarada en un solo sentido es una inconsistencia del dataset, no una relación unidireccional válida.</p>
+  <p>La reciprocidad se declara explícitamente en ambas entradas —no se infiere al leer— porque un consumidor que solo carga una colección debe poder recorrer el grafo en ambas direcciones sin cargar las otras ocho.</p>
+</div>
+
+<h2 id="dos-grafos">Dos grafos independientes</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th></th><th>Grafo de variantes</th><th>Grafo de cadena</th></tr></thead>
+<tbody>
+<tr><td><strong>Forma</strong></td><td>Árbol de profundidad 1 — raíz + hijos</td><td>Lista doblemente enlazada</td></tr>
+<tr><td><strong>Pregunta que responde</strong></td><td>«¿Qué otras formas hay de este movimiento?»</td><td>«¿Qué viene después y qué venía antes?»</td></tr>
+<tr><td><strong>Ordenado</strong></td><td>No — las variantes son laterales entre sí</td><td><strong>Sí</strong> — por dificultad creciente</td></tr>
+<tr><td><strong>Ciclos</strong></td><td>Imposibles por construcción (profundidad 1)</td><td>Prohibidos — verificados</td></tr>
+<tr><td><strong>Cruza patrones</strong></td><td>No</td><td>No</td></tr>
+<tr><td><strong>Lo consume</strong></td><td>Exercise Resolver · sustitución por equipo</td><td>Progression Engine</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Los dos grafos no se mezclan</div>
+  <p>Una variante <strong>no</strong> es un paso de progresión, y un paso de progresión <strong>no</strong> es una variante. Cambiar de mancuernas a barra es lateral: no es más difícil, es distinto. Pasar de dominada asistida a dominada completa es vertical: es el mismo gesto, más exigente.</p>
+  <p>Mezclarlos produce el fallo silencioso más caro del sistema: el motor de progresión avanzaría a un ejercicio que no es más difícil, y la persona ejecutaría meses sin progresar realmente.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Los dos grafos sobre las mismas entradas</div>
+<pre class="mermaid">
+graph TD
+  subgraph CAD["Grafo de cadena · vertical · ordenado"]
+    A["nivel 1"] -->|chain_next| B["nivel 2"]
+    B -->|chain_next| C["nivel 3"]
+    C -.->|chain_previous| B
+    B -.->|chain_previous| A
+  end
+  subgraph VAR["Grafo de variantes · lateral · sin orden"]
+    R["raíz"] --- V1["variante A"]
+    R --- V2["variante B"]
+    R --- V3["variante C"]
+  end
+</pre>
+</div>
+
+<h2 id="integridad">Reglas de integridad</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Regla</th><th>Alcance</th></tr></thead>
+<tbody>
+<tr><td>RL-1</td><td>Toda referencia apunta a un <code>id</code> <strong>existente</strong> en el dataset</td><td>Las 5 aristas</td></tr>
+<tr><td>RL-2</td><td>Ninguna entrada se referencia a sí misma</td><td>Las 5 aristas</td></tr>
+<tr><td>RL-3</td><td>Las aristas recíprocas están declaradas en ambos extremos</td><td>4 aristas</td></tr>
+<tr><td>RL-4</td><td>Ninguna arista cruza de <code>pattern_primary</code></td><td>Las 5 aristas</td></tr>
+<tr><td>RL-5</td><td>El grafo de cadena es acíclico</td><td><code>chain_*</code></td></tr>
+<tr><td>RL-6</td><td>Una entrada tiene como máximo un <code>chain_next</code> y un <code>chain_previous</code></td><td><code>chain_*</code></td></tr>
+<tr><td>RL-7</td><td>Una entrada con <code>variant_of</code> no puede tener <code>variants</code></td><td>Variantes · profundidad 1</td></tr>
+<tr><td>RL-8</td><td><code>substitutes</code> es simétrica: si A lista a B, B lista a A</td><td><code>substitutes</code></td></tr>
+<tr><td>RL-9</td><td>Una arista no puede apuntar a una entrada <code>archived</code></td><td>Las 5 aristas</td></tr>
+<tr><td>RL-10</td><td>Las listas de referencias no contienen duplicados</td><td><code>variants</code> · <code>substitutes</code></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">RL-4 · Ninguna arista cruza de patrón</div>
+  <p>Es la restricción estructural más fuerte del grafo, y la que hace que la partición de la <a href="../05-organizacion/index.html">sección 05</a> funcione: <strong>todas las relaciones de una entrada viven dentro de su propia colección</strong>. Un consumidor que solo necesita progresión de tracción vertical carga un archivo y tiene el grafo completo.</p>
+  <p>Consecuencia operativa: si reclasificar una entrada cambia su <code>pattern_primary</code>, todas sus aristas quedan inválidas y deben rehacerse — el paso 6 del procedimiento de la <a href="../07-compatibilidad/index.html">sección 07</a>.</p>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">RL-6 · Un solo sucesor, deliberadamente</div>
+  <p>La cadena es lineal, no ramificada. Un ejercicio tiene <strong>un</strong> siguiente paso, no un abanico de opciones.</p>
+  <p>Se acepta la pérdida de expresividad: una cadena ramificada exigiría que el motor de progresión eligiera entre ramas, y esa elección requiere criterios que no existen. La diversidad se modela donde corresponde —como <strong>variantes</strong>, que sí son múltiples y laterales—, no como bifurcaciones de dificultad.</p>
+</div>
+
+<h2 id="estados">Relaciones y estados</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Estado del destino</th><th>¿Puede recibir aristas?</th><th>Comportamiento del consumidor</th></tr></thead>
+<tbody>
+<tr><td><code>draft</code> · <code>review</code></td><td>No — la entrada aún no es referenciable</td><td>—</td></tr>
+<tr><td><code>approved</code></td><td>Sí, si la arista se publica a la vez que ambas entradas</td><td>—</td></tr>
+<tr><td><code>published</code></td><td><strong>Sí</strong> — caso normal</td><td>Recorre la arista con normalidad</td></tr>
+<tr><td><code>deprecated</code></td><td>Sí — la arista existente se conserva</td><td><strong>Trata la cadena como terminada en ese punto</strong></td></tr>
+<tr><td><code>archived</code></td><td>No — RL-9</td><td>La arista debe haberse retirado antes de archivar</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Deprecar un eslabón intermedio corta la cadena</div>
+  <p>Si una cadena es A → B → C y B pasa a <code>deprecated</code>, el consumidor que avanza desde A encuentra la cadena terminada. <strong>No salta a C.</strong> Saltar sería duplicar el incremento de dificultad sin revisión humana.</p>
+  <p>La reparación es editorial y explícita: reconectar A → C mediante una revisión <code>major</code> en ambas entradas. Deprecar un eslabón intermedio es, por eso, una operación que siempre implica trabajo sobre sus vecinos.</p>
+</div>
+
+<h2 id="sustitucion">Sustitución</h2>
+<div class="callout callout--regla">
+  <div class="callout__label"><code>substitutes</code> es RESERVADO en v1.0</div>
+  <p>El campo existe en el modelo y su semántica está fijada: <em>«ejercicio de dificultad equivalente que ocupa el mismo slot cuando este no es elegible»</em>. No se puebla en v1.0.</p>
+  <p><strong>Motivo:</strong> la sustitución por equipo no disponible o por zona de riesgo ya la resuelve el resolutor recorriendo la clasificación —mismo patrón, mismo rol, mismo nivel, equipo compatible—, sin necesidad de aristas explícitas. Poblar <code>substitutes</code> antes de comprobar que la resolución por clasificación es insuficiente sería mantener a mano un dato que el sistema ya deriva.</p>
+</div>
+
+<h2 id="validacion">Validación del grafo</h2>
+<p class="matrix-note">Se ejecuta en cada publicación de versión, paso 3 del procedimiento de la <a href="../06-versionado/index.html">sección 06</a>.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Comprobación</th><th>Verifica</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Toda referencia existe en el índice maestro</td><td>RL-1</td></tr>
+<tr><td>2</td><td>Ninguna referencia es la propia entrada</td><td>RL-2</td></tr>
+<tr><td>3</td><td>Cada <code>chain_next</code> tiene su <code>chain_previous</code> espejo, y viceversa</td><td>RL-3</td></tr>
+<tr><td>4</td><td>Cada <code>variant_of</code> aparece en el <code>variants</code> de su raíz, y viceversa</td><td>RL-3</td></tr>
+<tr><td>5</td><td>Origen y destino comparten <code>pattern_primary</code></td><td>RL-4</td></tr>
+<tr><td>6</td><td>Recorrer cada cadena desde su inicio termina sin repetir nodo</td><td>RL-5</td></tr>
+<tr><td>7</td><td>Ninguna entrada con <code>variant_of</code> tiene <code>variants</code> no vacío</td><td>RL-7</td></tr>
+<tr><td>8</td><td>Toda relación <code>substitutes</code> aparece en ambos extremos</td><td>RL-8</td></tr>
+<tr><td>9</td><td>Ninguna referencia apunta a una entrada <code>archived</code></td><td>RL-9</td></tr>
+<tr><td>10</td><td>Ninguna lista de referencias contiene duplicados</td><td>RL-10</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Las diez comprobaciones son mecánicas</div>
+  <p>Ninguna requiere criterio: son comparaciones de listas de IDs y un recorrido de grafo. Es la propiedad que buscaba DS-10 al exigir que las relaciones fueran referencias y no texto — un catálogo cuyas progresiones se describen en prosa no se puede validar de ninguna forma.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../10-slugs/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 10 · Slugs</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../12-variantes/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">12 · Variantes →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

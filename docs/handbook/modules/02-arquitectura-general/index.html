@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>02 · Arquitectura General — BREY Architecture Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="arquitectura-general" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 02 · Arquitectura</p>
+<h1>Arquitectura General</h1>
+<p class="lede">El mapa completo del sistema: capas, bounded contexts, flujos, dependencias y la matriz de responsabilidades. Todo módulo posterior es un zoom sobre una región de este mapa — si un módulo contradice este mapa, uno de los dos tiene un defecto que debe resolverse por ADR.</p>
+
+<div class="meta-row">
+  <span class="chip">6 bounded contexts</span>
+  <span class="chip">4 capas</span>
+  <span class="chip">Dependencias apuntan hacia adentro</span>
+</div>
+
+<h2 id="objetivo">Objetivo y alcance</h2>
+<p>Definir dónde vive cada responsabilidad y qué puede depender de qué. No define el interior de ningún subsistema (eso es de los módulos 03–11) — define sus fronteras.</p>
+
+<h2 id="contexts">Bounded contexts</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Contexto</th><th>Responsabilidad</th><th>Entidades núcleo</th><th>Módulos</th></tr></thead>
+<tbody>
+<tr><td><strong>Identidad y Perfil</strong></td><td>Quién es el usuario y su estado vivo</td><td>Usuario (auth), Perfil</td><td>10</td></tr>
+<tr><td><strong>Diagnóstico</strong></td><td>Evaluar y recomendar Sistema/Nivel de entrada</td><td>Pregunta, Respuesta, Resultado</td><td>07 (como entrada)</td></tr>
+<tr><td><strong>Catálogo</strong></td><td>Contenido autorizado por humanos</td><td>Sistema, Track, Bloque, Mesociclo, Microciclo, Ejercicio, Patrón, Rol, Cadena</td><td>03, 04</td></tr>
+<tr><td><strong>Planificación</strong></td><td>Decidir y materializar el entrenamiento</td><td>Motor BPS, Progression, Recovery, Generator, Sesión (instancia)</td><td>05–08</td></tr>
+<tr><td><strong>Ejecución</strong></td><td>Vivir la sesión y producir hechos</td><td>Player, WorkoutLog, Evento de sesión</td><td>09</td></tr>
+<tr><td><strong>Marketing</strong></td><td>Sitio público (congelado)</td><td>—</td><td>Fuera del dominio</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Regla de frontera entre contexts</div>
+  <p>Los contexts se comunican únicamente por contratos del módulo 11 (funciones tipadas hoy; eventos si algún día hace falta un bus — ver ADR-013). Ningún context lee las estructuras internas de otro. El único vocabulario compartido entre todos es el del Glosario (P12) y los slugs estables (P15).</p>
+</div>
+
+<h2 id="capas">Capas</h2>
+<div class="diagram">
+<div class="diagram-label">Las dependencias apuntan hacia adentro — nunca al revés</div>
+<pre class="mermaid">
+graph TD
+  UI["PRESENTACIÓN<br/>App Shell · páginas · Player UI"] --> APP["APLICACIÓN<br/>Motor BPS · Progression · Recovery · Generator"]
+  APP --> DOM["DOMINIO<br/>Training Framework · Knowledge Base · reglas · validaciones"]
+  APP --> DATA["DATOS<br/>repositorios · mappers · parsers"]
+  DATA --> DB[("Supabase / Postgres<br/>RLS")]
+  DOM -.->|"solo tipos y reglas puras<br/>(cero I/O)"| DATA
+</pre>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Capa</th><th>Puede depender de</th><th>Prohibido</th></tr></thead>
+<tbody>
+<tr><td>Presentación</td><td>Aplicación, Dominio (tipos)</td><td>Llamar a la base de datos directamente; contener reglas de decisión</td></tr>
+<tr><td>Aplicación (motores)</td><td>Dominio, Datos</td><td>Renderizar; conocer detalles de UI</td></tr>
+<tr><td>Dominio</td><td>Nada con I/O — funciones y tipos puros</td><td>Importar repositorios, clientes de red o UI</td></tr>
+<tr><td>Datos</td><td>El cliente de base de datos, Dominio (tipos)</td><td>Contener reglas de negocio; decidir</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="pilares">Correspondencia metodología → dueño técnico</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Principio BPS (público)</th><th>Dueño técnico</th></tr></thead>
+<tbody>
+<tr><td>Sobrecarga progresiva</td><td><a href="../05-progression-engine/index.html">Progression Engine</a> (micro-ajuste)</td></tr>
+<tr><td>Autorregulación</td><td><a href="../05-progression-engine/index.html">Progression Engine</a> (RPE/RIR como señal)</td></tr>
+<tr><td>Periodización</td><td><a href="../03-training-framework/index.html">Training Framework</a> (Bloque/Mesociclo/Microciclo)</td></tr>
+<tr><td>Seguimiento del progreso</td><td><a href="../09-workout-player/index.html">Workout Player</a> (captura) + Historial</td></tr>
+<tr><td>Adaptación individual</td><td><a href="../04-knowledge-base/index.html">Knowledge Base</a> (sustitución) + <a href="../07-motor-bps/index.html">Motor BPS</a> (asignación)</td></tr>
+<tr><td>Gestión Científica de la Fatiga (pilar)</td><td><a href="../06-recovery-engine/index.html">Recovery Engine</a></td></tr>
+<tr><td>Nutrición Periodizada (pilar)</td><td>Sin dueño técnico en v1 — contenido estático de los Sistemas. Registrado en <a href="../13-roadmap/index.html">Roadmap</a></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="flujo-maestro">Flujo maestro de extremo a extremo</h2>
+<div class="diagram">
+<div class="diagram-label">Registro → Diagnóstico → Activación → Generación → Ejecución → Evaluación → ciclo</div>
+<pre class="mermaid">
+graph TD
+  R[Registro] --> DX["Diagnóstico BPS<br/>(determinista, P1)"]
+  DX --> PAY{"¿Compra confirmada?"}
+  PAY -->|No| DX
+  PAY -->|Sí| MB["Motor BPS<br/>activa Sistema/Nivel"]
+  MB --> GATE{"¿Perfil deportivo completo?"}
+  GATE -->|No| PERFIL["Gate: completar Perfil"]
+  PERFIL --> GATE
+  GATE -->|Sí| WG["Workout Generator"]
+  KB["Knowledge Base"] --> WG
+  PE_IN["Progression Engine<br/>prescripción vigente"] --> WG
+  RE_IN["Recovery Engine<br/>¿descarga?"] --> WG
+  WG --> WP["Workout Player"]
+  WP --> LOG["Historial<br/>(logs + eventos, inmutables)"]
+  LOG --> PE["Progression Engine"]
+  LOG --> RE["Recovery Engine"]
+  RE -->|"precedencia P8"| PE
+  PE --> MB2["Actualiza punto en la jerarquía"]
+  MB2 --> WG
+</pre>
+</div>
+
+<h2 id="dependencias">Matriz de dependencias entre módulos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Módulo</th><th>Depende de</th><th>Es dependido por</th></tr></thead>
+<tbody>
+<tr><td>03 Training Framework</td><td>01 (principios)</td><td>04, 05, 06, 07, 08</td></tr>
+<tr><td>04 Knowledge Base</td><td>03</td><td>05, 08, 09</td></tr>
+<tr><td>05 Progression</td><td>03, 04, 06 (precedencia)</td><td>07, 08</td></tr>
+<tr><td>06 Recovery</td><td>03</td><td>05, 07, 08</td></tr>
+<tr><td>07 Motor BPS</td><td>03, 05, 06, Diagnóstico</td><td>08</td></tr>
+<tr><td>08 Generator</td><td>03, 04, 05, 06, 07</td><td>09</td></tr>
+<tr><td>09 Player</td><td>04 (sustitución en vivo), 08</td><td>05, 06 (vía Historial)</td></tr>
+<tr><td>10 Datos</td><td>P3, P5, P9</td><td>Todos</td></tr>
+<tr><td>11 API</td><td>Todos los contratos anteriores</td><td>Implementación futura</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Invariante: sin ciclos de dependencia</div>
+  <p>El único "ciclo" del sistema es temporal, no estructural: el Player alimenta el Historial y el Historial alimenta a los motores en el ciclo SIGUIENTE. Ningún módulo depende de otro que dependa de él dentro del mismo instante de decisión. La verificación: el diagrama de dependencias debe poder ordenarse topológicamente — y se ordena: 01→03→04→06→05→07→08→09.</p>
+</div>
+
+<h2 id="invariantes">Invariantes de la arquitectura</h2>
+<ul>
+  <li><strong>I-1:</strong> Ninguna decisión de dominio se toma en la capa de Presentación.</li>
+  <li><strong>I-2:</strong> Ningún acceso a datos ocurre fuera de la capa de Datos (repositorios) — excepción documentada y única: la lectura mínima de nombre para el navbar público (ADR-007).</li>
+  <li><strong>I-3:</strong> RLS en Postgres es la frontera de seguridad real; todo guard en capas superiores es UX, no seguridad.</li>
+  <li><strong>I-4:</strong> El catálogo es de solo lectura para todos los contexts salvo el proceso editorial humano.</li>
+  <li><strong>I-5:</strong> El Historial no tiene camino de escritura de UPDATE/DELETE desde ninguna capa.</li>
+</ul>
+
+<h2 id="casos">Casos límite e inválidos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Tipo</th><th>Comportamiento definido</th></tr></thead>
+<tbody>
+<tr><td>Usuario con compra confirmada pero Diagnóstico jamás tomado</td><td>Límite</td><td>Válido — la compra directa desde marketing existe. El Motor BPS exige entonces Diagnóstico antes del gate de Perfil (07).</td></tr>
+<tr><td>Sistema Elite intenta entrar al flujo de generación</td><td>Inválido</td><td>Rechazo explícito — Elite es 1:1 humano, fuera del Training Framework (ADR-012 del módulo 12).</td></tr>
+<tr><td>Un motor invocado con catálogo de versión distinta a la de la instancia en curso</td><td>Límite</td><td>La instancia manda (P5): se completa el Microciclo en curso con lo materializado; la versión nueva aplica desde la próxima generación.</td></tr>
+<tr><td>Presentación llamando directo a la base de datos</td><td>Inválido</td><td>Violación de I-2 — defecto de implementación, no comportamiento a soportar.</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="riesgos">Riesgos y deuda</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">La frontera de capas es convención, no herramienta</div>
+  <p>Nada impide técnicamente que un archivo nuevo viole I-1/I-2. Mitigación futura: regla de lint de imports por carpeta. Registrado como deuda en el Roadmap.</p>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Nutrición Periodizada sin dueño técnico</div>
+  <p>Es el único pilar público sin sistema asignado — hoy es contenido estático. Si el producto promete más que eso, hay un gap entre promesa y arquitectura que debe cerrarse en v2 o re-comunicarse.</p>
+</div>
+
+<h2 id="extensiones">Futuras extensiones</h2>
+<ul>
+  <li><strong>Panel del entrenador:</strong> un séptimo context (Coaching) que lee Planificación/Ejecución y escribe overrides autorizados — encaja sin tocar los existentes.</li>
+  <li><strong>Bus de eventos:</strong> solo si aparece un consumidor asíncrono real (notificaciones, analytics). Hoy sería sobreingeniería (ADR-013).</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../01-principios/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 01 · Principios Fundamentales</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../03-training-framework/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">03 · Training Framework →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

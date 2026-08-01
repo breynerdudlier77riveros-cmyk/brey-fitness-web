@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>11 · Idempotencia — BREY API Contract Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="idempotencia" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 11 · Operación</p>
+<h1>Idempotencia</h1>
+<p class="lede">Qué endpoints toleran un reintento de red sin duplicar efectos, con qué clave, y dónde el ecosistema todavía no tiene una respuesta — documentado como gap, no inventado.</p>
+
+<h2 id="idempotentes">Endpoints con idempotencia real, ya especificada</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Endpoint</th><th>Clave de idempotencia</th><th>Comportamiento ante repetición</th><th>Origen</th></tr></thead>
+<tbody>
+<tr><td><code>POST /motor-bps/activacion</code></td><td><code>transaccion_id</code></td><td>Un reintento con el mismo <code>transaccion_id</code> completa solo lo que falte — nunca re-ejecuta la activación completa ni la duplica</td><td>Motor BPS Handbook (06)</td></tr>
+<tr><td><code>POST /workouts/generar-semana</code></td><td>Semana (Usuario + Microciclo) ya generada</td><td>Devuelve la semana existente con <code>ok: true</code> — <code>SEMANA_YA_GENERADA</code> no es un error para el actor, es el resultado correcto de un reintento</td><td>Architecture Handbook (11)</td></tr>
+<tr><td><code>POST /workout-logs/eventos</code></td><td><code>device_id</code> + número de secuencia</td><td>Reenviar el mismo evento de la cola offline no lo duplica — la sincronización es un replay ordenado, tolerante a reintento</td><td>Architecture Handbook (09)</td></tr>
+<tr><td>Integraciones externas (patrón heredado, fuera del dominio de negocio)</td><td>Respuesta del proveedor (ej. <code>duplicate_parameter</code> de Brevo)</td><td>Se trata como éxito, no como error — precedente real en <code>app/api/lead</code></td><td>Engineering Handbook (06)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="naturalmente-idempotentes">Idempotentes por definición del método</h2>
+<p>Todo <code>GET</code> del catálogo (07) es idempotente por construcción — leer dos veces nunca cambia el resultado ni produce un efecto secundario de dominio. Todo <code>PATCH</code> con el mismo body produce el mismo estado final, salvo <code>PATCH /bcs/mediciones/{id}</code>, que crea una fila nueva en cada invocación exitosa por diseño (anula + crea, 07) — repetir la misma corrección dos veces crea dos Mediciones nuevas sucesivas, cada una anulando a la anterior; esto es coherente con el modelo de historial inmutable (IN-D1), no una falla de idempotencia.</p>
+
+<h2 id="no-especificado">Sin clave de idempotencia especificada — gaps reales, no inventados</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Operación</th><th>Riesgo de reintento</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td><code>INSERT</code> de un <code>EventoProgresion</code> (cualquier evento producido por 07)</td><td>Un reintento de red podría duplicar el evento — ningún handbook define una clave</td><td>Gap confirmado — AR-027. No se inventa una clave aquí; ver 16, AP-03</td></tr>
+<tr><td><code>POST /motor-bps/ciclo-semanal</code></td><td>Repetir la invocación para el mismo ciclo podría reevaluar Recovery/Progression dos veces si no coincide exactamente con el criterio de <code>SEMANA_YA_GENERADA</code> del paso de generación</td><td>Parcialmente cubierto (el paso final es idempotente) — la orquestación completa no tiene su propia clave declarada</td></tr>
+<tr><td><code>POST /bcs/clientes</code>, <code>POST /bcs/clientes/{id}/mediciones</code>, <code>POST /bcs/clientes/{id}/enlaces</code></td><td>Un reintento crea un segundo Cliente/Medición/Enlace — ningún caso de uso del BCS Handbook (13) declara una clave de idempotencia para creación</td><td>No especificado por ningún handbook — no se asume ni se inventa una clave</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="casos-limite">Casos límite</h2>
+<ul>
+  <li><strong>Dos compras del mismo Usuario para Sistemas distintos, en ventana corta:</strong> la de <code>timestamp</code> anterior gana; la segunda se registra comercialmente pero no reactiva, y dispara <code>anomalia</code> para resolución humana (Motor BPS Handbook, 06).</li>
+  <li><strong>Compra y Diagnóstico llegando en el mismo instante:</strong> la compra se procesa primero (crea el estado de espera), el Diagnóstico la resuelve después — commutativo solo para este par (Motor BPS Handbook, 06).</li>
+  <li><strong>Dos dispositivos offline iniciando la misma sesión de Workout Player:</strong> al sincronizar, el <code>timestamp</code> de inicio más temprano gana; los eventos del perdedor se archivan como <code>sesion_duplicada</code>, visibles pero nunca contados en adherencia (Architecture Handbook, 09).</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../10-versionado/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 10 · Versionado</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../12-rate-limiting/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">12 · Rate Limiting →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>11 · Privacidad — BCS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="privacidad" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 11 · Acceso y datos sensibles</p>
+<h1>Privacidad</h1>
+<p class="lede">Qué datos son sensibles, cómo se obtiene consentimiento, cuánto tiempo se conservan, y el derecho del cliente a pedir su eliminación.</p>
+
+<h2 id="datos-sensibles">Qué datos son sensibles</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Dato</th><th>Por qué es sensible</th></tr></thead>
+<tbody>
+<tr><td>Todas las variables de composición corporal (03)</td><td>Datos de salud/biométricos — categoría sensible en la mayoría de marcos de protección de datos</td></tr>
+<tr><td>Fotografías de progreso</td><td>Dato biométrico/de imagen personal, potencialmente el más sensible de todo el sistema</td></tr>
+<tr><td>Nombre y contacto del cliente</td><td>Dato personal identificable estándar</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="consentimiento">Consentimiento</h2>
+<p>El sistema asume que el entrenador obtiene el consentimiento del cliente de forma externa al sistema (verbal o por su propio proceso comercial) antes de registrar mediciones y, especialmente, antes de generar un enlace público que exponga sus datos vía URL — el BCS no implementa un flujo de consentimiento formal (checkbox, firma digital) en v1. Se marca explícitamente como responsabilidad del entrenador, no automatizada, y como candidato de roadmap (14, 17).</p>
+
+<h2 id="retencion">Retención de datos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Estado del Cliente</th><th>Retención</th></tr></thead>
+<tbody>
+<tr><td>Activo</td><td>Indefinida mientras el entrenador use el sistema — sin expiración automática</td></tr>
+<tr><td>Archivado</td><td>Indefinida — el archivado es reversible (02) y no implica intención de borrado</td></tr>
+<tr><td>Eliminado permanentemente (UC-04)</td><td>Borrado real de Cliente, Mediciones y Fotografías asociadas — sin período de gracia en v1; es una acción deliberadamente irreversible reservada para solicitudes explícitas (16)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="derecho-eliminacion">Derecho a la eliminación</h2>
+<p>Cuando un cliente solicita que sus datos sean eliminados, el entrenador ejecuta UC-04 (EliminarClientePermanentemente, 02) — distinto de UC-03 (ArchivarCliente), que es la acción por defecto de "quitar de la vista" pero preserva todo. UC-04 borra físicamente: el registro del Cliente, todas sus Mediciones (vigentes y anuladas), todas sus Fotografías, y revoca en cascada cualquier EnlacePúblico asociado (10).</p>
+
+<h2 id="fotografias">Fotografías — tratamiento especial</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">El dato más sensible del sistema</div>
+  <p>Las fotografías de progreso son opcionales por diseño (03) precisamente por su sensibilidad. Se almacenan en un espacio de almacenamiento separado del resto de los datos, accesible únicamente mediante referencia autenticada (entrenador) o mediante el token del EnlacePúblico correspondiente al mismo Cliente (08) — nunca mediante una URL de almacenamiento predecible o de acceso directo sin pasar por la capa de aplicación.</p>
+</div>
+
+<h2 id="casos-limite">Casos límite</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Comportamiento</th></tr></thead>
+<tbody>
+<tr><td>Cliente pide eliminación pero el entrenador necesita conservar el historial por una obligación contractual/legal externa al sistema</td><td>Fuera del alcance de este documento — el BCS ejecuta lo que el entrenador decide (UC-03 vs. UC-04); la obligación legal de retención es responsabilidad del entrenador, no una regla que el sistema imponga</td></tr>
+<tr><td>Fotografía subida por error (persona equivocada, imagen no relacionada)</td><td>El entrenador puede eliminar una Fotografía individual sin afectar el resto de la Medición — a diferencia de una Medición corregida (05), una Fotografía sí admite borrado directo por ser un adjunto opcional, no un dato de serie histórica</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../10-links-publicos/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 10 · Links Públicos</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../12-escalabilidad/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">12 · Escalabilidad →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>02 · Barrido Documental — Content Lifecycle</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="barrido" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 02 · Empezar</p>
+<h1>Barrido Documental</h1>
+<p class="lede">48 términos, en inglés y español, con límites de palabra sobre los 15 directorios documentales. La columna que importa es la de <strong>ecosistema base</strong>: excluye los cuatro handbooks de la serie para no contar consolidación como evidencia independiente.</p>
+
+<h2 id="metodo">Método</h2>
+<div class="table-wrap">
+<table>
+<tbody>
+<tr><td><strong>Universo</strong></td><td>Todos los <code>.html</code> de los 15 directorios de <code>docs/</code></td></tr>
+<tr><td><strong>Base</strong></td><td>Excluye <code>exercise-taxonomy</code>, <code>exercise-tagging</code>, <code>exercise-catalog</code> y <code>editorial-standards</code> — los cuatro handbooks de la serie, que consolidan las mismas fuentes</td></tr>
+<tr><td><strong>Coincidencia</strong></td><td>Palabra completa (<code>\bTÉRMINO(s|es)?\b</code>), no subcadena</td></tr>
+<tr><td><strong>Verificación</strong></td><td>Toda coincidencia &gt; 0 se inspecciona en contexto: ¿se refiere a una entrada de catálogo?</td></tr>
+<tr><td><strong>Unidad</strong></td><td>Archivos con al menos una coincidencia, no número de ocurrencias</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="ingles">Términos en inglés</h2>
+<p class="matrix-note">"Base" = ecosistema original. "Total" incluye los cuatro handbooks de la serie; la diferencia es texto de consolidación, no evidencia nueva.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Término</th><th>Base</th><th>Total</th><th>Veredicto en contexto</th></tr></thead>
+<tbody>
+<tr><td><code>approval</code></td><td><strong>0</strong></td><td>0</td><td>No existe</td></tr>
+<tr><td><code>approved</code></td><td><strong>0</strong></td><td>8</td><td>No existe — las 8 son declaraciones de ausencia de la serie</td></tr>
+<tr><td><code>reviewer</code></td><td><strong>0</strong></td><td>0</td><td>No existe</td></tr>
+<tr><td><code>author</code></td><td><strong>0</strong></td><td>0</td><td>No existe como palabra completa</td></tr>
+<tr><td><code>publish</code> · <code>publication</code></td><td><strong>0</strong></td><td>0</td><td>No existen</td></tr>
+<tr><td><code>draft</code></td><td><strong>0</strong></td><td>8</td><td>No existe</td></tr>
+<tr><td><code>deprecated</code></td><td><strong>0</strong></td><td>9</td><td>No existe en inglés</td></tr>
+<tr><td><code>obsolete</code></td><td><strong>0</strong></td><td>0</td><td>No existe</td></tr>
+<tr><td><code>archive</code></td><td><strong>0</strong></td><td>0</td><td>No existe</td></tr>
+<tr><td><code>audit</code></td><td><strong>0</strong></td><td>0</td><td>No existe en inglés</td></tr>
+<tr><td><code>migration</code> · <code>replace</code></td><td><strong>0</strong></td><td>0</td><td>No existen en inglés</td></tr>
+<tr><td><code>lifecycle</code> · <code>state</code></td><td><strong>0</strong></td><td>0</td><td>No existen en inglés</td></tr>
+<tr><td><code>revision</code></td><td><strong>0</strong></td><td>9</td><td>No existe en inglés</td></tr>
+<tr><td><code>review</code></td><td>30</td><td>33</td><td><span class="severity severity--alta">falso positivo</span> — "Architecture Review", el documento de auditoría</td></tr>
+<tr><td><code>status</code></td><td>17</td><td>17</td><td><span class="severity severity--alta">falso positivo</span> — códigos <code>status</code> HTTP del API Contract</td></tr>
+<tr><td><code>history</code></td><td>7</td><td>7</td><td><span class="severity severity--alta">falso positivo</span> — "History Card", componente del BCS Design System</td></tr>
+<tr><td><code>rollback</code></td><td>4</td><td>4</td><td><span class="severity severity--alta">otro dominio</span> — rollback de migración de BD, y declarado inexistente</td></tr>
+<tr><td><code>version</code></td><td>11</td><td>20</td><td><span class="tag tag--especificado">parcial</span> — versión de catálogo y versionado de API</td></tr>
+<tr><td><code>editor</code></td><td>5</td><td>6</td><td><span class="severity severity--media">falso positivo</span> — SQL Editor de Supabase, editores de texto</td></tr>
+<tr><td><code>supersede</code></td><td>1</td><td>2</td><td><span class="tag tag--implementado">relevante</span> — supersesión de ADR</td></tr>
+<tr><td><code>changelog</code></td><td>1</td><td>4</td><td><span class="tag tag--especificado">marginal</span></td></tr>
+<tr><td><code>workflow</code></td><td>1</td><td>1</td><td><span class="tag tag--especificado">marginal</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="espanol">Términos en español</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Término</th><th>Base</th><th>Veredicto en contexto</th></tr></thead>
+<tbody>
+<tr><td><code>retirar</code></td><td><strong>0</strong></td><td>No existe</td></tr>
+<tr><td><code>aprobación</code> · <code>aprobar</code></td><td><strong>0</strong> · <strong>0</strong></td><td>No existen</td></tr>
+<tr><td><code>borrador</code></td><td><strong>0</strong></td><td>No existe</td></tr>
+<tr><td><code>publicación</code> · <code>despublicar</code></td><td><strong>0</strong> · <strong>0</strong></td><td>No existen</td></tr>
+<tr><td><code>publicar</code></td><td>1</td><td><span class="severity severity--media">falso positivo</span> — "en el momento de publicar este handbook"</td></tr>
+<tr><td><code>obsolet*</code></td><td>1</td><td><span class="severity severity--media">otro dominio</span> — vigencia de un diagnóstico</td></tr>
+<tr><td><code>retirad*</code></td><td>2</td><td>Marginal; no referido a entradas de catálogo</td></tr>
+<tr><td><code>ciclo de vida</code></td><td>13</td><td><span class="severity severity--alta">otro objeto</span> — entidades del dominio (Cliente, Medición) y estados del usuario</td></tr>
+<tr><td><code>revisión</code></td><td>22</td><td><span class="severity severity--alta">falso positivo</span> — "Architecture Review" y revisiones de tokens de diseño</td></tr>
+<tr><td><code>versionado</code></td><td>30</td><td><span class="severity severity--alta">otro objeto</span> — versionado de <strong>API</strong> (API-ADR-01), no de catálogo</td></tr>
+<tr><td><code>versión</code></td><td>47</td><td><span class="tag tag--especificado">parcial</span> — incluye "versión de catálogo" (15 archivos)</td></tr>
+<tr><td><code>versión de catálogo</code></td><td><strong>15</strong></td><td><span class="tag tag--implementado">relevante</span> — BPS-023 · ADR-009</td></tr>
+<tr><td><code>archivad*</code></td><td>31</td><td><span class="severity severity--alta">otro objeto</span> — Cliente del BCS</td></tr>
+<tr><td><code>historial</code></td><td>113</td><td><span class="severity severity--alta">otro objeto</span> — historial de entrenamiento del usuario</td></tr>
+<tr><td><code>vigente</code></td><td>82</td><td><span class="severity severity--alta">otro objeto</span> — prescripción vigente, eslabón vigente, resultado vigente</td></tr>
+<tr><td><code>máquina de estados</code></td><td>32</td><td><span class="tag tag--implementado">relevante</span> — las 5 FSM publicadas; ninguna de Exercise</td></tr>
+<tr><td><code>auditoría</code></td><td>46</td><td><span class="tag tag--especificado">parcial</span> — Architecture Review y autoauditorías de handbooks</td></tr>
+<tr><td><code>corrección</code></td><td>42</td><td><span class="tag tag--especificado">parcial</span> — corrección de estados, de código, de contratos</td></tr>
+<tr><td><code>actualiza*</code></td><td>47</td><td><span class="tag tag--especificado">parcial</span></td></tr>
+<tr><td><code>reemplaz*</code></td><td>29</td><td><span class="tag tag--especificado">parcial</span> — reemplazo de Sistema, de enlace público</td></tr>
+<tr><td><code>estado</code></td><td>164</td><td><span class="tag tag--especificado">parcial</span> — mayoritariamente estados de usuario, Workout y BCS</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="falsos">Los cuatro falsos positivos que cambian el resultado</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Sin verificación en contexto, el barrido diría lo contrario</div>
+  <p>Cuatro términos aparecen con volumen suficiente para sugerir que el ciclo de vida está documentado. Ninguno lo está:</p>
+  <ul>
+    <li><code>review</code> / <code>revisión</code> (30 y 22 archivos) → <strong>Architecture Review</strong>, el documento de auditoría del ecosistema. No hay ni una revisión editorial de contenido.</li>
+    <li><code>status</code> (17) → <strong>códigos HTTP</strong> del API Contract. No hay estado de entrada.</li>
+    <li><code>historial</code> (113) y <code>vigente</code> (82) → <strong>historial de entrenamiento del usuario</strong> y <strong>prescripción/eslabón vigente</strong>. No hay historial ni vigencia de entrada.</li>
+    <li><code>archivado</code> (31) y <code>ciclo de vida</code> (13) → <strong>Cliente del BCS</strong> y entidades del dominio. No hay archivado ni ciclo de vida de entrada.</li>
+  </ul>
+</div>
+<div class="diagram">
+<div class="diagram-label">Volumen aparente frente a evidencia real</div>
+<pre class="mermaid">
+graph LR
+  A["historial · 113 archivos"] -->|"verificación<br/>en contexto"| A2["Historial del USUARIO<br/>❌ no de entrada"]
+  B["vigente · 82"] --> B2["Prescripción / eslabón<br/>❌ no de entrada"]
+  C["archivado · 31"] --> C2["Cliente del BCS<br/>❌ no de entrada"]
+  D["review · 30"] --> D2["Architecture Review<br/>❌ no revisión editorial"]
+  E["versión de catálogo · 15"] --> E2["✅ ÚNICO versionado<br/>que toca el catálogo"]
+</pre>
+</div>
+
+<h2 id="hallazgo">Resultado del barrido</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Lo que existe para el ciclo de vida de una entrada</div>
+  <p><strong>Tres mecanismos, y ninguno es un ciclo de vida:</strong></p>
+  <ol>
+    <li><strong>Versión de catálogo</strong> (15 archivos) — BPS-023 · ADR-009. Versiona el catálogo completo, no la entrada.</li>
+    <li><strong>Supersesión de ADR</strong> (1 archivo) — "revertir una requiere un ADR nuevo que la supersede, nunca edición silenciosa". Aplica a documentos.</li>
+    <li><strong>Regla de Inmutabilidad</strong> (R-2) — protege lo ya generado de cualquier cambio de catálogo.</li>
+  </ol>
+  <p><strong>Lo que no existe:</strong> estados, transiciones, aprobación, revisión, publicación, despublicación, retirada, rollback, versionado por entrada y auditoría de decisiones editoriales. Cada ausencia está confirmada con recuento cero de palabra completa.</p>
+</div>
+
+<h2 id="cobertura">Cobertura del barrido</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Métrica</th><th>Valor</th></tr></thead>
+<tbody>
+<tr><td>Términos barridos</td><td><strong>48</strong> (25 en inglés, 23 en español)</td></tr>
+<tr><td>Directorios documentales barridos</td><td><strong>15</strong></td></tr>
+<tr><td>Términos con recuento cero en base</td><td><strong>18</strong></td></tr>
+<tr><td>Falsos positivos identificados</td><td><strong>8</strong></td></tr>
+<tr><td>Términos relevantes confirmados</td><td><strong>3</strong></td></tr>
+<tr><td>Fuentes solicitadas que no existen como handbook</td><td><strong>4</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../01-filosofia/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 01 · Filosofía</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../03-nacimiento/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">03 · Nacimiento →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>05 · Organización — Master Exercise Dataset</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="organizacion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Sección 05 · El Exercise</p>
+<h1>Organización del Dataset</h1>
+<p class="lede">El dataset se particiona en <strong>nueve colecciones</strong>, una por patrón primario, más un índice maestro derivado. Esta partición permite trabajar en lotes paralelos sin colisiones y mantiene cada archivo en un tamaño revisable.</p>
+
+<h2 id="particion">Criterio de partición</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Partición por <code>pattern_primary</code></div>
+  <p>Cada ejercicio pertenece a <strong>exactamente una</strong> colección: la de su patrón primario. Como <code>pattern_primary</code> es obligatorio, único e inmutable en la práctica, la pertenencia de una entrada nunca es ambigua ni cambia.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Criterio evaluado</th><th>Por qué se descartó</th></tr></thead>
+<tbody>
+<tr><td>Por rango de ID</td><td>Reparte arbitrariamente ejercicios relacionados; un lote de trabajo tocaría todos los archivos</td></tr>
+<tr><td>Por Sistema</td><td><code>systems</code> es multivaluado — una entrada pertenecería a varias colecciones</td></tr>
+<tr><td>Por equipo</td><td><code>equipment</code> es multivaluado — mismo problema</td></tr>
+<tr><td>Un único archivo</td><td>Con 220 entradas de 38 campos, cualquier cambio produce un diff inmanejable</td></tr>
+<tr><td><strong>Por patrón primario</strong></td><td><strong>Adoptado</strong> — cardinalidad 1, inmutable, y agrupa lo que se trabaja junto</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="colecciones">Las nueve colecciones</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Colección</th><th>Patrón primario</th><th>Estado del patrón</th></tr></thead>
+<tbody>
+<tr><td><code>empuje-horizontal</code></td><td>Empuje horizontal</td><td>activo</td></tr>
+<tr><td><code>empuje-vertical</code></td><td>Empuje vertical</td><td>activo</td></tr>
+<tr><td><code>traccion-horizontal</code></td><td>Tracción horizontal</td><td>activo</td></tr>
+<tr><td><code>traccion-vertical</code></td><td>Tracción vertical</td><td>activo</td></tr>
+<tr><td><code>dominante-rodilla</code></td><td>Dominante de rodilla</td><td>activo</td></tr>
+<tr><td><code>dominante-cadera</code></td><td>Dominante de cadera</td><td>activo</td></tr>
+<tr><td><code>core</code></td><td>Core / anti-rotación / anti-extensión</td><td>activo</td></tr>
+<tr><td><code>locomocion</code></td><td>Locomoción / transporte</td><td>reservado — colección vacía en v1.0</td></tr>
+<tr><td><code>rotacion-potencia</code></td><td>Rotación / potencia</td><td>reservado — colección vacía en v1.0</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Las dos colecciones reservadas existen desde v1.0</div>
+  <p>Se crean vacías. Un patrón reservado pasa a activo por el solo hecho de que su colección deje de estarlo — sin cambio estructural, sin migración y sin versión mayor.</p>
+</div>
+
+<h2 id="indice">Índice maestro</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Propiedad</th><th>Decisión</th></tr></thead>
+<tbody>
+<tr><td>Naturaleza</td><td><strong>Derivado</strong> — reconstruible íntegramente desde las nueve colecciones</td></tr>
+<tr><td>Contenido por entrada</td><td><code>id</code> · <code>slug</code> · <code>name_display</code> · <code>pattern_primary</code> · <code>status</code> · <code>rev</code> · colección</td></tr>
+<tr><td>Orden</td><td>Por <code>id</code> ascendente</td></tr>
+<tr><td>Función</td><td>Resolución rápida por <code>id</code> o <code>slug</code>; verificación de unicidad global; control del contador de IDs</td></tr>
+<tr><td>Autoridad</td><td><strong>Ninguna</strong> — ante discrepancia entre índice y colección, gana la colección</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">El índice nunca es fuente de verdad</div>
+  <p>Es una proyección de conveniencia. Si se corrompe o se desincroniza, se regenera. Ningún dato existe únicamente en el índice.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Estructura física del dataset</div>
+<pre class="mermaid">
+graph TD
+  DS["Master Exercise Dataset"] --> IDX["índice maestro<br/><i>derivado · regenerable</i>"]
+  DS --> C1["empuje-horizontal"]
+  DS --> C2["empuje-vertical"]
+  DS --> C3["traccion-horizontal"]
+  DS --> C4["traccion-vertical"]
+  DS --> C5["dominante-rodilla"]
+  DS --> C6["dominante-cadera"]
+  DS --> C7["core"]
+  DS --> C8["locomocion<br/><i>vacía en v1.0</i>"]
+  DS --> C9["rotacion-potencia<br/><i>vacía en v1.0</i>"]
+  C1 -.->|"regenera"| IDX
+  C7 -.->|"regenera"| IDX
+</pre>
+</div>
+
+<h2 id="orden">Orden interno y determinismo</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Regla</th><th>Motivo</th></tr></thead>
+<tbody>
+<tr><td>O1</td><td>Las entradas se ordenan por <code>id</code> ascendente dentro de cada colección</td><td>Un orden determinista hace que los cambios sean legibles: añadir una entrada produce una sola inserción</td></tr>
+<tr><td>O2</td><td>Los campos de cada entrada aparecen en el orden de los 7 bloques del modelo</td><td>Comparar dos entradas es inmediato; revisar un cambio no exige buscar el campo</td></tr>
+<tr><td>O3</td><td>Las listas de valores enumerados se ordenan alfabéticamente</td><td>Elimina diffs falsos por reordenación</td></tr>
+<tr><td>O4</td><td>Las listas de referencias se ordenan por <code>id</code> ascendente</td><td>Ídem</td></tr>
+<tr><td>O5</td><td>Las listas de texto libre conservan su orden editorial</td><td>El orden de las instrucciones es información</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="cobertura">Plan de cobertura</h2>
+<p class="matrix-note">Distribución objetivo de <strong>220 ejercicios</strong> por patrón. Son objetivos de planificación, no cuotas rígidas: la cifra final de cada patrón la determina la cobertura real necesaria de sus combinaciones rol × equipo × nivel.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Colección</th><th>Objetivo</th><th>%</th><th>Justificación de la proporción</th></tr></thead>
+<tbody>
+<tr><td><code>empuje-horizontal</code></td><td>32</td><td>14,5 %</td><td>Alta densidad de variantes por implemento y ángulo</td></tr>
+<tr><td><code>empuje-vertical</code></td><td>24</td><td>10,9 %</td><td>Menos variantes que el horizontal</td></tr>
+<tr><td><code>traccion-horizontal</code></td><td>28</td><td>12,7 %</td><td>Amplia variedad de remos y agarres</td></tr>
+<tr><td><code>traccion-vertical</code></td><td>24</td><td>10,9 %</td><td>Familia de dominadas y jalones</td></tr>
+<tr><td><code>dominante-rodilla</code></td><td>34</td><td>15,5 %</td><td>El patrón con más variantes: sentadillas, zancadas, unilaterales</td></tr>
+<tr><td><code>dominante-cadera</code></td><td>30</td><td>13,6 %</td><td>Peso muerto, bisagras, empujes de cadera</td></tr>
+<tr><td><code>core</code></td><td>36</td><td>16,4 %</td><td>Anti-extensión, anti-rotación, anti-flexión lateral y dinámicos</td></tr>
+<tr><td><code>locomocion</code></td><td>12</td><td>5,5 %</td><td>Activa el patrón reservado</td></tr>
+<tr><td><code>rotacion-potencia</code></td><td>0</td><td>0 %</td><td>Permanece reservado en el horizonte de v1.x</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>220</strong></td><td><strong>100 %</strong></td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Criterio de suficiencia por patrón</div>
+  <p>Un patrón se considera <strong>suficientemente cubierto</strong> cuando, para cada combinación de <em>rol × equipo disponible × nivel</em> razonablemente demandada, existe al menos una entrada elegible. La cifra objetivo es una estimación de cuántas entradas hacen falta para lograrlo — el criterio real es la cobertura, no el recuento.</p>
+</div>
+
+<h2 id="crecimiento">Cómo crece el dataset</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Operación</th><th>Qué toca</th><th>Qué NO toca</th></tr></thead>
+<tbody>
+<tr><td>Añadir un ejercicio</td><td>Una colección · el índice · el contador de IDs</td><td>Las otras ocho colecciones · el modelo · las entradas existentes</td></tr>
+<tr><td>Revisar un ejercicio</td><td>Su entrada · el índice (<code>rev</code>, <code>status</code>)</td><td>Cualquier otra entrada</td></tr>
+<tr><td>Encadenar dos ejercicios</td><td><code>chain_*</code> de ambas entradas</td><td>Cualquier otro campo de ambas</td></tr>
+<tr><td>Deprecar un ejercicio</td><td>Su <code>status</code> y <code>superseded_by</code> · el índice</td><td>Su contenido, que se conserva íntegro</td></tr>
+<tr><td>Activar un patrón reservado</td><td>Su colección, que deja de estar vacía</td><td>El modelo · el resto del dataset</td></tr>
+<tr><td>Extender un vocabulario</td><td>La declaración del enumerado · versión menor</td><td>Las entradas existentes, que siguen siendo válidas</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">La propiedad clave</div>
+  <p>Ninguna operación de crecimiento toca entradas ajenas. Es lo que hace que <strong>dos personas puedan trabajar en dos patrones a la vez sin conflicto</strong>, y que el coste de la entrada 220 sea el mismo que el de la entrada 2.</p>
+</div>
+
+<h2 id="invariantes">Invariantes de organización</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>ID</th><th>Invariante</th></tr></thead>
+<tbody>
+<tr><td><code>ORG-1</code></td><td>Toda entrada reside en la colección de su <code>pattern_primary</code></td></tr>
+<tr><td><code>ORG-2</code></td><td>Ninguna entrada aparece en dos colecciones</td></tr>
+<tr><td><code>ORG-3</code></td><td>El índice contiene exactamente una fila por entrada del dataset</td></tr>
+<tr><td><code>ORG-4</code></td><td>El índice es reconstruible sin pérdida desde las colecciones</td></tr>
+<tr><td><code>ORG-5</code></td><td>Existen las nueve colecciones, incluso vacías</td></tr>
+<tr><td><code>ORG-6</code></td><td>Dentro de cada colección, los <code>id</code> están en orden ascendente y sin repetidos</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../04-modelo/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 04 · Modelo Oficial</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../06-versionado/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">06 · Versionado →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

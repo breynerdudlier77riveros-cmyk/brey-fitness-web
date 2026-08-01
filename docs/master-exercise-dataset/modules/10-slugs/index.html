@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10 · Slugs — Master Exercise Dataset</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="slugs" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Sección 10 · Estabilidad</p>
+<h1>Slugs</h1>
+<p class="lede">El slug es un identificador legible y permanente. Se deriva del nombre canónico una sola vez, en el alta — y desde ese instante deja de depender de él.</p>
+
+<h2 id="formato">Formato</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Propiedad</th><th>Decisión</th></tr></thead>
+<tbody>
+<tr><td>Alfabeto</td><td><code>a</code>–<code>z</code>, <code>0</code>–<code>9</code> y guion — <strong>ASCII puro</strong></td></tr>
+<tr><td>Separador</td><td>Guion simple <code>-</code></td></tr>
+<tr><td>Capitalización</td><td>Todo en minúsculas</td></tr>
+<tr><td>Longitud</td><td>Entre 3 y 60 caracteres</td></tr>
+<tr><td>Inicio y fin</td><td>Carácter alfanumérico — nunca guion</td></tr>
+<tr><td>Guiones consecutivos</td><td>Prohibidos</td></tr>
+<tr><td>Unicidad</td><td>Global en el dataset</td></tr>
+<tr><td>Mutabilidad</td><td>Ninguna — ID-3</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">ASCII puro, sin excepción</div>
+  <p>Nada de tildes, diéresis ni <code>ñ</code>. Un slug atraviesa URLs, nombres de archivo, claves de búsqueda y sistemas cuyo tratamiento de caracteres no latinos no controlamos. La legibilidad se pierde mínimamente —<code>dominadas</code> se lee igual de bien que <code>dominadas</code>— y la robustez se gana por completo.</p>
+</div>
+
+<h2 id="derivacion">Derivación desde el nombre canónico</h2>
+<p class="matrix-note">Ocho pasos, aplicados en este orden exacto. El resultado es determinista: el mismo canónico produce siempre el mismo slug.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Paso</th><th>Efecto sobre «Press de Banca con Barra, Agarre Medio»</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Pasar todo a minúsculas</td><td>press de banca con barra, agarre medio</td></tr>
+<tr><td>2</td><td>Eliminar los signos diacríticos, conservando la letra base</td><td>(sin cambio en este ejemplo)</td></tr>
+<tr><td>3</td><td>Sustituir <code>ñ</code> por <code>n</code></td><td>(sin cambio)</td></tr>
+<tr><td>4</td><td>Eliminar toda puntuación</td><td>press de banca con barra agarre medio</td></tr>
+<tr><td>5</td><td>Eliminar las palabras vacías: <code>de</code> · <code>del</code> · <code>la</code> · <code>el</code> · <code>los</code> · <code>las</code> · <code>con</code> · <code>en</code> · <code>a</code> · <code>y</code></td><td>press banca barra agarre medio</td></tr>
+<tr><td>6</td><td>Sustituir cada secuencia de espacios por un guion</td><td>press-banca-barra-agarre-medio</td></tr>
+<tr><td>7</td><td>Colapsar guiones consecutivos y recortar los de los extremos</td><td>press-banca-barra-agarre-medio</td></tr>
+<tr><td>8</td><td>Verificar longitud y unicidad</td><td>25 caracteres · disponible ✅</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Paso 5 · Las palabras vacías se eliminan siempre</div>
+  <p>La lista es cerrada y se aplica sin criterio propio. Eliminarlas de forma consistente es lo que hace determinista la derivación: si a veces se conservara «con» y a veces no, el mismo canónico produciría slugs distintos según quién lo procesara, y el paso 8 dejaría de detectar duplicados reales.</p>
+  <p>Una palabra vacía <strong>sí</strong> se conserva si su eliminación deja el slug por debajo de 3 caracteres o produce una colisión que ningún otro criterio resuelve.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Derivación determinista</div>
+<pre class="mermaid">
+flowchart TD
+  A["name_canonical"] --> B["1 · minúsculas"]
+  B --> C["2-3 · quitar diacríticos · ñ → n"]
+  C --> D["4 · quitar puntuación"]
+  D --> E["5 · quitar palabras vacías"]
+  E --> F["6-7 · espacios → guiones · colapsar"]
+  F --> G{"8 · ¿longitud 3-60<br/>y disponible?"}
+  G -->|"Sí"| OK["slug fijado<br/><b>inmutable desde aquí</b>"]
+  G -->|"Colisión"| COL["Resolución de colisiones"]
+  G -->|"Muy largo"| CUT["Reducir por palabras significativas"]
+  COL --> OK
+  CUT --> G
+</pre>
+</div>
+
+<h2 id="colisiones">Colisiones</h2>
+<p class="matrix-note">Si el slug derivado ya existe, se aplica el primer criterio que produzca uno disponible:</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Orden</th><th>Criterio</th><th>Resultado</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Revisar si los dos <strong>nombres canónicos</strong> colisionan también</td><td>Si sí, el problema es de nombrado — se resuelve en la <a href="../08-convenciones-nombres/index.html">sección 08</a>, no aquí</td></tr>
+<tr><td>2</td><td>Restaurar una palabra vacía eliminada en el paso 5</td><td><code>press-banca-barra</code> → <code>press-de-banca-barra</code></td></tr>
+<tr><td>3</td><td>Añadir el sufijo de implemento si no estaba</td><td><code>remo-mancuernas</code></td></tr>
+<tr><td>4</td><td>Añadir el sufijo de lateralidad</td><td><code>remo-mancuernas-unilateral</code></td></tr>
+<tr><td>5</td><td>Añadir el modificador distintivo completo</td><td><code>remo-mancuernas-banco-inclinado</code></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Prohibido desambiguar con número o con el ID</div>
+  <p>Ni <code>press-banca-2</code> ni <code>press-banca-ex0042</code>. La primera forma no dice nada a nadie; la segunda duplica el identificador que ya existe y hace ilegible lo único que el slug aporta. Si ningún criterio de la tabla resuelve la colisión, las dos entradas describen el mismo gesto — y el criterio de identidad de la sección 03 dice que sobra una.</p>
+</div>
+
+<h2 id="longitud">Slugs demasiado largos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Regla</th><th>Detalle</th></tr></thead>
+<tbody>
+<tr><td>SL-1</td><td>Si el slug excede 60 caracteres, se reduce eliminando palabras <strong>por significado</strong>, nunca truncando</td></tr>
+<tr><td>SL-2</td><td>Orden de eliminación: primero adverbios y precisiones de ejecución, después el implemento, nunca el movimiento</td></tr>
+<tr><td>SL-3</td><td>El slug reducido debe seguir siendo único y reconocible</td></tr>
+<tr><td>SL-4</td><td>Un slug reducido <strong>no</strong> obliga a acortar el <code>name_canonical</code> — son campos independientes</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">SL-4 · El slug no es el canónico</div>
+  <p>La derivación ocurre una única vez, en el alta. A partir de ahí el slug es un valor autónomo: el canónico puede corregirse por revisión <code>major</code> y el slug <strong>no se recalcula</strong>. Un slug que ya no coincide exactamente con su canónico no es un error, es la consecuencia normal de que uno sea inmutable y el otro no.</p>
+</div>
+
+<h2 id="inmutabilidad">Inmutabilidad</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Situación</th><th>¿Cambia el slug?</th><th>Qué se hace</th></tr></thead>
+<tbody>
+<tr><td>Se corrige el <code>name_display</code></td><td>No</td><td>Nada — son campos distintos</td></tr>
+<tr><td>Se corrige el <code>name_canonical</code></td><td>No</td><td>Nada — SL-4</td></tr>
+<tr><td>Se reclasifica el ejercicio</td><td>No</td><td>Nada — el slug no codifica clasificación</td></tr>
+<tr><td>El ejercicio pasa a <code>deprecated</code></td><td>No</td><td>El slug sigue resolviendo — <code>CMP-2</code></td></tr>
+<tr><td>Hay una errata en el propio slug</td><td><strong>No</strong></td><td><strong>Entrada nueva + deprecación con sucesor</strong> — ID-8</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">La última fila es la costosa, y es deliberada</div>
+  <p>Corregir <code>press-de-bnaca</code> cuesta un ID nuevo, una entrada nueva y una deprecación. Es caro precisamente para que nadie renombre a la ligera: un slug publicado puede estar ya en una URL compartida, en un enlace guardado o en el registro de un consumidor externo. La errata es visible y molesta; una referencia rota es invisible y permanente.</p>
+</div>
+
+<h2 id="reserva">Reserva y verificación</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Regla</th><th>Detalle</th></tr></thead>
+<tbody>
+<tr><td>SR-1</td><td>El slug se reserva en el mismo momento que el <code>id</code>, al crear el <code>draft</code></td></tr>
+<tr><td>SR-2</td><td>Un slug de borrador abandonado queda consumido — igual que el ID (IX-4)</td></tr>
+<tr><td>SR-3</td><td>La unicidad se verifica contra el índice maestro, incluyendo entradas en cualquier estado</td></tr>
+<tr><td>SR-4</td><td>Un slug nunca se reutiliza, ni siquiera tras archivar la entrada — ID-4</td></tr>
+<tr><td>SR-5</td><td>Los slugs de ejemplo de la documentación se prefijan con <code>ejemplo-</code> y no se usan en entradas reales</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="invariantes">Invariantes de slug</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>ID</th><th>Invariante</th></tr></thead>
+<tbody>
+<tr><td><code>SLG-1</code></td><td>Todo slug contiene únicamente <code>a</code>–<code>z</code>, <code>0</code>–<code>9</code> y guiones</td></tr>
+<tr><td><code>SLG-2</code></td><td>Ningún slug empieza ni termina en guion, ni contiene guiones consecutivos</td></tr>
+<tr><td><code>SLG-3</code></td><td>Todo slug mide entre 3 y 60 caracteres</td></tr>
+<tr><td><code>SLG-4</code></td><td>Todo slug es único en el dataset completo</td></tr>
+<tr><td><code>SLG-5</code></td><td>El slug de una entrada nunca cambia entre dos revisiones de esa entrada</td></tr>
+<tr><td><code>SLG-6</code></td><td>Un slug publicado resuelve en toda versión posterior — <code>CMP-2</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../09-ids/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 09 · Identificadores</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../11-relaciones/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">11 · Relaciones →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

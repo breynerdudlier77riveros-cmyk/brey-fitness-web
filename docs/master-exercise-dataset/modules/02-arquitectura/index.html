@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>02 · Arquitectura — Master Exercise Dataset</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="arquitectura" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Sección 02 · Fundamento</p>
+<h1>Arquitectura</h1>
+<p class="lede">El dataset se organiza en <strong>cuatro capas</strong> con responsabilidades disjuntas, y expone su contenido a los consumidores mediante <strong>proyecciones declaradas</strong> — nunca por acceso directo a la estructura interna.</p>
+
+<h2 id="capas">Las cuatro capas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Capa</th><th>Contiene</th><th>Cambia cuando</th><th>Bloques del modelo</th></tr></thead>
+<tbody>
+<tr><td><strong>1 · Núcleo</strong></td><td>Identidad y estado: qué es esta entrada y en qué situación está</td><td>Solo al crear o al cambiar de estado</td><td>Identidad · Gobierno</td></tr>
+<tr><td><strong>2 · Clasificación</strong></td><td>Los ejes enumerados que determinan elegibilidad</td><td>Al revisar la clasificación</td><td>Clasificación · Elegibilidad</td></tr>
+<tr><td><strong>3 · Relaciones</strong></td><td>Aristas hacia otros ejercicios</td><td>Al construir cadenas y variantes</td><td>Relaciones</td></tr>
+<tr><td><strong>4 · Contenido</strong></td><td>Texto humano y media</td><td>Al editar la ficha educativa</td><td>Contenido · Media</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Regla de disyunción</div>
+  <p>Ningún campo pertenece a dos capas. Un cambio en la capa de Contenido <strong>nunca</strong> altera la elegibilidad de un ejercicio; un cambio en Clasificación <strong>nunca</strong> exige reescribir la ficha educativa. Esta separación es lo que permite clasificar en un lote y redactar en otro, con personas y tiempos distintos.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Las cuatro capas y su ritmo de cambio</div>
+<pre class="mermaid">
+graph TD
+  E["Entrada de Exercise"] --> C1["1 · NÚCLEO<br/>id · slug · status · gobierno<br/><i>casi nunca cambia</i>"]
+  E --> C2["2 · CLASIFICACIÓN<br/>patrón · rol · modalidad · equipo<br/>zonas · nivel · capacidades<br/><i>cambia en revisiones</i>"]
+  E --> C3["3 · RELACIONES<br/>variantes · cadena · sustitutos<br/><i>cambia al construir el grafo</i>"]
+  E --> C4["4 · CONTENIDO<br/>descripción · instrucciones · media<br/><i>cambia con la edición editorial</i>"]
+  C2 --> EL["Determina elegibilidad"]
+  C4 -.->|"nunca determina<br/>elegibilidad"| EL
+</pre>
+</div>
+
+<h2 id="proyecciones">Proyecciones</h2>
+<p>Los consumidores no leen la entrada completa: reciben una <strong>proyección</strong>, un subconjunto declarado de campos ajustado a su necesidad. Las proyecciones son parte del contrato y cambiarlas exige versión del dataset.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Proyección</th><th>Capas incluidas</th><th>Consumidores</th></tr></thead>
+<tbody>
+<tr><td><code>resolution</code></td><td>Núcleo (id, slug, status) + Clasificación completa</td><td>Exercise Resolver · Workout Generator</td></tr>
+<tr><td><code>progression</code></td><td>Núcleo + Relaciones + <code>load_type</code> + <code>capabilities_required</code></td><td>Progression Engine</td></tr>
+<tr><td><code>safety</code></td><td>Núcleo + <code>risk_zones</code> + <code>capabilities_required</code> + <code>load_type</code></td><td>Recovery Engine</td></tr>
+<tr><td><code>card</code></td><td>Núcleo + Contenido + Media + clasificación de presentación</td><td>Exercise Cards · Workout Player</td></tr>
+<tr><td><code>search</code></td><td>Núcleo + nombres + alias + términos + clasificación enumerada</td><td>Search · Filtros</td></tr>
+<tr><td><code>full</code></td><td>Las cuatro capas</td><td>Editor · exportación · IA futura</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Por qué proyecciones y no acceso libre</div>
+  <p>Una proyección declara <strong>qué depende de qué</strong>. Sin ellas, cualquier consumidor puede acabar leyendo cualquier campo, y entonces ningún campo puede evolucionar sin riesgo. Con ellas, el impacto de un cambio es conocido antes de hacerlo: basta mirar qué proyecciones lo incluyen.</p>
+</div>
+
+<h2 id="reglas-lectura">Reglas de lectura</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Regla</th><th>Estatuto</th></tr></thead>
+<tbody>
+<tr><td>R1</td><td>Un consumidor lee únicamente los campos de su proyección</td><td>OBLIGATORIO</td></tr>
+<tr><td>R2</td><td>Solo las entradas con <code>status: published</code> participan en resolución de slots</td><td>OBLIGATORIO</td></tr>
+<tr><td>R3</td><td>Las entradas <code>deprecated</code> se resuelven por ID en contextos históricos, pero no se asignan a slots nuevos</td><td>OBLIGATORIO</td></tr>
+<tr><td>R4</td><td>Ningún consumidor interpreta campos de texto libre para decidir</td><td>OBLIGATORIO · DS-08</td></tr>
+<tr><td>R5</td><td>Ningún consumidor persiste una copia del dataset como fuente propia</td><td>PROHIBIDO copiar · DS-01</td></tr>
+<tr><td>R6</td><td>La materialización de un ejercicio en una sesión copia solo <code>id</code>, <code>slug</code>, nombre display y modalidad</td><td>OBLIGATORIO</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">R6 · La huella mínima de materialización</div>
+  <p>Cuando un ejercicio se materializa en una sesión concreta, la sesión guarda un <strong>snapshot mínimo</strong>: identificador permanente, slug, nombre mostrado y modalidad. Todo lo demás se resuelve consultando el dataset por <code>id</code>. Es lo que hace que corregir una ficha no obligue a reescribir el historial, y que el historial siga siendo interpretable años después.</p>
+</div>
+
+<h2 id="flujo">Flujo del dato</h2>
+<div class="diagram">
+<div class="diagram-label">Del dataset al usuario, con las fronteras marcadas</div>
+<pre class="mermaid">
+flowchart LR
+  DS[("Master Exercise<br/>Dataset")] -->|resolution| RES["Exercise Resolver"]
+  DS -->|resolution| GEN["Workout Generator"]
+  DS -->|progression| PE["Progression Engine"]
+  DS -->|safety| RE["Recovery Engine"]
+  DS -->|search| SR["Search · Filtros"]
+  DS -->|card| UI["Exercise Cards"]
+  DS -->|full| ED["Editor"]
+  GEN -->|"snapshot mínimo<br/>id · slug · nombre · modalidad"| SES["Sesión materializada"]
+  SES -.->|"resuelve por id<br/>cuando necesita más"| DS
+</pre>
+</div>
+
+<h2 id="almacenamiento">Almacenamiento</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Decisión de almacenamiento</div>
+  <p>El dataset es <strong>contenido versionado</strong>, no dato transaccional. Vive como <strong>artefacto de datos estructurado y versionado en control de versiones</strong>, particionado por patrón primario según la <a href="../05-organizacion/index.html">sección 05</a>.</p>
+  <p><strong>Razones:</strong> el historial de cambios y su autoría vienen dados por el propio control de versiones; la revisión de un ejercicio nuevo es revisable como cualquier cambio de contenido; y ninguna consulta del producto necesita escribir en él en tiempo de ejecución — el dataset es de solo lectura para todos los consumidores.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Propiedad</th><th>Decisión</th></tr></thead>
+<tbody>
+<tr><td>Formato de cada entrada</td><td>Documento estructurado, un objeto por ejercicio</td></tr>
+<tr><td>Unidad de archivo</td><td>Una colección por patrón primario — 9 colecciones + índice</td></tr>
+<tr><td>Codificación</td><td>UTF-8, sin excepción</td></tr>
+<tr><td>Orden dentro de una colección</td><td>Por <code>id</code> ascendente — determinista, sin ambigüedad de diff</td></tr>
+<tr><td>Acceso en tiempo de ejecución</td><td>Solo lectura para todos los consumidores</td></tr>
+<tr><td>Escritura</td><td>Únicamente por el proceso de alta o revisión de la <a href="../16-checklist/index.html">sección 16</a></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Sobre una futura base de datos</div>
+  <p>Si en algún momento el dataset se materializa en base de datos —para búsqueda, para una API pública o para el editor—, esa base es una <strong>proyección derivada</strong>, reconstruible en cualquier momento desde el artefacto versionado. La fuente de verdad no se traslada: se replica. Un dataset cuya verdad vive en una base de datos pierde el historial y la revisabilidad que le dan su valor.</p>
+</div>
+
+<h2 id="invariantes">Invariantes de la arquitectura</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>ID</th><th>Invariante</th></tr></thead>
+<tbody>
+<tr><td><code>ARQ-1</code></td><td>Todo <code>id</code> es único en el dataset completo, no solo dentro de su colección</td></tr>
+<tr><td><code>ARQ-2</code></td><td>Toda referencia entre ejercicios apunta a un <code>id</code> existente en el dataset</td></tr>
+<tr><td><code>ARQ-3</code></td><td>Un ejercicio pertenece a exactamente una colección, la de su patrón primario</td></tr>
+<tr><td><code>ARQ-4</code></td><td>El índice maestro es reconstruible íntegramente desde las colecciones</td></tr>
+<tr><td><code>ARQ-5</code></td><td>Ninguna proyección expone campos fuera de su declaración</td></tr>
+<tr><td><code>ARQ-6</code></td><td>El dataset es válido en todo momento: ninguna operación lo deja en estado intermedio inconsistente</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../01-filosofia/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 01 · Filosofía del Dataset</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../03-identidad/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">03 · Identidad →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

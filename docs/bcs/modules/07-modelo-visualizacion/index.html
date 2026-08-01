@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>07 · Modelo de Visualización — BCS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="modelo-visualizacion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 07 · Reporte</p>
+<h1>Modelo de Visualización</h1>
+<p class="lede">Qué tipos de gráfico usa el Reporte, cuándo se muestran, y las reglas conceptuales que garantizan que nunca visualicen más certeza de la que el dato realmente tiene.</p>
+
+<h2 id="tipos">Tipos de visualización</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tipo</th><th>Uso</th><th>Mínimo de datos</th></tr></thead>
+<tbody>
+<tr><td><strong>Gráfico de línea (tendencia)</strong></td><td>Evolución de una variable numérica en el tiempo</td><td>2 Mediciones vigentes con esa variable presente</td></tr>
+<tr><td><strong>Barra de progreso</strong></td><td>Posición del valor actual dentro de un rango de referencia citado (06)</td><td>1 Medición — no requiere histórico, pero sí un rango de referencia conocido y citado</td></tr>
+<tr><td><strong>Tabla comparativa</strong></td><td>Dos Mediciones lado a lado con delta (04, 05)</td><td>2 Mediciones vigentes</td></tr>
+<tr><td><strong>Galería cronológica</strong></td><td>Fotografías ordenadas por fecha (03, 11)</td><td>1 fotografía</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="diagrama">Diagrama de decisión — qué se muestra según los datos disponibles</h2>
+<div class="diagram">
+<div class="diagram-label">Nunca se fabrica una visualización con datos insuficientes</div>
+<pre class="mermaid">
+flowchart TD
+  A["¿Cuántas Mediciones vigentes tiene el Cliente?"] -->|"0"| Z1["Estado vacío explícito"]
+  A -->|"1"| Z2["Solo Ficha actual + Barras de progreso (si hay rango citado)"]
+  A -->|"≥2"| Z3["+ Comparación + Gráficos de tendencia"]
+  Z3 --> B["¿La variable tiene rango de referencia citado?"]
+  B -->|"Sí"| C["Barra de progreso con badge de procedencia (06)"]
+  B -->|"No"| D["Solo línea de tendencia, sin barra"]
+</pre>
+</div>
+
+<h2 id="reglas">Reglas de diseño conceptual</h2>
+<ul>
+  <li>Ninguna barra de progreso se muestra sin su badge de procedencia (03/06) visible junto a ella — la barra nunca se presenta como si fuera un hecho médico establecido.</li>
+  <li>Los gráficos de tendencia nunca interpolan entre puntos con huecos grandes de tiempo como si fueran continuos — un hueco de meses se marca visualmente distinto a mediciones consecutivas semanales.</li>
+  <li>El eje de una variable derivada (03) nunca se combina con el de una variable cruda en el mismo gráfico, salvo que ambas compartan unidad — evita comparaciones visuales engañosas.</li>
+  <li>Toda variable marcada 🔬 o 🏭 (00, 03) lleva su badge visible en cualquier visualización donde aparezca, sin excepción.</li>
+</ul>
+
+<h2 id="paridad">Paridad con el módulo 04</h2>
+<p>La vista pública y la vista privada renderizan las mismas visualizaciones (04). La única diferencia visual permitida entre ambas superficies es la ausencia de controles interactivos de edición — nunca una reducción del contenido informativo mostrado.</p>
+
+<h2 id="casos-limite">Casos límite</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Comportamiento</th></tr></thead>
+<tbody>
+<tr><td>Variable con valor sospechoso (03) dentro de la serie de tendencia</td><td>Se muestra igual en el gráfico, pero el punto se marca visualmente distinto (ej. borde de advertencia) — nunca se oculta ni se corrige automáticamente</td></tr>
+<tr><td>Más de 50 Mediciones históricas</td><td>El gráfico de tendencia pagina o resume por rango de fechas seleccionable — comportamiento exacto es decisión de implementación, este documento solo exige que no degrade la legibilidad (12)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../06-modelo-interpretacion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 06 · Modelo de Interpretación</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../08-seguridad/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">08 · Seguridad →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

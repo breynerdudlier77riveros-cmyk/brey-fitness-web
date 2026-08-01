@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>05 · Domain Testing — BREY Testing Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="domain-testing" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 05 · Niveles</p>
+<h1>Domain Testing</h1>
+<p class="lede">No es lo mismo que Engine Testing (06): aquí se prueban las reglas estáticas del dominio — ownership, fronteras de contexto, invariantes — no el algoritmo de decisión de un motor específico.</p>
+
+<h2 id="diferencia">Domain Testing vs. Engine Testing</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th></th><th>Domain Testing (05)</th><th>Engine Testing (06)</th></tr></thead>
+<tbody>
+<tr><td>Pregunta que responde</td><td>¿Esta estructura de datos/relación es válida según el dominio?</td><td>¿Este motor decide lo correcto dado este historial?</td></tr>
+<tr><td>Ejemplo</td><td>¿<code>bcs_mediciones.cliente_id</code> puede ser nulo? (No — IN-D5)</td><td>¿Progression Engine decide "avanza" con esta ventana? (PE-XXX)</td></tr>
+<tr><td>Nivel típico</td><td><span class="level level--unit">unit</span> sobre validadores, <span class="level level--integration">integration</span> sobre constraints reales</td><td><span class="level level--unit">unit</span> sobre el motor puro</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="ownership-tests">Pruebas de ownership</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Entidad</th><th>Qué se prueba</th><th>Origen de la regla</th></tr></thead>
+<tbody>
+<tr><td><code>profiles.sistema_actual</code> / <code>nivel_actual</code></td><td>Ningún camino de código fuera del proceso de Diagnóstico/Motor BPS puede escribir estas dos columnas — se prueba invocando el camino de escritura general de Perfil e intentando incluir estos campos, esperando que se ignoren o rechacen</td><td>Database Handbook, 03 (brecha conocida — este test debe fallar hoy, documentando el estado real, hasta que 09 se corrija)</td></tr>
+<tr><td><code>workouts</code></td><td>Solo el Workout Generator escribe filas nuevas; ningún camino de Usuario crea un Workout directamente</td><td>Database Handbook, 03</td></tr>
+<tr><td><code>progression_events</code></td><td>Cada motor solo escribe los tipos de evento de su propio <code>origen</code> (08) — un test de dominio verifica que Progression Engine nunca produce un evento con <code>origen = motor_bps</code></td><td>Database Handbook, 08</td></tr>
+<tr><td><code>bcs_mediciones</code></td><td>Solo el Entrenador dueño del <code>bcs_cliente</code> referenciado puede escribir — nunca el propio Cliente (que no tiene sesión)</td><td>BCS Handbook, 08</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="fronteras-contexto">Pruebas de frontera de bounded context</h2>
+<div class="diagram">
+<div class="diagram-label">Cada prueba de frontera intenta cruzar una línea prohibida y espera que falle</div>
+<pre class="mermaid">
+flowchart LR
+  T1["Test: BCS lee profiles"] -->|"debe fallar"| X1["✕ prohibido (BCS Handbook, 00)"]
+  T2["Test: Core Training lee bcs_clientes"] -->|"debe fallar"| X2["✕ prohibido (Database Handbook, 02)"]
+  T3["Test: Progression Engine consulta Recovery directamente"] -->|"debe fallar"| X3["✕ prohibido — solo recibe el Veredicto ya resuelto"]
+  T4["Test: UI invoca evaluarProgresion directamente"] -->|"debe fallar"| X4["✕ violación de capas (Architecture Handbook, 11)"]
+</pre>
+</div>
+<p>Estas cuatro pruebas no verifican lógica de negocio — verifican que la arquitectura sigue siendo la especificada. Se ejecutan como pruebas de <span class="level level--integration">integration</span> contra el código real de acceso a datos, buscando cualquier ruta que las viole.</p>
+
+<h2 id="invariantes">Pruebas de invariantes citados por handbook de origen</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Invariante</th><th>Qué se prueba</th></tr></thead>
+<tbody>
+<tr><td>IN-P1 (Progression Engine Handbook) — función pura</td><td>Invocar el motor dos veces con la misma entrada exacta produce la misma salida exacta — la prueba de determinismo más directa posible</td></tr>
+<tr><td>IN-P3 (Progression Engine Handbook) — ventana mínima</td><td>Una ventana de 3 apariciones nunca produce una decisión macro — siempre <code>VENTANA_INSUFICIENTE</code>; una de 4 sí puede producirla</td></tr>
+<tr><td>IN-D5 (BCS Handbook) — Medición nunca sin Cliente</td><td>Intentar construir una Medición sin <code>cliente_id</code> debe fallar en la capa de validación, antes de llegar a la base de datos</td></tr>
+<tr><td>I-R2 (Architecture Handbook, Recovery) — <code>exigeDescarga()</code> es la única salida que Progression consulta</td><td>Ningún camino de Progression Engine lee un campo de Recovery distinto del Veredicto ya resuelto</td></tr>
+<tr><td>P3 (Architecture Handbook) — inmutabilidad de historial</td><td>Ningún camino de código emite un <code>UPDATE</code> sobre <code>workout_logs</code>, <code>diagnoses</code>, <code>progression_events</code> o una <code>bcs_medicion</code> vigente</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../04-unit-testing/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 04 · Unit Testing</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../06-engine-testing/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">06 · Engine Testing →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

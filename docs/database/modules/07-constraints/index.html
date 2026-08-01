@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>07 · Constraints — BREY Database Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="constraints" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 07 · Esquema físico</p>
+<h1>Constraints</h1>
+<p class="lede">42 constraints nombradas — 9 PK, 13 FK, 19 CHECK, 1 UNIQUE — más 48 columnas NOT NULL de primer nivel documentadas por columna en 04. Cada una protege una regla de negocio real, citada explícitamente.</p>
+
+<div class="meta-row">
+  <span class="chip">42 constraints nombradas</span>
+  <span class="chip">48 columnas NOT NULL (de 105 de primer nivel)</span>
+  <span class="chip"><span class="constraint constraint--pk">PK</span> <span class="constraint constraint--fk">FK</span> <span class="constraint constraint--check">CHECK</span> <span class="constraint constraint--unique">UNIQUE</span> <span class="constraint constraint--notnull">NOT NULL</span></span>
+</div>
+
+<h2 id="pk">PK — 9</h2>
+<p>Una por tabla, sin excepción — <code>uuid</code> en las ocho tablas de dato de usuario/historial, <code>text</code> (slug) en <code>systems</code> por ser identificador de catálogo (Database Handbook, 03; Architecture Handbook, P15).</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tabla</th><th>Columna PK</th><th>Tipo</th></tr></thead>
+<tbody>
+<tr><td><code>systems</code></td><td><code>slug</code></td><td>text</td></tr>
+<tr><td><code>profiles</code></td><td><code>id</code></td><td>uuid</td></tr>
+<tr><td><code>diagnoses</code></td><td><code>id</code></td><td>uuid</td></tr>
+<tr><td><code>workouts</code></td><td><code>id</code></td><td>uuid</td></tr>
+<tr><td><code>workout_logs</code></td><td><code>id</code></td><td>uuid</td></tr>
+<tr><td><code>progression_events</code></td><td><code>id</code></td><td>uuid</td></tr>
+<tr><td><code>bcs_clientes</code></td><td><code>id</code></td><td>uuid</td></tr>
+<tr><td><code>bcs_mediciones</code></td><td><code>id</code></td><td>uuid</td></tr>
+<tr><td><code>bcs_enlaces_publicos</code></td><td><code>id</code></td><td>uuid</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="fk">FK — 13</h2>
+<p>El detalle completo (origen, destino, cardinalidad, on delete) vive en 05 — aquí se listan solo por nombre, como parte del inventario total de constraints.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Constraint</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>profiles.id</code> → <code>auth.users.id</code></td></tr>
+<tr><td>2</td><td><code>diagnoses.user_id</code> → <code>auth.users.id</code></td></tr>
+<tr><td>3</td><td><code>diagnoses.sistema_recomendado</code> → <code>systems.slug</code></td></tr>
+<tr><td>4</td><td><code>workouts.user_id</code> → <code>auth.users.id</code></td></tr>
+<tr><td>5</td><td><code>workouts.system_slug</code> → <code>systems.slug</code></td></tr>
+<tr><td>6</td><td><code>workout_logs.user_id</code> → <code>auth.users.id</code></td></tr>
+<tr><td>7</td><td><code>workout_logs.workout_id</code> → <code>workouts.id</code></td></tr>
+<tr><td>8</td><td><code>progression_events.user_id</code> → <code>auth.users.id</code></td></tr>
+<tr><td>9</td><td><code>progression_events.workout_log_id</code> → <code>workout_logs.id</code></td></tr>
+<tr><td>10</td><td><code>profiles.sistema_actual</code> → <code>systems.slug</code></td></tr>
+<tr><td>11</td><td><code>bcs_clientes.entrenador_id</code> → <code>auth.users.id</code></td></tr>
+<tr><td>12</td><td><code>bcs_mediciones.cliente_id</code> → <code>bcs_clientes.id</code></td></tr>
+<tr><td>13</td><td><code>bcs_enlaces_publicos.cliente_id</code> → <code>bcs_clientes.id</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="check">CHECK — 18, con la regla de negocio que cada una protege</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tabla.columna</th><th>CHECK</th><th>Regla de negocio protegida</th></tr></thead>
+<tbody>
+<tr><td><code>systems.modelo_precio</code></td><td>∈ {unico, membresia}</td><td>Vocabulario cerrado de modelos de precio (Architecture Handbook, 10)</td></tr>
+<tr><td><code>profiles.edad</code></td><td>null o (0, 120)</td><td>Rango físico plausible</td></tr>
+<tr><td><code>profiles.sexo</code></td><td>∈ {Masculino, Femenino, Prefiero no decirlo}</td><td>Vocabulario cerrado, mismo del Diagnóstico (P12)</td></tr>
+<tr><td><code>profiles.peso_kg</code></td><td>&gt; 20</td><td>Rango físico plausible</td></tr>
+<tr><td><code>profiles.altura_cm</code></td><td>&gt; 80</td><td>Rango físico plausible</td></tr>
+<tr><td><code>profiles.objetivo</code></td><td>Vocabulario cerrado</td><td>Un solo vocabulario compartido con el Diagnóstico (P12)</td></tr>
+<tr><td><code>profiles.nivel_experiencia</code></td><td>Vocabulario cerrado</td><td>Distinción con <code>nivel_actual</code> — nunca uso algorítmico (ADR-003)</td></tr>
+<tr><td><code>profiles.lugar_entrenamiento</code></td><td>∈ {Gym, Casa o parque, Ambos}</td><td>Gate R-M3 del Motor BPS</td></tr>
+<tr><td><code>profiles.dias_por_semana</code></td><td>between 1 and 7</td><td>Regla de Frecuencia del Workout Generator (R-1)</td></tr>
+<tr><td><code>profiles.duracion_sesion_min</code></td><td>&gt; 0</td><td>Regla de Recorte por tiempo del Workout Generator (R-G2)</td></tr>
+<tr><td><code>profiles.experiencia</code></td><td>∈ {Menos de 1 año, 1 – 3 años, Más de 3 años}</td><td>Vocabulario cerrado del Diagnóstico — hallazgo de Sprint 0, ausente de este catálogo hasta la verificación contra <code>schema.sql</code></td></tr>
+<tr><td><code>workouts.estado</code></td><td>∈ {planificado, completado, perdido}</td><td>Máquina de estados de Workout — solo estados finales, sin retorno (Domain Model Handbook, 10)</td></tr>
+<tr><td><code>progression_events.tipo</code></td><td>∈ {25 valores consolidados — solo 14 aplicados hoy, DB-ADR-03}</td><td>Todo evento pertenece a un tipo cerrado y conocido — nunca un <code>tipo</code> libre (P2)</td></tr>
+<tr><td><code>progression_events.origen</code></td><td>∈ {motor_bps, progression_engine, recovery_engine, workout_generator, usuario, coach}</td><td>Partición lógica de la tabla compartida (ENG-ADR-03)</td></tr>
+<tr><td><code>bcs_clientes.estado</code></td><td>∈ {activo, archivado, eliminado}</td><td>Máquina de estados de Cliente — Eliminado es terminal (IN-30)</td></tr>
+<tr><td><code>bcs_mediciones.estado</code></td><td>∈ {vigente, anulada}</td><td>Inmutabilidad de Medición — corrección = anula + crea (BCS-ADR-03)</td></tr>
+<tr><td><code>bcs_mediciones</code> (multi-columna)</td><td>Ninguna variable de masa &gt; <code>peso_kg</code></td><td><code>VALOR_FUERA_DE_RANGO_FISICO</code> — límite físico imposible (BCS Handbook, 03)</td></tr>
+<tr><td><code>bcs_mediciones.fecha</code></td><td>&lt;= fecha actual</td><td><code>FECHA_FUTURA</code> — una Medición nunca documenta el futuro</td></tr>
+<tr><td><code>bcs_enlaces_publicos.estado</code></td><td>∈ {activo, revocado}</td><td>Revocado nunca reactiva (IN-28, BCS-ADR-02)</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">CHECK vs. enum nativo — ENG-ADR-02</div>
+  <p>Los 19 CHECK de arriba son <code>text + CHECK</code>, nunca <code>CREATE TYPE ... AS ENUM</code> de Postgres — decisión ya tomada por el Engineering Handbook (ENG-ADR-02): <code>ALTER TYPE ... ADD VALUE</code> tiene restricciones históricas de transacción que <code>CHECK</code> no tiene, y añadir un valor nuevo a cualquier enumerado del sistema es una migración simple y simétrica con TypeScript.</p>
+</div>
+
+<div class="diagram">
+<div class="diagram-label">Distribución de las 42 constraints nombradas por tipo</div>
+<pre class="mermaid">
+pie showData
+  "PK" : 9
+  "FK" : 13
+  "CHECK" : 19
+  "UNIQUE" : 1
+</pre>
+</div>
+
+<h2 id="unique">UNIQUE — 1</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tabla.columna</th><th>Regla protegida</th></tr></thead>
+<tbody>
+<tr><td><code>bcs_enlaces_publicos.token</code></td><td>Un token nunca se reutiliza, ni siquiera tras revocación (Domain Model Handbook, IN-28) — la unicidad global, no solo por Cliente, es lo que hace el token una credencial segura (BCS-ADR-02)</td></tr>
+</tbody>
+</table>
+</div>
+<p class="matrix-note"><code>systems.slug</code> y todos los <code>id</code> de PK ya son únicos por ser PK — no se cuentan aquí dos veces.</p>
+
+<h2 id="notnull">NOT NULL — 48 columnas de primer nivel</h2>
+<p>Detalle exacto por columna en 04 — aquí, el resumen agregado, para no repetir 105 filas por segunda vez. No incluye los 25 campos internos de <code>jsonb</code> (04): un <code>jsonb</code> no tiene NOT NULL por campo interno a nivel de Postgres, solo por convención de forma.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tabla</th><th>Columnas NOT NULL</th><th>De un total de</th></tr></thead>
+<tbody>
+<tr><td><code>systems</code></td><td>4</td><td>10</td></tr>
+<tr><td><code>profiles</code></td><td>3</td><td>20</td></tr>
+<tr><td><code>diagnoses</code></td><td>8</td><td>9</td></tr>
+<tr><td><code>workouts</code></td><td>7</td><td>11</td></tr>
+<tr><td><code>workout_logs</code></td><td>6</td><td>9</td></tr>
+<tr><td><code>progression_events</code></td><td>6</td><td>8</td></tr>
+<tr><td><code>bcs_clientes</code></td><td>5</td><td>5</td></tr>
+<tr><td><code>bcs_mediciones</code></td><td>4</td><td>28</td></tr>
+<tr><td><code>bcs_enlaces_publicos</code></td><td>5</td><td>5</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Regla — sin razón, no hay evento válido, y la DB lo hace cumplir</div>
+  <p><code>progression_events.razones</code> es <code>NOT NULL</code> — no una convención de código, una restricción de base de datos (Architecture Handbook, P2: "sin razón, no hay evento válido, y esto tiene dientes"). Es el ejemplo más claro de este documento de una regla de negocio protegida directamente por el esquema, no solo por disciplina de quien escribe el código.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../06-indices/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 06 · Índices</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../08-eventos-persistidos/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">08 · Eventos Persistidos →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

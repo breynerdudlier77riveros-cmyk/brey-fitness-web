@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>15 · Arquitectura de Datos — Progression Engine Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="arquitectura-datos" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 15 · Sistema</p>
+<h1>Arquitectura de Datos</h1>
+<p class="lede">El contrato conceptual que la persistencia debe soportar — no un esquema SQL (fuera de alcance por restricción explícita), sino la forma exacta de lo que el Motor BPS debe guardar en nombre de este motor.</p>
+
+<h2 id="objetivo">Objetivo</h2>
+<p>Que quien diseñe el esquema físico tenga cada campo, cada relación y cada invariante de datos ya decidido — solo falta traducir a DDL.</p>
+
+<h2 id="alcance">Alcance</h2>
+<p>Prescripción vigente por Slot, puntero de posición en jerarquía, y el registro de eventos de decisión con su contexto completo.</p>
+
+<h2 id="no-alcance">No alcance</h2>
+<p>DDL, tipos de columna concretos, índices, políticas de RLS — decisiones de implementación que pertenecen al equipo de ingeniería, no a este documento de dominio.</p>
+
+<h2 id="diagrama">Diagrama conceptual</h2>
+<div class="diagram">
+<div class="diagram-label">Lo que el Motor BPS persiste en nombre de este motor</div>
+<pre class="mermaid">
+erDiagram
+  SLOT ||--o| PRESCRIPCION_VIGENTE : tiene
+  SLOT ||--o{ EVENTO_DECISION : genera
+  SLOT ||--o| ESTADO_ESTANCAMIENTO : puede-tener
+  USUARIO ||--o{ SLOT : progresa
+  EVENTO_DECISION {
+    string tipo
+    string slotId
+    json entradasRelevantes
+    json salida
+    string razon
+    string reglasOrigen
+    date fechaCiclo
+  }
+  PRESCRIPCION_VIGENTE {
+    string slotId
+    number peso
+    number repeticiones
+    number series
+    string tempo
+    number descanso
+    number rpeObjetivo
+    number rir
+    number duracion
+    number volumen
+  }
+</pre>
+</div>
+
+<h2 id="campos">Campos de Prescripción vigente</h2>
+<p>Las 10 variables ya listadas en el módulo 08 — nulables individualmente según lo que el Slot use, nunca nulables como registro completo (03, IN-M2).</p>
+
+<h2 id="eventos">Eventos — extensión requerida sobre el marco existente</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Hallazgo de consistencia — mismo patrón que el detectado en el Motor BPS Handbook</div>
+  <p>Los tipos de evento introducidos en el módulo 13 de este documento (<code>prescripcion_actualizada</code>, <code>escalon_avanzado</code>, <code>escalon_retrocedido</code>, <code>estancamiento_confirmado</code>, <code>estancamiento_resuelto</code>, <code>deload_aplicado</code>, <code>deload_cancelado</code>, <code>conflicto_resuelto</code>, <code>error_invocacion</code>) no existen en la lista CHECK de <code>progression_events</code> definida en el Architecture Handbook (módulo 10), la cual ya requería extensión aditiva por el hallazgo previo del Motor BPS Handbook (<code>gate_fallado</code>, <code>transicion_estado</code>). No es una contradicción de semántica, es una acumulación de completitud pendiente: el marco debe extender su CHECK con estos 9 tipos adicionales antes de que cualquier implementación de este motor pueda escribir en esa tabla. Se registra también en el informe final de este handbook.</p>
+</div>
+
+<h2 id="invariantes">Invariantes de datos</h2>
+<ul>
+  <li><strong>ID-1:</strong> un Evento de decisión es inmutable una vez escrito — correcciones se hacen con un nuevo evento compensatorio, nunca editando el original (consistente con P3 del Architecture Handbook).</li>
+  <li><strong>ID-2:</strong> la Prescripción vigente de un Slot es reemplazada atómicamente junto con su Evento correspondiente, en la misma transacción — nunca queda un estado donde el evento exista sin la prescripción actualizada o viceversa.</li>
+  <li><strong>ID-3:</strong> el estado de estancamiento de un Slot es reconstruible completamente a partir de sus Eventos — no requiere una tabla de estado adicional si el replay (14) puede derivarlo, aunque una tabla de estado cacheada es una optimización válida de implementación.</li>
+</ul>
+
+<h2 id="relacion">Relación con el esquema existente</h2>
+<p>Este motor reutiliza <code>profiles</code>, <code>workouts</code> y <code>workout_logs</code> tal como los define el Architecture Handbook (10) — no introduce tablas de usuario nuevas. La única extensión de esquema que este documento exige es la del CHECK de <code>progression_events</code> señalada arriba.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../14-observabilidad/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 14 · Observabilidad</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../16-adr/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">16 · ADR →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>04 · Orden de construcción — Implementation Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="orden-construccion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 04 · Planificación</p>
+<h1>Orden de construcción</h1>
+<p class="lede">La respuesta directa a la pregunta que da origen a este handbook. 20 pasos numerados, cada uno con el documento que lo gobierna — nada se decide aquí que no esté ya resuelto en otro lugar.</p>
+
+<h2 id="diagrama-secuencia">Diagrama de la secuencia completa</h2>
+<div class="diagram">
+<div class="diagram-label">Pasos 1–4 en serie, 5–9 (Pista A) y 10–13 (Pista B) en paralelo, 14–20 en serie</div>
+<pre class="mermaid">
+flowchart TD
+  P1["1–4 Fundación"] --> P5["5–9 Pista A: BCS"]
+  P1 --> P10["10–13 Pista B: Motores"]
+  P5 --> P14["14 Integración"]
+  P10 --> P14
+  P14 --> P15["15 Primer ciclo E2E"]
+  P15 --> P16["16 Índices pendientes"]
+  P16 --> P17["17 Testing"]
+  P17 --> P18["18 Observabilidad"]
+  P18 --> P19["19 Release Checklist"]
+  P19 --> P20["20 Producción"]
+</pre>
+</div>
+
+<h2 id="pasos">Los 20 pasos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Paso</th><th>Gobernado por</th><th>Pista</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Aceptar IMP-ADR-01 — forma canónica del Veredicto de Recovery</td><td>14 (este handbook)</td><td>Fundación</td></tr>
+<tr><td>2</td><td>Aceptar IMP-ADR-06 — mapeo de las 25 variables del BCS a columnas</td><td>14 (este handbook)</td><td>Fundación</td></tr>
+<tr><td>3</td><td>Aplicar migración M1 — endurecimiento RLS de <code>workouts</code>/<code>workout_logs</code></td><td>05; Architecture Handbook (10)</td><td>Fundación</td></tr>
+<tr><td>4</td><td>Verificar Core Product sin regresión tras M1 (checklist de Testing, 13)</td><td>13</td><td>Fundación</td></tr>
+<tr><td>5</td><td>Aplicar migración M3 — tablas del BCS (Cliente, Medición, EnlacePúblico)</td><td>05; BCS Handbook (02)</td><td>A</td></tr>
+<tr><td>6</td><td>Construir repositorios del BCS (uno por agregado, cliente-como-parámetro)</td><td>06; Engineering Handbook (04)</td><td>A</td></tr>
+<tr><td>7</td><td>Construir los 9 casos de uso del BCS</td><td>06; BCS Handbook (02, 13)</td><td>A</td></tr>
+<tr><td>8</td><td>Construir los 7 componentes nuevos del BCS Design System</td><td>07; BCS Design System Handbook (06)</td><td>A</td></tr>
+<tr><td>9</td><td>Construir Dashboard del entrenador y Vista pública del cliente</td><td>07; BCS Design System Handbook (07, 08)</td><td>A</td></tr>
+<tr><td>10</td><td>Definir el contrato mínimo de Recovery Engine en código (forma de IMP-ADR-01)</td><td>08; 14</td><td>B</td></tr>
+<tr><td>11</td><td>Aplicar migración M2 — <code>progression_events</code> con el CHECK de 25 valores consolidado</td><td>05; Engineering Handbook (07)</td><td>B</td></tr>
+<tr><td>12</td><td>Construir Motor BPS — máquina de estados (8 estados, 15 transiciones)</td><td>08; Motor BPS Handbook (05)</td><td>B</td></tr>
+<tr><td>13</td><td>Construir Progression Engine — pipeline de 9 pasos + catálogo de 39 reglas</td><td>08; Progression Engine Handbook (06, 07)</td><td>B</td></tr>
+<tr><td>14</td><td>Integrar Motor BPS ↔ Recovery Engine ↔ Progression Engine</td><td>09</td><td>Confluencia</td></tr>
+<tr><td>15</td><td>Ejecutar el primer ciclo semanal completo de extremo a extremo sobre datos de prueba</td><td>09; 10</td><td>Confluencia</td></tr>
+<tr><td>16</td><td>Aplicar los índices de base de datos ya especificados y pendientes (M4)</td><td>05; Architecture Handbook (10)</td><td>Confluencia</td></tr>
+<tr><td>17</td><td>Cobertura de testing de los casos críticos de los tres motores</td><td>10</td><td>Confluencia</td></tr>
+<tr><td>18</td><td>Instrumentación de observabilidad completa (logs, eventos, métricas)</td><td>11</td><td>Confluencia</td></tr>
+<tr><td>19</td><td>Ejecutar el Release Checklist completo</td><td>13</td><td>Confluencia</td></tr>
+<tr><td>20</td><td>Despliegue a producción</td><td>13; Engineering Handbook (12)</td><td>Confluencia</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="orden-despliegue">Orden exacto de despliegue</h2>
+<ol>
+  <li>Migraciones de base de datos (siempre antes que el código que las asume — nunca simultáneo, 05).</li>
+  <li>Backend (repositorios, motores) — puede desplegarse sin que el frontend nuevo esté activo, porque no hay ruta que lo exponga todavía.</li>
+  <li>Frontend — solo tras confirmar que el backend que consume responde correctamente en el entorno de destino.</li>
+  <li>Activación de la ruta pública (para el BCS: generación de EnlacesPúblicos) — el último paso, porque expone la feature a un usuario final real.</li>
+</ol>
+
+<h2 id="orden-validacion">Orden exacto de validación</h2>
+<ol>
+  <li>Validación de esquema (¿la migración aplicó sin error, RLS activo?) — automatizable, primer gate.</li>
+  <li>Validación de contrato (¿el repositorio devuelve la forma exacta del DTO especificado?) — Unit testing (10).</li>
+  <li>Validación de integración (¿el motor invocado produce la Decisión esperada dado un caso conocido?) — Integration testing (10).</li>
+  <li>Validación end-to-end (¿el flujo completo de usuario funciona?) — la última, la más costosa, nunca la primera línea de defensa.</li>
+</ol>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../03-roadmap/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 03 · Roadmap</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../05-migraciones/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">05 · Migraciones →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

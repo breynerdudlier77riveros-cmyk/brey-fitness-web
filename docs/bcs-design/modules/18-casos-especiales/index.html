@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>18 · Casos especiales — BCS Design System Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="casos-especiales" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 18 · Gobernanza</p>
+<h1>Casos especiales</h1>
+<p class="lede">Lo que ocurre en los extremos — pantallas diminutas, historiales enormes, datos que no encajan en ningún módulo anterior.</p>
+
+<div class="callout callout--nota">
+  <div class="callout__label">Sin duplicar contenido</div>
+  <p>Impresión ya está completamente especificada en 14; Sin registros y Errores ya están en 13 (Estados). Este módulo cubre exclusivamente lo que ningún otro módulo cubre: tamaños de pantalla extremos, zoom, volumen de datos extremo, y variables desconocidas.</p>
+</div>
+
+<h2 id="pantallas-pequenas">Pantallas muy pequeñas</h2>
+<p>Por debajo de 360px de ancho (el límite práctico inferior de un teléfono real): el grid de Metric Cards colapsa a 1 columna (03) sin excepción; los badges de procedencia (BCS Handbook, 00) muestran solo el emoji, con el texto completo disponible al tocar/mantener presionado — nunca se recorta el emoji ni se elimina el badge por completo.</p>
+
+<h2 id="pantallas-enormes">Pantallas muy grandes</h2>
+<p>El container permanece fijo en <code>max-w-5xl</code> (03) — una pantalla de 32" no gana una cuarta columna de Metric Cards. Se consideró escalar el grid a 4 columnas en <code>2xl</code>, pero se descartó: rompería la consistencia de "3 columnas siempre" que el entrenador memoriza, por un beneficio marginal de densidad (01, Consistencia).</p>
+
+<h2 id="zoom">Zoom del navegador</h2>
+<p>Hasta 200% de zoom (mínimo exigido por WCAG 2.1 AA, 15), ningún contenido se recorta ni se superpone — se apoya en las mismas unidades relativas (rem/%) ya usadas en el resto del sitio, sin unidades fijas en px para tipografía.</p>
+
+<h2 id="muchos-registros">Muchos registros</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Volumen</th><th>Comportamiento</th></tr></thead>
+<tbody>
+<tr><td>&gt;50 Mediciones en el Histórico</td><td>Lista paginada (20 por página) en vez de scroll infinito — más predecible para un entrenador que busca una fecha específica (BCS Handbook, 12)</td></tr>
+<tr><td>&gt;100 puntos en un gráfico de tendencia</td><td>El gráfico resume por rango de fechas seleccionable (mensual/trimestral) en vez de graficar cada punto individual, preservando legibilidad (BCS Handbook, 07)</td></tr>
+<tr><td>&gt;20 clientes activos en el Dashboard</td><td>Zona 3 (recientes, 07) se limita a 6; Zona 4 (lista completa) pagina</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="variables-desconocidas">Variables desconocidas</h2>
+<p>Si un futuro dispositivo reporta una variable fuera del catálogo de 25 del BCS Handbook (03), la interfaz no la muestra ni la descarta silenciosamente — el flujo de registro de medición la marca como "no reconocida, no se guardó" con detalle técnico visible solo al entrenador, nunca en la vista pública del cliente. Añadir soporte a una variable nueva requiere primero extender el catálogo del BCS Handbook, luego este handbook de diseño (VIZ-XX en 09) — nunca al revés.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../17-design-tokens/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 17 · Design Tokens</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../19-roadmap/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">19 · Roadmap →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

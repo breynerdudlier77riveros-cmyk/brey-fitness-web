@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>01 · Filosofía de Testing — BREY Testing Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="filosofia-testing" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 01 · Empezar</p>
+<h1>Filosofía de Testing</h1>
+<p class="lede">El dominio de BREY se diseñó testeable antes de tener un test runner. Este módulo explica por qué eso es cierto, y por qué significa que el plan de pruebas de la mayoría del ecosistema ya está escrito — dentro de los propios handbooks de dominio, no en este documento.</p>
+
+<div class="meta-row">
+  <span class="chip">FT-08 Testabilidad · FT-03 Determinismo (Engineering Handbook)</span>
+  <span class="chip">Estado real: 0 dependencias de testing, 0 archivos de test</span>
+</div>
+
+<h2 id="ya-testeable">Por qué el dominio ya es testeable sin test runner</h2>
+<p>FT-08 (Testabilidad) y FT-03 (Determinismo) ya obligan a que los motores de dominio sean funciones puras — sin import de Supabase, sin <code>Date.now()</code> implícito (Engineering Handbook, 10). Motor BPS exige fecha del ciclo como parámetro explícito (BPS-022); Progression Engine nunca hace su propio I/O (IN-P1); Recovery Engine recibe su ventana ya leída. Esto significa que, el día que se instale un test runner, la lógica más crítica de BREY ya es testeable sin mocks de base de datos: entrada in, salida out, siempre la misma salida para la misma entrada.</p>
+
+<h2 id="plan-ya-escrito">El plan de pruebas ya está escrito</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">La fuente de cada caso de prueba no es este documento</div>
+  <p>Cada regla PE-XXX de Progression Engine Handbook (07) ya incluye "Ejemplo válido" y "Ejemplo inválido". Cada transición T1-T15 de Motor BPS Handbook (05) ya incluye guard y efecto. Cada caso límite de cada handbook de dominio ya es, en la práctica, una fila de una tabla de pruebas — este documento no redacta esos casos de cero: los organiza en matrices verificables, nivela cada uno (unit/integration/e2e) y señala los que dependen de una brecha todavía abierta (16).</p>
+</div>
+
+<h2 id="piramide">La pirámide, con prioridad de introducción</h2>
+<div class="diagram">
+<div class="diagram-label">Prioridad de introducción — nunca al revés (Engineering Handbook, 10)</div>
+<pre class="mermaid">
+graph TD
+  U["Unit — prioridad 1<br/>máximo valor, mínimo esfuerzo, sin mocks"] --> I["Integration — prioridad 2<br/>repositorios contra Supabase de test real"]
+  I --> E["E2E — prioridad 3<br/>el más costoso de mantener, se introduce último"]
+</pre>
+</div>
+<p>Ningún nivel se introduce fuera de orden. Un E2E no compensa la ausencia de Unit en los motores — cubre una superficie distinta (flujo completo de usuario), no reemplaza la verificación de una regla PE-XXX aislada (02).</p>
+
+<h2 id="determinismo-testing">Determinismo como precondición de testing, no como consecuencia</h2>
+<p>Un motor no determinista no es "difícil de testear" — es imposible de testear con confianza: un test que a veces pasa y a veces falla con la misma entrada no prueba nada, solo genera ruido. Por eso Motor BPS Handbook exige fecha del ciclo y versión de catálogo como parámetros explícitos (BPS-022) antes de que exista un solo test — el determinismo no es una optimización para testing futuro, es la precondición sin la cual ningún test de este documento tiene sentido (03).</p>
+
+<h2 id="replay-como-prueba">Replay como forma de prueba</h2>
+<p>La máquina de estados de Motor BPS es recomputable desde cero a partir de <code>progression_events</code> (Motor BPS Handbook, pseudocódigo <code>recomputarEstado</code>; Database Handbook, 08). Esto convierte el replay en una técnica de prueba de primera clase, no solo en un mecanismo de producción: un test puede construir una secuencia de eventos conocida y verificar que el estado recomputado coincide exactamente con el esperado — sin necesitar ejecutar la lógica de negocio que originalmente los produjo (08).</p>
+
+<h2 id="fail-visible-testing">Fail Visible como requisito de prueba</h2>
+<p>FT-05 (Fail Visible) exige que un repositorio devuelva <code>null</code>/<code>[]</code> explícito, nunca una excepción no capturada (Architecture Handbook, 11). Todo test de este documento que ejercite un camino de "no encontrado" o "sin datos suficientes" verifica ese valor explícito — un test que solo cubre el camino feliz no cumple con la filosofía de este documento, sin importar cuánto "código" cubra numéricamente (13).</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../00-introduccion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 00 · Introducción</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../02-arquitectura-pruebas/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">02 · Arquitectura de Pruebas →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

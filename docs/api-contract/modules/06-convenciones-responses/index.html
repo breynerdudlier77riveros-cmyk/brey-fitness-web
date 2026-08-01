@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>06 · Convenciones de Responses — BREY API Contract Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="convenciones-responses" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 06 · Convenciones</p>
+<h1>Convenciones de Responses</h1>
+<p class="lede">Una única estructura de respuesta para todo el catálogo (07) — extiende, sin sustituir, el <code>Resultado&lt;T&gt;</code> ya especificado por el Architecture Handbook (11) y el envelope <code>{ ok, error }</code> ya real en los dos Route Handlers existentes.</p>
+
+<div class="meta-row">
+  <span class="chip">Extiende Resultado&lt;T&gt; (Architecture Handbook, 11)</span>
+  <span class="chip">Extiende { ok, error } real (app/api/lead)</span>
+</div>
+
+<h2 id="estructura-unica">Estructura única</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Campo</th><th>Presente cuando</th><th>Forma</th></tr></thead>
+<tbody>
+<tr><td><code>ok</code></td><td>Siempre</td><td><code>boolean</code> — obligatorio, primer campo, nunca ausente</td></tr>
+<tr><td><code>data</code></td><td><code>ok: true</code> y la operación devuelve un cuerpo (toda Query; todo Command que crea/transforma un recurso)</td><td>El Output DTO correspondiente (08) — objeto único o arreglo</td></tr>
+<tr><td><code>error</code></td><td><code>ok: false</code></td><td><code>string</code> — código corto, <code>snake_case</code> o <code>SNAKE_CASE</code> según origen (09) — nunca un mensaje libre para el usuario final</td></tr>
+<tr><td><code>detalle</code></td><td><code>ok: false</code> y el error de dominio requiere payload estructurado (P6, Architecture Handbook)</td><td>Objeto — ej. lista exacta de campos faltantes para <code>PERFIL_INCOMPLETO</code></td></tr>
+<tr><td><code>meta</code></td><td>Listas paginadas, o cualquier respuesta que necesite metadata adicional (versión de catálogo, timestamp del cálculo)</td><td>Objeto — ver Paginación abajo</td></tr>
+<tr><td><code>warnings</code></td><td>La operación tuvo éxito (<code>ok: true</code>) pero detectó una condición no bloqueante que el actor debería conocer</td><td>Arreglo de strings — ej. una validación cruzada de Medición que solo advierte (BCS Handbook, 03)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="success">Success</h2>
+<p>Toda respuesta exitosa lleva <code>ok: true</code>. Una Query que no encuentra nada no es un error — devuelve <code>ok: true, data: null</code> (recurso único) o <code>ok: true, data: []</code> (lista), nunca un 404 disfrazado de éxito ni un error de dominio (Architecture Handbook, 11: "los repositorios no deciden"). La única excepción real es <code>GET /reportes/{token}</code> con un token inexistente o revocado — ahí sí es <code>ok: false</code> (09), porque el propio BCS Handbook (10) decide tratar "no existe" y "revocado" como el mismo error de acceso, no como una lista vacía.</p>
+
+<h2 id="error">Error</h2>
+<p>Toda respuesta con <code>ok: false</code> lleva un <code>error</code> no vacío y un status HTTP coherente con él (04) — nunca uno sin el otro (Engineering Handbook, 06). El código de error nombra qué falló, nunca cómo se sintió fallar: <code>PERFIL_INCOMPLETO</code>, no <code>"faltan datos"</code>.</p>
+
+<h2 id="metadata">Metadata</h2>
+<p><code>meta</code> nunca duplica un campo que ya está en <code>data</code> — existe solo para información sobre la respuesta misma: versión de catálogo usada por el Workout Generator, cursor de paginación, o el <code>fecha_ciclo</code> con el que se evaluó una Progresión (determinismo, 01).</p>
+
+<h2 id="pagination">Paginación</h2>
+<p>Ningún endpoint pagina hoy salvo donde el volumen real lo exige — el único umbral especificado es Mediciones del BCS: más de 50 activa paginación de 20 por página, por rango de fecha, no por offset/límite genérico (Performance Handbook, Engineering 09; BCS Handbook, 12).</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Campo de <code>meta</code></th><th>Forma</th></tr></thead>
+<tbody>
+<tr><td><code>cursor_siguiente</code></td><td><code>string | null</code> — <code>null</code> cuando no hay más páginas</td></tr>
+<tr><td><code>tamano_pagina</code></td><td><code>number</code> — 20 por defecto para Mediciones (único valor real especificado)</td></tr>
+<tr><td><code>total_estimado</code></td><td><code>number | null</code> — opcional, solo si el repositorio ya lo calcula sin costo adicional</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="timestamps-resp">Timestamps</h2>
+<p>Todo timestamp de una response es UTC ISO-8601 (01) — <code>created_at</code>, <code>fecha</code>, <code>fecha_ciclo</code>. Ninguna respuesta incluye una representación ya localizada a zona horaria del cliente.</p>
+
+<h2 id="warnings">Warnings</h2>
+<p>Existen porque el dominio ya especifica validaciones no bloqueantes — ej. la matriz cruzada de variables del BCS: "Masa grasa + Masa libre de grasa ≈ Peso (±0.5kg)" es advertencia, no bloqueo; solo "cualquier variable de masa &gt; Peso total" es error bloqueante (422, BCS Handbook, 03). <code>warnings</code> es el único canal de este contrato para ese tipo de señal — nunca se codifica una advertencia como si fuera un error.</p>
+
+<h2 id="ejemplos">Ejemplos de forma (ilustrativos, no exhaustivos — ver 08 para las tablas completas)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Forma de la respuesta</th></tr></thead>
+<tbody>
+<tr><td>Lectura exitosa de un recurso único</td><td><code>{ ok: true, data: {…} }</code></td></tr>
+<tr><td>Lista paginada</td><td><code>{ ok: true, data: [...], meta: { cursor_siguiente, tamano_pagina } }</code></td></tr>
+<tr><td>Error de dominio con detalle</td><td><code>{ ok: false, error: "PERFIL_INCOMPLETO", detalle: { campos_faltantes: [...] } }</code></td></tr>
+<tr><td>Éxito con advertencia no bloqueante</td><td><code>{ ok: true, data: {…}, warnings: ["masa_grasa_mas_masa_libre_diverge_de_peso"] }</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../05-convenciones-requests/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 05 · Convenciones de Requests</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../07-catalogo-endpoints/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">07 · Catálogo de Endpoints →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

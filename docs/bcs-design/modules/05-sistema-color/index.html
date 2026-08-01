@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>05 · Sistema de color — BCS Design System Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="sistema-color" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 05 · Sistema visual</p>
+<h1>Sistema de color</h1>
+<p class="lede">No solo qué colores existen — qué significa cada uno, cuándo se usa, y con qué contraste. Ley 2 de la Constitución de Diseño (00) gobierna todo este módulo: un color, un significado, sin excepción.</p>
+
+<h2 id="base">Paleta base <span class="tag tag--heredado">heredado</span></h2>
+<div class="swatch-row"><span class="swatch" style="background:#020617"></span><span class="swatch-label">Fondo — <code>#020617</code> (slate-950)</span></div>
+<div class="swatch-row"><span class="swatch" style="background:#f97316"></span><span class="swatch-label">Primario/marca — <code>#f97316</code> (orange-500)</span></div>
+<div class="swatch-row"><span class="swatch" style="background:#fb923c"></span><span class="swatch-label">Primario hover — <code>#fb923c</code> (orange-400)</span></div>
+<div class="swatch-row"><span class="swatch" style="background:#10b981"></span><span class="swatch-label">Éxito / dinero — <code>#10b981</code> (emerald-500)</span></div>
+<div class="swatch-row"><span class="swatch" style="background:#f87171"></span><span class="swatch-label">Error/destructivo — <code>#f87171</code> (red-400)</span></div>
+
+<h2 id="semantico">Color semántico vs. funcional vs. informativo</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Categoría</th><th>Significa</th><th>Color</th><th>Ejemplo de uso en el BCS</th></tr></thead>
+<tbody>
+<tr><td><strong>Semántico</strong></td><td>Comunica un juicio de valor sobre el dato (mejora/empeora)</td><td>Emerald (mejora) / Red (retrocede) — nunca el naranja de marca, reservado para acción, no para juicio</td><td>Flecha de tendencia en una Metric Card</td></tr>
+<tr><td><strong>Funcional</strong></td><td>Indica el rol de un elemento de UI, sin juicio sobre el dato</td><td>Orange (acción primaria), White/outline (acción secundaria)</td><td>Botón "Registrar medición" vs. botón "Cancelar"</td></tr>
+<tr><td><strong>Informativo</strong></td><td>Contextualiza sin juzgar — procedencia del dato (BCS Handbook, 00)</td><td>Blue (crudo), Emerald (derivado), Yellow (fabricante), Red (validación), Orange (producto) — el mismo sistema de 5 badges del BCS Handbook, heredado tal cual</td><td>Badge de procedencia junto a cada variable</td></tr>
+<tr><td><strong>Advertencia</strong></td><td>Algo requiere atención sin ser un error</td><td>Yellow/amber — <span class="tag tag--nuevo">nuevo</span>, no existía necesidad de amarillo en el resto del sitio</td><td>Valor sospechoso (BCS Handbook, 03)</td></tr>
+<tr><td><strong>Éxito</strong></td><td>Confirmación de una acción completada</td><td>Emerald — mismo verde que "dinero" en el resto del sitio, reutilizado aquí para confirmación, nunca para transacciones (el BCS no tiene pagos)</td><td>Toast "Medición registrada"</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Por qué el naranja de marca nunca es semántico</div>
+  <p>Si el naranja significara a veces "acción" y a veces "advertencia" según el contexto, violaría Ley 2 directamente. El naranja en el BCS es exclusivamente funcional (acción primaria) — nunca aparece como codificación de un juicio sobre un dato de salud.</p>
+</div>
+
+<h2 id="fondo-superficie">Fondo y superficie</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Capa</th><th>Valor</th></tr></thead>
+<tbody>
+<tr><td>Fondo de página</td><td><code>#020617</code></td></tr>
+<tr><td>Superficie de tarjeta (reposo)</td><td><code>rgba(255,255,255,0.02)</code> + borde <code>rgba(255,255,255,0.07)</code> — heredado de <code>cardStyles.base</code></td></tr>
+<tr><td>Superficie de tarjeta (hover, interactiva)</td><td><code>rgba(255,255,255,0.04)</code> + borde <code>rgba(255,255,255,0.14)</code> — heredado de <code>cardStyles.interactive</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="contraste">Contraste</h2>
+<p>Todo texto sobre el fondo <code>#020617</code> cumple mínimo WCAG AA (4.5:1 para texto normal, 3:1 para texto grande) — ver 15 para la matriz completa de pares texto/fondo verificados. El texto terciario (<code>rgba(255,255,255,0.52)</code>) es el mínimo permitido para cualquier información que no sea puramente decorativa.</p>
+
+<h2 id="modo-oscuro-claro">Modo oscuro y modo claro</h2>
+<div class="callout callout--tradeoff">
+  <div class="callout__label">Decisión de alcance — solo modo oscuro en v1</div>
+  <p>BREY no tiene variante de modo claro en ningún punto del sitio hoy (<code>globals.css</code>: "tema único oscuro, sin variante <code>.dark</code>"). El BCS hereda esa misma decisión — no introduce modo claro en v1, porque hacerlo unilateralmente para un solo módulo rompería la consistencia con el resto de la app antes de que el resto la tenga. Si BREY decide soportar modo claro a nivel de producto, este módulo se actualiza entonces con la paleta completa invertida (fondos claros, texto oscuro, mismos tokens semánticos re-mapeados) — candidato explícito de v2 (19), no una omisión de este documento. Decisión formal en BCSD-ADR-02 (20).</p>
+</div>
+
+<h2 id="estados">Estados de interacción</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Estado</th><th>Tratamiento</th></tr></thead>
+<tbody>
+<tr><td>Hover (botón primario)</td><td><code>#f97316</code> → <code>#fb923c</code>, heredado de <code>Button.tsx</code></td></tr>
+<tr><td>Active/pressed</td><td><code>#f97316</code> → orange-600 (más oscuro), heredado</td></tr>
+<tr><td>Focus</td><td>Anillo único <code>--ring</code> (<code>#fb923c</code>) heredado del primitivo shadcn — nunca un segundo tratamiento de foco añadido por un componente del BCS (mismo principio ya aplicado en todo el sitio: "un solo tratamiento, un solo color")</td></tr>
+<tr><td>Disabled</td><td>Opacidad 60% + <code>pointer-events: none</code> — heredado exacto de <code>Button.tsx</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../04-sistema-tipografico/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 04 · Sistema tipográfico</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../06-componentes/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">06 · Componentes →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

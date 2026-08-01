@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>02 · Modelo del Dominio — BCS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="modelo-dominio" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 02 · Dominio y datos</p>
+<h1>Modelo del Dominio</h1>
+<p class="lede">Entidades, agregados, value objects, casos de uso y las tres máquinas de estado del sistema. El vocabulario exacto que todo módulo posterior usa sin redefinir.</p>
+
+<h2 id="entidades">Entidades y agregados</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Entidad</th><th>Tipo</th><th>Descripción</th></tr></thead>
+<tbody>
+<tr><td><strong>Cliente</strong></td><td>Aggregate root</td><td>Persona presencial del entrenador. Contiene datos identificativos (nombre, contacto opcional) y su ciclo de vida propio (activo/archivado).</td></tr>
+<tr><td><strong>Medición</strong></td><td>Aggregate root (referencia <code>clienteId</code>)</td><td>Una captura puntual de composición corporal, con fecha y el catálogo completo de variables (03).</td></tr>
+<tr><td><strong>EnlacePúblico</strong></td><td>Aggregate root (referencia <code>clienteId</code>)</td><td>Token de acceso de solo lectura al reporte de un Cliente (09, 10).</td></tr>
+<tr><td><strong>Reporte</strong></td><td>Value object generado, no persistido</td><td>Vista computada a partir del Cliente y sus Mediciones vigentes — nunca se almacena como snapshot independiente, siempre refleja el historial actual (04).</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="callout callout--nota">
+  <div class="callout__label">Por qué tres agregados y no uno</div>
+  <p>Un único agregado "Cliente" que contuviera todas sus Mediciones dentro obligaría a cargar el historial completo cada vez que se toca cualquier dato del cliente, y crecería sin límite con el tiempo (12). Medición y EnlacePúblico son agregados propios, cada uno referenciando <code>clienteId</code> — más alineado con un historial ilimitado. Se documenta como BCS-ADR-01 en 16.</p>
+</div>
+
+<h2 id="value-objects">Value objects</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Value object</th><th>Forma</th></tr></thead>
+<tbody>
+<tr><td><strong>PesoKg</strong></td><td>Número positivo, unidad fija kg (03)</td></tr>
+<tr><td><strong>Porcentaje</strong></td><td>Número en rango [0, 100] — usado por %grasa, agua corporal, etc.</td></tr>
+<tr><td><strong>FechaMedicion</strong></td><td>Fecha calendario, nunca futura, obligatoria por Medición</td></tr>
+<tr><td><strong>TokenPublico</strong></td><td>Cadena aleatoria opaca, sin relación derivable con el <code>clienteId</code> (10)</td></tr>
+<tr><td><strong>RangoReferencia</strong></td><td>{mín, máx, etiqueta de procedencia} — nunca un rango sin su etiqueta (03, 06)</td></tr>
+<tr><td><strong>Fotografia</strong></td><td>{url de almacenamiento, fecha, medicionId} — siempre opcional (03, 11)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="diagrama-er">Diagrama de entidades</h2>
+<div class="diagram">
+<div class="diagram-label">Relaciones — todo referencia a Cliente, nada se anida dentro de él</div>
+<pre class="mermaid">
+erDiagram
+  CLIENTE ||--o{ MEDICION : tiene
+  CLIENTE ||--o{ ENLACE_PUBLICO : tiene
+  MEDICION ||--o| FOTOGRAFIA : "puede tener"
+  CLIENTE {
+    string id
+    string nombre
+    string estado
+    date fechaAlta
+  }
+  MEDICION {
+    string id
+    string clienteId
+    date fecha
+    string estado
+    json valores
+  }
+  ENLACE_PUBLICO {
+    string id
+    string clienteId
+    string token
+    string estado
+  }
+</pre>
+</div>
+
+<h2 id="casos-uso">Casos de uso</h2>
+<div class="usecase">
+  <div class="usecase__id">UC-01</div>
+  <h4>CrearCliente</h4>
+  <p>Registra un nuevo Cliente en estado <em>activo</em>. Precondición: nombre no vacío. Postcondición: Cliente persistido con <code>fechaAlta</code> = ahora.</p>
+</div>
+<div class="usecase">
+  <div class="usecase__id">UC-02</div>
+  <h4>EditarCliente</h4>
+  <p>Actualiza datos identificativos de un Cliente existente. No afecta el historial de Mediciones ni los EnlacesPúblicos ya emitidos.</p>
+</div>
+<div class="usecase">
+  <div class="usecase__id">UC-03</div>
+  <h4>ArchivarCliente</h4>
+  <p>Transición reversible <em>activo → archivado</em> (05). Es la acción por defecto detrás de "Eliminar cliente" en el panel — preserva el historial íntegro.</p>
+</div>
+<div class="usecase">
+  <div class="usecase__id">UC-04</div>
+  <h4>EliminarClientePermanentemente</h4>
+  <p>Acción distinta e irreversible, reservada para solicitudes de derecho al olvido (11) — nunca el resultado de un clic accidental de "eliminar" en el flujo normal.</p>
+</div>
+<div class="usecase">
+  <div class="usecase__id">UC-05</div>
+  <h4>RegistrarMedición</h4>
+  <p>Crea una Medición nueva en estado <em>vigente</em>, asociada a un Cliente, con fecha y los valores del catálogo (03) que el entrenador haya capturado.</p>
+</div>
+<div class="usecase">
+  <div class="usecase__id">UC-06</div>
+  <h4>CorregirMedición</h4>
+  <p>Nunca edita en sitio: crea una nueva Medición <em>vigente</em> y marca la anterior como <em>anulada</em>, preservando ambas en el historial (05). Misma filosofía de inmutabilidad que el resto de los sistemas de BREY — decisión formal en BCS-ADR-03 (16).</p>
+</div>
+<div class="usecase">
+  <div class="usecase__id">UC-07</div>
+  <h4>CrearEnlacePúblico</h4>
+  <p>Genera un TokenPublico nuevo y un EnlacePúblico en estado <em>activo</em> para un Cliente (10).</p>
+</div>
+<div class="usecase">
+  <div class="usecase__id">UC-08</div>
+  <h4>RevocarEnlacePúblico</h4>
+  <p>Transición <em>activo → revocado</em>, irreversible para ese token específico — revocar y volver a compartir siempre implica UC-07 con un token nuevo (10).</p>
+</div>
+<div class="usecase">
+  <div class="usecase__id">UC-09</div>
+  <h4>VisualizarReportePúblico</h4>
+  <p>Resuelve un TokenPublico a su Cliente y devuelve el Reporte computado (04) — el único caso de uso invocable sin autenticación.</p>
+</div>
+
+<h2 id="maquinas-estado">Las tres máquinas de estado</h2>
+<div class="diagram">
+<div class="diagram-label">Cliente, Medición y EnlacePúblico — cada uno con su propio ciclo</div>
+<pre class="mermaid">
+stateDiagram-v2
+  [*] --> Activo: UC-01 CrearCliente
+  Activo --> Archivado: UC-03 ArchivarCliente
+  Archivado --> Activo: reactivar
+  Archivado --> Eliminado: UC-04 (irreversible)
+  Eliminado --> [*]
+</pre>
+</div>
+<div class="diagram">
+<pre class="mermaid">
+stateDiagram-v2
+  [*] --> Vigente: UC-05 RegistrarMedición
+  Vigente --> Anulada: UC-06 CorregirMedición (crea una nueva Vigente)
+  Anulada --> [*]
+</pre>
+</div>
+<div class="diagram">
+<pre class="mermaid">
+stateDiagram-v2
+  [*] --> ActivoEnlace: UC-07 CrearEnlacePúblico
+  ActivoEnlace --> Revocado: UC-08 RevocarEnlacePúblico
+  Revocado --> [*]
+</pre>
+</div>
+
+<h2 id="invariantes">Invariantes de dominio</h2>
+<ul>
+  <li><strong>IN-D1:</strong> una Medición nunca se edita en sitio — toda corrección es una Medición nueva + anulación de la anterior (UC-06).</li>
+  <li><strong>IN-D2:</strong> un Cliente <em>Eliminado</em> es terminal — no existe transición de vuelta, a diferencia de <em>Archivado</em>.</li>
+  <li><strong>IN-D3:</strong> un Reporte nunca se persiste independientemente de sus Mediciones fuente — siempre se computa on-demand, por lo que jamás puede quedar desactualizado (04).</li>
+  <li><strong>IN-D4:</strong> un EnlacePúblico revocado nunca se reactiva — compartir de nuevo siempre crea un token distinto (10, IN-L en el módulo 10).</li>
+  <li><strong>IN-D5:</strong> ninguna Medición existe sin un Cliente válido — el <code>clienteId</code> es obligatorio y no nulable en todo el ciclo de vida de la Medición.</li>
+</ul>
+
+<h2 id="contraejemplos">Contraejemplos</h2>
+<ul>
+  <li>El sistema NO permite editar el peso de una Medición pasada directamente — solo mediante UC-06, que preserva la Medición original anulada.</li>
+  <li>El sistema NO borra físicamente una Medición al "eliminar cliente" (UC-03) — el historial se conserva mientras el Cliente esté archivado, no eliminado.</li>
+  <li>El Reporte NO tiene un botón de "guardar snapshot" en v1 — siempre es la vista más actual (04, 17 pregunta abierta sobre snapshots para casos de export).</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../01-arquitectura/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 01 · Arquitectura</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../03-modelo-datos/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">03 · Modelo de Datos →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

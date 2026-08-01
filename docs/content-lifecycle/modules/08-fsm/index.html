@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>08 · Máquinas de Estado — Content Lifecycle</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="fsm" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 08 · Estados y versiones</p>
+<h1>Máquinas de Estado</h1>
+<p class="lede">Pregunta 18: ¿existe una FSM para Exercise? <strong>No.</strong> Y no es una omisión ambigua: el módulo que centraliza las máquinas de estado del ecosistema enumera cinco entidades y Exercise no es una de ellas.</p>
+
+<h2 id="verificacion">Verificación en dos frentes</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Frente 1 · Barrido de términos</div>
+  <p><code>draft</code> 0 archivos · <code>approved</code> 0 · <code>deprecated</code> 0 · <code>archived</code> 0 · <code>state</code> 0 · <code>lifecycle</code> 0 · <code>borrador</code> 0 · <code>aprobación</code> 0. Ninguno de los estados que una FSM de Exercise necesitaría existe en el ecosistema base.</p>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Frente 2 · El catálogo de FSM</div>
+  <p>El módulo 10 del <strong>Domain Model Handbook</strong> se titula "Máquinas de Estado" y publica exactamente <strong>cinco</strong>: Diagnóstico, Programa, Workout, Medición y EnlacePúblico. Su propia entradilla las describe como "cinco entidades con estados reales". <strong>Exercise no figura</strong>, y su ausencia no está marcada como pendiente.</p>
+</div>
+
+<h2 id="cinco">Las cinco FSM publicadas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Entidad</th><th>Estados</th><th>Transición característica</th><th>Estado terminal</th></tr></thead>
+<tbody>
+<tr><td><strong>Diagnóstico</strong></td><td><code>en_curso</code> · <code>completado</code></td><td>Al responder la última pregunta</td><td><code>completado</code> — "nunca se reabre"</td></tr>
+<tr><td><strong>Programa</strong></td><td><code>sin_diagnostico</code> · <code>pendiente_perfil</code> · <code>gate_fallado</code> · <code>activo</code> · <code>sistema_completado</code></td><td>Gate superado / gate roto</td><td><code>sistema_completado</code></td></tr>
+<tr><td><strong>Workout</strong></td><td><code>planificado</code> · <code>completado</code> · <code>perdido</code></td><td>Al registrarse un log vinculado, o al vencer la fecha</td><td>Ambos finales</td></tr>
+<tr><td><strong>Medición</strong></td><td><code>vigente</code> · <code>anulada</code></td><td>Corrección: crea una nueva y anula la anterior</td><td><code>anulada</code></td></tr>
+<tr><td><strong>EnlacePúblico</strong></td><td><code>activo</code> · <code>revocado</code></td><td>Revocación manual o por reemplazo</td><td><code>revocado</code> — "jamás se reactiva"</td></tr>
+</tbody>
+</table>
+</div>
+<div class="diagram">
+<div class="diagram-label">Las cinco entidades con ciclo de vida formal — y la que no lo tiene</div>
+<pre class="mermaid">
+graph TD
+  DM["Domain Model 10<br/>Máquinas de Estado"] --> E1["Diagnóstico<br/>2 estados"]
+  DM --> E2["Programa<br/>5 estados"]
+  DM --> E3["Workout<br/>3 estados"]
+  DM --> E4["Medición<br/>2 estados"]
+  DM --> E5["EnlacePúblico<br/>2 estados"]
+  EX["EXERCISE<br/>0 estados · 0 transiciones"] -.->|"no figura en el módulo<br/>que las centraliza"| DM
+</pre>
+</div>
+
+<h2 id="bps">La sexta FSM: el usuario en el Motor BPS</h2>
+<p>Además de las cinco del Domain Model, el Motor BPS Handbook publica la máquina de estados del <strong>usuario</strong>: 8 estados y 15 transiciones (T1–T15b) con evento disparador, guard y efectos por cada una. Es la FSM más detallada del ecosistema — y también es de un objeto distinto del catálogo.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Propiedad</th><th>FSM del usuario</th><th>FSM de Exercise</th></tr></thead>
+<tbody>
+<tr><td>Estados</td><td>8</td><td><strong>0</strong></td></tr>
+<tr><td>Transiciones</td><td>15</td><td><strong>0</strong></td></tr>
+<tr><td>Guards documentados</td><td>Sí, por transición</td><td>—</td></tr>
+<tr><td>Eventos emitidos</td><td>Sí — "toda transición emite exactamente un evento con razón"</td><td>—</td></tr>
+<tr><td>Estados imposibles y su reparación</td><td>Documentados, con degradación conservadora</td><td>—</td></tr>
+<tr><td>Replay determinista</td><td>Sí — el estado es recomputable desde los eventos</td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">El ecosistema sabe construir máquinas de estado rigurosas</div>
+  <p>Seis FSM publicadas, una de ellas con 15 transiciones, guards, eventos obligatorios, tratamiento de estados imposibles y replay determinista. La ausencia de una FSM para Exercise <strong>no se explica por falta de capacidad ni de cultura de diseño</strong>: se explica porque nadie ha planteado la pregunta para el catálogo.</p>
+</div>
+
+<h2 id="recuento">Recuento del ciclo de vida de una entrada</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Elemento</th><th>Cantidad</th></tr></thead>
+<tbody>
+<tr><td>Estados documentados para Exercise</td><td><strong>0</strong></td></tr>
+<tr><td>Transiciones documentadas para Exercise</td><td><strong>0</strong></td></tr>
+<tr><td>Guards documentados</td><td><strong>0</strong></td></tr>
+<tr><td>Eventos de ciclo de vida de una entrada</td><td><strong>0</strong></td></tr>
+<tr><td>Estados implícitos derivables (candidato / oficial)</td><td>2 — no son estados, son lecturas de completitud</td></tr>
+<tr><td>FSM del ecosistema que sí existen</td><td><strong>6</strong> (5 en Domain Model + 1 en Motor BPS)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="consecuencia">Consecuencia: procesos sin estado, estados sin transición</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Anomalía estructural</th><th>Caso concreto</th></tr></thead>
+<tbody>
+<tr><td><strong>Proceso sin estado</strong></td><td>El etiquetado tiene 7 pasos definidos y ningún estado que refleje en cuál está una entrada</td></tr>
+<tr><td><strong>Proceso sin estado</strong></td><td>La cola editorial recibe defectos y la entrada afectada no cambia de estado</td></tr>
+<tr><td><strong>Acción sin proceso</strong></td><td>Aprobar y retirar: no hay proceso que las ejecute</td></tr>
+<tr><td><strong>Estado sin transición</strong></td><td>Los dos estados implícitos (candidato/oficial) no tienen transición declarada entre ellos — se cruza el umbral por completitud</td></tr>
+<tr><td><strong>Transición sin evento</strong></td><td>El paso de candidato a oficial no emite ningún evento, violando el patrón que BPS-010 aplica en todo el resto del ecosistema</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">CL-D06 — el ciclo de vida de una entrada carece de todos sus elementos formales</div>
+  <p>Sin estados no hay transiciones; sin transiciones no hay eventos; sin eventos no hay replay ni auditoría. Cada ausencia arrastra la siguiente. Es la deuda raíz de la que dependen las demás del ciclo.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../07-estados/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 07 · Estados</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../09-versionado/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">09 · Versionado →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

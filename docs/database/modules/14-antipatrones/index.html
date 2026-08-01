@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>14 · Anti-patrones — BREY Database Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="antipatrones" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 14 · Gobernanza</p>
+<h1>Anti-patrones</h1>
+<p class="lede">18 formas reales de romper este modelo — cada una ya evaluada y descartada por algún handbook, nunca hipotética.</p>
+
+<div class="meta-row">
+  <span class="chip">18 anti-patrones</span>
+</div>
+
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Anti-patrón</th><th>Por qué está prohibido</th><th>Evidencia</th></tr></thead>
+<tbody>
+<tr><td>ANP-01</td><td>Duplicar el estado en dos lugares (ej. una tabla <code>recovery_states</code> separada, cuando el evento ya lo captura)</td><td>Dos fuentes de verdad para el mismo hecho divergen con el tiempo — el estado siempre debe ser un puntero derivado de un único log de eventos</td><td>DM-ADR-04 — evaluado y descartado</td></tr>
+<tr><td>ANP-02</td><td>Guardar Programa, Bloque, Mesociclo o Microciclo como fila propia con <code>id</code></td><td>Son posicionales, no entidades con identidad — persistirlos como fila les daría una existencia independiente que el dominio ya decidió que no tienen</td><td>Domain Model Handbook, 13; 03 de este documento</td></tr>
+<tr><td>ANP-03</td><td>Dos procesos escribiendo la misma columna sin ownership único (ej. Usuario y Motor BPS escribiendo <code>nivel_actual</code> por caminos distintos)</td><td>Rompe SSoT — sin un propietario único, dos escritores concurrentes producen estados contradictorios sin que ninguno sea "el correcto"</td><td>01 (SSoT); 09 (brecha real conocida en <code>profiles</code>, sin resolver — no repetir el mismo error en tablas nuevas)</td></tr>
+<tr><td>ANP-04</td><td>Saltar la capa de repositorios — acceso directo a Supabase desde un Server/Client Component</td><td>Los repositorios son la única capa que toca la base de datos — saltarlos rompe la coerción centralizada y la frontera de RLS/ownership documentada</td><td>Architecture Handbook, 11</td></tr>
+<tr><td>ANP-05</td><td>Escribir una mutación de dominio desde un Client Component</td><td>Toda escritura de dominio pasa por una Server Action — un Client Component que escribe directo expone lógica de negocio al cliente y evade la revisión de RLS del lado servidor</td><td>Engineering Handbook, 04</td></tr>
+<tr><td>ANP-06</td><td>Editar en sitio un <code>WorkoutLog</code> cerrado, una <code>bcs_medicion</code> vigente, o cualquier <code>progression_event</code></td><td>Rompe la inmutabilidad de historial (P3/FT-09) — la única forma válida de "corregir" es un registro nuevo</td><td>09 (RLS sin UPDATE/DELETE en estas tablas, a propósito)</td></tr>
+<tr><td>ANP-07</td><td>Usar <code>CREATE TYPE ... AS ENUM</code> nativo de Postgres en vez de <code>text + CHECK</code></td><td><code>ALTER TYPE ... ADD VALUE</code> tiene restricciones históricas de transacción que <code>CHECK</code> no tiene — la migración de agregar un valor debe ser simple y simétrica con TypeScript</td><td>ENG-ADR-02</td></tr>
+<tr><td>ANP-08</td><td>Crear una tabla de eventos nueva por cada motor (<code>motor_bps_events</code>, <code>recovery_engine_events</code>, etc.)</td><td>Fragmenta el timeline cronológico de un Usuario en múltiples tablas, forzando un <code>UNION</code> costoso para cualquier vista agregada</td><td>ENG-ADR-03</td></tr>
+<tr><td>ANP-09</td><td>Anidar Mediciones y EnlacesPúblicos dentro del agregado Cliente (una sola tabla con arrays internos)</td><td>Obliga a cargar potencialmente cientos de registros cada vez que se toca cualquier dato del Cliente, y el agregado crece sin límite superior</td><td>BCS-ADR-01</td></tr>
+<tr><td>ANP-10</td><td>Dejar que Progression Engine o Recovery Engine hagan su propio I/O contra la base de datos</td><td>Ambos son funciones puras por diseño — reciben su historial ya leído como argumento; hacer su propio I/O rompe el determinismo y la posibilidad de test sin mocks de base de datos</td><td>Progression Engine Handbook, IN-P1; Architecture Handbook, 06</td></tr>
+<tr><td>ANP-11</td><td>Persistir una <code>SeñalFatiga</code> cruda en cualquier tabla accesible fuera de Recovery Engine</td><td>Ningún otro contexto debe ver la señal cruda — solo el Veredicto ya resuelto (P8, IN-21)</td><td>Domain Model Handbook, IN-21</td></tr>
+<tr><td>ANP-12</td><td>Crear una tabla para persistir el Reporte del BCS</td><td>El Reporte nunca puede quedar desactualizado respecto a una corrección de Medición si siempre se computa on-demand — persistirlo introduce el riesgo de divergencia silenciosa</td><td>BCS-IN-D3; DM-ADR-08</td></tr>
+<tr><td>ANP-13</td><td>Confiar en el proxy (<code>proxy.ts</code>) como única barrera de seguridad de una tabla, en vez de RLS</td><td>Un bug en el proxy, o un acceso directo a la API de Supabase sin pasar por Next.js, expondría los datos sin ninguna otra barrera</td><td>ENG-ADR-04</td></tr>
+<tr><td>ANP-14</td><td>Cambiar la forma de un campo <code>jsonb</code> ya publicado sin discriminador de versión</td><td>Rompe silenciosamente a cualquier mapper que espere la forma vieja — la evolución de jsonb siempre es aditiva con campo <code>v</code></td><td>Architecture Handbook, 10; 11 de este documento</td></tr>
+<tr><td>ANP-15</td><td>Crear un índice especulativo antes de que exista una consulta real que lo necesite</td><td>Un índice sin una consulta real es costo de escritura sin beneficio de lectura — la misma disciplina de "sin abstracción sin caso de uso" aplicada a datos</td><td>ENG-ADR-01 (mismo principio); 06 de este documento</td></tr>
+<tr><td>ANP-16</td><td>Fusionar los 10 eventos del BCS dentro de <code>progression_events</code></td><td>Forzaría a BCS a depender del esquema de Progression — la dependencia exacta que el bounded context de BCS prohíbe (standalone en v1)</td><td>08 de este documento; BCS Handbook, 00</td></tr>
+<tr><td>ANP-17</td><td>Mapear o traducir <code>nivel_actual</code> entre dos Sistemas distintos (ej. asumir que "Skills" de Calistenia equivale a algo en Hipertrofia)</td><td>Los niveles son configuraciones internas de cada Sistema, no una escala universal — una tabla de equivalencias sería fisiología inventada</td><td>MBPS-ADR-06</td></tr>
+<tr><td>ANP-18</td><td>Coercionar una columna <code>numeric</code> (<code>Number(row.x)</code>) fuera de la capa de mappers</td><td>PostgREST serializa <code>numeric</code> como string — <code>numOrNull()</code> es el único punto de coerción del sistema; un bug real de este tipo ya ocurrió (una suma que concatenaba strings en el agregado de progreso)</td><td>Architecture Handbook, 10, ADR-007</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../13-seguridad/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 13 · Seguridad</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../15-db-adr/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">15 · DB-ADR →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

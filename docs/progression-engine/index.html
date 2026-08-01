@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BREY Progression Engine Handbook v1.0</title>
+<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+
+<div class="landing-topbar">
+  <span class="topbar__brand">
+    <span class="topbar__brand-dot"></span>
+    BREY <span class="topbar__brand-sub">Progression Engine Handbook</span>
+  </span>
+  <span class="topbar__version">v1.0</span>
+</div>
+
+<div class="landing-wrap">
+
+  <div class="hero">
+    <p class="eyebrow">Especificación de dominio · sin código</p>
+    <h1>Progression Engine Handbook</h1>
+    <p>La especificación completa del motor que decide cuánto debería costar el próximo esfuerzo prescrito — a nivel de serie y a nivel de jerarquía de entrenamiento. Profundiza, sin reescribir, el Architecture Handbook y el Motor BPS Handbook. Si el código lo contradice, el handbook es la verdad.</p>
+    <a class="hero-cta" href="modules/00-introduccion/index.html">Empezar →</a>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Fundamentos</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/00-introduccion/index.html"><div class="module-card__num">00</div><div class="module-card__title">Introducción</div><div class="module-card__desc">Objetivo, alcance, no-alcance, dependencias y las cuatro etiquetas de evidencia.</div></a>
+      <a class="module-card" href="modules/01-filosofia/index.html"><div class="module-card__num">01</div><div class="module-card__title">Filosofía</div><div class="module-card__desc">P1/P2/P4/P6/P7/P8/P11 aplicados a este motor, más el principio propio de cadencias separadas.</div></a>
+      <a class="module-card" href="modules/02-arquitectura/index.html"><div class="module-card__num">02</div><div class="module-card__title">Arquitectura</div><div class="module-card__desc">Entrada→procesamiento→salida, dependencias, límites, invariantes y el mapa de las 7 matrices.</div></a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Modelo</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/03-modelo-conceptual/index.html"><div class="module-card__num">03</div><div class="module-card__title">Modelo Conceptual</div><div class="module-card__desc">Las entidades del dominio — y las que este motor deliberadamente no conoce.</div></a>
+      <a class="module-card" href="modules/04-contrato-entradas/index.html"><div class="module-card__num">04</div><div class="module-card__title">Contrato de Entradas</div><div class="module-card__desc">Las 5 entradas exactas: forma, precondiciones y estados inválidos.</div></a>
+      <a class="module-card" href="modules/05-modelo-decision/index.html"><div class="module-card__num">05</div><div class="module-card__title">Modelo de Decisión</div><div class="module-card__desc">Precedencia explícita de 5 niveles — nunca ponderación.</div></a>
+      <a class="module-card" href="modules/06-pipeline/index.html"><div class="module-card__num">06</div><div class="module-card__title">Pipeline</div><div class="module-card__desc">9 pasos, del contrato de entrada a la salida, con las matrices Regla→Pipeline y Decisión→Evidencia.</div></a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Reglas</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/07-reglas-negocio/index.html"><div class="module-card__num">07</div><div class="module-card__title">Reglas de Negocio</div><div class="module-card__desc">Catálogo completo PE-001–PE-039, cada una con evidencia, ejemplos y relación con las demás.</div></a>
+      <a class="module-card" href="modules/08-microprogresion/index.html"><div class="module-card__num">08</div><div class="module-card__title">Microprogresión</div><div class="module-card__desc">Las 10 variables de la Prescripción vigente y su mecánica de ajuste ciclo a ciclo.</div></a>
+      <a class="module-card" href="modules/09-macroprogresion/index.html"><div class="module-card__num">09</div><div class="module-card__title">Macroprogresión</div><div class="module-card__desc">Microciclo→Mesociclo→Bloque→Nivel — y por qué Track/Sistema quedan fuera.</div></a>
+      <a class="module-card" href="modules/10-autorregulacion/index.html"><div class="module-card__num">10</div><div class="module-card__title">Autorregulación</div><div class="module-card__desc">RPE/RIR/Cumplimiento propios; Dolor/Fatiga/Sueño exclusivamente de Recovery.</div></a>
+      <a class="module-card" href="modules/11-estancamiento/index.html"><div class="module-card__num">11</div><div class="module-card__title">Estancamiento</div><div class="module-card__desc">Detección, confirmación, falsos positivos/negativos y escalera de acciones.</div></a>
+      <a class="module-card" href="modules/12-deload/index.html"><div class="module-card__num">12</div><div class="module-card__title">Deload</div><div class="module-card__desc">Programado, reactivo y preventivo — su prioridad, duración y reincorporación.</div></a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Sistema</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/13-integracion/index.html"><div class="module-card__num">13</div><div class="module-card__title">Integración</div><div class="module-card__desc">Motor BPS, Recovery, Knowledge Base, Workout Generator — con las matrices Pipeline→Evento y Evento→Consumidor.</div></a>
+      <a class="module-card" href="modules/14-observabilidad/index.html"><div class="module-card__num">14</div><div class="module-card__title">Observabilidad</div><div class="module-card__desc">Logs, métricas, KPIs, auditorías, replay y la matriz Error→Recuperación.</div></a>
+      <a class="module-card" href="modules/15-arquitectura-datos/index.html"><div class="module-card__num">15</div><div class="module-card__title">Arquitectura de Datos</div><div class="module-card__desc">El contrato conceptual de persistencia y la extensión pendiente del CHECK de eventos.</div></a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Gobernanza</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/16-adr/index.html"><div class="module-card__num">16</div><div class="module-card__title">ADR</div><div class="module-card__desc">PE-ADR-01…06 — las decisiones propias de este documento.</div></a>
+      <a class="module-card" href="modules/17-riesgos/index.html"><div class="module-card__num">17</div><div class="module-card__title">Riesgos</div><div class="module-card__desc">7 riesgos clasificados con mitigación, incluyendo los hallazgos de la autoauditoría.</div></a>
+      <a class="module-card" href="modules/18-roadmap/index.html"><div class="module-card__num">18</div><div class="module-card__title">Roadmap</div><div class="module-card__desc">Prerequisitos bloqueantes, alcance de v1.0 y candidatos para v1.1.</div></a>
+      <a class="module-card" href="modules/19-preguntas/index.html"><div class="module-card__num">19</div><div class="module-card__title">Preguntas abiertas</div><div class="module-card__desc">7 pendientes consolidadas — nada resuelto aquí por adelantado.</div></a>
+      <a class="module-card" href="modules/20-glosario/index.html"><div class="module-card__num">20</div><div class="module-card__title">Glosario</div><div class="module-card__desc">Todo término del documento, alfabético, con su origen.</div></a>
+    </div>
+  </div>
+
+  <div class="landing-footer">BREY Progression Engine Handbook v1.0 — profundiza el módulo 05 del Architecture Handbook y se apoya en el Motor BPS Handbook v1.0. El handbook tiene prioridad sobre el código.</div>
+
+</div>
+</body>
+</html>

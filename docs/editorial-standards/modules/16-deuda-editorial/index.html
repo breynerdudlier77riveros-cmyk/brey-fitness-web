@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>16 · Deuda Editorial — Editorial Standards</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="deuda-editorial" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 16 · Gobernanza</p>
+<h1>Deuda Editorial</h1>
+<p class="lede">Catorce deudas registradas, priorizadas por lo que bloquean. Tres de ellas son en realidad una sola —el bloque de trazabilidad— y su resolución conjunta desbloquea más que cualquier otra intervención.</p>
+
+<h2 id="catalogo">Catálogo completo</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>ID</th><th>Deuda</th><th>Módulo</th><th>Severidad</th><th>Tipo</th></tr></thead>
+<tbody>
+<tr><td><code>ED-D01</code></td><td>No existe ciclo de vida de una entrada (Draft/Approved/Deprecated/Archived)</td><td><a href="../02-ciclo-vida/index.html">02</a></td><td><span class="severity severity--critica">crítica</span></td><td>Decisión documental</td></tr>
+<tr><td><code>ED-D02</code></td><td>No existe ningún rol editorial formal</td><td><a href="../03-roles/index.html">03</a></td><td><span class="severity severity--critica">crítica</span></td><td>Decisión documental</td></tr>
+<tr><td><code>ED-D03</code></td><td>No existe proceso de solicitud de entrada nueva</td><td><a href="../04-flujo/index.html">04</a></td><td><span class="severity severity--media">media</span></td><td>Decisión documental</td></tr>
+<tr><td><code>ED-D04</code></td><td>No existe ningún proceso de revisión</td><td><a href="../10-revision/index.html">10</a></td><td><span class="severity severity--critica">crítica</span></td><td>Decisión documental</td></tr>
+<tr><td><code>ED-D05</code></td><td>No existe acto formal de aprobación</td><td><a href="../04-flujo/index.html">04</a></td><td><span class="severity severity--critica">crítica</span></td><td>Decisión documental</td></tr>
+<tr><td><code>ED-D06</code></td><td>La cola editorial no tiene destinatario ni plazos declarados</td><td><a href="../04-flujo/index.html">04</a></td><td><span class="severity severity--alta">alta</span></td><td>Decisión documental</td></tr>
+<tr><td><code>ED-D07</code></td><td>Ningún proceso detecta la deriva código ↔ handbook</td><td><a href="../10-revision/index.html">10</a></td><td><span class="severity severity--alta">alta</span></td><td>Decisión documental</td></tr>
+<tr><td><code>ED-D08</code></td><td>No hay dónde registrar la autoría de una decisión</td><td><a href="../08-trazabilidad/index.html">08</a></td><td><span class="severity severity--critica">crítica</span></td><td><strong>Modelo de datos</strong></td></tr>
+<tr><td><code>ED-D09</code></td><td>El catálogo no hereda el sistema de niveles de evidencia</td><td><a href="../06-evidencia/index.html">06</a></td><td><span class="severity severity--alta">alta</span></td><td>Decisión documental</td></tr>
+<tr><td><code>ED-D10</code></td><td>No existe versionado por entrada</td><td><a href="../07-versionado/index.html">07</a></td><td><span class="severity severity--critica">crítica</span></td><td><strong>Modelo de datos</strong></td></tr>
+<tr><td><code>ED-D11</code></td><td>No existe criterio de equivalencia entre entradas</td><td><a href="../09-control-calidad/index.html">09</a></td><td><span class="severity severity--alta">alta</span></td><td>Decisión documental</td></tr>
+<tr><td><code>ED-D12</code></td><td>El protocolo de escalado no tiene soporte de registro</td><td><a href="../11-conflictos/index.html">11</a></td><td><span class="severity severity--alta">alta</span></td><td><strong>Modelo de datos</strong></td></tr>
+<tr><td><code>ED-D13</code></td><td>Retirar una entrada no es expresable</td><td><a href="../12-mantenimiento/index.html">12</a></td><td><span class="severity severity--critica">crítica</span></td><td>Depende de ED-D01</td></tr>
+<tr><td><code>ED-D14</code></td><td>Fusionar duplicados no tiene criterio ni mecanismo</td><td><a href="../12-mantenimiento/index.html">12</a></td><td><span class="severity severity--alta">alta</span></td><td>Depende de ED-D11 · ED-D01</td></tr>
+</tbody>
+</table>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Resumen</th><th>N.º</th></tr></thead>
+<tbody>
+<tr><td>Deudas totales</td><td><strong>14</strong></td></tr>
+<tr><td>Críticas</td><td>6</td></tr>
+<tr><td>Altas</td><td>6</td></tr>
+<tr><td>Medias</td><td>2</td></tr>
+<tr><td>Que exigen cambios en el modelo de datos</td><td><strong>3</strong> (ED-D08, ED-D10, ED-D12)</td></tr>
+<tr><td>Que son solo decisión documental</td><td><strong>9</strong></td></tr>
+<tr><td>Que dependen de otra deuda</td><td><strong>2</strong> (ED-D13, ED-D14)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="bloque">El bloque de trazabilidad — tres deudas, una sola brecha</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">ED-ADR-05 · Se tratan como una sola</div>
+  <p><strong>ED-D01</strong> (estados) + <strong>ED-D10</strong> (versionado por entrada) + <strong>ED-D08</strong> (registro de autoría) son interdependientes: sin estados no hay qué versionar, sin versionado no hay a qué asociar la autoría, y sin autoría el estado no prueba nada. Resolver una sin las otras dos no cierra la brecha que impide cumplir P14.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Las tres deudas del bloque y lo que desbloquean juntas</div>
+<pre class="mermaid">
+graph TD
+  B["BLOQUE DE TRAZABILIDAD"] --> D1["ED-D01 · estados"]
+  B --> D10["ED-D10 · versionado por entrada"]
+  B --> D8["ED-D08 · registro de autoría"]
+  D1 --> U1["ED-D05 · acto de aprobación"]
+  D1 --> U2["ED-D13 · retirar una entrada"]
+  D1 --> U3["ED-D04 · proceso de revisión"]
+  D10 --> U4["Auditar una decisión concreta"]
+  D8 --> U5["⛔ Cumplir P14"]
+  D1 --> U5
+  D10 --> U5
+</pre>
+</div>
+<p>Cerrar el bloque desbloquea directamente <strong>cuatro deudas más</strong> (ED-D04, ED-D05, ED-D13 y parcialmente ED-D14) y es la única vía para que P14 pase de principio enunciado a principio verificable.</p>
+
+<h2 id="prioridad">Lista priorizada</h2>
+<p class="matrix-note">Orden por lo que desbloquea, no por severidad aislada.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Prioridad</th><th>Deuda</th><th>Desbloquea</th><th>Coste</th></tr></thead>
+<tbody>
+<tr><td><strong>1</strong></td><td>Bloque de trazabilidad (ED-D01 + D10 + D08)</td><td>P14 verificable · 4 deudas más · el acto de aprobación</td><td>1 decisión documental + 1 cambio de modelo</td></tr>
+<tr><td><strong>2</strong></td><td>ED-D02 · roles editoriales</td><td>ED-D04, ED-D05, ED-D06 — todos necesitan un "quién"</td><td>Decisión documental</td></tr>
+<tr><td><strong>3</strong></td><td>ED-D04 · proceso de revisión</td><td>La única defensa contra los errores de contenido</td><td>Depende de 1 y 2</td></tr>
+<tr><td><strong>4</strong></td><td>ED-D09 · evidencia en el catálogo</td><td>Que las zonas de riesgo declaren su base</td><td>Decisión documental</td></tr>
+<tr><td><strong>5</strong></td><td>ED-D11 + ED-D14 · equivalencia y fusión</td><td>Gestión de duplicados a escala</td><td>Decisión documental + mecanismo</td></tr>
+<tr><td><strong>6</strong></td><td>ED-D06 · destinatario de la cola editorial</td><td>Cierre del ciclo de corrección</td><td>Depende de 2</td></tr>
+<tr><td><strong>7</strong></td><td>ED-D07 · detección de deriva</td><td>Que "el handbook manda" sea verificable</td><td>Decisión documental</td></tr>
+<tr><td><strong>8</strong></td><td>ED-D03 · proceso de solicitud</td><td>Priorización del trabajo editorial</td><td>Decisión documental</td></tr>
+<tr><td><strong>9</strong></td><td>ED-D12 · registro de escalados</td><td>Auditoría de conflictos</td><td>Modelo de datos</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="bloqueantes">Qué bloquea qué</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Objetivo</th><th>Bloqueado por</th></tr></thead>
+<tbody>
+<tr><td><strong>Publicar el primer Exercise oficial</strong></td><td>Nada editorial — lo bloquea el <strong>etiquetado de los 7 atributos</strong> (Roadmap #2, dueño Contenido)</td></tr>
+<tr><td><strong>Publicarlo cumpliendo P14</strong></td><td>Bloque de trazabilidad (ED-D01 + D08 + D10)</td></tr>
+<tr><td><strong>Aprobar formalmente una entrada</strong></td><td>ED-D01 · ED-D02 · ED-D05</td></tr>
+<tr><td><strong>Revisar antes de publicar</strong></td><td>ED-D04 · que depende de ED-D01 y ED-D02</td></tr>
+<tr><td><strong>Retirar una entrada</strong></td><td>ED-D13 · que depende de ED-D01</td></tr>
+<tr><td><strong>Operar con más de ~50 entradas</strong></td><td>ED-D11 · ED-D14 · ED-D06</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">La distinción que más importa</div>
+  <p><strong>Ninguna deuda editorial impide publicar la primera entrada.</strong> Lo que impiden es publicarla <em>de forma gobernada</em>: sin ellas, la entrada existirá y cumplirá el contrato del catálogo, pero nadie podrá demostrar quién la autorizó ni revisar si es correcta. Es la diferencia entre tener catálogo y tener catálogo auditable.</p>
+</div>
+
+<h2 id="criterio-humano">Qué depende irreduciblemente de criterio humano</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Decisión</th><th>¿Por diseño o por omisión?</th><th>Evidencia</th></tr></thead>
+<tbody>
+<tr><td>La intensidad de carga de cada zona de riesgo</td><td><strong>Por diseño</strong></td><td>"Exige etiquetado con criterio biomecánico… la única versión honesta del filtro de seguridad"</td></tr>
+<tr><td>El orden de dificultad de una cadena</td><td><strong>Por diseño</strong></td><td>"El orden lo autoriza criterio de entrenador (P14)"</td></tr>
+<tr><td>Todo el etiquetado de los 7 atributos pendientes</td><td><strong>Por diseño</strong></td><td>"Es etiquetado con criterio, no código"</td></tr>
+<tr><td>Verificar que una clasificación es correcta</td><td><strong>Por diseño</strong></td><td>Ninguna validación estructural puede detectarlo</td></tr>
+<tr><td>Juzgar si dos entradas son duplicados</td><td>Por omisión</td><td>Falta criterio de equivalencia — ED-D11</td></tr>
+<tr><td>Decidir qué evidencia respalda un dato de catálogo</td><td>Por omisión</td><td>El sistema de badges no se extendió al catálogo — ED-D09</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Cuatro por diseño, dos por omisión</div>
+  <p>Las cuatro primeras no deben cerrarse nunca: el ecosistema las razonó y aceptó su coste. Las dos últimas son deuda saldable con una decisión documental — y confundir unas con otras llevaría a intentar automatizar lo que debe seguir siendo humano, o a resignarse ante lo que sí puede especificarse.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../15-anti-patterns/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 15 · Anti-patterns</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../17-roadmap/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">17 · Roadmap y Auditoría →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

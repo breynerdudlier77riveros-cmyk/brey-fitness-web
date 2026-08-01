@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>02 · Arquitectura General — Motor BPS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="arquitectura" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 02 · Fundamentos</p>
+<h1>Arquitectura General</h1>
+<p class="lede">El Motor visto como caja: entradas, procesamiento, salidas, dependencias, límites e invariantes. Los módulos 03–13 son el zoom de cada región de este mapa.</p>
+
+<h2 id="diagrama">Diagrama completo</h2>
+<div class="diagram">
+<div class="diagram-label">El Motor y sus fronteras — nada entra ni sale por otro camino</div>
+<pre class="mermaid">
+graph TD
+  subgraph ENTRADAS
+    DX["Resultado del Diagnóstico"]
+    PAY["Evento compra_confirmada"]
+    PRF["Perfil (fresco por ciclo)"]
+    VRE["Veredicto Recovery"]
+    DPE["Decisión Progression"]
+    CAT["Catálogo (versión)"]
+    CLK["Fecha del ciclo (explícita)"]
+  end
+  subgraph MOTOR["MOTOR BPS"]
+    ACT["Activación (06)"]
+    FSM["Máquina de estados (05)"]
+    GATES["Gates (07)"]
+    ORQ["Ciclo semanal (07/08)"]
+  end
+  subgraph SALIDAS
+    PTR["Punteros: sistema_actual / nivel_actual / estado"]
+    EVT["Eventos con razón + contexto"]
+    GEN["Invocación al Generator"]
+    ERR["Errores tipados"]
+  end
+  DX --> ACT
+  PAY --> ACT
+  ACT --> FSM
+  PRF --> GATES
+  GATES --> ORQ
+  VRE --> ORQ
+  DPE --> ORQ
+  CAT --> ORQ
+  CLK --> ORQ
+  FSM --> PTR
+  FSM --> EVT
+  ORQ --> GEN
+  ORQ --> EVT
+  GATES --> ERR
+  ACT --> ERR
+</pre>
+</div>
+
+<h2 id="procesamiento">Procesamiento — los dos modos de ejecución</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Modo</th><th>Disparador</th><th>Qué hace</th><th>Módulo</th></tr></thead>
+<tbody>
+<tr><td><strong>Reactivo</strong></td><td>Evento externo: <code>compra_confirmada</code>, Diagnóstico completado con compra en espera, Perfil completado con gate pendiente</td><td>Activación y transiciones de gate — cambios de estado puntuales</td><td>05, 06</td></tr>
+<tr><td><strong>Ciclo semanal</strong></td><td>Cierre de Microciclo (batch programado, no reactivo — ADR-M04)</td><td>Recovery → Progression → transiciones → generación de la semana siguiente</td><td>07, 08</td></tr>
+</tbody>
+</table>
+</div>
+<p>No existe un tercer modo. En particular, el Motor NO reacciona a cada sesión registrada (eso sería acoplarlo a la cadencia del Player); las sesiones se acumulan en el historial y se evalúan en el ciclo.</p>
+
+<h2 id="dependencias">Dependencias</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Depende de</th><th>Para qué</th><th>Tipo de acoplamiento</th></tr></thead>
+<tbody>
+<tr><td>Diagnóstico</td><td>Resultado {sistema, nivelEntrada, razones}</td><td>Consume su DTO — nunca sus internas</td></tr>
+<tr><td>Recovery Engine</td><td>Veredicto {si, tipo, razon}</td><td>Función pura invocada por el Motor con la ventana ya leída</td></tr>
+<tr><td>Progression Engine</td><td>Decisión {accion, alcance, razones, contexto}</td><td>Ídem</td></tr>
+<tr><td>Workout Generator</td><td>Materializar la semana</td><td>Invocación con todo resuelto — el Generator no vuelve a preguntar nada al Motor</td></tr>
+<tr><td>Repositorios (capa de datos)</td><td>Leer Perfil/historial, escribir punteros y eventos</td><td>Única vía de I/O (ADR-007/008 del marco)</td></tr>
+<tr><td>Catálogo (Training Framework)</td><td>Estructura Bloque/Mesociclo/Microciclo del Sistema activo</td><td>Solo lectura, por versión</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Quién depende del Motor:</strong> la capa de presentación (para saber qué mostrar según estado), el Generator (es invocado por él), y nadie más. Ni Recovery ni Progression conocen al Motor — son funciones puras que él llama.</p>
+
+<h2 id="limites">Límites</h2>
+<ul>
+  <li><strong>Temporal:</strong> el Motor actúa en activación, en transiciones de gate y en el ciclo semanal. Fuera de esos momentos, no existe (no observa, no interviene, no "vigila").</li>
+  <li><strong>De conocimiento:</strong> no conoce ejercicios, patrones, RPE ni fatiga — conoce veredictos, estados y estructura de plantillas.</li>
+  <li><strong>De escritura:</strong> escribe exactamente tres cosas: punteros de estado, eventos, e invocaciones de generación. Jamás escribe logs de sesión, catálogo ni Perfil (con una excepción: los punteros <code>sistema_actual</code>/<code>nivel_actual</code> viven físicamente en el Perfil — son SUYOS aunque vivan ahí, ver invariante IN-3).</li>
+</ul>
+
+<h2 id="invariantes">Invariantes</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>ID</th><th>Invariante</th><th>Verificación</th></tr></thead>
+<tbody>
+<tr><td>IN-1</td><td>El Sistema activo solo cambia por compra confirmada o transición de fin de ciclo — jamás por re-evaluación automática</td><td>No existe camino de código de <code>diagnosticado → activo</code> sin evento de compra</td></tr>
+<tr><td>IN-2</td><td>Ninguna generación ocurre sin pasar los dos gates (Diagnóstico + Perfil deportivo)</td><td>El contrato del Generator solo es invocable desde el ciclo (I-G4 del marco)</td></tr>
+<tr><td>IN-3</td><td><code>sistema_actual</code>/<code>nivel_actual</code>/estado: escritores únicos = activación y ciclo del Motor. El formulario de Perfil del usuario jamás los toca</td><td>Auditable por origen de eventos; limitación RLS actual documentada en el marco (módulo 10)</td></tr>
+<tr><td>IN-4</td><td>Toda transición emite exactamente un evento, con razón y contexto</td><td>NOT NULL + conteo eventos == conteo transiciones en replay</td></tr>
+<tr><td>IN-5</td><td>El estado materializado siempre es recomputable desde los eventos (y los eventos ganan)</td><td>Test de replay determinista (módulo 13)</td></tr>
+<tr><td>IN-6</td><td>El Perfil se lee fresco en cada ciclo — nunca se congela una copia en la activación</td><td>La activación no persiste snapshot de Perfil; el ciclo lo lee al inicio</td></tr>
+<tr><td>IN-7</td><td>El ciclo consulta Recovery antes que Progression, siempre, y un veredicto de descarga es terminal para la evaluación de progresión de ese ciclo</td><td>Orden fijo en el pipeline (07) — sin rama que lo altere</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="salidas-resumen">Entradas y salidas — resumen</h2>
+<p>El inventario exhaustivo con tipo/origen/obligatoriedad/validación es el módulo <a href="../03-entradas/index.html">03</a> (entradas, 18 filas) y el <a href="../04-salidas/index.html">04</a> (salidas: punteros, eventos, invocaciones, errores). Este módulo solo fija la regla estructural: <strong>si un dato no aparece en el módulo 03, el Motor no puede leerlo; si un efecto no aparece en el 04, el Motor no puede producirlo.</strong> Agregar uno nuevo exige actualizar esos módulos primero (handbook &gt; código).</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../01-filosofia/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 01 · Filosofía</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../03-entradas/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">03 · Entradas →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

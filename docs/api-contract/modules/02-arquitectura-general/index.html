@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>02 · Arquitectura General — BREY API Contract Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="arquitectura-general" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 02 · Acceso</p>
+<h1>Arquitectura General</h1>
+<p class="lede">Quién habla con quién en el ecosistema, y qué conversación está explícitamente prohibida. Consolidado del Engineering Handbook (04), el Domain Model Handbook (02, bounded contexts) y los diagramas de integración de cada motor — con una corrección explícita citada (AR-005).</p>
+
+<div class="meta-row">
+  <span class="chip">Server Actions + Route Handlers (Engineering Handbook, 04)</span>
+  <span class="chip">7 bounded contexts (Domain Model Handbook, 02)</span>
+</div>
+
+<h2 id="capas">Las cuatro capas reales</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Capa</th><th>Qué es hoy</th><th>Origen</th></tr></thead>
+<tbody>
+<tr><td>Frontend</td><td>Server Components (lectura) + Client Components (interacción) de Next.js — nunca llama a Supabase directamente, siempre a través de una Server Action o de datos ya resueltos por un Server Component</td><td>Engineering Handbook (03, 04)</td></tr>
+<tr><td>Backend</td><td>Server Actions (<code>"use server"</code>) para Commands, funciones repositorio para Queries, y exactamente 2 Route Handlers reales (<code>app/api/lead</code>, <code>app/api/contacto</code>) reservados para integración con servicios externos</td><td>Engineering Handbook (04, 06)</td></tr>
+<tr><td>Motores</td><td>Motor BPS (orquestador), Progression Engine y Recovery Engine (funciones puras, sin I/O propio), Workout Generator (orquesta I/O vía repositorios)</td><td>Motor BPS Handbook, Progression Engine Handbook, Architecture Handbook (06, 08)</td></tr>
+<tr><td>Repositorios</td><td>La única capa que toca Supabase — reciben el cliente de datos como primer argumento, devuelven <code>T | null</code>/<code>T[]</code>, nunca deciden (Architecture Handbook, 11)</td><td>Architecture Handbook (11), Engineering Handbook (04)</td></tr>
+<tr><td>Supabase</td><td>Postgres + Auth + Storage — única base de datos y único proveedor de identidad de todo el ecosistema, incluido BCS</td><td>Engineering Handbook (04, 08)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="diagrama-flujo">Diagrama — flujo maestro de una semana de entrenamiento</h2>
+<div class="diagram">
+<div class="diagram-label">Motor BPS orquesta; Progression Engine y Recovery Engine nunca se invocan entre sí ni son invocados directamente por el frontend</div>
+<pre class="mermaid">
+flowchart TD
+  FE["Frontend<br/>(Server/Client Components)"] -->|"Server Action"| MBPS["Motor BPS<br/>(orquestador)"]
+  MBPS -->|"1º consulta, terminal si descarga"| REC["Recovery Engine<br/>(función pura)"]
+  MBPS -->|"2º consulta, solo si Recovery no exige descarga"| PE["Progression Engine<br/>(función pura)"]
+  MBPS -->|"3º invoca"| WG["Workout Generator"]
+  WG -->|"repositorio"| DB[("Supabase<br/>Postgres")]
+  MBPS -->|"repositorio"| DB
+  WPL["Workout Player<br/>(cliente, cola offline)"] -->|"sincroniza al reconectar"| DB
+  DB -->|"Historial, próximo ciclo"| MBPS
+</pre>
+</div>
+
+<h2 id="diagrama-prohibido">Diagrama — conversaciones prohibidas</h2>
+<div class="diagram">
+<div class="diagram-label">Ninguna de estas cuatro flechas existe en ningún handbook de dominio — su ausencia es una regla, no un olvido</div>
+<pre class="mermaid">
+flowchart LR
+  FE2["Frontend"] -.->|"PROHIBIDO — violación de capas"| PE2["Progression Engine"]
+  PE2b["Progression Engine"] -.->|"PROHIBIDO — PE nunca inicia una llamada"| MBPS2["Motor BPS"]
+  PE3["Progression Engine"] -.->|"PROHIBIDO — solo recibe el Veredicto ya resuelto"| REC2["Recovery Engine"]
+  BCS2["BCS<br/>(Cliente, Medición, EnlacePúblico)"] -.->|"PROHIBIDO — BCS es standalone en v1"| CORE2["Core Training / Progression"]
+</pre>
+</div>
+
+<h2 id="ar-005">Corrección citada — dirección real Motor BPS ↔ Progression Engine</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">AR-005 — ciclo falso en el Engineering Handbook</div>
+  <p>La "Matriz Módulo → Dependencias" del Engineering Handbook (02) declara simultáneamente que Motor BPS depende de Progression Engine y que Progression Engine depende de Motor BPS — un ciclo A→B→A. Los dos handbooks de dominio originales son, en cambio, consistentes entre sí: la relación es unidireccional. Motor BPS <strong>invoca</strong> a Progression Engine como una función pura ("El Progression Engine como función pura invocada por el Motor BPS", Progression Engine Handbook, 02); Progression Engine nunca inicia una llamada hacia Motor BPS. Este documento adopta la relación correcta (Motor BPS → invoca → Progression Engine) en todo el catálogo (07) y en los diagramas de esta página — no replica la matriz del Engineering Handbook tal cual.</p>
+</div>
+
+<h2 id="bounded-contexts">Los 7 bounded contexts y sus dependencias permitidas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Contexto</th><th>Puede depender de</th><th>Nunca depende de</th></tr></thead>
+<tbody>
+<tr><td>Identity</td><td>Nada — raíz del árbol</td><td>Cualquier otro contexto</td></tr>
+<tr><td>Diagnostics</td><td>Identity</td><td>Core Training, Progression, Recovery, Body Composition</td></tr>
+<tr><td>Core Training</td><td>Identity, Diagnostics</td><td>Body Composition</td></tr>
+<tr><td>Progression</td><td>Recovery (solo el Veredicto ya resuelto)</td><td>Core Training como dependencia bloqueante (solo lo invoca), Body Composition</td></tr>
+<tr><td>Recovery</td><td>Nada — hoja del árbol de dependencias</td><td>Progression, Core Training</td></tr>
+<tr><td>Body Composition</td><td>Identity (solo identidad de Entrenador)</td><td>Core Training, Progression, Diagnostics, Recovery</td></tr>
+<tr><td>Reporting</td><td>Body Composition (su único miembro real hoy)</td><td>Cualquier otro contexto</td></tr>
+</tbody>
+</table>
+</div>
+<p class="matrix-note">Fuente: Domain Model Handbook, 02. Ningún endpoint del catálogo (07) puede violar esta tabla — ver 13 (Seguridad) para los códigos de error de frontera cruzada.</p>
+
+<h2 id="que-nunca-habla">Qué nunca habla directamente — resumen operativo</h2>
+<ul>
+  <li><strong>El frontend nunca invoca un motor directamente.</strong> Toda evaluación de Progresión o Recuperación pasa por <code>cicloSemanal</code> de Motor BPS (Architecture Handbook, 11, "Casos límite e inválidos").</li>
+  <li><strong>Progression Engine nunca consulta a Recovery Engine.</strong> Recibe el Veredicto ya resuelto como argumento de invocación (Progression Engine Handbook, 13) — la consulta a Recovery es responsabilidad exclusiva de Motor BPS, siempre primero (Motor BPS Handbook, BPS-007).</li>
+  <li><strong>Workout Player y Motor BPS nunca tienen canal directo.</strong> Solo se encuentran a través del Historial (<code>workout_logs</code>) en el ciclo siguiente (Motor BPS Handbook, 12, regla A-2).</li>
+  <li><strong>BCS nunca lee ni escribe datos de Core Training, Progression o Diagnóstico.</strong> Su única dependencia es la identidad autenticada del Entrenador (BCS Handbook, 00; Implementation Handbook, 02) — ver AR-003 para el matiz de dependencia técnica de presentación, no de dominio, con BCS Design System.</li>
+  <li><strong>Ningún repositorio decide.</strong> Devuelve datos ya mapeados o <code>null</code>/<code>[]</code> — la interpretación de "esto es un error de dominio" ocurre siempre en el servicio que lo llama, nunca en el repositorio (Architecture Handbook, 11).</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../01-filosofia-api/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 01 · Filosofía de API</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../03-autenticacion/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">03 · Autenticación →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

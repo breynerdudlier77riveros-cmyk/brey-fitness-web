@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>15 · Mantenimiento — Master Exercise Dataset</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="mantenimiento" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Sección 15 · Operación</p>
+<h1>Mantenimiento</h1>
+<p class="lede">Seis estados, once transiciones y una regla que las gobierna todas: <strong>nada llega a una persona sin haber sido aprobado por otra</strong>.</p>
+
+<h2 id="estados">Los seis estados</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th><code>status</code></th><th>Significado</th><th>¿Visible en producto?</th><th>¿Elegible para slots?</th><th>¿Referenciable?</th></tr></thead>
+<tbody>
+<tr><td><code>draft</code></td><td>En construcción; incompleto por definición</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td><code>review</code></td><td>Completo, pendiente de revisión</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td><code>approved</code></td><td>Revisado y aceptado; aún no publicado</td><td>No</td><td>No</td><td>Sí, en el mismo lote</td></tr>
+<tr><td><code>published</code></td><td><strong>Activo</strong> — el estado normal</td><td>Sí</td><td><strong>Sí</strong></td><td>Sí</td></tr>
+<tr><td><code>deprecated</code></td><td>Retirado; no se asigna a nada nuevo</td><td>Solo en historial</td><td>No</td><td>Sí</td></tr>
+<tr><td><code>archived</code></td><td>Retirado de toda visibilidad</td><td>Solo en historial</td><td>No</td><td>Solo histórico — RL-9</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Solo <code>published</code> llega a una persona</div>
+  <p>Es la regla <code>R2</code> de la arquitectura. Un ejercicio en cualquier otro estado no puede aparecer en la sesión de nadie. La separación entre <code>approved</code> y <code>published</code> existe para que un lote se apruebe pieza a pieza y se publique de una vez, ya con sus relaciones completas y sus invariantes verificados.</p>
+</div>
+
+<h2 id="transiciones">Las once transiciones</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Desde</th><th>Hasta</th><th>Disparador</th><th>Requiere aprobación</th></tr></thead>
+<tbody>
+<tr><td>T1</td><td>—</td><td><code>draft</code></td><td>Alta de una entrada nueva</td><td>No</td></tr>
+<tr><td>T2</td><td><code>draft</code></td><td><code>review</code></td><td>El checklist de la sección 16 está completo</td><td>No</td></tr>
+<tr><td>T3</td><td><code>review</code></td><td><code>draft</code></td><td>La revisión devuelve la entrada con observaciones</td><td>No</td></tr>
+<tr><td>T4</td><td><code>review</code></td><td><code>approved</code></td><td>Revisión favorable</td><td><strong>Sí</strong></td></tr>
+<tr><td>T5</td><td><code>approved</code></td><td><code>published</code></td><td>Publicación del lote</td><td>No — ya aprobada</td></tr>
+<tr><td>T6</td><td><code>approved</code></td><td><code>draft</code></td><td>Se detecta un problema antes de publicar</td><td>No</td></tr>
+<tr><td>T7</td><td><code>published</code></td><td><code>published</code></td><td>Revisión de contenido — <code>rev</code> + 1</td><td>Según <code>type</code></td></tr>
+<tr><td>T8</td><td><code>published</code></td><td><code>deprecated</code></td><td>Retirada del catálogo activo</td><td><strong>Sí</strong></td></tr>
+<tr><td>T9</td><td><code>deprecated</code></td><td><code>published</code></td><td>Reactivación</td><td><strong>Sí</strong></td></tr>
+<tr><td>T10</td><td><code>deprecated</code></td><td><code>archived</code></td><td>Retirada definitiva, con las aristas ya retiradas</td><td><strong>Sí</strong></td></tr>
+<tr><td>T11</td><td><code>draft</code></td><td><code>archived</code></td><td>Abandono de un borrador</td><td>No</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Transiciones prohibidas</div>
+  <p>Cualquier transición que no sea una de las once está <strong>prohibida</strong>. En particular:</p>
+  <ul>
+    <li><code>draft</code> → <code>published</code> — saltarse la revisión</li>
+    <li><code>published</code> → <code>archived</code> — archivar sin pasar por deprecación deja aristas colgando</li>
+    <li><code>archived</code> → cualquier estado activo — lo archivado no vuelve; se crea una entrada nueva</li>
+    <li><code>review</code> → <code>published</code> — aprobar y publicar en un solo acto</li>
+  </ul>
+</div>
+<div class="diagram">
+<div class="diagram-label">Máquina de estados del Exercise</div>
+<pre class="mermaid">
+stateDiagram-v2
+  [*] --> draft: T1 alta
+  draft --> review: T2 checklist completo
+  review --> draft: T3 con observaciones
+  review --> approved: T4 revisión favorable
+  approved --> draft: T6 problema detectado
+  approved --> published: T5 publicación del lote
+  published --> published: T7 revisión · rev+1
+  published --> deprecated: T8 retirada
+  deprecated --> published: T9 reactivación
+  deprecated --> archived: T10 retirada definitiva
+  draft --> archived: T11 abandono
+  archived --> [*]
+</pre>
+</div>
+
+<h2 id="autoridad">Autoridad</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Acto</th><th>Quién puede ejecutarlo</th><th>Restricción</th></tr></thead>
+<tbody>
+<tr><td>Crear un borrador</td><td>Cualquier persona con acceso de escritura al dataset</td><td>Ninguna</td></tr>
+<tr><td>Editar un borrador</td><td>Cualquiera con acceso de escritura</td><td>Ninguna</td></tr>
+<tr><td>Enviar a revisión (T2)</td><td>Quien redactó la entrada</td><td>Checklist completo</td></tr>
+<tr><td>Aprobar (T4)</td><td>Persona con criterio de entrenamiento</td><td><strong>Distinta de quien la redactó</strong></td></tr>
+<tr><td>Publicar (T5)</td><td>Quien gestiona la publicación de la versión</td><td>Invariantes verificados</td></tr>
+<tr><td>Deprecar (T8)</td><td>Persona con criterio de entrenamiento</td><td>Motivo registrado en <code>revisions</code></td></tr>
+<tr><td>Archivar (T10)</td><td>Persona con criterio de entrenamiento</td><td>Aristas retiradas — RL-9</td></tr>
+<tr><td>Revisión <code>fix</code> (T7)</td><td>Cualquiera con acceso de escritura</td><td>Sin efecto semántico</td></tr>
+<tr><td>Revisión <code>minor</code> o <code>major</code> (T7)</td><td>Requiere aprobación de un segundo</td><td>Misma regla que T4</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">La regla de los dos pares de ojos</div>
+  <p><strong>Nadie aprueba su propia entrada.</strong> Es la única restricción de autoridad no negociable del dataset, y la razón es directa: lo que se publica aquí acaba siendo lo que una persona ejecuta con carga sobre su cuerpo. Una zona de riesgo mal declarada no produce un error visible — produce una prescripción inadecuada que nadie detecta.</p>
+  <p>Si en algún momento solo hay una persona con criterio disponible, la salida correcta es que la entrada espere en <code>review</code>, no que se apruebe a sí misma.</p>
+</div>
+
+<h2 id="rutinas">Rutinas de mantenimiento</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Rutina</th><th>Cuándo</th><th>Qué comprueba</th></tr></thead>
+<tbody>
+<tr><td><strong>Validación de invariantes</strong></td><td>En cada publicación de versión</td><td>Los 49 invariantes: <code>ARQ</code> 6 · <code>ORG</code> 6 · <code>CMP</code> 6 · <code>IDX</code> 6 · <code>SLG</code> 6 · <code>VAR</code> 6 · <code>CAD</code> 7 · <code>REG</code> 6</td></tr>
+<tr><td><strong>Validación del grafo</strong></td><td>En cada publicación de versión</td><td>Las 10 comprobaciones de la sección 11</td></tr>
+<tr><td><strong>Condiciones de publicación</strong></td><td>Por entrada, antes de T5</td><td><code>V1</code>…<code>V13</code></td></tr>
+<tr><td><strong>Auditoría de cobertura</strong></td><td>Al cerrar cada fase del roadmap</td><td>Combinaciones rol × equipo × nivel sin ninguna entrada elegible</td></tr>
+<tr><td><strong>Revisión de <code>risk_zones</code> en <code>null</code></strong></td><td>Al cerrar cada fase</td><td>Que ninguna entrada <code>published</code> tenga el campo sin evaluar</td></tr>
+<tr><td><strong>Revisión de conjuntos de variantes</strong></td><td>Al cerrar un patrón</td><td>VL-1 (más de 6) y VL-3 (variantes que nunca serían elegidas)</td></tr>
+<tr><td><strong>Revisión de cadenas cortadas</strong></td><td>Tras cada deprecación de eslabón</td><td>Vecinos huérfanos pendientes de reconectar</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="deuda">Deuda del dataset</h2>
+<p class="matrix-note">Estados que el dataset admite explícitamente como transitorios y que las rutinas anteriores detectan. Registrarlos es preferible a rellenarlos con supuestos.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Situación</th><th>¿Bloquea publicación?</th><th>Cómo se registra</th></tr></thead>
+<tbody>
+<tr><td><code>risk_zones: null</code></td><td><strong>Sí</strong> — V6</td><td>La entrada permanece en <code>draft</code></td></tr>
+<tr><td>Entrada sin cadena</td><td>No</td><td>Normal hasta la fase 4 del roadmap</td></tr>
+<tr><td>Cadena cortada por deprecación</td><td>No</td><td>Motivo en <code>revisions</code> del eslabón deprecado</td></tr>
+<tr><td>Combinación rol × equipo × nivel sin cobertura</td><td>No</td><td>Auditoría de cobertura al cierre de fase</td></tr>
+<tr><td>Conjunto de variantes con más de 6 hojas</td><td>No</td><td>Justificación registrada — VL-4</td></tr>
+<tr><td>Campo RESERVADO sin poblar</td><td>No</td><td>Es el estado esperado en v1.0</td></tr>
+<tr><td>Patrón reservado con colección vacía</td><td>No</td><td>Es el estado esperado en v1.0</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Una sola situación bloquea, y es la de seguridad</div>
+  <p>De las siete, solo <code>risk_zones: null</code> impide publicar. Las otras seis son formas legítimas de estar a medio construir, y el dataset las declara en vez de disimularlas — DS-09. Publicar un ejercicio cuya carga sobre zonas en riesgo nadie ha evaluado es la única de las siete que puede producir daño.</p>
+</div>
+
+<h2 id="invariantes">Invariantes de estado</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>ID</th><th>Invariante</th></tr></thead>
+<tbody>
+<tr><td><code>EST-1</code></td><td>Toda entrada tiene exactamente un <code>status</code> de los seis</td></tr>
+<tr><td><code>EST-2</code></td><td>Todo cambio de estado corresponde a una de las once transiciones</td></tr>
+<tr><td><code>EST-3</code></td><td>Toda entrada <code>published</code> cumple <code>V1</code>…<code>V13</code></td></tr>
+<tr><td><code>EST-4</code></td><td>Toda entrada que alguna vez fue <code>published</code> tiene <code>approved_by</code> distinto de <code>created_by</code></td></tr>
+<tr><td><code>EST-5</code></td><td>Ninguna entrada <code>archived</code> recibe aristas — RL-9</td></tr>
+<tr><td><code>EST-6</code></td><td>Toda entrada <code>deprecated</code> con sucesor apunta a una entrada <code>published</code> — <code>CMP-4</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../14-regresiones/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 14 · Regresiones</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../16-checklist/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">16 · Checklist →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

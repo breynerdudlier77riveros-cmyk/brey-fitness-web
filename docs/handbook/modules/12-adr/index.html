@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>12 · Decisiones de Arquitectura (ADR) — BREY Architecture Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="adr" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 12 · Gobernanza</p>
+<h1>Decisiones de Arquitectura (ADR)</h1>
+<p class="lede">El registro de decisiones importantes: contexto, decisión, alternativas descartadas y consecuencias. Regla de gobernanza: si una decisión no está aquí, no está tomada — y revertir una requiere un ADR nuevo que la supersede, nunca edición silenciosa. Varias de estas decisiones ya están implementadas y probadas en el sistema real; se marca cuáles.</p>
+
+<div class="meta-row">
+  <span class="chip">14 ADRs</span>
+  <span class="chip">Todas: Aceptada</span>
+</div>
+
+<h2 id="lista">Registro</h2>
+
+<div class="adr" id="adr-001">
+  <span class="adr__estado">Aceptada · implementada</span>
+  <div class="adr__id">ADR-001</div>
+  <h3>Motores deterministas y guionados — sin IA generativa decidiendo</h3>
+  <p><strong>Contexto:</strong> el Diagnóstico pudo construirse con un LLM conversacional; los motores futuros enfrentan la misma tentación.</p>
+  <p><strong>Decisión:</strong> toda decisión es función determinista sobre datos + catálogo (P1). La IA solo podrá vivir detrás de contratos existentes (P13) con validación determinista de su salida.</p>
+  <p><strong>Alternativas descartadas:</strong> LLM decidiendo prescripciones (inexplicable, irreproducible, P2/P1 imposibles); híbrido "IA sugiere, regla filtra" (pospuesto — el filtro es lo difícil, no la sugerencia).</p>
+  <p><strong>Consecuencias:</strong> los motores son testeables con casos fijos; la migración a IA es reemplazo de implementación, no rediseño; se renuncia a la variedad "creativa".</p>
+</div>
+
+<div class="adr" id="adr-002">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">ADR-002</div>
+  <h3>Activación por compra confirmada, no por Diagnóstico</h3>
+  <p><strong>Contexto:</strong> pregunta de negocio abierta durante el diseño original del Motor BPS: ¿diagnosticar activa el Sistema?</p>
+  <p><strong>Decisión:</strong> el Diagnóstico recomienda; solo la compra activa (R-M1 de 07). Compra sin diagnóstico → estado <code>pendiente_diagnostico</code>, jamás nivel por defecto.</p>
+  <p><strong>Alternativas descartadas:</strong> activación al diagnosticar (regala contenido pago); trial limitado (complejidad comercial prematura — reevaluable por ADR).</p>
+  <p><strong>Consecuencias:</strong> fricción de producto entre diagnóstico y uso (la UI debe puentearla); el dominio queda protegido del uso gratuito.</p>
+</div>
+
+<div class="adr" id="adr-003">
+  <span class="adr__estado">Aceptada · implementada</span>
+  <div class="adr__id">ADR-003</div>
+  <h3><code>nivel_actual</code> y <code>nivel_experiencia</code> son columnas disjuntas</h3>
+  <p><strong>Contexto:</strong> el perfil editable necesitaba un "nivel" autopercibido; ya existía <code>nivel_actual</code> asignado por el Diagnóstico, acoplado al Sistema (ej. "Skills" solo existe en Calistenia).</p>
+  <p><strong>Decisión:</strong> dos columnas separadas; la autopercibida jamás alimenta motores (I-M2, 07).</p>
+  <p><strong>Alternativas descartadas:</strong> sobrecargar <code>nivel_actual</code> (el Diagnóstico la pisaría; los motores leerían autoevaluación como verdad).</p>
+  <p><strong>Consecuencias:</strong> confusión terminológica permanente a gestionar (Glosario la marca como la más peligrosa del dominio).</p>
+</div>
+
+<div class="adr" id="adr-004">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">ADR-004</div>
+  <h3>El patrón de movimiento (×rol) es la unidad de programación</h3>
+  <p><strong>Contexto:</strong> programar por ejercicio nominal rompe ante lesión/equipo y multiplica plantillas por Sistema.</p>
+  <p><strong>Decisión:</strong> P7 — las plantillas prescriben Patrón×Rol; la resolución a ejercicio es tardía (Generator) y contextual.</p>
+  <p><strong>Alternativas descartadas:</strong> programación por ejercicio (frágil); por grupo muscular (pierde la biomecánica que hace segura la sustitución).</p>
+  <p><strong>Consecuencias:</strong> exige la ontología completa (04) antes de generar nada; habilita un solo motor para gym/calistenia/híbrido.</p>
+</div>
+
+<div class="adr" id="adr-005">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">ADR-005</div>
+  <h3>Track = contexto/equipo, no sub-objetivo</h3>
+  <p><strong>Contexto:</strong> "Track" podía significar variante de objetivo (volumen vs. fuerza) o variante de contexto (gym/casa/ambos).</p>
+  <p><strong>Decisión:</strong> contexto/equipo — conecta <code>lugar_entrenamiento</code>, un dato real recolectado sin lugar en la jerarquía.</p>
+  <p><strong>Alternativas descartadas:</strong> sub-objetivo (sin dato esperando; los sub-objetivos reales son Sistemas distintos en este catálogo).</p>
+  <p><strong>Consecuencias:</strong> el filtro de equipo tiene capa propia; un futuro sub-objetivo necesitaría otro concepto (no reciclar Track).</p>
+</div>
+
+<div class="adr" id="adr-006">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">ADR-006</div>
+  <h3>Plantilla ≠ Instancia, con desnormalización al generar</h3>
+  <p><strong>Contexto:</strong> ¿las sesiones referencian plantillas (join en lectura) o copian lo que necesitan?</p>
+  <p><strong>Decisión:</strong> P5 — la instancia copia todo al generarse y es inmutable; ediciones de plantilla aplican solo hacia adelante.</p>
+  <p><strong>Alternativas descartadas:</strong> referencia viva (editar plantilla mutaría el pasado); versionado de plantillas con snapshot por usuario (más maquinaria para el mismo resultado que copiar).</p>
+  <p><strong>Consecuencias:</strong> duplicación deliberada de datos; el evento <code>semana_generada</code> registra versión de catálogo para reproducibilidad (P1).</p>
+</div>
+
+<div class="adr" id="adr-007">
+  <span class="adr__estado">Aceptada · implementada</span>
+  <div class="adr__id">ADR-007</div>
+  <h3>Capa repositorio + mapper con coerción única (PostgREST numeric→string)</h3>
+  <p><strong>Contexto:</strong> PostgREST serializa <code>numeric</code> como string; un bug real de concatenación en el agregado de progreso lo demostró. Además, listas de columnas duplicadas y casts <code>as X</code> dispersos.</p>
+  <p><strong>Decisión:</strong> todo acceso pasa por repositorios; todo resultado pasa por mappers; <code>numOrNull()</code> es el único punto de coerción. Excepción única documentada: lectura mínima de nombre en el navbar público (corre en cada página del sitio; forzarla al repositorio traería 20 columnas a la ruta más caliente).</p>
+  <p><strong>Alternativas descartadas:</strong> coerción en cada call site (el bug original); tipos generados de Supabase como única defensa (no cubre la coerción runtime — sigue pendiente como complemento).</p>
+  <p><strong>Consecuencias:</strong> 4 lugares a tocar por columna nueva (deuda registrada); cero coerción fuera de mappers como regla auditable por grep.</p>
+</div>
+
+<div class="adr" id="adr-008">
+  <span class="adr__estado">Aceptada · implementada</span>
+  <div class="adr__id">ADR-008</div>
+  <h3>RLS de Postgres es la frontera de seguridad; los guards de app son UX</h3>
+  <p><strong>Contexto:</strong> el middleware/proxy y los checks de layout podrían confundirse con la seguridad real.</p>
+  <p><strong>Decisión:</strong> I-3 de 02 — RLS en todas las tablas de usuario; los redirects de capa superior existen para experiencia, no para protección.</p>
+  <p><strong>Alternativas descartadas:</strong> confiar en el middleware (documentadamente insuficiente en el propio framework); API intermedia propia como única puerta (capa extra sin quitar la necesidad de RLS).</p>
+  <p><strong>Consecuencias:</strong> toda tabla nueva nace con RLS o no nace; el endurecimiento de workouts/logs (10) es migración obligatoria v1.</p>
+</div>
+
+<div class="adr" id="adr-009">
+  <span class="adr__estado">Aceptada · implementada parcialmente</span>
+  <div class="adr__id">ADR-009</div>
+  <h3>Catálogo rico en código versionado; DB solo el espejo liviano</h3>
+  <p><strong>Contexto:</strong> ¿dónde viven Sistemas ricos, ejercicios, plantillas y cadenas — DB o código?</p>
+  <p><strong>Decisión:</strong> en código TS versionado por git (revisión por PR, tipos del compilador, versión = commit); la tabla <code>systems</code> queda como espejo liviano para FKs y flags comerciales sin deploy.</p>
+  <p><strong>Alternativas descartadas:</strong> todo en DB (edición sin revisión, sin tipos, migraciones por cada ajuste de contenido); CMS externo (dependencia prematura).</p>
+  <p><strong>Consecuencias:</strong> editar contenido requiere deploy — aceptable mientras el equipo editorial sea el fundador; la transición a DB está prevista y no cambia contratos (10).</p>
+</div>
+
+<div class="adr" id="adr-010">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">ADR-010</div>
+  <h3>Progression y Recovery son dos motores con precedencia explícita</h3>
+  <p><strong>Contexto:</strong> fatiga y progresión podrían ponderarse en un solo motor.</p>
+  <p><strong>Decisión:</strong> dos motores; Recovery manda (P8); el orquestador los consulta en orden fijo (R-M4).</p>
+  <p><strong>Alternativas descartadas:</strong> motor único ponderado (inauditable; un peso interno decidiría seguridad).</p>
+  <p><strong>Consecuencias:</strong> un handoff más; auditoría trivial ("¿por qué no avancé?" → un evento con origen y razón).</p>
+</div>
+
+<div class="adr" id="adr-011">
+  <span class="adr__estado">Aceptada · heredada del esquema real</span>
+  <div class="adr__id">ADR-011</div>
+  <h3><code>ejercicios</code> como jsonb, con disparador de normalización definido</h3>
+  <p><strong>Contexto:</strong> series por sesión podrían ser tabla normalizada desde el día uno.</p>
+  <p><strong>Decisión:</strong> jsonb con forma especificada y versionada (10); normalizar cuando el tracking de PRs exija consultas relacionales reales (MAX por ejercicio en el tiempo) — el disparador quedó escrito en el propio esquema.</p>
+  <p><strong>Alternativas descartadas:</strong> normalizar ya (más tablas sin consulta que lo justifique, con datos aún vacíos).</p>
+  <p><strong>Consecuencias:</strong> los agregados v1 se calculan en aplicación; la migración futura es barata mientras el volumen es bajo.</p>
+</div>
+
+<div class="adr" id="adr-012">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">ADR-012</div>
+  <h3>Elite queda fuera del Training Framework</h3>
+  <p><strong>Contexto:</strong> el quinto Sistema es coaching 1:1 individualizado.</p>
+  <p><strong>Decisión:</strong> Elite declara jerarquía vacía; todo flujo de generación lo rechaza explícitamente (<code>SISTEMA_SIN_JERARQUIA</code>). El panel del coach (v2) será su superficie, no los motores.</p>
+  <p><strong>Alternativas descartadas:</strong> forzarlo a la jerarquía "por consistencia" (un programa genérico disfrazado de personalizado — violación de P16 en espíritu).</p>
+  <p><strong>Consecuencias:</strong> todo código que asuma "Sistema ⇒ Bloques" debe validar la ausencia; el caso está en 03/07/08.</p>
+</div>
+
+<div class="adr" id="adr-013">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">ADR-013</div>
+  <h3>Sin bus de eventos en v1</h3>
+  <p><strong>Contexto:</strong> "eventos de dominio" sugiere pub/sub asíncrono.</p>
+  <p><strong>Decisión:</strong> v1 tiene exactamente dos mecanismos: filas de <code>progression_events</code> (auditoría) y la cola local del Player (captura/sync). Nada más hasta que exista un consumidor asíncrono real.</p>
+  <p><strong>Alternativas descartadas:</strong> bus desde el día uno (infraestructura sin consumidor — sobreingeniería prohibida por el propio brief del handbook).</p>
+  <p><strong>Consecuencias:</strong> notificaciones/analytics futuras requerirán su ADR con el diseño del bus cuando toque.</p>
+</div>
+
+<div class="adr" id="adr-014">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">ADR-014</div>
+  <h3>RPE por serie obligatorio (Intermedio+), escala simplificada en Inicial</h3>
+  <p><strong>Contexto:</strong> el dato que alimenta dos motores vs. la fricción de capturarlo en pleno esfuerzo.</p>
+  <p><strong>Decisión:</strong> I-W1 de 09 — obligatorio por serie desde Intermedio; en Inicial, escala de 3 opciones mapeada, porque la precisión RPE de novatos es baja <span class="ev ev--moderada">evidencia moderada</span>. Sin pre-selección de valor (anti-inercia).</p>
+  <p><strong>Alternativas descartadas:</strong> RPE opcional (moriría en la práctica); RPE por ejercicio (señal demasiado gruesa para <code>microAjuste</code>).</p>
+  <p><strong>Consecuencias:</strong> un toque más por serie; la calidad del dato pasa a ser un problema de diseño de UI de primera clase.</p>
+</div>
+
+<h2 id="proceso">Proceso para ADRs nuevos</h2>
+<ol>
+  <li>Contexto (qué problema fuerza una decisión) → Decisión → Alternativas con razón de descarte → Consecuencias (incluidas las incómodas).</li>
+  <li>Un ADR que contradice otro lo <strong>supersede</strong> explícitamente por número — ambos permanecen en el registro (P3 aplicado al propio handbook).</li>
+  <li>Cambios de contrato (11) y de vocabulario (14) exigen ADR; los de implementación pura, no.</li>
+</ol>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../11-api-interna/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 11 · API Interna</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../13-roadmap/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">13 · Roadmap →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>
