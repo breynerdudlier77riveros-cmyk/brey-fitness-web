@@ -12,9 +12,24 @@
 // persisten y leen. El BCS es standalone: este repositorio nunca toca una
 // tabla del Core Product.
 
-import type { SupabaseClient } from '@supabase/supabase-js';
+import type { SupabaseClient, PostgrestError } from '@supabase/supabase-js';
 import { mapCliente, mapMedicion, mapEnlacePublico } from '@/lib/database/mappers';
 import type { Cliente, Medicion, EnlacePublico, ClienteEstado } from '@/lib/bcs/tipos';
+
+/**
+ * Registra un fallo de consulta sin cambiar el contrato: las lecturas siguen
+ * devolviendo null/[] ante ausencia esperada (FT-05/P6).
+ *
+ * Existe porque un fallo REAL (tabla inexistente, RLS mal configurada, red
+ * caída) era indistinguible de "este entrenador aún no tiene clientes": el
+ * `error` de PostgREST se descartaba y la pantalla decía "Todavía no tienes
+ * clientes". Así se ocultó durante todo un sprint que las migraciones del BCS
+ * nunca se habían aplicado. La ausencia de datos se sigue tratando igual; lo
+ * que cambia es que ahora un fallo deja rastro en el log del servidor.
+ */
+function registrarFallo(operacion: string, error: PostgrestError | null) {
+  if (error) console.error(`[bcs/repository] ${operacion}:`, error.message, error.code ?? '');
+}
 
 // ── RepositorioCliente ─────────────────────────────────────────────────────
 
@@ -22,7 +37,8 @@ export async function obtenerClientePorId(
   supabase: SupabaseClient,
   id: string
 ): Promise<Cliente | null> {
-  const { data } = await supabase.from('bcs_clientes').select('*').eq('id', id).maybeSingle();
+  const { data, error } = await supabase.from('bcs_clientes').select('*').eq('id', id).maybeSingle();
+  registrarFallo('obtenerClientePorId', error);
   return data ? mapCliente(data) : null;
 }
 
@@ -39,10 +55,11 @@ export async function listarClientesPorEntrenador(
 
   if (opts?.estado) query = query.eq('estado', opts.estado);
 
-  const { data } = await query
+  const { data, error } = await query
     .order('created_at', { ascending: false })
     .limit(opts?.limit ?? 50);
 
+  registrarFallo('listarClientesPorEntrenador', error);
   return (data ?? []).map(mapCliente);
 }
 
@@ -97,7 +114,8 @@ export async function obtenerMedicionPorId(
   supabase: SupabaseClient,
   id: string
 ): Promise<Medicion | null> {
-  const { data } = await supabase.from('bcs_mediciones').select('*').eq('id', id).maybeSingle();
+  const { data, error } = await supabase.from('bcs_mediciones').select('*').eq('id', id).maybeSingle();
+  registrarFallo('obtenerMedicionPorId', error);
   return data ? mapMedicion(data) : null;
 }
 
@@ -107,7 +125,7 @@ export async function listarMedicionesVigentesPorCliente(
   clienteId: string,
   opts?: { limit?: number }
 ): Promise<Medicion[]> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('bcs_mediciones')
     .select('*')
     .eq('cliente_id', clienteId)
@@ -115,6 +133,7 @@ export async function listarMedicionesVigentesPorCliente(
     .order('fecha', { ascending: false })
     .limit(opts?.limit ?? 50);
 
+  registrarFallo('listarMedicionesVigentesPorCliente', error);
   return (data ?? []).map(mapMedicion);
 }
 
@@ -135,15 +154,17 @@ export async function guardarMedicion(
 /**
  * Marca una Medición como `anulada` (paso "anular" de UC-06, corrección).
  *
- * ⚠ CONTRADICCIÓN ENTRE HANDBOOKS (documentada, no resuelta aquí): el BCS
- * Handbook (13, UC-06) y el Domain Model (10, FSM Vigente→Anulada) exigen esta
- * transición, pero el Database Handbook (09) especifica bcs_mediciones SIN
- * política de UPDATE (append-only). Con la RLS actual (Sprint 1, fiel al
- * Database Handbook 09) este UPDATE queda BLOQUEADO en runtime. La función se
- * implementa fiel al contrato del repositorio (BCS Handbook 13); cerrar la
- * brecha (una política UPDATE acotada al estado, como la que sí tiene
- * bcs_enlaces_publicos para revocar) es una decisión de la RLS, no de esta
- * capa — se reporta como hallazgo, no se corrige el esquema sin autoridad.
+ * El BCS Handbook (13, UC-06) y el Domain Model (10, FSM Vigente→Anulada)
+ * exigen esta transición, pero bcs_mediciones nació sin política UPDATE
+ * (Database Handbook 09, "append-only") y el UPDATE quedaba bloqueado por
+ * RLS en runtime. Resuelto en Sprint BCS-1.1 con
+ * supabase/migration_bcs_anular_medicion.sql: una policy acotada a
+ * vigente→anulada más un GRANT de columna que limita el UPDATE a `estado`,
+ * de modo que los valores medidos siguen siendo inmutables (P3/IN-D1).
+ *
+ * Devuelve null si el UPDATE no afectó ninguna fila — corregirMedicion lo
+ * comprueba y devuelve MEDICION_NO_ANULADA en vez de dar la corrección por
+ * buena, que era lo que duplicaba el histórico.
  */
 export async function anularMedicion(
   supabase: SupabaseClient,
@@ -172,7 +193,8 @@ export async function obtenerEnlacePorToken(
   supabase: SupabaseClient,
   token: string
 ): Promise<EnlacePublico | null> {
-  const { data } = await supabase.from('bcs_enlaces_publicos').select('*').eq('token', token).maybeSingle();
+  const { data, error } = await supabase.from('bcs_enlaces_publicos').select('*').eq('token', token).maybeSingle();
+  registrarFallo('obtenerEnlacePorToken', error);
   return data ? mapEnlacePublico(data) : null;
 }
 
@@ -181,13 +203,14 @@ export async function obtenerEnlaceActivoPorCliente(
   supabase: SupabaseClient,
   clienteId: string
 ): Promise<EnlacePublico | null> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('bcs_enlaces_publicos')
     .select('*')
     .eq('cliente_id', clienteId)
     .eq('estado', 'activo')
     .maybeSingle();
 
+  registrarFallo('obtenerEnlaceActivoPorCliente', error);
   return data ? mapEnlacePublico(data) : null;
 }
 

@@ -134,14 +134,250 @@ body {
   }
 }
 
-/* ── Exportación del Reporte del BCS (BCS Design Handbook 14) — A4 por
-   defecto, márgenes 2cm en los 4 lados. "Carta alternativo seleccionable"
-   no se implementa (exigiría un selector de formato no especificado en
-   ningún handbook) — ver informe del Sprint. Colores semánticos se
-   preservan (nunca se degrada a escala de grises): sin filtros aquí. ── */
+/* ── Exportación del Reporte del BCS (BCS Design Handbook 14) ───────────────
+   Documento clínico sobre papel, no una captura de la pantalla oscura.
+
+   El problema que resuelve: la app es tema oscuro (bg-slate-950 + text-white).
+   Los navegadores NO imprimen fondos por defecto, pero SÍ imprimen el color
+   del texto — así que el reporte salía en blanco sobre blanco, ilegible. En
+   vez de forzar el fondo oscuro (gastaría un cartucho por copia y se lee
+   peor), se invierte el tema solo para papel: texto oscuro sobre blanco.
+
+   `size: A4` con márgenes en cm funciona igual en Carta: el contenido se
+   ajusta al ancho útil, solo cambia el alto de página. No hay selector de
+   formato porque ningún handbook lo especifica.
+   ────────────────────────────────────────────────────────────────────────── */
 @media print {
   @page {
     size: A4;
-    margin: 2cm;
+    margin: 18mm 16mm;
   }
+
+  html,
+  body {
+    background: #fff !important;
+    color: #0f172a !important;
+  }
+
+  /* Nada de la app fuera del reporte llega al papel. */
+  nav,
+  aside,
+  [role="dialog"],
+  [data-sonner-toaster] {
+    display: none !important;
+  }
+
+  /* ── Tema claro dentro del reporte ─────────────────────────────────────
+     Las utilidades de Tailwind con opacidad (text-white/50, bg-white/[0.02])
+     se escriben como color-mix()/rgb con alpha, así que no basta con
+     redefinir una variable: se neutralizan por selector de atributo sobre la
+     clase, que es la vía que no obliga a tocar los 20 componentes. */
+  .reporte-print,
+  .reporte-print * {
+    color: #0f172a !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  .reporte-print [class*="bg-white"],
+  .reporte-print [class*="bg-slate"] {
+    background-color: transparent !important;
+  }
+
+  /* Jerarquía en gris, no en blanco translúcido (que sobre papel desaparece). */
+  .reporte-print [class*="text-white/5"],
+  .reporte-print [class*="text-white/4"],
+  .reporte-print [class*="text-white/3"] {
+    color: #475569 !important;
+  }
+
+  /* Las tarjetas se vuelven bloques delimitados por línea fina. */
+  .reporte-print [class*="rounded-2xl"],
+  .reporte-print [class*="rounded-xl"] {
+    border-color: #cbd5e1 !important;
+    border-radius: 4px !important;
+  }
+
+  /* Color semántico preservado — nunca se degrada a gris (Design Handbook 14).
+     print-color-adjust obliga al navegador a respetarlo. */
+  .reporte-print [class*="text-emerald"],
+  .reporte-print [class*="text-red"],
+  .reporte-print [class*="text-yellow"],
+  .reporte-print [class*="text-sky"],
+  .reporte-print [class*="text-orange"],
+  .reporte-print [class*="bg-emerald"],
+  .reporte-print [class*="bg-red"],
+  .reporte-print [class*="bg-yellow"],
+  .reporte-print [class*="bg-sky"],
+  .reporte-print [class*="bg-orange"] {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .reporte-print [class*="text-emerald"] { color: #047857 !important; }
+  .reporte-print [class*="text-red"]     { color: #b91c1c !important; }
+  .reporte-print [class*="text-yellow"]  { color: #a16207 !important; }
+  .reporte-print [class*="text-sky"]     { color: #0369a1 !important; }
+  .reporte-print [class*="text-orange"]  { color: #c2410c !important; }
+
+  /* Las barras de los gráficos son divs con fondo de color: sin esto se
+     imprimen vacías y el gráfico pierde todo su sentido. */
+  .reporte-print [class*="bg-emerald"],
+  .reporte-print [class*="bg-orange"],
+  .reporte-print [class*="bg-sky"],
+  .reporte-print [class*="bg-red"],
+  .reporte-print [class*="bg-amber"],
+  .reporte-print [class*="bg-violet"] {
+    background-color: #64748b !important;
+  }
+
+  .reporte-print svg {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* ── Control de saltos de página ───────────────────────────────────────
+     Nada se parte por la mitad: ni una tarjeta, ni un gráfico, ni una fila. */
+  .reporte-print section,
+  .reporte-print [class*="rounded-2xl"],
+  .reporte-print figure,
+  .reporte-print img,
+  .reporte-print svg,
+  .reporte-print li {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .reporte-print table {
+    break-inside: auto;
+  }
+
+  .reporte-print tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* La cabecera de una tabla se repite en cada página que ocupe. */
+  .reporte-print thead {
+    display: table-header-group;
+  }
+
+  /* Un título nunca queda solo al final de la página. */
+  .reporte-print h1,
+  .reporte-print h2,
+  .reporte-print h3,
+  .reporte-print [class*="uppercase"] {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .reporte-print p,
+  .reporte-print li {
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* ── Legibilidad sobre papel ───────────────────────────────────────────
+     La pantalla usa 10-12px sobre fondo oscuro; en papel eso se lee mal. */
+  .reporte-print {
+    font-size: 10.5pt;
+    line-height: 1.45;
+  }
+
+  .reporte-print [class*="text-[10px]"],
+  .reporte-print [class*="text-xs"] {
+    font-size: 8.5pt !important;
+  }
+
+  .reporte-print [class*="text-sm"] {
+    font-size: 10pt !important;
+  }
+
+  .reporte-print [class*="text-2xl"],
+  .reporte-print [class*="text-3xl"] {
+    font-size: 18pt !important;
+  }
+
+  /* El ancho de pantalla no aplica en papel: el margen lo pone @page. */
+  .reporte-print {
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* SectionCard renderiza dos variantes (tarjeta en ≥md, acordeón en móvil).
+     El viewport de impresión con márgenes cae por debajo del breakpoint md,
+     así que sin esto se imprimiría la variante de acordeón. */
+  .reporte-print .print-seccion {
+    display: block !important;
+  }
+
+  .reporte-print .print-seccion-movil {
+    display: none !important;
+  }
+
+  /* El histórico usa acordeones cerrados por defecto: en pantalla es correcto,
+     en un reporte impreso ocultaría todo el detalle. Radix marca el contenido
+     cerrado con [hidden] y animaciones de altura. */
+  .reporte-print [data-slot="accordion-content"] {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+    animation: none !important;
+  }
+
+  .reporte-print [data-slot="accordion-content"][hidden] {
+    display: block !important;
+  }
+
+  .reporte-print [data-slot="accordion-trigger-icon"] {
+    display: none !important;
+  }
+
+  /* Un contenedor con scroll horizontal recorta en papel todo lo que en
+     pantalla se alcanzaba desplazando: las tablas anchas perdían la columna
+     de diferencia. En impresión no hay scroll, así que se deja fluir. */
+  .reporte-print [class*="overflow-x-auto"],
+  .reporte-print [class*="overflow-y-auto"],
+  .reporte-print [class*="overflow-auto"] {
+    overflow: visible !important;
+    max-height: none !important;
+  }
+
+  .reporte-print table {
+    width: 100% !important;
+    table-layout: auto;
+  }
+
+  /* Las barras de los gráficos se dimensionan con altura fija en px pensada
+     para pantalla; en papel se reducen para que una serie completa quepa. */
+  .reporte-print [class*="aspect-"] {
+    aspect-ratio: auto !important;
+  }
+
+  /* Nada se sale del ancho útil de la página. */
+  .reporte-print img,
+  .reporte-print svg,
+  .reporte-print table,
+  .reporte-print pre {
+    max-width: 100% !important;
+  }
+
+  /* ── Portada y pie: existen solo sobre papel ───────────────────────────── */
+  .print-solo {
+    display: block !important;
+  }
+
+  /* La portada ocupa su propia hoja: el reporte empieza en la página 2. */
+  .print-portada {
+    break-after: page;
+    page-break-after: always;
+  }
+}
+
+/* En pantalla, esos bloques no se renderizan: el reporte ya tiene su propia
+   cabecera y una portada ahí sería ruido. */
+.print-solo {
+  display: none;
 }

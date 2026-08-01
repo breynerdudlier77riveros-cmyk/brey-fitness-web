@@ -3,6 +3,7 @@ import { redirect, notFound } from "next/navigation";
 import { getUser } from "@/lib/supabase/user";
 import { createClient } from "@/lib/supabase/server";
 import { obtenerClientePorId, listarMedicionesVigentesPorCliente, obtenerEnlaceActivoPorCliente } from "@/lib/bcs/repository";
+import { getProfile } from "@/lib/profile/repository";
 import { construirReporte } from "@/lib/bcs/reporte";
 import { analizarComposicionCorporal } from "@/lib/bcs/analysis";
 import { fechaISOLocal } from "@/lib/utils";
@@ -41,7 +42,14 @@ export default async function ClienteDetailPage({ params }: Props) {
   const reporte = construirReporte(cliente, historico);
   // Derivado, nunca persistido — se recomputa en cada render, igual que el
   // Reporte. `hoyISO` explícito: la capa de análisis no consulta el reloj.
-  const analisis = reporte ? analizarComposicionCorporal(historico, { hoyISO: fechaISOLocal() }) : null;
+  const hoyISO = fechaISOLocal();
+  const analisis = reporte ? analizarComposicionCorporal(historico, { hoyISO }) : null;
+
+  // Nombre del profesional para la portada del reporte impreso. Es identidad
+  // del propio entrenador (su fila de `profiles`), no un dato de Core
+  // Training: no cruza el límite de contexto con el BCS.
+  const perfil = await getProfile(supabase, user.id);
+  const entrenador = perfil?.nombre ?? user.email ?? undefined;
 
   return (
     <ClienteDetailClient
@@ -49,6 +57,8 @@ export default async function ClienteDetailPage({ params }: Props) {
       reporte={reporte}
       analisis={analisis}
       enlaceActivo={enlaceActivo}
+      generadoEl={hoyISO}
+      entrenador={entrenador}
     />
   );
 }

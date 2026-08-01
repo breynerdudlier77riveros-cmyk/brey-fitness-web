@@ -27,6 +27,10 @@ interface Props {
   /** Computado en el Server Component — null cuando no hay reporte que analizar. */
   analisis: BodyCompositionAnalysis | null;
   enlaceActivo: EnlacePublico | null;
+  /** Fecha de emisión (yyyy-mm-dd) para la portada y el pie del reporte impreso. */
+  generadoEl: string;
+  /** Nombre del profesional que emite el reporte. */
+  entrenador?: string;
 }
 
 export default function ClienteDetailClient({
@@ -34,6 +38,8 @@ export default function ClienteDetailClient({
   reporte,
   analisis,
   enlaceActivo: enlaceInicial,
+  generadoEl,
+  entrenador,
 }: Props) {
   const router = useRouter();
   const [cliente, setCliente] = useState(clienteInicial);
@@ -168,7 +174,13 @@ export default function ClienteDetailClient({
       />
 
       {reporte && analisis ? (
-        <ReportView reporte={reporte} analisis={analisis} onCorregirMedicion={abrirCorregir} />
+        <ReportView
+          reporte={reporte}
+          analisis={analisis}
+          generadoEl={generadoEl}
+          entrenador={entrenador}
+          onCorregirMedicion={abrirCorregir}
+        />
       ) : (
         <EstadoVacioMediciones onRegistrar={() => setDialogo("medicion")} />
       )}

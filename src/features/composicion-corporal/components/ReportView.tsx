@@ -11,6 +11,7 @@ import TrendIndicator from "@/features/composicion-corporal/components/TrendIndi
 import ProcedenciaBadge from "@/features/composicion-corporal/components/ProcedenciaBadge";
 import { NotaSinHistorial } from "@/features/composicion-corporal/components/EstadosVacios";
 import AnalysisSection from "@/features/composicion-corporal/components/AnalysisSection";
+import { ReportCover, ReportFooter } from "@/features/composicion-corporal/components/ReportCover";
 import { calcularDelta, type Reporte } from "@/lib/bcs/reporte";
 import type { BodyCompositionAnalysis } from "@/lib/bcs/analysis";
 import type { Medicion } from "@/lib/bcs/tipos";
@@ -42,16 +43,39 @@ interface Props {
    * queda garantizada por construcción, no por recordar hacerlo.
    */
   analisis: BodyCompositionAnalysis;
+  /**
+   * Fecha de emisión del documento (yyyy-mm-dd). Llega desde la página: este
+   * componente no lee el reloj, para que dos renders del mismo reporte no
+   * difieran y para que la portada impresa coincida con el pie.
+   */
+  generadoEl: string;
+  /**
+   * Profesional que emite el reporte. Opcional: la vista pública se resuelve
+   * por token y no conoce al entrenador (el DTO de UC-09 solo trae Cliente y
+   * Mediciones). Cuando falta, la portada simplemente omite la fila — nunca
+   * se inventa un nombre.
+   */
+  entrenador?: string;
   /** Solo el panel del Entrenador la pasa (BCS-ADR-05) — ver HistoryCard.tsx. */
   onCorregirMedicion?: (medicion: Medicion) => void;
 }
 
-export default function ReportView({ reporte, analisis, onCorregirMedicion }: Props) {
+export default function ReportView({ reporte, analisis, generadoEl, entrenador, onCorregirMedicion }: Props) {
   const { medicionActual, medicionAnterior, resumenEjecutivo, ficha, comparacion, historico, tendencias, advertencias, fotografias } = reporte;
   const tieneHistorial = historico.length >= 2;
 
+  // reporte-print: raíz que el @media print de globals.css usa para invertir
+  // el tema oscuro a documento sobre papel y controlar los saltos de página.
   return (
-    <div className="space-y-6">
+    <div className="reporte-print space-y-6">
+      <ReportCover
+        clienteNombre={reporte.cliente.nombre}
+        fechaUltimaMedicion={analisis.fechaFinal}
+        fechaPrimeraMedicion={analisis.fechaInicial}
+        totalMediciones={analisis.cantidadMediciones}
+        entrenador={entrenador}
+        generadoEl={generadoEl}
+      />
       {advertencias.map((a) => (
         <WarningCard key={a.id}>{a.texto}</WarningCard>
       ))}
@@ -212,6 +236,8 @@ export default function ReportView({ reporte, analisis, onCorregirMedicion }: Pr
           </div>
         </SectionCard>
       )}
+
+      <ReportFooter clienteNombre={reporte.cliente.nombre} generadoEl={generadoEl} />
     </div>
   );
 }

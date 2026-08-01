@@ -56,7 +56,8 @@ export default async function ReportePublicoPage({ params }: Props) {
   // El análisis es derivado y se recomputa aquí — nunca viaja persistido.
   // `hoyISO` se pasa explícito porque la capa pura no consulta el reloj.
   const hoy = new Date();
-  const analisis = analizarComposicionCorporal(reporte.historico, { hoyISO: fechaISOLocal(hoy) });
+  const hoyISO = fechaISOLocal(hoy);
+  const analisis = analizarComposicionCorporal(reporte.historico, { hoyISO });
   const generadoEl = hoy.toLocaleDateString("es", { day: "2-digit", month: "long", year: "numeric" });
 
   return (
@@ -70,7 +71,9 @@ export default async function ReportePublicoPage({ params }: Props) {
           <AccionesReporte />
         </div>
 
-        <ReportView reporte={reporte} analisis={analisis} />
+        {/* Sin `entrenador`: UC-09 resuelve por token y su DTO no incluye al
+            profesional. La portada omite la fila antes que inventar un nombre. */}
+        <ReportView reporte={reporte} analisis={analisis} generadoEl={hoyISO} />
 
         <footer className="mt-12 pt-6 border-t border-white/[0.06] text-xs text-white/40 flex items-center justify-between">
           <span>{reporte.cliente.nombre}</span>

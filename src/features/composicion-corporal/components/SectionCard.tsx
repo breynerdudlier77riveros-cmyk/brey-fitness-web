@@ -19,8 +19,12 @@ interface Props {
 export default function SectionCard({ titulo, children, className }: Props) {
   return (
     <>
-      {/* Desktop/tablet: siempre expandida */}
-      <Card className={`hidden md:block ${className ?? ""}`}>
+      {/* Desktop/tablet: siempre expandida.
+          print-seccion / print-seccion-movil: el viewport de impresión (A4
+          menos márgenes) cae por debajo del breakpoint md, así que sin estas
+          marcas el papel recibiría la variante de acordeón en vez de la
+          tarjeta. Las reglas viven en globals.css, @media print. */}
+      <Card className={`hidden md:block print-seccion ${className ?? ""}`}>
         <CardHeader>
           <CardTitle className="text-lg">{titulo}</CardTitle>
         </CardHeader>
@@ -28,7 +32,7 @@ export default function SectionCard({ titulo, children, className }: Props) {
       </Card>
 
       {/* Mobile: colapsable */}
-      <Accordion type="single" collapsible defaultValue="abierto" className={`md:hidden ${className ?? ""}`}>
+      <Accordion type="single" collapsible defaultValue="abierto" className={`md:hidden print-seccion-movil ${className ?? ""}`}>
         <AccordionItem value="abierto">
           <AccordionTrigger>{titulo}</AccordionTrigger>
           <AccordionContent>{children}</AccordionContent>
