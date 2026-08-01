@@ -185,6 +185,16 @@ body {
     background-color: transparent !important;
   }
 
+  /* El marcador de la barra de rango es un círculo blanco: con la regla de
+     arriba se volvería transparente y desaparecería justo el elemento que
+     indica dónde cae el valor. Se invierte a oscuro sobre papel. */
+  .reporte-print .print-marcador {
+    background-color: #0f172a !important;
+    border-color: #fff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
   /* Jerarquía en gris, no en blanco translúcido (que sobre papel desaparece). */
   .reporte-print [class*="text-white/5"],
   .reporte-print [class*="text-white/4"],
@@ -192,11 +202,17 @@ body {
     color: #475569 !important;
   }
 
-  /* Las tarjetas se vuelven bloques delimitados por línea fina. */
+  /* Las tarjetas se vuelven bloques delimitados por línea fina. El color del
+     borde solo se neutraliza donde era blanco translúcido: los bordes
+     semánticos (el ámbar de una alerta, el azul de un insight) son la
+     identidad de cada bloque y deben sobrevivir a la impresión. */
   .reporte-print [class*="rounded-2xl"],
   .reporte-print [class*="rounded-xl"] {
-    border-color: #cbd5e1 !important;
     border-radius: 4px !important;
+  }
+
+  .reporte-print [class*="border-white"] {
+    border-color: #cbd5e1 !important;
   }
 
   /* Color semántico preservado — nunca se degrada a gris (Design Handbook 14).
@@ -221,18 +237,13 @@ body {
   .reporte-print [class*="text-sky"]     { color: #0369a1 !important; }
   .reporte-print [class*="text-orange"]  { color: #c2410c !important; }
 
-  /* Las barras de los gráficos son divs con fondo de color: sin esto se
-     imprimen vacías y el gráfico pierde todo su sentido. */
-  .reporte-print [class*="bg-emerald"],
-  .reporte-print [class*="bg-orange"],
-  .reporte-print [class*="bg-sky"],
-  .reporte-print [class*="bg-red"],
-  .reporte-print [class*="bg-amber"],
-  .reporte-print [class*="bg-violet"] {
-    background-color: #64748b !important;
-  }
-
-  .reporte-print svg {
+  /* Los gráficos son SVG con `fill`/`stroke`, y las zonas de la barra de
+     rango son divs con fondo pleno. Ambos deben imprimirse con su color
+     real: sin print-color-adjust el navegador los omite y el gráfico sale
+     vacío. NO se sustituye el color por un gris — eso borraría la
+     distinción entre zonas, que es toda la información de la barra. */
+  .reporte-print svg,
+  .reporte-print svg * {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }

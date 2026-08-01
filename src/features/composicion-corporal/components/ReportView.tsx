@@ -1,243 +1,155 @@
-import { Accordion } from "@/components/brand/Accordion";
 import SectionCard from "@/features/composicion-corporal/components/SectionCard";
-import MetricCard from "@/features/composicion-corporal/components/MetricCard";
-import HistoryCard from "@/features/composicion-corporal/components/HistoryCard";
-import InfoCard from "@/features/composicion-corporal/components/InfoCard";
-import WarningCard from "@/features/composicion-corporal/components/WarningCard";
-import RangeBar, { type Zona } from "@/features/composicion-corporal/components/RangeBar";
-import TrendChart from "@/features/composicion-corporal/components/TrendChart";
-import StackedAreaChart from "@/features/composicion-corporal/components/StackedAreaChart";
-import TrendIndicator from "@/features/composicion-corporal/components/TrendIndicator";
-import ProcedenciaBadge from "@/features/composicion-corporal/components/ProcedenciaBadge";
-import { NotaSinHistorial } from "@/features/composicion-corporal/components/EstadosVacios";
-import AnalysisSection from "@/features/composicion-corporal/components/AnalysisSection";
-import { ReportCover, ReportFooter } from "@/features/composicion-corporal/components/ReportCover";
-import { calcularDelta, type Reporte } from "@/lib/bcs/reporte";
+
+import ReportCover from "@/features/composicion-corporal/components/report/ReportCover";
+import ReportFooter from "@/features/composicion-corporal/components/report/ReportFooter";
+import ExecutiveSummary from "@/features/composicion-corporal/components/report/ExecutiveSummary";
+import IndicatorGrid from "@/features/composicion-corporal/components/report/IndicatorGrid";
+import RangePositionSection from "@/features/composicion-corporal/components/report/RangePositionSection";
+import ComparisonTable from "@/features/composicion-corporal/components/report/ComparisonTable";
+import TrendsSection from "@/features/composicion-corporal/components/report/TrendsSection";
+import MeasurementTimeline from "@/features/composicion-corporal/components/report/MeasurementTimeline";
+import DataQualitySection from "@/features/composicion-corporal/components/report/DataQualitySection";
+import MethodologySection from "@/features/composicion-corporal/components/report/MethodologySection";
+import {
+  AlertsBlock,
+  FindingsBlock,
+  InsightsBlock,
+  LimitationsBlock,
+} from "@/features/composicion-corporal/components/report/AnalysisBlocks";
+
+import type { Reporte } from "@/lib/bcs/reporte";
 import type { BodyCompositionAnalysis } from "@/lib/bcs/analysis";
 import type { Medicion } from "@/lib/bcs/tipos";
 
 // ── Vista del Reporte — ÚNICA implementación (BCS-ADR-05) ──────────────────
-// Renderiza las 8 secciones del BCS Handbook (04), en el orden exacto ahí
-// especificado. La usan tanto el panel del Entrenador
-// (app/composicion-corporal/[clienteId]) como la vista pública
-// (app/reportes/[token]) — literalmente el mismo componente, sin ninguna
-// prop de "modo". Los controles de edición (registrar medición, generar/
-// revocar enlace, archivar/eliminar) viven en la página que envuelve a
-// este componente, NUNCA aquí — es lo que garantiza la paridad de
-// contenido por construcción, no por una condición que alguien podría
-// desactivar por error.
-
-const ZONAS_IMC: Zona[] = [
-  { hasta: 18.5, etiqueta: "Bajo peso", color: "bg-sky-500" },
-  { hasta: 25, etiqueta: "Normal", color: "bg-emerald-500" },
-  { hasta: 30, etiqueta: "Sobrepeso", color: "bg-amber-500" },
-  { hasta: 40, etiqueta: "Obesidad", color: "bg-red-500" },
-];
+// La usan el panel del Entrenador (app/composicion-corporal/[clienteId]) y la
+// vista pública (app/reportes/[token]): literalmente el mismo componente, sin
+// prop de "modo". Los controles de edición viven en la página que lo envuelve,
+// nunca aquí — eso garantiza la paridad de contenido por construcción, no por
+// una condición que alguien podría desactivar por error.
+//
+// Este componente NO interpreta: compone. Toda cifra y todo texto de análisis
+// llegan resueltos en `analisis` (BodyCompositionAnalysis) y en `reporte`,
+// calculados UNA sola vez en el Server Component de cada página — aquí no se
+// recalcula nada ni se vuelve a recorrer el histórico.
+//
+// El orden de las secciones es el de lectura de un informe clínico: primero
+// la conclusión, luego lo que hay que revisar, después la evidencia, y al
+// final cómo se obtuvo y qué no pudo interpretarse.
 
 interface Props {
   reporte: Reporte;
-  /**
-   * Análisis ya interpretado (Sprint I-03). REQUERIDO a propósito: al no ser
-   * opcional, el compilador obliga a las dos superficies (panel del
-   * Entrenador y reporte público) a pasarlo — la paridad de BCS-ADR-05
-   * queda garantizada por construcción, no por recordar hacerlo.
-   */
   analisis: BodyCompositionAnalysis;
   /**
-   * Fecha de emisión del documento (yyyy-mm-dd). Llega desde la página: este
-   * componente no lee el reloj, para que dos renders del mismo reporte no
-   * difieran y para que la portada impresa coincida con el pie.
+   * Fecha de emisión (yyyy-mm-dd). Llega desde la página: este componente no
+   * lee el reloj, para que portada y pie no puedan discrepar entre sí.
    */
   generadoEl: string;
   /**
    * Profesional que emite el reporte. Opcional: la vista pública se resuelve
    * por token y no conoce al entrenador (el DTO de UC-09 solo trae Cliente y
-   * Mediciones). Cuando falta, la portada simplemente omite la fila — nunca
-   * se inventa un nombre.
+   * Mediciones). Cuando falta, la portada omite la fila — nunca inventa uno.
    */
   entrenador?: string;
-  /** Solo el panel del Entrenador la pasa (BCS-ADR-05) — ver HistoryCard.tsx. */
+  /** Solo el panel del Entrenador la pasa (BCS-ADR-05). */
   onCorregirMedicion?: (medicion: Medicion) => void;
 }
 
-export default function ReportView({ reporte, analisis, generadoEl, entrenador, onCorregirMedicion }: Props) {
-  const { medicionActual, medicionAnterior, resumenEjecutivo, ficha, comparacion, historico, tendencias, advertencias, fotografias } = reporte;
-  const tieneHistorial = historico.length >= 2;
+export default function ReportView({
+  reporte,
+  analisis,
+  generadoEl,
+  entrenador,
+  onCorregirMedicion,
+}: Props) {
+  const { cliente, medicionActual, ficha, historico, tendencias, fotografias } = reporte;
 
-  // reporte-print: raíz que el @media print de globals.css usa para invertir
-  // el tema oscuro a documento sobre papel y controlar los saltos de página.
+  const filas = ficha.flatMap((bloque) => bloque.filas);
+  const hayAlertas = analisis.avisos.some((a) => a.tipo === "alerta");
+  const hayLimitaciones = analisis.avisos.some((a) => a.tipo === "limitacion" || a.tipo === "nota");
+
   return (
     <div className="reporte-print space-y-6">
       <ReportCover
-        clienteNombre={reporte.cliente.nombre}
-        fechaUltimaMedicion={analisis.fechaFinal}
-        fechaPrimeraMedicion={analisis.fechaInicial}
-        totalMediciones={analisis.cantidadMediciones}
+        clienteNombre={cliente.nombre}
+        analisis={analisis}
         entrenador={entrenador}
         generadoEl={generadoEl}
       />
-      {advertencias.map((a) => (
-        <WarningCard key={a.id}>{a.texto}</WarningCard>
-      ))}
 
-      {/* 1 · Resumen ejecutivo */}
-      <SectionCard titulo="Resumen ejecutivo">
-        <ul className="space-y-2">
-          {resumenEjecutivo.map((item) => (
-            <li key={item.id} className="text-sm text-white/80">
-              {item.texto}
-            </li>
-          ))}
-        </ul>
+      <ExecutiveSummary analisis={analisis} />
+
+      {hayAlertas && (
+        <SectionCard titulo="Datos a revisar">
+          <AlertsBlock avisos={analisis.avisos} />
+        </SectionCard>
+      )}
+
+      <SectionCard titulo="Indicadores principales">
+        <IndicatorGrid medicionActual={medicionActual} analisis={analisis} filas={filas} />
       </SectionCard>
 
-      {/* 1b · Análisis determinista (Sprint I-03) — va inmediatamente
-          después del resumen: primero qué pasó, luego el detalle crudo. */}
-      <AnalysisSection analisis={analisis} />
-
-      {/* 2 · Ficha de la medición actual, agrupada por categoría */}
-      <SectionCard titulo={`Medición actual — ${new Date(`${medicionActual.fecha}T00:00:00`).toLocaleDateString("es", { day: "2-digit", month: "long", year: "numeric" })}`}>
-        <div className="space-y-6">
-          {ficha
-            .filter((bloque) => bloque.filas.length > 0)
-            .map((bloque) => (
-              <div key={bloque.categoria}>
-                <p className="text-[10px] font-bold tracking-[0.14em] uppercase text-white/40 mb-3">{bloque.etiqueta}</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 print:grid-cols-2 gap-4">
-                  {bloque.filas.map((fila) => {
-                    const anterior = medicionAnterior?.[fila.id];
-                    const delta = anterior !== null && anterior !== undefined ? calcularDelta(fila.id, fila.valor, anterior) : undefined;
-                    return (
-                      <MetricCard
-                        key={fila.id}
-                        etiqueta={fila.etiqueta}
-                        valor={fila.valor}
-                        unidad={fila.unidad}
-                        procedencia={fila.procedencia}
-                        delta={delta}
-                        clasificacionEtiqueta={fila.clasificacion?.etiqueta}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-        </div>
-      </SectionCard>
-
-      {/* 6 · Barras de progreso (solo IMC calculable hoy — ver 7) */}
       {medicionActual.imc !== null && (
         <SectionCard titulo="Posición dentro del rango">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-bold text-white">IMC</p>
-            <ProcedenciaBadge procedencia="validacion" />
-          </div>
-          <RangeBar valor={medicionActual.imc} min={10} max={40} zonas={ZONAS_IMC} unidad="kg/m²" />
+          <RangePositionSection imc={medicionActual.imc} filas={filas} />
         </SectionCard>
       )}
 
-      {/* 7 · Clasificaciones e interpretaciones — nunca lenguaje diagnóstico */}
       <SectionCard titulo="Interpretación">
-        <div className="space-y-3">
-          {ficha
-            .flatMap((b) => b.filas)
-            .filter((f) => f.clasificacion)
-            .map((f) => (
-              <InfoCard key={f.id}>{f.clasificacion!.texto}</InfoCard>
-            ))}
-          {ficha
-            .flatMap((b) => b.filas)
-            .filter((f) => f.bloqueoClasificacion)
-            .map((f) => (
-              <p key={f.id} className="text-xs text-white/40 italic">
-                {f.etiqueta}: sin clasificación disponible todavía — se muestra solo como tendencia.
-              </p>
-            ))}
-        </div>
+        <InsightsBlock insights={analisis.insights} />
       </SectionCard>
 
-      {/* 3 · Comparación con la medición anterior */}
+      <SectionCard titulo="Hallazgos">
+        <FindingsBlock hallazgos={analisis.hallazgos} />
+      </SectionCard>
+
       <SectionCard titulo="Comparación con la medición anterior">
-        {comparacion ? (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-[10px] font-bold tracking-[0.08em] uppercase text-white/40 border-b border-white/[0.07]">
-                  <th className="py-2 pr-3">Variable</th>
-                  <th className="py-2 pr-3 text-right">Anterior</th>
-                  <th className="py-2 pr-3 text-right">Actual</th>
-                  <th className="py-2 text-right">Diferencia</th>
-                </tr>
-              </thead>
-              <tbody>
-                {comparacion.map((fila) => (
-                  <tr key={fila.id} className="border-b border-white/[0.04] last:border-0">
-                    <td className="py-2 pr-3 text-white/80">{fila.etiqueta}</td>
-                    <td className="py-2 pr-3 text-right text-white/60 tabular-nums">
-                      {fila.valorAnterior.toFixed(1)} {fila.unidad}
-                    </td>
-                    <td className="py-2 pr-3 text-right text-white font-semibold tabular-nums">
-                      {fila.valorActual.toFixed(1)} {fila.unidad}
-                    </td>
-                    <td className="py-2 text-right">
-                      <TrendIndicator delta={fila.delta} unidad={fila.unidad} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <NotaSinHistorial>Todavía no hay una medición anterior con la que comparar.</NotaSinHistorial>
-        )}
+        <ComparisonTable
+          comparacion={analisis.comparacion}
+          fechaAnterior={historico.length >= 2 ? historico[1].fecha : null}
+          fechaActual={medicionActual.fecha}
+        />
       </SectionCard>
 
-      {/* 5 · Gráficos de tendencia */}
-      <SectionCard titulo="Tendencias">
-        {tieneHistorial ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {tendencias
-              .filter((s) => s.tipoGrafico === "linea")
-              .map((serie) => (
-                <div key={serie.id}>
-                  <p className="text-xs font-bold text-white/70 mb-2">{serie.etiqueta}</p>
-                  <TrendChart puntos={serie.puntos} unidad={serie.unidad} />
-                </div>
-              ))}
-            {tendencias.some((s) => s.id === "agua_total_l") && (
-              <div>
-                <p className="text-xs font-bold text-white/70 mb-2">Agua corporal</p>
-                <StackedAreaChart historico={[...historico].reverse()} />
-              </div>
-            )}
-          </div>
-        ) : (
-          <NotaSinHistorial>Se necesitan al menos 2 mediciones para mostrar tendencias.</NotaSinHistorial>
-        )}
+      <SectionCard titulo="Evolución">
+        <TrendsSection tendencias={tendencias} historico={historico} />
       </SectionCard>
 
-      {/* 4 · Histórico completo */}
-      <SectionCard titulo="Histórico completo">
-        <Accordion type="single" collapsible className="gap-2">
-          {historico.map((m) => (
-            <HistoryCard key={m.id} medicion={m} onCorregir={onCorregirMedicion} />
-          ))}
-        </Accordion>
+      <SectionCard titulo="Historial de mediciones">
+        <MeasurementTimeline historico={historico} onCorregir={onCorregirMedicion} />
       </SectionCard>
 
-      {/* 8 · Fotografías */}
+      <SectionCard titulo="Calidad del análisis">
+        <DataQualitySection analisis={analisis} medicionActual={medicionActual} />
+      </SectionCard>
+
+      {hayLimitaciones && (
+        <SectionCard titulo="Qué no puede interpretarse">
+          <LimitationsBlock avisos={analisis.avisos} />
+        </SectionCard>
+      )}
+
+      <SectionCard titulo="Metodología">
+        <MethodologySection analisis={analisis} />
+      </SectionCard>
+
       {fotografias.length > 0 && (
         <SectionCard titulo="Fotografías de progreso">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 print:grid-cols-4 gap-3">
             {fotografias.map((f) => (
               // eslint-disable-next-line @next/next/no-img-element -- URL de Storage externa, sin dominio conocido para next/image
-              <img key={f.url} src={f.url} alt={`Fotografía de progreso — ${f.fecha}`} className="w-full aspect-square object-cover rounded-xl border border-white/[0.07]" />
+              <img
+                key={f.url}
+                src={f.url}
+                alt={`Fotografía de progreso — ${f.fecha}`}
+                className="w-full aspect-square object-cover rounded-xl border border-white/[0.07]"
+              />
             ))}
           </div>
         </SectionCard>
       )}
 
-      <ReportFooter clienteNombre={reporte.cliente.nombre} generadoEl={generadoEl} />
+      <ReportFooter clienteNombre={cliente.nombre} generadoEl={generadoEl} />
     </div>
   );
 }

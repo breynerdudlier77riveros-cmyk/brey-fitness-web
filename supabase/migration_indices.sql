@@ -22,23 +22,23 @@
 -- siempre seguro (un índice nunca cambia el resultado de una consulta).
 
 -- Sesión del día (GET /workouts/hoy) y rango del calendario.
-create index concurrently if not exists idx_workouts_user_fecha_planificada
+create index if not exists idx_workouts_user_fecha_planificada
   on public.workouts (user_id, fecha_planificada);
 
 -- Historial reciente y ventanas de evaluación de Progression Engine.
-create index concurrently if not exists idx_workout_logs_user_fecha
+create index if not exists idx_workout_logs_user_fecha
   on public.workout_logs (user_id, fecha desc);
 
 -- Timeline de decisiones y estado vigente de la máquina de Motor BPS
 -- (replay determinista, IN-5).
-create index concurrently if not exists idx_progression_events_user_created
+create index if not exists idx_progression_events_user_created
   on public.progression_events (user_id, created_at desc);
 
 -- Restricciones de zona activas y cualquier filtro por tipo de evento.
-create index concurrently if not exists idx_progression_events_user_tipo_created
+create index if not exists idx_progression_events_user_tipo_created
   on public.progression_events (user_id, tipo, created_at desc);
 
 -- Historial de Mediciones por Cliente, con paginación sobre >50
 -- (BCS Handbook 12) — por analogía directa con workout_logs.
-create index concurrently if not exists idx_bcs_mediciones_cliente_fecha
+create index if not exists idx_bcs_mediciones_cliente_fecha
   on public.bcs_mediciones (cliente_id, fecha desc);

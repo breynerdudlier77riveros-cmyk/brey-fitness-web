@@ -52,7 +52,7 @@ export default function RangeBar({ valor, min, max, zonas, unidad }: Props) {
           initial={{ left: "0%" }}
           animate={{ left: `${pct}%` }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-white border-2 border-slate-950 shadow-[0_2px_6px_rgba(0,0,0,0.4)]"
+          className="print-marcador absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-white border-2 border-slate-950 shadow-[0_2px_6px_rgba(0,0,0,0.4)]"
           aria-hidden="true"
         />
       </div>

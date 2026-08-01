@@ -5,6 +5,14 @@
 
 export { analizarComposicionCorporal, type OpcionesAnalisis } from './analizar';
 
+/**
+ * Reglas numéricas que la sección de Metodología del reporte necesita citar.
+ * Se exponen desde aquí (no se copian al componente) para que el documento
+ * mostrado al cliente nunca pueda desviarse del umbral que el motor aplica
+ * de verdad.
+ */
+export { TOLERANCIA_SUMA_MASAS_KG } from './reglas';
+
 export type {
   Aviso,
   BodyCompositionAnalysis,
