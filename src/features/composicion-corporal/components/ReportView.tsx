@@ -9,18 +9,15 @@ import RangePositionSection from "@/features/composicion-corporal/components/rep
 import ComparisonTable from "@/features/composicion-corporal/components/report/ComparisonTable";
 import TrendsSection from "@/features/composicion-corporal/components/report/TrendsSection";
 import TrendOverview from "@/features/composicion-corporal/components/report/TrendOverview";
-import ProfessionalInterpretation from "@/features/composicion-corporal/components/report/ProfessionalInterpretation";
 import MeasurementTimeline from "@/features/composicion-corporal/components/report/MeasurementTimeline";
 import PhotoGallery from "@/features/composicion-corporal/components/report/PhotoGallery";
+import ReportInterpretation from "@/features/composicion-corporal/components/report/ReportInterpretation";
 import ReportAppendix from "@/features/composicion-corporal/components/report/ReportAppendix";
-import {
-  AlertsBlock,
-  FindingsBlock,
-  InsightsBlock,
-} from "@/features/composicion-corporal/components/report/AnalysisBlocks";
+import { AlertsBlock } from "@/features/composicion-corporal/components/report/AnalysisBlocks";
 
 import type { Reporte } from "@/lib/bcs/reporte";
 import type { BodyCompositionAnalysis } from "@/lib/bcs/analysis";
+import type { RecommendationReport } from "@/lib/bcs/recommendations";
 import type { Medicion } from "@/lib/bcs/tipos";
 
 // ── Vista del Reporte — ÚNICA implementación (BCS-ADR-05) ──────────────────
@@ -41,6 +38,12 @@ interface Props {
   reporte: Reporte;
   analisis: BodyCompositionAnalysis;
   /**
+   * Recomendaciones profesionales, generadas por el Recommendation Engine a
+   * partir del mismo análisis. Llegan resueltas desde el Server Component:
+   * este componente no evalúa ninguna regla.
+   */
+  recomendaciones: RecommendationReport;
+  /**
    * Fecha de emisión (yyyy-mm-dd). Llega desde la página: este componente no
    * lee el reloj, para que portada y pie no puedan discrepar entre sí.
    */
@@ -58,6 +61,7 @@ interface Props {
 export default function ReportView({
   reporte,
   analisis,
+  recomendaciones,
   generadoEl,
   entrenador,
   onCorregirMedicion,
@@ -114,17 +118,7 @@ export default function ReportView({
         <TrendOverview tendencias={analisis.tendencias} />
       </SectionCard>
 
-      <SectionCard titulo="Interpretación profesional">
-        <ProfessionalInterpretation analisis={analisis} />
-      </SectionCard>
-
-      <SectionCard titulo="Interpretaciones del análisis">
-        <InsightsBlock insights={analisis.insights} />
-      </SectionCard>
-
-      <SectionCard titulo="Hallazgos">
-        <FindingsBlock hallazgos={analisis.hallazgos} />
-      </SectionCard>
+      <ReportInterpretation analisis={analisis} recomendaciones={recomendaciones} />
 
       <SectionCard titulo="Historial de mediciones">
         <MeasurementTimeline historico={historico} onCorregir={onCorregirMedicion} />

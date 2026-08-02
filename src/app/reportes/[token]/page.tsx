@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { obtenerReportePublico } from "@/lib/bcs/actions-publico";
 import { analizarComposicionCorporal } from "@/lib/bcs/analysis";
+import { generarRecomendaciones } from "@/lib/bcs/recommendations";
 import ReportView from "@/features/composicion-corporal/components/ReportView";
 import { EstadoSinPermiso } from "@/features/composicion-corporal/components/EstadosVacios";
 import { fechaISOLocal } from "@/lib/utils";
@@ -58,6 +59,7 @@ export default async function ReportePublicoPage({ params }: Props) {
   const hoy = new Date();
   const hoyISO = fechaISOLocal(hoy);
   const analisis = analizarComposicionCorporal(reporte.historico, { hoyISO });
+  const recomendaciones = generarRecomendaciones(analisis);
   const generadoEl = hoy.toLocaleDateString("es", { day: "2-digit", month: "long", year: "numeric" });
 
   return (
@@ -73,7 +75,12 @@ export default async function ReportePublicoPage({ params }: Props) {
 
         {/* Sin `entrenador`: UC-09 resuelve por token y su DTO no incluye al
             profesional. La portada omite la fila antes que inventar un nombre. */}
-        <ReportView reporte={reporte} analisis={analisis} generadoEl={hoyISO} />
+        <ReportView
+          reporte={reporte}
+          analisis={analisis}
+          recomendaciones={recomendaciones}
+          generadoEl={hoyISO}
+        />
 
         <footer className="mt-12 pt-6 border-t border-white/[0.06] text-xs text-white/40 flex items-center justify-between">
           <span>{reporte.cliente.nombre}</span>

@@ -6,6 +6,7 @@ import { obtenerClientePorId, listarMedicionesVigentesPorCliente, obtenerEnlaceA
 import { getProfile } from "@/lib/profile/repository";
 import { construirReporte } from "@/lib/bcs/reporte";
 import { analizarComposicionCorporal } from "@/lib/bcs/analysis";
+import { generarRecomendaciones } from "@/lib/bcs/recommendations";
 import { fechaISOLocal } from "@/lib/utils";
 import ClienteDetailClient from "./ClienteDetailClient";
 
@@ -44,6 +45,7 @@ export default async function ClienteDetailPage({ params }: Props) {
   // Reporte. `hoyISO` explícito: la capa de análisis no consulta el reloj.
   const hoyISO = fechaISOLocal();
   const analisis = reporte ? analizarComposicionCorporal(historico, { hoyISO }) : null;
+  const recomendaciones = analisis ? generarRecomendaciones(analisis) : null;
 
   // Nombre del profesional para la portada del reporte impreso. Es identidad
   // del propio entrenador (su fila de `profiles`), no un dato de Core
@@ -56,6 +58,7 @@ export default async function ClienteDetailPage({ params }: Props) {
       cliente={cliente}
       reporte={reporte}
       analisis={analisis}
+      recomendaciones={recomendaciones}
       enlaceActivo={enlaceActivo}
       generadoEl={hoyISO}
       entrenador={entrenador}
