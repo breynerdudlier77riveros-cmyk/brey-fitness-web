@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>01 · Filosofía de Persistencia — BREY Database Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="filosofia-persistencia" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 01 · Empezar</p>
+<h1>Filosofía de Persistencia</h1>
+<p class="lede">Los principios que gobiernan cada ficha de este documento. Ninguno es nuevo: cada uno ya se sostuvo en producción o en un handbook anterior — este módulo los hace explícitos para que la próxima decisión de datos no tenga que redescubrirlos.</p>
+
+<div class="meta-row">
+  <span class="chip">FT-01 SSoT · FT-09 Inmutabilidad (Engineering Handbook)</span>
+  <span class="chip">P2/P3 (Architecture Handbook)</span>
+</div>
+
+<h2 id="ssot">Single Source of Truth</h2>
+<p>Todo dato con identidad propia tiene un único propietario que puede escribirlo — nunca "cualquiera con acceso puede escribirlo" (Domain Model Handbook, 08, Aggregate Roots). Sin un propietario claro, dos escritores concurrentes producen estados contradictorios sin que ninguno sea "el correcto". Cada tabla de este documento (03) declara explícitamente quién la escribe y quién solo la lee — nunca se asume. "Propietario" no es necesariamente quien se beneficia del dato: un Usuario es dueño de su propio Perfil, pero no es el único escritor de <code>nivel_actual</code> — ese campo lo escribe el proceso de Diagnóstico/Progresión en su nombre (Domain Model Handbook, DX-04). Ownership y "de quién es la información" son preguntas distintas.</p>
+
+<h2 id="normalizacion">Normalización</h2>
+<p>BREY normaliza solo cuando algo dentro de un campo necesita su propio índice o FK — nunca por pureza relacional a priori (ENG-ADR-05). <code>workouts.ejercicios</code> y <code>workout_logs.ejercicios</code> son <code>jsonb</code>, no tablas de Slots/Series normalizadas, porque ninguna consulta real filtra hoy por un campo dentro de ellas. La señal de normalizar ya está definida de antemano: el día que el tracking de PRs se vuelva una consulta real (<code>MAX(peso) por ejercicio en el tiempo</code>), se normaliza a tabla de series — nunca antes (Architecture Handbook, 10). Este documento no normaliza especulativamente ninguna estructura jsonb existente (04).</p>
+
+<h2 id="integridad">Integridad</h2>
+<p>Ninguna decisión de negocio se registra sin su razón (Architecture Handbook, P2) — todo agregado de tipo "decisión" (EventoProgresión) declara un campo de razón obligatorio, no opcional, como parte de su forma (07, 08). Un registro sin razón es una caja negra: no permite auditar, depurar, ni explicarle al usuario por qué el sistema decidió algo. La integridad referencial (FK) y los CHECK de vocabulario cerrado (07) son la forma en que este principio se hace cumplir por la propia base de datos, no solo por convención de código.</p>
+
+<h2 id="persistencia-vs-derivacion">Persistencia vs. derivación — cuatro categorías, nunca mezcladas</h2>
+<p>Todo dato del ecosistema cae en exactamente una de cuatro categorías (síntesis de Domain Model Handbook, 13, y Architecture Handbook, 10):</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Categoría</th><th>Qué es</th><th>Regla de escritura</th></tr></thead>
+<tbody>
+<tr><td><strong>Catálogo</strong></td><td>Contenido editorial que define reglas/opciones del sistema (Sistemas ricos, Ejercicios, plantillas) — cambia por decisión de producto, no por acción de un usuario</td><td>Versionado como código, no en la base transaccional (Architecture Handbook, ADR-009) — la base solo contiene, cuando existe, un catálogo-espejo liviano referenciado por identificador estable (<code>slug</code>)</td></tr>
+<tr><td><strong>Dato de usuario</strong></td><td>Estado propio y actual de un Usuario o Cliente — su perfil, su posición, sus datos identificativos</td><td>Un único propietario escribe; se sobrescribe en su lugar cuando cambia</td></tr>
+<tr><td><strong>Historial</strong></td><td>Un hecho que ya ocurrió — un WorkoutLog, un EventoProgresión, una Medición registrada</td><td>Append-only — nunca se edita ni se borra; una corrección es un registro nuevo (Architecture Handbook, P3)</td></tr>
+<tr><td><strong>No-almacenado (derivado)</strong></td><td>Todo lo calculado a partir de las otras tres categorías — un Reporte, un EstadoRecuperación, un Programa/Bloque/Mesociclo (posicionales)</td><td>Nunca tiene fila propia — se deriva en el momento de la lectura (Domain Model Handbook, 13)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="diagram">
+<div class="diagram-label">Las cuatro categorías, de la fuente al consumidor — nunca se mezclan</div>
+<pre class="mermaid">
+graph TD
+  CAT["Catálogo<br/>(código versionado)"] -.->|"referenciado por slug"| ESP["Catálogo-espejo<br/>(systems)"]
+  ESP --> USR["Dato de usuario<br/>(profiles, bcs_clientes)"]
+  USR --> HIST["Historial<br/>(workouts, workout_logs,<br/>progression_events, bcs_mediciones)"]
+  USR --> DER["No-almacenado<br/>(Reporte, Programa, EstadoRecuperación)"]
+  HIST --> DER
+</pre>
+</div>
+
+<h2 id="persistencia-vs-cache">Persistencia vs. cache</h2>
+<p>BREY no tiene cache en ningún punto del sistema hoy — cero ISR, cero <code>revalidate</code>, cero memoización (Engineering Handbook, 09). El caso más relevante para este documento es el Reporte del BCS: se computa on-demand en cada visualización y nunca se persiste independientemente de sus Mediciones fuente (BCS Handbook, IN-D3; formalizado en Domain Model Handbook, DM-ADR-08) — para que nunca pueda quedar desactualizado respecto a una corrección de Medición. Cachear el Reporte es una optimización de infraestructura válida el día que el volumen lo justifique (BCS Handbook, 12: "cientos de Mediciones" proyectadas) — pero cachear no es persistir, y este documento no confunde ambos: un cache es descartable sin pérdida de información; una tabla no lo es.</p>
+
+<h2 id="persistencia-vs-evento">Persistencia vs. evento</h2>
+<p>El estado de un Usuario es un puntero materializado (<code>profiles.sistema_actual</code>, <code>nivel_actual</code>) para lectura barata; el <em>porqué</em> de cómo llegó ahí vive en el historial de eventos (<code>progression_events</code>), nunca solo en uno de los dos (Motor BPS Handbook, MBPS-ADR-01). Event Sourcing puro — reconstruir el estado desde cero en cada lectura — fue evaluado y descartado por su costo sin beneficio adicional sobre este híbrido. Ante divergencia entre el puntero y el log de eventos, el log gana (IN-5, replay determinista) — el puntero es una optimización de lectura, nunca la fuente de verdad.</p>
+
+<h2 id="persistencia-vs-estado">Persistencia vs. estado</h2>
+<p>La pregunta "¿en qué estado está esto ahora?" se responde con una lectura barata del puntero materializado — nunca recorriendo todo el historial de eventos en cada request. Pero el estado nunca es la única verdad persistida: cada transición de la máquina de estados de un Usuario (Motor BPS Handbook, 05) o de un Cliente/Medición/EnlacePúblico (Domain Model Handbook, 10) queda registrada como el evento que la causó — de modo que el estado actual sea siempre recomputable desde cero si el puntero llegara a corromperse (Motor BPS Handbook, pseudocódigo <code>recomputarEstado</code>). Un estado sin el evento que lo originó es, por definición, un estado sin auditoría — nunca válido en este ecosistema (08).</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../00-introduccion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 00 · Introducción</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../02-modelo-global/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">02 · Modelo Global →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

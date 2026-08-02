@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>13 · Seguridad — BREY Database Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="seguridad" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 13 · Operación</p>
+<h1>Seguridad</h1>
+<p class="lede">Qué columna es sensible, qué tabla se borra de verdad y cuál solo se archiva — y los dos gaps reales que ningún handbook ha cerrado todavía: retención y backup/restore.</p>
+
+<h2 id="pii">PII y datos sensibles</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tabla</th><th>Columnas sensibles</th><th>Categoría</th></tr></thead>
+<tbody>
+<tr><td><code>profiles</code></td><td><code>email</code>, <code>nombre</code>, <code>avatar_url</code></td><td>PII directa</td></tr>
+<tr><td><code>profiles</code></td><td><code>edad</code>, <code>sexo</code>, <code>peso_kg</code>, <code>altura_cm</code>, <code>lesiones</code>, <code>observaciones</code></td><td>Datos de salud/físicos — sensibles aunque no sean PII directa por sí solos</td></tr>
+<tr><td><code>bcs_clientes</code></td><td><code>nombre</code></td><td>PII directa (de una persona sin cuenta propia — nunca dio su propio consentimiento de registro, lo hizo su Entrenador)</td></tr>
+<tr><td><code>bcs_mediciones</code></td><td>Las 25 variables (04) + <code>observaciones</code> + <code>foto_url</code></td><td>Datos de salud — la tabla más sensible del ecosistema; <code>foto_url</code> además referencia contenido visual identificable</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="anonimizacion">Anonimización</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Sin estrategia de anonimización — el único mecanismo real es el acceso sin identidad</div>
+  <p>Ningún handbook especifica anonimización de datos en reposo (ej. hashear <code>nombre</code> para analítica agregada). El único mecanismo real relacionado es que el acceso vía <code>bcs_enlaces_publicos</code> se audita "sin identidad" — se registra que un enlace fue visitado, nunca quién lo visitó (BCS Handbook, 08; 14 de este documento) — pero eso es anonimizar el <em>acceso</em>, no el <em>dato</em>. No se inventa una estrategia de anonimización de datos aquí.</p>
+</div>
+
+<h2 id="retencion">Retención</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Sin política de retención — gap real, no se inventa aquí</div>
+  <p>Ningún handbook define cuánto tiempo se conserva un <code>workout_log</code>, un <code>progression_event</code> o una <code>bcs_medicion</code> antes de poder eliminarse por antigüedad. Todo el historial se conserva indefinidamente por diseño de auditoría (P3) — lo cual es una política implícita ("retención indefinida"), pero ningún documento la declara explícitamente como decisión de producto ni contempla un derecho de portabilidad/olvido más allá de la eliminación total de cuenta (abajo). Se registra como pregunta abierta (16).</p>
+</div>
+
+<h2 id="soft-delete">Soft delete</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tabla</th><th>Mecanismo</th><th>Reversible</th></tr></thead>
+<tbody>
+<tr><td><code>bcs_clientes</code></td><td><code>estado = 'archivado'</code></td><td>Sí — Archivado → Activo (Domain Model Handbook, 10)</td></tr>
+<tr><td><code>workouts</code></td><td><code>estado = 'perdido'</code> (fecha expirada sin ejecución)</td><td>No — estado final sin retorno, pero no es una eliminación (Domain Model Handbook, 10)</td></tr>
+<tr><td><code>bcs_mediciones</code></td><td><code>estado = 'anulada'</code></td><td>No — la anulación misma nunca revierte; la corrección crea una fila <code>vigente</code> nueva (BCS-ADR-03)</td></tr>
+<tr><td><code>bcs_enlaces_publicos</code></td><td><code>estado = 'revocado'</code></td><td>No — revocado nunca reactiva (IN-28); re-compartir crea un token nuevo</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="diagram">
+<div class="diagram-label">Soft delete (reversible) vs. hard delete (terminal) — nunca el mismo mecanismo</div>
+<pre class="mermaid">
+stateDiagram-v2
+  [*] --> Activo
+  Activo --> Archivado: soft delete (reversible)
+  Archivado --> Activo: reactivar
+  Activo --> Eliminado: hard delete (UC-04)
+  Archivado --> Eliminado: hard delete (UC-04)
+  Eliminado --> [*]: terminal, sin retorno
+</pre>
+</div>
+
+<h2 id="hard-delete">Hard delete</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Mecanismo</th><th>Alcance</th></tr></thead>
+<tbody>
+<tr><td>Eliminación de cuenta de Usuario</td><td><code>DELETE</code> físico en <code>auth.users</code>, cascade real</td><td><code>profiles</code>, <code>diagnoses</code>, <code>workouts</code>, <code>workout_logs</code>, <code>progression_events</code> — la única excepción reconocida a la inmutabilidad de historial (P3), por ser un derecho legal (Architecture Handbook, 10)</td></tr>
+<tr><td>Eliminación permanente de Cliente (UC-04)</td><td><code>DELETE</code> físico en <code>bcs_clientes</code>, distinto del archivado reversible</td><td>Cascada de revocación (no DELETE físico) de sus <code>bcs_enlaces_publicos</code> — las <code>bcs_mediciones</code> asociadas: comportamiento no especificado explícitamente por ningún handbook, ver 16</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Gap — ¿qué pasa con las Mediciones de un Cliente eliminado permanentemente?</div>
+  <p>Ni el BCS Handbook ni el Implementation Handbook especifican si <code>DELETE FROM bcs_clientes</code> cascada un DELETE físico de sus <code>bcs_mediciones</code>, o si estas se conservan huérfanas para retención/auditoría legal. No se inventa una respuesta aquí — se registra como pregunta abierta (16).</p>
+</div>
+
+<h2 id="backup-restore">Backup y restore</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Sin política propia — gestión delegada a la infraestructura, sin decisión explícita de ningún handbook</div>
+  <p>Ningún handbook de BREY (incluido el Engineering Handbook) especifica una política de backup/restore propia — la expectativa implícita es que Supabase gestiona backups de la plataforma, pero ningún documento compromete una frecuencia, retención de backups, ni un procedimiento de restore probado. Este documento no inventa esa política — la registra como ausencia real (16).</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../12-performance/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 12 · Performance</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../14-antipatrones/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">14 · Anti-patrones →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

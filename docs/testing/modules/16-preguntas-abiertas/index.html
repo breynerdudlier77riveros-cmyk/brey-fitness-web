@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>16 · Preguntas Abiertas — BREY Testing Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="preguntas-abiertas" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 16 · Gobernanza</p>
+<h1>Preguntas Abiertas</h1>
+<p class="lede">Doce preguntas sin resolver, la contradicción detectada durante esta construcción, y la autoauditoría cuantitativa completa.</p>
+
+<div class="callout callout--nota">
+  <div class="callout__label">Por qué esta lista no se resuelve</div>
+  <p>Cerrar cualquiera de estas preguntas aquí sería inventar una decisión de herramienta, producto o dominio que ningún handbook ha tomado todavía. Cada una depende de una decisión externa a este documento.</p>
+</div>
+
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Pregunta</th><th>Relacionado</th><th>Qué depende de la respuesta</th></tr></thead>
+<tbody>
+<tr><td>AP-01</td><td>¿Qué test runner se usará (Jest, Vitest, u otro) cuando se introduzca?</td><td>ENG-ADR-06 fija <em>cuándo</em>, no <em>con qué</em></td><td>No cambia ningún caso de este documento — todos están especificados en prosa/tabla, transportables a cualquier runner</td></tr>
+<tr><td>AP-02</td><td>¿Qué framework de E2E (Playwright, Cypress, u otro)?</td><td>02</td><td>Igual que AP-01 — sin impacto en la especificación de casos</td></tr>
+<tr><td>AP-03</td><td>¿Cuál es el criterio operacional de comparación de magnitud de PE-012?</td><td>06, AR-008, TEST-ADR-09</td><td>Desbloquea el caso de PE-012 marcado <span class="level level--bloqueado">bloqueado</span></td></tr>
+<tr><td>AP-04</td><td>¿Cuál es el esquema de <code>contexto</code> por tipo de evento?</td><td>08, AR-013/AR-026, TEST-ADR-03</td><td>Desbloquea los tres casos de replay/validación de <code>contexto</code> marcados <span class="level level--bloqueado">bloqueado</span></td></tr>
+<tr><td>AP-05</td><td>¿Proveedor de CI (GitHub Actions u otro)?</td><td>12, 13</td><td>No cambia los casos — sí cambia cuándo/cómo se ejecuta la suite de regresión</td></tr>
+<tr><td>AP-06</td><td>¿Estrategia de seeding de datos de test — fixtures versionadas manualmente vs. generación programática al vuelo?</td><td>03</td><td>Ambas son compatibles con "nunca aleatorio" (03) — la elección es de tooling, no de contrato</td></tr>
+<tr><td>AP-07</td><td>¿Existe ya un proyecto de Supabase de test separado de producción, o sigue pendiente?</td><td>02, AR-022</td><td>Ningún test <span class="level level--integration">integration</span>/<span class="level level--e2e">e2e</span> de este documento debe ejecutarse hasta que la respuesta sea "sí"</td></tr>
+<tr><td>AP-08</td><td>¿Herramienta de auditoría de accesibilidad (axe-core u otra)?</td><td>11</td><td>No cambia qué se prueba, solo cómo se automatiza</td></tr>
+<tr><td>AP-09</td><td>¿Herramienta de regresión visual para gráficos/comparaciones?</td><td>11</td><td>Determina si el candidato de 11 se vuelve automatizable o permanece <span class="level level--manual">manual</span></td></tr>
+<tr><td>AP-10</td><td>¿Qué umbral de "flakiness" (fallos intermitentes) se acepta antes de considerar un test roto y no una regresión real?</td><td>12</td><td>Sin definir todavía en ningún handbook — decisión de proceso, no de contrato</td></tr>
+<tr><td>AP-11</td><td>¿Quién es responsable de mantener actualizada la matriz Regla→Test cuando un handbook de dominio agrega una regla?</td><td>13, TEST-ADR-05</td><td>Determina si la cobertura de especificación se mantiene o se degrada con el tiempo</td></tr>
+<tr><td>AP-12</td><td>¿Este documento se extiende automáticamente cuando exista un Recovery Engine Handbook completo, o requiere su propia revisión formal?</td><td>06, TEST-ADR-12, AR-006</td><td>Determina el proceso de actualización, no el contenido en sí</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="contradicciones-detectadas">Contradicciones detectadas — documentadas, no corregidas</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Ambigüedad de nombre — dos documentos llamados "Testing Handbook"</div>
+  <p>El Engineering Handbook (10) ya se titula, literalmente, <strong>"Testing Handbook"</strong> (<code>&lt;h1&gt;Testing Handbook&lt;/h1&gt;</code>, <code>engineering/modules/10-testing-handbook/index.html</code>) — la misma denominación exacta de este documento standalone. Ambos son reales y ninguno se corrige aquí (instrucción explícita de este encargo): el módulo 10 del Engineering Handbook especifica la estrategia general (niveles, factories, casos críticos) en una página; este documento la formaliza en profundidad con once matrices de trazabilidad, en 17 módulos. Un lector que escuche "consulta el Testing Handbook" sin más contexto no puede saber cuál de los dos se referencia. Se documenta la ambigüedad; la decisión de renombrar uno de los dos (o declarar uno como sub-sección del otro) queda pendiente de quien gobierna el ecosistema.</p>
+</div>
+
+<h2 id="autoauditoria">Autoauditoría del Handbook</h2>
+<p>Verificación reproducible por herramienta (<code>grep</code>/Python/node), no por memoria.</p>
+
+<ul>
+<li>✅ <strong>17 módulos creados</strong> (00 a 16), cada uno con landing propio, <code>nav-data.js</code>, <code>search-index.js</code> y <code>layout.js</code> — verificado con <code>find modules -name index.html | wc -l</code> → 17.</li>
+<li>✅ <strong>8 diagramas Mermaid</strong>, incluido un árbol de decisión (02) — verificado contando <code>&lt;pre class="mermaid"&gt;</code>.</li>
+<li>✅ <strong>36 tablas HTML</strong> — verificado contando <code>&lt;table&gt;</code> en los 17 módulos.</li>
+<li>✅ <strong>12 Testing ADR</strong> (14) — verificado contando bloques <code>class="adr" id="test-adr-NN"</code>, sin huecos ni duplicados; prefijo <code>TEST-ADR-</code> confirmado sin colisión contra ninguna de las 10 familias de ADR ya existentes en el ecosistema (bare <code>ADR-</code>, <code>MBPS-ADR-</code>, <code>PE-ADR-</code>, <code>BCS-ADR-</code>, <code>BCSD-ADR-</code>, <code>ENG-ADR-</code>, <code>IMP-ADR-</code>, <code>DM-ADR-</code>, <code>API-ADR-</code>, <code>DB-ADR-</code>).</li>
+<li>✅ <strong>17 anti-patterns</strong> (15) — verificado contando filas de la tabla con el patrón de inicio de fila exacto (un conteo ingenuo por dígito dio un falso positivo de 18, causado por una celda de evidencia que contenía solo "13" como referencia de módulo — corregido con un patrón de verificación más preciso; documentado aquí para que la propia autoauditoría muestre su método, no solo su resultado).</li>
+<li>✅ <strong>Once matrices de trazabilidad completas:</strong> Motor→Suite (06), Regla→Test (06, por categoría + 3 reglas individuales), Recovery/Progression/BPS/BCS→Casos (06), FSM→Casos (07, 15/15 transiciones individuales), Evento→Verificación (08, por productor), Tabla→Restricciones y RLS→Verificación (09, 9/9 tablas), Endpoint→Integración (10, 45/45 endpoints individuales).</li>
+<li>✅ <strong>0 enlaces rotos, 0 IDs duplicados, 0 anclas rotas</strong> — verificado extrayendo cada <code>href="../NN-slug/index.html"</code> y cada <code>id="…"</code> de los 17 módulos.</li>
+<li>✅ <strong>Cadena prev/next continua</strong> 00→01→…→16, sin saltos ni ciclos.</li>
+<li>✅ <strong>JavaScript válido</strong> (<code>node --check</code> en los 3 archivos) y <strong>CSS balanceado</strong>.</li>
+<li>✅ <strong>Sin corrupción de encoding</strong> — verificado contra patrones de mojibake en los 17 módulos.</li>
+<li>✅ <strong>AR-024 cerrado documentalmente</strong> (TEST-ADR-01, 14) — la especificación completa que exigía ya existe; la cobertura de código ejecutable permanece en 0%, sin cambios, porque este documento no implementa nada.</li>
+<li>✅ <strong>AR-025 cerrado indirectamente</strong> (TEST-ADR-02, 14) — su causa raíz (AR-001) ya tiene resolución aceptada (IMP-ADR-01/API-ADR-02), citada, nunca redecidida aquí.</li>
+<li>✅ <strong>AR-026 y AR-013 permanecen abiertos</strong>, con su implicación de testing documentada como tres casos <span class="level level--bloqueado">bloqueado</span> explícitos (08, TEST-ADR-03) — no se inventó un esquema de <code>contexto</code> para cerrarlos artificialmente.</li>
+<li>✅ <strong>1 contradicción detectada y documentada, no corregida</strong> (arriba): la denominación duplicada "Testing Handbook" entre este documento y Engineering Handbook (10).</li>
+<li>✅ <strong>Ninguna regla, algoritmo, API, tabla o DTO nuevo propuesto</strong> — cada caso de prueba cita la regla/transición/endpoint/constraint ya documentado que verifica; ningún caso resuelve una ambigüedad de su handbook de origen (PE-012, AR-008) inventando un criterio no decidido allí.</li>
+<li>✅ <strong>Cero código</strong> — verificado por inspección: ningún bloque de este documento contiene sintaxis de Jest, Vitest, Playwright, SQL, TypeScript o pseudocódigo; toda especificación de caso está en prosa o tabla.</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../15-anti-patterns/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 15 · Anti-patterns</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../../index.html">
+    <div class="pagenav__dir">Fin del handbook</div>
+    <div class="pagenav__title">Volver al índice →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

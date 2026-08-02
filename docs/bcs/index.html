@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BREY Body Composition System Handbook v1.0</title>
+<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+
+<div class="landing-topbar">
+  <span class="topbar__brand">
+    <span class="topbar__brand-dot"></span>
+    BREY <span class="topbar__brand-sub">Body Composition System Handbook</span>
+  </span>
+  <span class="topbar__version">v1.0</span>
+</div>
+
+<div class="landing-wrap">
+
+  <div class="hero">
+    <p class="eyebrow">Especificación de dominio · sin código</p>
+    <h1>Body Composition System Handbook</h1>
+    <p>La especificación completa de la herramienta con la que el entrenador registra, historiza y comparte mediciones de composición corporal de sus clientes — dominio, datos, reporte, seguridad y privacidad, sin una sola línea de código. Si el código futuro lo contradice, el handbook es la verdad.</p>
+    <a class="hero-cta" href="modules/00-introduccion/index.html">Empezar →</a>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Fundamentos</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/00-introduccion/index.html"><div class="module-card__num">00</div><div class="module-card__title">Introducción</div><div class="module-card__desc">Objetivo, roles, alcance, no-alcance y las cinco etiquetas de procedencia del dato.</div></a>
+      <a class="module-card" href="modules/01-arquitectura/index.html"><div class="module-card__num">01</div><div class="module-card__title">Arquitectura</div><div class="module-card__desc">Capas, bounded context, flujo end-to-end, dependencias e invariantes.</div></a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Dominio y datos</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/02-modelo-dominio/index.html"><div class="module-card__num">02</div><div class="module-card__title">Modelo del Dominio</div><div class="module-card__desc">Entidades, agregados, value objects, casos de uso y las tres máquinas de estado.</div></a>
+      <a class="module-card" href="modules/03-modelo-datos/index.html"><div class="module-card__num">03</div><div class="module-card__title">Modelo de Datos</div><div class="module-card__desc">Catálogo completo de 25 variables — significado, cálculo, origen, validaciones y procedencia.</div></a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Reporte</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/04-modelo-reporte/index.html"><div class="module-card__num">04</div><div class="module-card__title">Modelo del Reporte</div><div class="module-card__desc">Estructura del informe profesional y la paridad total público/privado.</div></a>
+      <a class="module-card" href="modules/05-modelo-historial/index.html"><div class="module-card__num">05</div><div class="module-card__title">Modelo del Historial</div><div class="module-card__desc">Historial ilimitado, corrección sin pérdida de datos, comparación entre mediciones.</div></a>
+      <a class="module-card" href="modules/06-modelo-interpretacion/index.html"><div class="module-card__num">06</div><div class="module-card__title">Modelo de Interpretación</div><div class="module-card__desc">Clasificación sin lenguaje diagnóstico — el módulo más delicado del handbook.</div></a>
+      <a class="module-card" href="modules/07-modelo-visualizacion/index.html"><div class="module-card__num">07</div><div class="module-card__title">Modelo de Visualización</div><div class="module-card__desc">Tipos de gráfico, mínimos de datos y reglas de diseño conceptual.</div></a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Acceso y datos sensibles</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/08-seguridad/index.html"><div class="module-card__num">08</div><div class="module-card__title">Seguridad</div><div class="module-card__desc">Permisos, RLS y auditoría completa de cada escritura.</div></a>
+      <a class="module-card" href="modules/09-comparticion/index.html"><div class="module-card__num">09</div><div class="module-card__title">Compartición</div><div class="module-card__desc">El flujo humano de compartir manualmente y regenerar tras un error.</div></a>
+      <a class="module-card" href="modules/10-links-publicos/index.html"><div class="module-card__num">10</div><div class="module-card__title">Links Públicos</div><div class="module-card__desc">Diseño del token, qué expone la vista pública y qué nunca expone.</div></a>
+      <a class="module-card" href="modules/11-privacidad/index.html"><div class="module-card__num">11</div><div class="module-card__title">Privacidad</div><div class="module-card__desc">Datos sensibles, consentimiento, retención y derecho a la eliminación.</div></a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Sistema y gobernanza</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/12-escalabilidad/index.html"><div class="module-card__num">12</div><div class="module-card__title">Escalabilidad</div><div class="module-card__desc">Volumen esperado y por qué single-tenant hoy no bloquea multi-tenant mañana.</div></a>
+      <a class="module-card" href="modules/13-api-interna/index.html"><div class="module-card__num">13</div><div class="module-card__title">API Interna</div><div class="module-card__desc">Contratos de los 9 casos de uso en pseudocódigo, repositorios y eventos de dominio.</div></a>
+      <a class="module-card" href="modules/14-roadmap/index.html"><div class="module-card__num">14</div><div class="module-card__title">Roadmap</div><div class="module-card__desc">Alcance de v1.0, candidatos futuros y los riesgos del sistema.</div></a>
+      <a class="module-card" href="modules/15-glosario/index.html"><div class="module-card__num">15</div><div class="module-card__title">Glosario</div><div class="module-card__desc">Todo término del documento, alfabético.</div></a>
+      <a class="module-card" href="modules/16-adr/index.html"><div class="module-card__num">16</div><div class="module-card__title">ADR</div><div class="module-card__desc">BCS-ADR-01…06 — las decisiones propias de este documento.</div></a>
+      <a class="module-card" href="modules/17-preguntas/index.html"><div class="module-card__num">17</div><div class="module-card__title">Preguntas abiertas</div><div class="module-card__desc">7 pendientes consolidadas — nada resuelto aquí por adelantado.</div></a>
+    </div>
+  </div>
+
+  <div class="landing-footer">BREY Body Composition System Handbook v1.0 — sistema independiente del Core Product de BREY. El handbook tiene prioridad sobre el código.</div>
+
+</div>
+</body>
+</html>

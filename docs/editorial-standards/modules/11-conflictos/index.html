@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>11 · Conflictos — Editorial Standards</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="conflictos" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 11 · Operación</p>
+<h1>Conflictos</h1>
+<p class="lede">Cómo se documentan, escalan y conservan los desacuerdos editoriales — <strong>sin decidirlos nunca</strong>. El estándar gobierna el conflicto; la decisión pertenece a quien tiene la autoridad.</p>
+
+<h2 id="principio">El principio de gobierno</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Gobernar el conflicto no es resolverlo</div>
+  <p>Este handbook define cómo un desacuerdo se registra, a quién se eleva y cómo se conserva. <strong>No decide ningún conflicto concreto</strong>, ni establece criterios de desempate biomecánicos. Hacerlo convertiría al estándar editorial en una segunda autoridad de contenido, compitiendo con la que P14 ya designó.</p>
+</div>
+
+<h2 id="tipos">Tipos de conflicto editorial</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tipo</th><th>Ejemplo</th><th>¿Hay regla que lo resuelva?</th><th>Tratamiento</th></tr></thead>
+<tbody>
+<tr><td><strong>Estructural</strong></td><td>Se propone un segundo patrón primario</td><td>✅ Sí — cardinalidad declarada</td><td>Rechazo objetivo, sin escalado</td></tr>
+<tr><td><strong>De vocabulario</strong></td><td>Se propone un valor fuera de la lista cerrada</td><td>✅ Sí — vocabularios cerrados</td><td>Rechazo objetivo</td></tr>
+<tr><td><strong>De criterio</strong></td><td>Dos clasificaciones igualmente defendibles</td><td>❌ No — cero reglas de desempate</td><td><strong>Escalado</strong></td></tr>
+<tr><td><strong>Entre documentos</strong></td><td>Dos handbooks se contradicen</td><td>✅ Parcial — jerarquía documental</td><td>Gana la fuente superior; se registra</td></tr>
+<tr><td><strong>Código ↔ handbook</strong></td><td>La implementación difiere de lo documentado</td><td>✅ Sí — "el código está mal"</td><td>Corregir código o ADR nuevo</td></tr>
+<tr><td><strong>De autoridad</strong></td><td>No está claro quién decide algo</td><td>❌ No para 4 de 12 decisiones</td><td><strong>Escalado</strong> — sin destinatario declarado</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Los resolubles son todos de forma</div>
+  <p>Los cuatro tipos con regla son violaciones estructurales, de vocabulario o de jerarquía documental. Los dos sin regla —criterio y autoridad— son juicios. Es la misma frontera que atraviesa todo el ecosistema: <strong>la forma se resuelve sola; el juicio requiere una persona</strong>.</p>
+</div>
+
+<h2 id="escalado">Protocolo de escalado</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Ante ausencia de regla, se escala; no se improvisa</div>
+  <p>Quien detecta el conflicto <strong>no lo resuelve en el momento</strong>: lo registra y lo eleva a la autoridad correspondiente. Improvisar un criterio lo convierte en precedente sin que nadie lo haya aprobado, y el siguiente caso lo copiará creyendo que es norma.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Derivado del circuito de cola editorial y de P14 — no es un flujo nuevo</div>
+<pre class="mermaid">
+flowchart TD
+  D["Conflicto detectado"] --> Q1{"¿Es violación de forma<br/>(estructura o vocabulario)?"}
+  Q1 -- Sí --> R["RECHAZO objetivo<br/>sin escalado"]
+  Q1 -- No --> Q2{"¿Es entre documentos?"}
+  Q2 -- Sí --> J["Aplicar jerarquía documental<br/>+ REGISTRAR la contradicción"]
+  Q2 -- No --> Q3{"¿Compromete<br/>la seguridad?"}
+  Q3 -- Sí --> NE["NO etiquetar<br/>la entrada queda no elegible"]
+  Q3 -- No --> REG["REGISTRAR:<br/>caso · eje · opciones consideradas"]
+  NE --> REG
+  REG --> ESC["ELEVAR a la autoridad<br/>correspondiente (P14)"]
+  ESC --> DEC["Decisión autorizada"]
+  DEC --> Q4{"¿Es generalizable?"}
+  Q4 -- Sí --> ADR["Proponer regla nueva<br/>→ decisión documental + ADR"]
+  Q4 -- No --> CIE["Cierre del caso concreto"]
+</pre>
+</div>
+
+<h2 id="registro">Qué debe registrarse</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Campo</th><th>Por qué</th><th>¿Hay dónde registrarlo?</th></tr></thead>
+<tbody>
+<tr><td>Objeto del conflicto (entrada, regla, documento)</td><td>Identifica el caso</td><td>⚠️ Sin soporte declarado</td></tr>
+<tr><td>Eje o dimensión en disputa</td><td>Permite agrupar casos y detectar reglas faltantes recurrentes</td><td>⚠️ Sin soporte</td></tr>
+<tr><td>Opciones consideradas</td><td>Sin ellas la decisión posterior no es auditable</td><td>⚠️ Sin soporte</td></tr>
+<tr><td>Quién decidió y cuándo</td><td>P14 — la responsabilidad debe rastrearse</td><td>❌ Sin campo</td></tr>
+<tr><td>Razón de la decisión</td><td>P2 — toda decisión lleva razón</td><td>⚠️ Sin soporte</td></tr>
+<tr><td>Si es generalizable</td><td>Distingue un caso puntual de una regla faltante</td><td>⚠️ Sin soporte</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Deuda ED-D12 — el protocolo de escalado no tiene soporte de registro</div>
+  <p>El escalado está definido como proceso y <strong>ninguno de sus seis campos tiene dónde almacenarse</strong>. Un conflicto escalado hoy se resuelve en una conversación y desaparece: no queda constancia de qué se consideró ni por qué se eligió. Es la misma brecha de trazabilidad del módulo <a href="../08-trazabilidad/index.html">08</a>, aplicada a los desacuerdos.</p>
+</div>
+
+<h2 id="conservacion">Conservación</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Un conflicto resuelto no se borra</div>
+  <p>Deriva de P3 (el historial permanece) y de la práctica del ecosistema: cada handbook conserva sus <em>decisiones descartadas</em> junto a las adoptadas, con la razón del descarte. Un ADR no elimina el ADR anterior: lo supersede dejándolo visible.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Qué se conserva</th><th>Dónde, en la práctica actual</th></tr></thead>
+<tbody>
+<tr><td>Decisiones de arquitectura y sus alternativas</td><td>Los ADR de cada handbook</td></tr>
+<tr><td>Alternativas descartadas y su razón</td><td>Sección "Trade-offs y decisiones descartadas"</td></tr>
+<tr><td>Preguntas sin decidir</td><td>Módulo de preguntas abiertas de cada handbook</td></tr>
+<tr><td>Contradicciones entre fuentes</td><td>Auditorías de los handbooks de la trilogía</td></tr>
+<tr><td>Conflictos de etiquetado concretos</td><td><span class="tag tag--futuro">ningún sitio</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="contradicciones">Contradicciones registradas por este handbook</h2>
+<p class="matrix-note">Encontradas durante el barrido. Ninguna se resuelve aquí — se registran conforme a la instrucción de gobernar, no decidir.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Contradicción</th><th>Entre</th><th>Severidad</th></tr></thead>
+<tbody>
+<tr><td>KE-01</td><td>P14 exige rastrear la responsabilidad a una decisión humana; ningún campo del modelo permite registrarla</td><td>P14 ↔ modelo de datos</td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td>KE-02</td><td>CT-07 prohíbe borrar una entrada; sin estados, borrar es la única forma de retirarla</td><td>Catalog ↔ Domain Model</td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td>KE-03</td><td>"Nunca por deriva silenciosa" — pero ningún proceso detecta la deriva</td><td>Architecture Handbook 00, interna</td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td>KE-04</td><td>La cola editorial recibe defectos con detalle; ningún rol está designado para procesarla</td><td>Architecture Handbook 04 ↔ ausencia de roles</td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td>KE-05</td><td>El Roadmap asigna trabajo a "Contenido"; Engineering 08 declara que el modelo de roles solo tiene Usuario y Entrenador</td><td>Roadmap ↔ Engineering 08</td><td><span class="severity severity--media">media</span></td></tr>
+<tr><td>KE-06</td><td>El sistema de badges exige declarar el origen de toda regla fisiológica; los datos del catálogo —incluidas las zonas de riesgo— no lo declaran</td><td>Architecture Handbook 00 ↔ modelo de Exercise</td><td><span class="severity severity--alta">alta</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../10-revision/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 10 · Revisión</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../12-mantenimiento/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">12 · Mantenimiento →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

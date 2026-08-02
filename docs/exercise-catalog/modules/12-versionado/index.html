@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>12 · Versionado — Exercise Catalog</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="versionado" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 12 · Ciclo de vida</p>
+<h1>Versionado</h1>
+<p class="lede">El catálogo <strong>sí</strong> se versiona, y su versionado está bien especificado. El ejercicio individual <strong>no</strong>. Esa asimetría es real, tiene consecuencias concretas y no se resuelve aquí.</p>
+
+<h2 id="catalogo">Lo que sí existe: versión de catálogo</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">BPS-023 · Toda generación registra la versión de catálogo</div>
+  <p>"El evento <code>semana_generada</code> incluye el identificador de versión (ADR-009). <strong>Justificación:</strong> reproducibilidad — sin versión, una generación pasada es irrecuperable tras cambios de contenido. <strong>Inválido:</strong> generación con 'la versión actual' sin registrarla. <strong>Consecuencia:</strong> campo obligatorio del evento."</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Aspecto</th><th>Especificación</th><th>Respaldo</th></tr></thead>
+<tbody>
+<tr><td>Granularidad</td><td>Catálogo completo — un identificador por versión</td><td>BPS-023 · ADR-009</td></tr>
+<tr><td>Dónde se registra</td><td>En el evento <code>semana_generada</code>, campo obligatorio</td><td>BPS-023</td></tr>
+<tr><td>Para qué</td><td>Reproducibilidad de generaciones pasadas</td><td>BPS-023</td></tr>
+<tr><td>Efecto sobre lo generado</td><td><strong>Ninguno</strong> — "el cambio de catálogo aplica desde la siguiente generación"</td><td>R-2 · Regla de Inmutabilidad</td></tr>
+<tr><td>Dónde vive el catálogo</td><td>Código versionado, no base de datos</td><td>ADR-009</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="inmutabilidad">La regla que gobierna la evolución</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">R-2 · Regla de Inmutabilidad</div>
+  <p>"Editar plantillas nunca altera instancias generadas (P5). <strong>El cambio de catálogo aplica desde la siguiente generación</strong>."</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Una corrección no repara el pasado — y no debe</div>
+<pre class="mermaid">
+sequenceDiagram
+  participant C as Catálogo v1
+  participant W as Workout generado
+  participant C2 as Catálogo v2
+  C->>W: copia desnormalizada<br/>(slug + nombre + modalidad)
+  Note over W: Inmutable desde aquí (P5 / I-W2)
+  C->>C2: se corrige una entrada<br/>+ nueva versión
+  C2--xW: NO se propaga (R-2)
+  Note over C2,W: El Workout sigue siendo correcto<br/>respecto de la versión con que se generó
+</pre>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Por qué la no-propagación es correcta</div>
+  <p>Un Workout ya ejecutado es historia. Reescribirlo con la clasificación corregida falsificaría el registro de lo que el usuario realmente hizo. La versión de catálogo es lo que permite reconstruir, más adelante, con qué taxonomía se produjo esa semana.</p>
+</div>
+
+<h2 id="ausente">Lo que no existe: versionado por entrada</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Deuda CT-D04</div>
+  <p>Ninguna fuente declara versión, revisión, <em>changelog</em> ni fecha de modificación <strong>por ejercicio</strong>. La única granularidad documentada es el catálogo completo. Consecuencia: se puede saber que el catálogo cambió entre v1 y v2, pero <strong>no qué entrada cambió ni en qué atributo</strong>.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Pregunta</th><th>Respondible hoy</th></tr></thead>
+<tbody>
+<tr><td>¿Qué versión de catálogo se usó para generar esta semana?</td><td>✅ Sí — campo obligatorio del evento</td></tr>
+<tr><td>¿Cambió el catálogo entre dos generaciones?</td><td>✅ Sí — comparando identificadores</td></tr>
+<tr><td>¿Qué ejercicio cambió entre v1 y v2?</td><td>❌ No</td></tr>
+<tr><td>¿Qué atributo de ese ejercicio cambió?</td><td>❌ No</td></tr>
+<tr><td>¿Quién lo cambió y cuándo?</td><td>❌ No — tampoco existe estado ni registro de autoría</td></tr>
+<tr><td>¿Cuántas veces se ha revisado esta entrada?</td><td>❌ No</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="tension">La tensión con P14</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">La trazabilidad de autoría no se puede cumplir con la granularidad actual</div>
+  <p>P14 exige que "la responsabilidad sobre lo que un cuerpo humano ejecuta debe poder rastrearse a una <strong>decisión humana</strong>". Con versionado únicamente a nivel de catálogo, esa trazabilidad llega hasta "alguien cambió algo del catálogo entre v1 y v2" — no hasta la persona que autorizó una clasificación concreta. Es la misma brecha que el módulo <a href="../11-estados/index.html">11</a> detecta desde el lado de los estados.</p>
+</div>
+
+<h2 id="precedente">El precedente de deprecación del ecosistema</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Existe una disciplina de versionado — para contratos, no para catálogo</div>
+  <p>El ecosistema documenta un patrón riguroso de evolución: crear la versión nueva junto a la anterior, "con un ADR que registre la razón y una fecha de deprecación para el contrato viejo… <strong>Nunca mutación in-place de un contrato publicado</strong>". Se aplica a contratos de API y de motores.</p>
+  <p>Es análogo a lo que el catálogo necesitaría, pero pertenece a otro dominio. Adoptarlo aquí sería crear una regla nueva — prohibido por el alcance de este handbook. Se registra como precedente para la decisión documental futura.</p>
+</div>
+
+<h2 id="que-obliga">Qué obliga hoy el contrato del catálogo</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Obligación</th><th>Respaldo</th><th>Verificable</th></tr></thead>
+<tbody>
+<tr><td>Toda modificación de una entrada produce una versión de catálogo nueva</td><td>BPS-023 · CT-06</td><td>Sí</td></tr>
+<tr><td>Ninguna modificación altera Workouts ya generados</td><td>R-2</td><td>Sí</td></tr>
+<tr><td>El <code>slug</code> no cambia entre versiones</td><td>P15 · CT-01</td><td>Sí — comparando versiones</td></tr>
+<tr><td>La versión se registra en el evento de generación</td><td>BPS-023 — campo obligatorio</td><td>Sí</td></tr>
+<tr><td>Se registra qué entrada cambió</td><td><span class="tag tag--futuro">no existe</span></td><td>No</td></tr>
+<tr><td>Se registra quién autorizó el cambio</td><td><span class="tag tag--futuro">no existe</span></td><td>No</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../11-estados/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 11 · Estados</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../13-mantenimiento/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">13 · Mantenimiento →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>02 · Arquitectura de Pruebas — BREY Testing Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="arquitectura-pruebas" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 02 · Fundamentos</p>
+<h1>Arquitectura de Pruebas</h1>
+<p class="lede">Los tres niveles, qué cubre cada uno, y el entorno que cada uno necesita — formalizado a partir de lo ya especificado en el Engineering Handbook (10).</p>
+
+<h2 id="los-tres-niveles">Los tres niveles</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Nivel</th><th>Qué cubre</th><th>Entorno</th><th>Prioridad</th></tr></thead>
+<tbody>
+<tr><td><span class="level level--unit">unit</span></td><td>Motores de dominio puros (Motor BPS, Progression Engine, Recovery Engine, Workout Generator), validadores, mappers</td><td>Ninguno — entrada in, salida out, sin proceso externo</td><td>1</td></tr>
+<tr><td><span class="level level--integration">integration</span></td><td>Repositorios, RLS, constraints, endpoints del catálogo (API Contract Handbook, 07)</td><td>Base de datos Supabase de test real — nunca un mock de Supabase, porque divergería de RLS real (Engineering Handbook, 10)</td><td>2</td></tr>
+<tr><td><span class="level level--e2e">e2e</span></td><td>Flujos completos de usuario (registro → perfil → primer entrenamiento; entrenador → cliente → medición → reporte público)</td><td>Aplicación desplegada completa, contra la misma base de test</td><td>3</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="entorno">Entorno de test — aislamiento real, no solo declarado</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Riesgo heredado — AR-022 de la Architecture Review</div>
+  <p>Preview/Local probablemente comparten el mismo proyecto de Supabase que Producción (riesgo ya documentado, no resuelto por este handbook). Todo test de <span class="level level--integration">integration</span> o <span class="level level--e2e">e2e</span> de este documento asume un proyecto de Supabase de test <strong>separado</strong> de producción — si esa separación no existe todavía, ningún test de este nivel debe ejecutarse contra el proyecto real, sin excepción. Este documento no resuelve AR-022; lo hereda como precondición de entorno.</p>
+</div>
+
+<h2 id="diagrama-entorno">Diagrama — de dónde lee cada nivel</h2>
+<div class="diagram">
+<div class="diagram-label">Unit nunca toca una base de datos; Integration y E2E comparten la misma base de test, nunca la de producción</div>
+<pre class="mermaid">
+flowchart TD
+  U["Tests unit"] -->|"sin I/O"| FN["Función pura bajo prueba"]
+  I["Tests integration"] --> DBTEST[("Supabase de TEST<br/>proyecto separado — AR-022")]
+  E["Tests e2e"] --> APP["Aplicación desplegada<br/>(entorno de test)"]
+  APP --> DBTEST
+  DBTEST -.->|"NUNCA"| DBPROD[("Supabase de PRODUCCIÓN")]
+</pre>
+</div>
+
+<h2 id="arbol-decision-nivel">Árbol de decisión — qué nivel corresponde a un caso nuevo</h2>
+<div class="diagram">
+<div class="diagram-label">Se recorre una sola vez por caso — el primer "sí" fija el nivel</div>
+<pre class="mermaid">
+flowchart TD
+  Q1{"¿Necesita una fila real<br/>de base de datos?"} -- No --> UNIT["unit"]
+  Q1 -- Sí --> Q2{"¿Ejercita más de un<br/>endpoint/motor en cadena?"}
+  Q2 -- No --> INTEGRATION["integration"]
+  Q2 -- Sí --> Q3{"¿Simula un flujo completo<br/>de usuario de principio a fin?"}
+  Q3 -- Sí --> E2E["e2e"]
+  Q3 -- No --> INTEGRATION
+</pre>
+</div>
+
+<h2 id="ciclo-vida-datos">Ciclo de vida de los datos de prueba</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Momento</th><th>Regla</th></tr></thead>
+<tbody>
+<tr><td>Antes de cada test de <span class="level level--integration">integration</span></td><td>Estado conocido — vía fixtures versionadas (03), nunca datos residuales de un test anterior</td></tr>
+<tr><td>Durante</td><td>El test opera únicamente sobre filas que él mismo creó o sobre fixtures compartidas de solo lectura — nunca sobre una fila creada por otro test en ejecución paralela</td></tr>
+<tr><td>Después</td><td>Limpieza determinista de lo creado por el test — nunca <code>TRUNCATE</code> global entre tests que corren en paralelo</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="que-nunca-mezcla">Qué nunca se mezcla entre niveles</h2>
+<ul>
+  <li>Un test <span class="level level--unit">unit</span> que necesita una fila real de <code>bcs_mediciones</code> para pasar está mal clasificado — es un test de <span class="level level--integration">integration</span> (04).</li>
+  <li>Un test <span class="level level--integration">integration</span> que ejercita más de un endpoint en cadena para verificar un flujo de usuario está mal clasificado — es un test de <span class="level level--e2e">e2e</span> (10).</li>
+  <li>Ningún test de ningún nivel corre contra el proyecto de Supabase de producción, ni siquiera en modo lectura (AR-022, arriba).</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../01-filosofia-testing/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 01 · Filosofía de Testing</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../03-convenciones-globales/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">03 · Convenciones Globales →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

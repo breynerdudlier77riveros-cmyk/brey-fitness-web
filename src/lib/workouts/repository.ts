@@ -79,3 +79,42 @@ export async function getWorkoutLogsEnRango(
 
   return (data ?? []).map(mapWorkoutLog);
 }
+
+// ── Escritores (Architecture Handbook 11) ──────────────────────────────────
+// Los inserta el Motor BPS / Workout Generator (batch semanal) y el Workout
+// Player (un log al cierre). Este repositorio solo persiste lo que esos
+// productores ya construyeron — nunca decide qué generar ni qué registrar.
+
+/** Forma que recibe el insert, sin los campos que gobierna el servidor. */
+type NuevoWorkout = Omit<Workout, 'id' | 'user_id' | 'created_at'>;
+type NuevoWorkoutLog = Omit<WorkoutLog, 'id' | 'user_id' | 'created_at'>;
+
+/** Batch de la semana en una sola operación atómica (Architecture Handbook 11): un `insert([...])` es transaccional. Escritor del Generator. */
+export async function insertWorkouts(
+  supabase: SupabaseClient,
+  userId: string,
+  sesiones: NuevoWorkout[]
+): Promise<Workout[]> {
+  const { data } = await supabase
+    .from('workouts')
+    .insert(sesiones.map((s) => ({ user_id: userId, ...s })))
+    .select('*');
+
+  return (data ?? []).map(mapWorkout);
+}
+
+/** Una sola escritura, al cierre de la sesión (I-W3). Escritor del Player. Un log cerrado es inmutable — nunca se actualiza aquí. */
+export async function insertWorkoutLog(
+  supabase: SupabaseClient,
+  userId: string,
+  log: NuevoWorkoutLog
+): Promise<WorkoutLog | null> {
+  const { data, error } = await supabase
+    .from('workout_logs')
+    .insert({ user_id: userId, ...log })
+    .select('*')
+    .single();
+
+  if (error || !data) return null;
+  return mapWorkoutLog(data);
+}

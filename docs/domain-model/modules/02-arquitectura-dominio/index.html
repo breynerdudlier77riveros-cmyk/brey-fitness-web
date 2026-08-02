@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>02 · Arquitectura del Dominio — Domain Model Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="arquitectura-dominio" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 02 · Fundamentos</p>
+<h1>Arquitectura del Dominio</h1>
+<p class="lede">Siete bounded contexts. Cada uno con fronteras explícitas — qué puede importar de otro contexto, y qué le está prohibido.</p>
+
+<h2 id="contextos">Los siete bounded contexts</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Contexto</th><th>Responsabilidad</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td><strong>Identity</strong></td><td>Usuario, autenticación, perfil — la única fuente de identidad de todo el ecosistema</td><td><span class="tag tag--implementado">implementado</span></td></tr>
+<tr><td><strong>Diagnostics</strong></td><td>Diagnóstico, Respuesta, ResultadoDiagnóstico, PerfilEntrenamiento</td><td><span class="tag tag--implementado">implementado</span> (motor), sin persistencia de resultado</td></tr>
+<tr><td><strong>Core Training</strong></td><td>Programa, Bloque, Mesociclo, Microciclo, Workout, Slot, Ejercicio, Serie</td><td><span class="tag tag--implementado">implementado</span> (Workout) / <span class="tag tag--especificado">especificado</span> (jerarquía superior)</td></tr>
+<tr><td><strong>Progression</strong></td><td>Prescripción, EvaluaciónProgresión, EventoProgresión — el dominio de Motor BPS + Progression Engine</td><td><span class="tag tag--especificado">especificado</span></td></tr>
+<tr><td><strong>Recovery</strong></td><td>EstadoRecuperación, SeñalFatiga, Descarga</td><td><span class="tag tag--especificado">especificado</span> (contrato mínimo únicamente)</td></tr>
+<tr><td><strong>Body Composition</strong></td><td>Cliente, Medición, HistorialMediciones, EnlacePúblico</td><td><span class="tag tag--especificado">especificado</span></td></tr>
+<tr><td><strong>Reporting</strong></td><td>Reporte — hoy completamente subsumido dentro de Body Composition; sin superficie propia fuera de ese contexto</td><td><span class="tag tag--especificado">especificado</span> (dentro de Body Composition únicamente)</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Reporting no es hoy un contexto independiente en la práctica</div>
+  <p>Se documenta como contexto propio porque conceptualmente es un eje distinto (presentar datos, no poseerlos) — pero su única instancia real hoy es el Reporte del BCS Handbook (04), que vive enteramente dentro de Body Composition. Si Motor BPS o Progression Engine desarrollan su propia superficie de reporte en el futuro (Engineering Handbook, 11 — métricas y KPIs), ese sería el segundo miembro real de este contexto — no se anticipa aquí.</p>
+</div>
+
+<h2 id="diagrama-grande">Diagrama del ecosistema completo</h2>
+<div class="diagram">
+<div class="diagram-label">Los siete contextos y sus dependencias permitidas</div>
+<pre class="mermaid">
+graph TD
+  subgraph IDENTITY["Identity"]
+    USR["Usuario"]
+  end
+  subgraph DIAG["Diagnostics"]
+    DX["Diagnóstico"]
+  end
+  subgraph CORE["Core Training"]
+    PRG["Programa"]
+    WO["Workout"]
+  end
+  subgraph PROG["Progression"]
+    PRE["Prescripción"]
+    EVP["EventoProgresión"]
+  end
+  subgraph REC["Recovery"]
+    VER["EstadoRecuperación"]
+  end
+  subgraph BC["Body Composition"]
+    CLI["Cliente"]
+    MED["Medición"]
+  end
+  subgraph REP["Reporting"]
+    RPT["Reporte"]
+  end
+
+  DIAG -->|"depende de"| IDENTITY
+  CORE -->|"depende de"| IDENTITY
+  CORE -->|"depende de"| DIAG
+  PROG -->|"depende de"| REC
+  PROG -.->|"es invocado por"| CORE
+  BC -->|"depende de (solo identidad del Entrenador)"| IDENTITY
+  REP -->|"depende de"| BC
+</pre>
+</div>
+
+<h2 id="dependencias-permitidas">Dependencias permitidas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Contexto</th><th>Puede depender de</th></tr></thead>
+<tbody>
+<tr><td>Diagnostics</td><td>Identity (necesita saber de qué Usuario es el resultado)</td></tr>
+<tr><td>Core Training</td><td>Identity, Diagnostics (el Nivel de entrada viene del Diagnóstico)</td></tr>
+<tr><td>Progression</td><td>Recovery (Veredicto) — nunca Core Training directamente como dependencia bloqueante, solo como invocador (Implementation Handbook, 02)</td></tr>
+<tr><td>Recovery</td><td>Ninguno — es una hoja del árbol de dependencias</td></tr>
+<tr><td>Body Composition</td><td>Identity (solo la identidad del Entrenador, nunca datos de Core Training)</td></tr>
+<tr><td>Reporting</td><td>Body Composition (su único miembro real hoy)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="dependencias-prohibidas">Dependencias prohibidas</h2>
+<ul>
+  <li>Body Composition <strong>nunca</strong> depende de Core Training, Progression, Diagnostics o Recovery — el BCS Handbook (00, 01) ya lo declara explícitamente como standalone.</li>
+  <li>Recovery <strong>nunca</strong> depende de Progression ni de Core Training — invertiría la escalera de precedencia de seguridad (P8) que ambos handbooks de motor ya establecen.</li>
+  <li>Ningún contexto importa un tipo de dominio de otro directamente — solo consume su contrato de salida (DTO/evento), nunca su modelo interno (FT-13 del Engineering Handbook, aplicado al dominio).</li>
+  <li>Identity <strong>nunca</strong> depende de ningún otro contexto — es la raíz de todo el árbol.</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../01-lenguaje-ubicuo/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 01 · Lenguaje Ubicuo</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../03-entidades-core-training/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">03 · Entidades del Core Training →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

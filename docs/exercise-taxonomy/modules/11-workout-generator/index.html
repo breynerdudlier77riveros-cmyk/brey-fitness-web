@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>11 · Workout Generator — Exercise Taxonomy Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="workout-generator" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 11 · Relaciones</p>
+<h1>Relación con el Workout Generator</h1>
+<p class="lede">Qué atributos consume la resolución de un slot, en qué orden exacto, qué copia el Generator al materializar una sesión y qué información de la taxonomía se pierde en ese salto.</p>
+
+<h2 id="rol">El Generator no clasifica</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Ensamblador, no decisor</div>
+  <p>"El ensamblador. <strong>No decide nada nuevo</strong>: toma el Microciclo vigente, el Perfil fresco, la prescripción del Progression Engine y el veredicto del Recovery Engine, y materializa Sesiones concretas." Y desde el Motor BPS, BPS-021: "Ejercicios, patrones, prescripciones y sustituciones son de KB/Generator; el Motor solo decide CUÁNDO y CON QUÉ CONTEXTO invocar".</p>
+</div>
+<p>El Generator es, por tanto, el mayor <strong>consumidor</strong> de la taxonomía, pero nunca su autor: no etiqueta, no infiere, no corrige. Si un ejercicio está mal clasificado, el Generator produce una sesión mal ensamblada — y esa es la razón de que el etiquetado sea criterio humano (TX-06).</p>
+
+<h2 id="consumo">Atributos que consume la resolución</h2>
+<p class="matrix-note">Los seis filtros del paso 0, en el orden del pseudocódigo del Architecture Handbook 04.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Filtro</th><th>Atributo del ejercicio</th><th>Valor externo que lo confronta</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Patrón</td><td><code>patronPrimario</code> — solo el primario</td><td>El patrón declarado por el slot</td></tr>
+<tr><td>2</td><td>Rol compatible</td><td><code>rolesPosibles[]</code></td><td>El rol declarado por el slot</td></tr>
+<tr><td>3</td><td>Nivel compatible</td><td><code>nivel</code></td><td>El Nivel del usuario (mapeo <strong>no especificado</strong> — TX-Q22)</td></tr>
+<tr><td>4</td><td>Equipo elegible</td><td><code>equipo[]</code></td><td>El conjunto que resuelve el Track</td></tr>
+<tr><td>5</td><td>Capacidades cumplidas</td><td><code>capacidadesRequeridas[]</code></td><td>Capacidades demostradas del usuario</td></tr>
+<tr><td>6</td><td>Exclusión por zona</td><td><code>zonasRiesgo[]</code> — se excluye <code>alto</code></td><td>Zonas declaradas del usuario</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="orden">Los seis pasos de la resolución</h2>
+<div class="diagram">
+<div class="diagram-label">Orden fijo — cada paso solo corre si el anterior no resolvió</div>
+<pre class="mermaid">
+flowchart TD
+  P0["Paso 0 · Universo elegible<br/>los 6 filtros"] --> P1{"Paso 1 · ¿El eslabón vigente<br/>está entre los candidatos?"}
+  P1 -->|Sí| R1["Devolver el eslabón vigente"]
+  P1 -->|No| P2{"Paso 2 · ¿Hay algún eslabón<br/>elegible en la misma cadena?"}
+  P2 -->|Sí| R2["Devolver el más cercano<br/>al vigente"]
+  P2 -->|No| P3{"Paso 3 · ¿Quedan candidatos<br/>del mismo patrón + rol?"}
+  P3 -->|Sí| R3["Primero por orden estable:<br/>nivel asc, luego slug asc"]
+  P3 -->|No| P4{"Paso 4 · ¿El patrón declara<br/>degradación?"}
+  P4 -->|Sí| REC["Reintentar con el patrón destino<br/>+ ajuste de volumen + razón registrada"]
+  P4 -->|No| P5["Paso 5 · CATALOGO_INSUFICIENTE<br/>con detalle completo"]
+  REC -.->|"cada patrón, una sola vez<br/>(ver TX-ADR-01)"| P0
+</pre>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Determinismo del empate (P1)</div>
+  <p>"Cuando varios candidatos empatan, el orden es estable y total: <strong>nivel ascendente, luego slug ascendente</strong>. Nunca 'el primero que devuelva la base de datos'." Es la razón por la que el <code>slug</code> debe ser estable: participa en un criterio de desempate observable por el usuario.</p>
+</div>
+
+<h2 id="preservacion">Qué se preserva al sustituir</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Se preserva SIEMPRE</th><th>Se hereda condicionalmente</th><th>Puede cambiar</th></tr></thead>
+<tbody>
+<tr><td>Patrón (salvo degradación declarada)</td><td>Series/Reps — solo si la modalidad coincide (dinámico↔dinámico)</td><td>El ejercicio concreto</td></tr>
+<tr><td>Rol</td><td>—</td><td>El eslabón dentro de la cadena</td></tr>
+<tr><td>Intención de Intensidad</td><td>—</td><td>El equipo requerido</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="desnormalizacion">Qué copia el Generator a la fila de Workout</h2>
+<p>Al materializar, el Generator desnormaliza (I-G2: "la instancia copia todo lo que necesita — jamás referencia plantillas en lectura posterior"). Según el Architecture Handbook 08, cada fila queda autocontenida con: <em>"patrón, rol, ejercicio (slug + nombre), series, reps/duración, RPE objetivo, descanso, tempo (si aplica), notas"</em>.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Dato de la taxonomía</th><th>¿Viaja a la instancia?</th><th>Consecuencia</th></tr></thead>
+<tbody>
+<tr><td><code>slug</code></td><td>Sí</td><td>Permite reconstruir la ficha completa consultando el catálogo</td></tr>
+<tr><td><code>nombre</code></td><td>Sí</td><td>El Player lo muestra sin depender del catálogo vivo</td></tr>
+<tr><td><code>modalidad</code></td><td>Sí</td><td>Determina contador vs. cronómetro en el Player</td></tr>
+<tr><td>Patrón y Rol del slot</td><td>Sí</td><td>Hacen la fila auditable sin la plantilla</td></tr>
+<tr><td><code>zonasRiesgo</code>, <code>cadena</code>, <code>capacidadesRequeridas</code>, ficha educativa</td><td>No</td><td>Se consultan del catálogo por <code>slug</code> cuando hagan falta</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Contradicción entre la forma exigida y el DTO oficial</div>
+  <p>El Architecture Handbook 08 exige que la fila lleve <strong>patrón, rol, slug, RPE objetivo, descanso, tempo y notas</strong>. El DTO oficial que transporta cada entrada del jsonb <code>workouts.ejercicios</code> — <code>EjercicioPlan</code>, definido en los tipos del ecosistema — solo contempla <code>{nombre, series, reps, peso?, intensidad?}</code>. <strong>Patrón, rol, slug, modalidad, descanso, tempo y notas no tienen destino declarado.</strong></p>
+  <p>Es una contradicción real entre el handbook de arquitectura y el contrato de datos vigente, no una omisión de este documento. Registrada en <a href="../17-autoauditoria/index.html">la autoauditoría</a> y como <a href="../16-preguntas-abiertas/index.html">TX-Q23</a>.</p>
+</div>
+
+<h2 id="fallo">El fallo es parte del diseño</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">CATALOGO_INSUFICIENTE no se maquilla</div>
+  <p>"Rellenar huecos con 'el menos malo' — Descartado: violaría P6 y el filtro de seguridad. Un vacío de catálogo es trabajo editorial, no un problema a maquillar en runtime (P14)." Y el Motor BPS lo propaga sin parchear: "<code>CATALOGO_INSUFICIENTE</code> se propaga, jamás se parchea" (BPS-021).</p>
+</div>
+<p>Para la taxonomía esto significa que un atributo mal etiquetado no degrada silenciosamente la calidad de la sesión: la hace fallar de forma visible y trazable, con el detalle exacto del vacío (patrón, rol, track, nivel, exclusiones) alimentando la cola editorial.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../10-training-framework/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 10 · Training Framework</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../12-progression-engine/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">12 · Progression Engine →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -106,6 +106,17 @@ body {
   animation: typing-bounce 1.1s ease-in-out infinite;
 }
 
+/* ── BCS-C07 Skeleton (BCS Design Handbook 06/16): pulso de color, no de
+   opacidad — rgba(255,255,255,0.04) → 0.07, 1.5s ease-in-out infinito ── */
+@keyframes bcs-skeleton-pulse {
+  0%, 100% { background-color: rgba(255, 255, 255, 0.04); }
+  50%      { background-color: rgba(255, 255, 255, 0.07); }
+}
+
+.bcs-skeleton {
+  animation: bcs-skeleton-pulse 1.5s ease-in-out infinite;
+}
+
 /* ── Movimiento reducido: lo que sigue en CSS puro (Motion ya se gestiona
    centralizado vía MotionConfig reducedMotion="user" en layout.tsx) ── */
 @media (prefers-reduced-motion: reduce) {
@@ -116,5 +127,321 @@ body {
   .checkout-btn {
     animation: none;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  }
+  .bcs-skeleton {
+    animation: none;
+    background-color: rgba(255, 255, 255, 0.04);
+  }
+}
+
+/* ── Exportación del Reporte del BCS (BCS Design Handbook 14) ───────────────
+   Documento clínico sobre papel, no una captura de la pantalla oscura.
+
+   El problema que resuelve: la app es tema oscuro (bg-slate-950 + text-white).
+   Los navegadores NO imprimen fondos por defecto, pero SÍ imprimen el color
+   del texto — así que el reporte salía en blanco sobre blanco, ilegible. En
+   vez de forzar el fondo oscuro (gastaría un cartucho por copia y se lee
+   peor), se invierte el tema solo para papel: texto oscuro sobre blanco.
+
+   `size: A4` con márgenes en cm funciona igual en Carta: el contenido se
+   ajusta al ancho útil, solo cambia el alto de página. No hay selector de
+   formato porque ningún handbook lo especifica.
+   ────────────────────────────────────────────────────────────────────────── */
+@media print {
+  @page {
+    size: A4;
+    margin: 18mm 16mm;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    color: #0f172a !important;
+  }
+
+  /* Nada de la app fuera del reporte llega al papel. */
+  nav,
+  aside,
+  [role="dialog"],
+  [data-sonner-toaster] {
+    display: none !important;
+  }
+
+  /* ── Tema claro dentro del reporte ─────────────────────────────────────
+     Las utilidades de Tailwind con opacidad (text-white/50, bg-white/[0.02])
+     se escriben como color-mix()/rgb con alpha, así que no basta con
+     redefinir una variable: se neutralizan por selector de atributo sobre la
+     clase, que es la vía que no obliga a tocar los 20 componentes. */
+  .reporte-print,
+  .reporte-print * {
+    color: #0f172a !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  .reporte-print [class*="bg-white"],
+  .reporte-print [class*="bg-slate"] {
+    background-color: transparent !important;
+  }
+
+  /* El marcador de la barra de rango es un círculo blanco: con la regla de
+     arriba se volvería transparente y desaparecería justo el elemento que
+     indica dónde cae el valor. Se invierte a oscuro sobre papel. */
+  .reporte-print .print-marcador {
+    background-color: #0f172a !important;
+    border-color: #fff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Jerarquía en gris, no en blanco translúcido (que sobre papel desaparece). */
+  .reporte-print [class*="text-white/5"],
+  .reporte-print [class*="text-white/4"],
+  .reporte-print [class*="text-white/3"] {
+    color: #475569 !important;
+  }
+
+  /* Las tarjetas se vuelven bloques delimitados por línea fina. El color del
+     borde solo se neutraliza donde era blanco translúcido: los bordes
+     semánticos (el ámbar de una alerta, el azul de un insight) son la
+     identidad de cada bloque y deben sobrevivir a la impresión. */
+  .reporte-print [class*="rounded-2xl"],
+  .reporte-print [class*="rounded-xl"] {
+    border-radius: 4px !important;
+  }
+
+  .reporte-print [class*="border-white"] {
+    border-color: #cbd5e1 !important;
+  }
+
+  /* Color semántico preservado — nunca se degrada a gris (Design Handbook 14).
+     print-color-adjust obliga al navegador a respetarlo. */
+  .reporte-print [class*="text-emerald"],
+  .reporte-print [class*="text-red"],
+  .reporte-print [class*="text-yellow"],
+  .reporte-print [class*="text-sky"],
+  .reporte-print [class*="text-orange"],
+  .reporte-print [class*="bg-emerald"],
+  .reporte-print [class*="bg-red"],
+  .reporte-print [class*="bg-yellow"],
+  .reporte-print [class*="bg-sky"],
+  .reporte-print [class*="bg-orange"] {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .reporte-print [class*="text-emerald"] { color: #047857 !important; }
+  .reporte-print [class*="text-red"]     { color: #b91c1c !important; }
+  .reporte-print [class*="text-yellow"]  { color: #a16207 !important; }
+  .reporte-print [class*="text-sky"]     { color: #0369a1 !important; }
+  .reporte-print [class*="text-orange"]  { color: #c2410c !important; }
+
+  /* Los gráficos son SVG con `fill`/`stroke`, y las zonas de la barra de
+     rango son divs con fondo pleno. Ambos deben imprimirse con su color
+     real: sin print-color-adjust el navegador los omite y el gráfico sale
+     vacío. NO se sustituye el color por un gris — eso borraría la
+     distinción entre zonas, que es toda la información de la barra. */
+  .reporte-print svg,
+  .reporte-print svg * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* ── Control de saltos de página ───────────────────────────────────────
+     Nada se parte por la mitad: ni una tarjeta, ni un gráfico, ni una fila. */
+  .reporte-print section,
+  .reporte-print [class*="rounded-2xl"],
+  .reporte-print figure,
+  .reporte-print img,
+  .reporte-print svg,
+  .reporte-print li {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .reporte-print table {
+    break-inside: auto;
+  }
+
+  .reporte-print tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* La cabecera de una tabla se repite en cada página que ocupe. */
+  .reporte-print thead {
+    display: table-header-group;
+  }
+
+  /* Un título nunca queda solo al final de la página. */
+  .reporte-print h1,
+  .reporte-print h2,
+  .reporte-print h3,
+  .reporte-print [class*="uppercase"] {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .reporte-print p,
+  .reporte-print li {
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* ── Legibilidad sobre papel ───────────────────────────────────────────
+     La pantalla usa 10-12px sobre fondo oscuro; en papel eso se lee mal. */
+  .reporte-print {
+    font-size: 10.5pt;
+    line-height: 1.45;
+  }
+
+  .reporte-print [class*="text-[10px]"],
+  .reporte-print [class*="text-xs"] {
+    font-size: 8.5pt !important;
+  }
+
+  .reporte-print [class*="text-sm"] {
+    font-size: 10pt !important;
+  }
+
+  .reporte-print [class*="text-2xl"],
+  .reporte-print [class*="text-3xl"] {
+    font-size: 18pt !important;
+  }
+
+  /* El ancho de pantalla no aplica en papel: el margen lo pone @page. */
+  .reporte-print {
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Ningún control interactivo llega al papel. SectionCard ya no monta un
+     acordeón (Sprint 3.0) y el histórico es una línea de tiempo abierta, así
+     que no queda nada colapsado que forzar: basta con retirar los controles
+     que sí existen dentro del documento. */
+  .reporte-print button,
+  .reporte-print input,
+  .reporte-print select,
+  .reporte-print textarea,
+  .reporte-print [role="button"] {
+    display: none !important;
+  }
+
+  /* Un contenedor con scroll horizontal recorta en papel todo lo que en
+     pantalla se alcanzaba desplazando: las tablas anchas perdían la columna
+     de diferencia. En impresión no hay scroll, así que se deja fluir. */
+  .reporte-print [class*="overflow-x-auto"],
+  .reporte-print [class*="overflow-y-auto"],
+  .reporte-print [class*="overflow-auto"] {
+    overflow: visible !important;
+    max-height: none !important;
+  }
+
+  .reporte-print table {
+    width: 100% !important;
+    table-layout: auto;
+  }
+
+  /* Las barras de los gráficos se dimensionan con altura fija en px pensada
+     para pantalla; en papel se reducen para que una serie completa quepa. */
+  .reporte-print [class*="aspect-"] {
+    aspect-ratio: auto !important;
+  }
+
+  /* Nada se sale del ancho útil de la página. */
+  .reporte-print img,
+  .reporte-print svg,
+  .reporte-print table,
+  .reporte-print pre {
+    max-width: 100% !important;
+  }
+
+  /* ── Portada y pie: existen solo sobre papel ───────────────────────────── */
+  .print-solo {
+    display: block !important;
+  }
+
+  /* La portada ocupa su propia hoja: el reporte empieza en la página 2. */
+  .print-portada {
+    break-after: page;
+    page-break-after: always;
+  }
+}
+
+/* En pantalla, esos bloques no se renderizan: el reporte ya tiene su propia
+   cabecera y una portada ahí sería ruido. */
+.print-solo {
+  display: none;
+}
+
+/* ── Impresión de la Analítica del consultorio (Sprint BCS-5.0) ─────────────
+   Reutiliza el tema de papel del reporte clínico. Se declara aparte porque su
+   contenido es distinto —recuentos y gráficos, no observaciones— y porque un
+   cambio en el reporte no debe alterar en silencio la impresión del panel. ── */
+@media print {
+  .dashboard-print,
+  .dashboard-print * {
+    color: #0f172a !important;
+    background-image: none !important;
+    box-shadow: none !important;
+  }
+
+  .dashboard-print [class*="bg-white"],
+  .dashboard-print [class*="bg-slate"] {
+    background-color: transparent !important;
+  }
+
+  .dashboard-print [class*="text-white/4"],
+  .dashboard-print [class*="text-white/3"] {
+    color: #475569 !important;
+  }
+
+  .dashboard-print [class*="border-white"] {
+    border-color: #cbd5e1 !important;
+  }
+
+  .dashboard-print [class*="rounded-2xl"],
+  .dashboard-print [class*="rounded-xl"] {
+    border-radius: 4px !important;
+  }
+
+  /* Los gráficos son SVG con fill/stroke: sin esto el navegador los omite y
+     las barras salen vacías. Los recuentos perderían su representación. */
+  .dashboard-print svg,
+  .dashboard-print svg * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Ni una tarjeta, gráfico o fila partida entre páginas. */
+  .dashboard-print section,
+  .dashboard-print article,
+  .dashboard-print figure,
+  .dashboard-print svg,
+  .dashboard-print li,
+  .dashboard-print tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .dashboard-print h1,
+  .dashboard-print h2,
+  .dashboard-print h3 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  /* Controles fuera del papel: filtros, exportación y botones de acción. */
+  .dashboard-print button,
+  .dashboard-print input,
+  .dashboard-print select {
+    display: none !important;
+  }
+
+  .dashboard-print [class*="overflow-x-auto"],
+  .dashboard-print [class*="overflow-auto"] {
+    overflow: visible !important;
   }
 }

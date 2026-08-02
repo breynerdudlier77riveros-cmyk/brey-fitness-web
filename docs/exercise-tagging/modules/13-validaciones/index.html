@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>13 · Validaciones — Exercise Tagging Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="validaciones" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 13 · Consistencia</p>
+<h1>Validaciones</h1>
+<p class="lede">Qué hace inválido un etiquetado, separado en las dos capas que TG-05 distingue: lo que una máquina puede rechazar sola, y lo que solo una persona puede detectar.</p>
+
+<h2 id="dos-capas">Las dos capas</h2>
+<div class="diagram">
+<div class="diagram-label">Pasar la capa estructural no significa estar bien etiquetado</div>
+<pre class="mermaid">
+flowchart LR
+  E["Etiquetado propuesto"] --> V1["CAPA 1 · ESTRUCTURAL<br/>automática · ingeniería"]
+  V1 -->|falla| R1["RECHAZO objetivo<br/>sin juicio"]
+  V1 -->|pasa| V2["CAPA 2 · CONTENIDO<br/>manual · criterio de entrenador"]
+  V2 -->|falla| R2["CORRECCIÓN editorial<br/>+ nueva versión de catálogo"]
+  V2 -->|pasa| A["ACEPTADO"]
+  V1 -.->|"bien formado ≠ correcto"| V2
+</pre>
+</div>
+
+<h2 id="capa1">Capa 1 — Validaciones estructurales</h2>
+<p class="matrix-note">Todas verificables por máquina. Las marcadas "publicada" figuran como caso inválido en una fuente; las marcadas "derivada" se siguen necesariamente de una regla publicada.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Validación</th><th>Eje</th><th>Origen</th><th>Severidad</th></tr></thead>
+<tbody>
+<tr><td>V-01</td><td>Existe <code>patronPrimario</code></td><td>Patrón</td><td><span class="tag tag--implementado">publicada</span> — "sin él el ejercicio es inválido"</td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td>V-02</td><td>Hay exactamente un patrón primario</td><td>Patrón</td><td><span class="tag tag--implementado">publicada</span> — regla (a)</td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td>V-03</td><td>Todo valor de patrón pertenece a los 9</td><td>Patrón</td><td><span class="tag tag--especificado">derivada</span> — vocabulario cerrado</td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td>V-04</td><td><code>rolesPosibles[]</code> no está vacío</td><td>Rol</td><td><span class="tag tag--especificado">derivada</span> — atributo obligatorio</td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td>V-05</td><td>Todo valor de rol pertenece a los 5</td><td>Rol</td><td><span class="tag tag--especificado">derivada</span></td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td>V-06</td><td>Ambos sub-ejes de <code>modalidad</code> están presentes</td><td>Modalidad</td><td><span class="tag tag--especificado">derivada</span> — atributo obligatorio</td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td>V-07</td><td>Todo valor de equipo pertenece a los 6</td><td>Equipamiento</td><td><span class="tag tag--especificado">derivada</span></td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td>V-08</td><td>Se distingue <code>zonasRiesgo</code> ausente de lista vacía</td><td>Zonas</td><td><span class="tag tag--especificado">derivada</span> — "filtro no removible"</td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td>V-09</td><td>Toda zona pertenece a las 6 y toda intensidad a los 3 valores</td><td>Zonas</td><td><span class="tag tag--especificado">derivada</span></td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td>V-10</td><td>La cadena no cruza de patrón</td><td>Cadena</td><td><span class="tag tag--implementado">publicada</span> — regla 1</td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td>V-11</td><td>La cadena no contiene ciclos</td><td>Cadena</td><td><span class="tag tag--implementado">publicada</span> — caso inválido</td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td>V-12</td><td>La cadena es lineal (un anterior, un siguiente)</td><td>Cadena</td><td><span class="tag tag--implementado">publicada</span> — regla 2</td><td><span class="severity severity--media">media</span></td></tr>
+<tr><td>V-13</td><td>Los eslabones y capacidades referenciados existen</td><td>Cadena · Capacidades</td><td><span class="tag tag--especificado">derivada</span></td><td><span class="severity severity--media">media</span></td></tr>
+<tr><td>V-14</td><td>El <code>slug</code> existe, es único y no cambió respecto de la versión anterior</td><td>Identidad</td><td><span class="tag tag--especificado">derivada</span> — P15</td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td>V-15</td><td><code>nivel</code>, <code>tipo</code> y <code>sistemasVinculados</code> presentes y en vocabulario</td><td>Varios</td><td><span class="tag tag--especificado">derivada</span></td><td><span class="severity severity--media">media</span></td></tr>
+<tr><td>V-16</td><td>La ficha educativa obligatoria está completa</td><td>Contenido</td><td><span class="tag tag--especificado">derivada</span></td><td><span class="severity severity--media">media</span></td></tr>
+<tr><td>V-17</td><td>Sin "huecos de nivel" en la cadena</td><td>Cadena</td><td><span class="tag tag--futuro">no implementable</span> — criterio sin definir</td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">V-17 es exigida pero no implementable</div>
+  <p>La regla 4 de la cadena obliga a que la validación estructural detecte "huecos de nivel", pero ninguna fuente define qué constituye un hueco. Es la única validación estructural exigida por una fuente que <strong>no puede escribirse</strong>. Deuda <a href="../17-auditoria/index.html">TG-D08</a>.</p>
+</div>
+
+<h2 id="capa2">Capa 2 — Validaciones de contenido</h2>
+<p class="matrix-note">Ninguna es automatizable. Todas requieren criterio de entrenador (P14). Un etiquetado que pase la capa 1 y falle aquí es <strong>bien formado pero incorrecto</strong>.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Validación</th><th>Por qué no es automatizable</th></tr></thead>
+<tbody>
+<tr><td>H-01</td><td>El patrón primario describe correctamente el movimiento</td><td>Requiere juicio biomecánico; no se infiere de ningún otro campo (TG-03)</td></tr>
+<tr><td>H-02</td><td>Los roles declarados son plausibles</td><td>"El más pesado/complejo del patrón" es comparativo y depende del catálogo</td></tr>
+<tr><td>H-03</td><td>La intensidad de cada zona de riesgo es correcta</td><td>Declarado explícitamente: "exige etiquetado con criterio biomecánico"</td></tr>
+<tr><td>H-04</td><td>El orden de la cadena refleja dificultad creciente real</td><td>"El orden lo autoriza criterio de entrenador"</td></tr>
+<tr><td>H-05</td><td>El nivel asignado refleja la dificultad real</td><td>Sin criterio publicado</td></tr>
+<tr><td>H-06</td><td><code>zonasRiesgo: []</code> es una afirmación verdadera</td><td>Una lista vacía es estructuralmente perfecta y puede ser falsa</td></tr>
+<tr><td>H-07</td><td>El equipamiento listado refleja lo realmente necesario</td><td>Bloqueada además por TG-D05: no se sabe si es conjunción o disyunción</td></tr>
+<tr><td>H-08</td><td>La ficha educativa es técnicamente correcta y segura</td><td>Contenido; el texto libre nunca se parsea</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="consecuencias">Consecuencias de cada tipo de fallo</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Fallo</th><th>Efecto inmediato</th><th>Detectabilidad</th><th>Riesgo</th></tr></thead>
+<tbody>
+<tr><td>Estructural (V-01…V-16)</td><td>Rechazo — el ejercicio no entra al catálogo</td><td>Automática, inmediata</td><td>Bajo: falla ruidosamente</td></tr>
+<tr><td>Contenido en eje de seguridad (H-03, H-06)</td><td>Ninguno visible — el ejercicio pasa el filtro</td><td>Solo auditoría humana</td><td><span class="severity severity--critica">Crítico</span> — puede prescribirse a un usuario lesionado</td></tr>
+<tr><td>Contenido en eje de programación (H-01, H-02, H-05)</td><td>Sesión bien formada pero mal compuesta</td><td>Solo auditoría humana</td><td><span class="severity severity--alta">Alto</span> — degrada la calidad sin señal</td></tr>
+<tr><td>Contenido en cadena (H-04)</td><td>Progresión que avanza a un eslabón inadecuado</td><td>Solo auditoría humana</td><td><span class="severity severity--alta">Alto</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">La asimetría fundamental del etiquetado</div>
+  <p>Los errores estructurales fallan ruidosamente y no llegan a producción. Los errores de contenido <strong>no fallan nunca</strong>: producen un catálogo perfectamente bien formado y silenciosamente equivocado. Por eso la capa 2 no es opcional ni "recomendable" — es la única defensa contra la única clase de error que el sistema no puede detectar solo.</p>
+</div>
+
+<h2 id="estado-invalido">Qué ocurre con un ejercicio inválido</h2>
+<p>Permanece con sus ejes sin asignar y por tanto <strong>no elegible</strong> (TG-04). El comportamiento aguas abajo ya está definido por el ecosistema: los slots que no encuentren candidatos devuelven <code>CATALOGO_INSUFICIENTE</code> con detalle, y "el error alimenta la cola editorial de contenido". Un ejercicio inválido nunca degrada silenciosamente la generación: la hace fallar de forma trazable.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../12-matrices-consistencia/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 12 · Matrices de Consistencia</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../14-checklist/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">14 · Checklist Oficial →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

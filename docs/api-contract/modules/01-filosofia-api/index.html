@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>01 · Filosofía de API — BREY API Contract Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="filosofia-api" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 01 · Empezar</p>
+<h1>Filosofía de API</h1>
+<p class="lede">Los principios que gobiernan cada tabla de este documento. Ninguno es nuevo: cada uno ya está implícito en algún handbook existente (Engineering Handbook, Domain Model Handbook) — aquí se hacen explícitos para el dominio específico de contratos invocables.</p>
+
+<div class="meta-row">
+  <span class="chip">FT-01 SSoT · FT-03 Determinismo · FT-04 Idempotencia (Engineering Handbook)</span>
+  <span class="chip">P2/P3 Auditabilidad (Architecture Handbook)</span>
+</div>
+
+<h2 id="notacion-rest">Notación REST, transporte agnóstico</h2>
+<div class="callout callout--tradeoff">
+  <div class="callout__label">API-ADR-01 — resumen (ver 15 para el ADR completo)</div>
+  <p>El Engineering Handbook (06) afirma: "BREY no expone una API pública versionada — sus contratos internos son las firmas de los repositorios (Queries), las Server Actions (Commands) y los 2 Route Handlers reales." Este documento no lo contradice: cada operación de este catálogo se expresa con <strong>ruta lógica + método semántico</strong> (ej. <code>POST /bcs/clientes</code>) como notación transporte-agnóstica — exactamente lo que el propio BCS Handbook (13) ya hace con pseudocódigo ("este documento no elige lenguaje ni framework"). Una ruta de este documento se realiza hoy como una Server Action o un Repositorio; mañana, si BREY expone una API pública, la misma ruta se realiza como un Route Handler real — el contrato no cambia, solo su transporte.</p>
+</div>
+
+<h2 id="rest">REST como vocabulario, no como transporte obligatorio</h2>
+<p>Los recursos de este catálogo (07) son sustantivos — <code>Cliente</code>, <code>Medición</code>, <code>Workout</code>, <code>Diagnóstico</code> — nunca verbos (nunca <code>POST /crearCliente</code>). Las acciones que no encajan en CRUD puro (revocar un Enlace, archivar un Cliente, cerrar una sesión) se modelan como sub-recursos de acción (<code>POST /bcs/enlaces/{id}/revocar</code>) en vez de forzarlas dentro de un verbo HTTP que no las representa fielmente (04). Solo los Aggregate Roots reales del Domain Model Handbook (08) son recursos con identidad propia direccionable por <code>id</code> — Programa, Bloque, Mesociclo y Microciclo nunca son un recurso <code>GET /programas/{id}</code>, porque no tienen fila propia (Domain Model Handbook, 13): se leen como vista derivada del Usuario que los posiciona.</p>
+
+<h2 id="stateless">Stateless</h2>
+<p>Ninguna operación de este catálogo depende de un estado de sesión de servidor más allá de la identidad autenticada (03). Cada request lleva toda la información que su operación necesita — el servidor nunca "recuerda" un paso anterior de un flujo multi-request salvo lo que ya está persistido (ej. el estado de la máquina de Diagnóstico, 07). La única excepción documentada es la cola local del Workout Player (Architecture Handbook, 09) — y esa cola vive en el cliente, no en el servidor; el servidor solo ve eventos ya resueltos en el momento de la sincronización (11).</p>
+
+<h2 id="determinismo">Determinismo</h2>
+<p>Toda operación que invoca un motor (Progression Engine, Recovery Engine) es una función pura sobre sus argumentos explícitos (Progression Engine Handbook, IN-P1) — la misma entrada produce siempre la misma salida. Esto tiene una consecuencia directa de contrato: <strong>ninguna entrada implícita</strong>. La fecha del ciclo, la versión del catálogo y la ventana de historial siempre son parámetros explícitos de la operación (Motor BPS Handbook, BPS-022) — nunca <code>Date.now()</code> leído dentro del motor. Un endpoint que invoca un motor documenta exactamente qué recibe ese motor, sin dejar nada a la implementación (Engineering Handbook, FT-03).</p>
+
+<h2 id="idempotencia-filosofia">Idempotencia</h2>
+<p>Se detalla operación por operación en 11. Como principio: toda operación de creación que pueda repetirse por un reintento de red (activación por compra, generación de semana, sincronización de eventos offline) declara explícitamente su clave de idempotencia o declara explícitamente que no la tiene todavía (Engineering Handbook, FT-04) — nunca se asume idempotencia sin una clave nombrada.</p>
+
+<h2 id="versionado-filosofia">Versionado</h2>
+<p>No existe hoy un esquema <code>/api/v1/</code> porque ningún consumidor externo a BREY existe todavía (Engineering Handbook, 06). Este documento adopta la misma postura que el Engineering Handbook: la ausencia de versionado explícito es válida mientras el único consumidor sea el propio frontend de BREY, desplegado atómicamente junto con el backend — pero cualquier contrato nuevo que este documento formaliza debe evolucionar de forma aditiva (10) desde el primer día, para que introducir versionado real, el día que un consumidor externo exista, no requiera reescribir contratos ya publicados.</p>
+
+<h2 id="json">JSON como único formato</h2>
+<p>Todo body de request y toda response de este catálogo son JSON — nunca form-urlencoded, nunca XML, nunca multipart salvo el caso explícito de subida de fotografía en Mediciones del BCS (07, <code>BCS-V25</code>), donde el archivo se sube a Storage y solo su referencia (<code>foto_url</code>) viaja en el JSON del resto de la operación (Implementation Handbook, 05).</p>
+
+<h2 id="utc">UTC</h2>
+<p>Todo timestamp de este catálogo se transmite en UTC, formato ISO-8601 (<code>created_at</code>, <code>fecha</code>, <code>fecha_ciclo</code>). Ninguna operación acepta ni devuelve una fecha con zona horaria implícita del cliente — la conversión a hora local es responsabilidad exclusiva de la capa de presentación, nunca del contrato (consistente con el determinismo de 04-salidas del Motor BPS Handbook, que exige fecha del ciclo como parámetro explícito, nunca ambiguo).</p>
+
+<h2 id="naming">snake_case vs. camelCase</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Capa</th><th>Convención</th><th>Origen</th></tr></thead>
+<tbody>
+<tr><td>Nombres de columna / campo persistido</td><td><code>snake_case</code>, sufijo de unidad explícito (<code>peso_kg</code>, <code>altura_cm</code>)</td><td>Engineering Handbook (05) — convención ya real en las 5 tablas existentes</td></tr>
+<tr><td>Body de request / response de este catálogo</td><td><code>snake_case</code> — se transmite tal cual sale de la capa de datos, sin una capa de traducción a camelCase en el contrato</td><td>Este documento — para que un campo tenga un único nombre en toda la cadena (dato → contrato), sin dos alias del mismo concepto</td></tr>
+<tr><td>Identificadores de <code>tipo</code>/<code>origen</code> de eventos</td><td><code>snake_case</code> (<code>activacion</code>, <code>escalon_avanzado</code>, <code>motor_bps</code>)</td><td>Engineering Handbook (07) — ya real en el CHECK de <code>progression_events</code></td></tr>
+<tr><td>Códigos de error</td><td><code>SNAKE_CASE</code> en mayúsculas (dominio, ej. <code>PERFIL_INCOMPLETO</code>) o <code>snake_case</code> en minúsculas (infraestructura, ej. <code>invalid_email</code>)</td><td>Ambas formas ya son reales — Architecture Handbook (11) para dominio, Engineering Handbook (06) para infraestructura; ver 09</td></tr>
+</tbody>
+</table>
+</div>
+<p>Este documento nunca introduce camelCase en un payload de request/response — evita exactamente el riesgo que el Domain Model Handbook ya advirtió para las 25 variables del BCS (AR-017): dos nombres distintos para el mismo campo, según la capa que lo mire.</p>
+
+<h2 id="convenciones-globales">Convenciones globales — resumen</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Principio</th><th>Regla</th></tr></thead>
+<tbody>
+<tr><td>SSoT (FT-01)</td><td>Un campo, un nombre, una capa dueña — nunca dos contratos describen el mismo dato con formas distintas sin que uno cite al otro</td></tr>
+<tr><td>Fail Visible (FT-05)</td><td>Ninguna operación falla en silencio — un repositorio que no encuentra nada devuelve <code>null</code>/<code>[]</code> explícito, nunca una excepción no capturada hacia el llamador</td></tr>
+<tr><td>Auditabilidad (P2/P3)</td><td>Toda mutación de dominio (no de infraestructura) queda registrada — como fila de <code>progression_events</code> en Core Training/Progression/Recovery, o como efecto auditado en BCS (08)</td></tr>
+<tr><td>Inmutabilidad de historial (FT-09)</td><td>Ninguna operación de este catálogo edita en sitio un registro histórico cerrado (WorkoutLog, Medición vigente, EventoProgresión) — la corrección siempre crea un registro nuevo (11)</td></tr>
+<tr><td>Errores tipados (P6)</td><td>Todo error de dominio lleva payload estructurado con el detalle exacto — "algo salió mal" no existe en este catálogo (09)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../00-introduccion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 00 · Introducción</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../02-arquitectura-general/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">02 · Arquitectura General →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

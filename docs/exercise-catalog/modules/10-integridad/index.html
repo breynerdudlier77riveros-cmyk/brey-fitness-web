@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10 · Integridad — Exercise Catalog</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="integridad" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 10 · Ciclo de vida</p>
+<h1>Integridad</h1>
+<p class="lede">Qué hace inválida una entrada de catálogo, qué le ocurre cuando lo es, y por qué la invalidez es un estado <strong>seguro</strong> y no un fallo del sistema.</p>
+
+<h2 id="invalidez">Las cuatro clases de invalidez</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Clase</th><th>Qué la produce</th><th>Detectable por</th><th>Origen</th></tr></thead>
+<tbody>
+<tr><td><strong>Atributo obligatorio ausente</strong></td><td>Falta cualquiera de los 15 obligatorios</td><td>Máquina</td><td>Tabla de atributos</td></tr>
+<tr><td><strong>Valor fuera de vocabulario</strong></td><td>Un valor que no pertenece a la lista cerrada del eje</td><td>Máquina</td><td>Vocabularios cerrados</td></tr>
+<tr><td><strong>Violación estructural</strong></td><td>Dos patrones primarios · cadena con ciclo · cadena que cruza de patrón</td><td>Máquina</td><td>Casos inválidos publicados</td></tr>
+<tr><td><strong>Integridad referencial rota</strong></td><td>La cadena o una capacidad apunta a algo que no existe</td><td>Máquina</td><td>Derivada</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">El caso terminal por definición</div>
+  <p>"Ejercicio sin <code>patronPrimario</code> → <strong>Inválido: rechazado al validar el catálogo — nunca llega a ser elegible</strong>." Es la única invalidez que la fuente enuncia con esa contundencia, porque sin patrón la entrada no puede llenar ningún slot bajo ninguna circunstancia.</p>
+</div>
+
+<h2 id="casos">Casos inválidos publicados</h2>
+<p class="matrix-note">Transcripción de la tabla de casos del Architecture Handbook 04, filtrada a los que afectan a una entrada de catálogo.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Comportamiento exigido</th></tr></thead>
+<tbody>
+<tr><td>Ejercicio sin <code>patronPrimario</code></td><td>"Rechazado al validar el catálogo — nunca llega a ser elegible"</td></tr>
+<tr><td>Cadena con ciclo (A→B→A)</td><td>"Rechazado por validación estructural del catálogo"</td></tr>
+<tr><td>Ejercicio isométrico sustituye a dinámico sin equivalencia autorizada</td><td><code>CATALOGO_INSUFICIENTE</code> — no es invalidez de la entrada, sino del cruce</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="estado-invalido">Qué ocurre con una entrada inválida</h2>
+<div class="diagram">
+<div class="diagram-label">La invalidez excluye; nunca degrada silenciosamente</div>
+<pre class="mermaid">
+flowchart TD
+  E["Entrada inválida"] --> NE["NO entra al universo elegible<br/>(paso 0 de la resolución)"]
+  NE --> S{"¿Quedan candidatos<br/>para el slot?"}
+  S -- Sí --> OK["El slot se resuelve<br/>con otro ejercicio"]
+  S -- No --> DEG["Paso 4: degradación<br/>de patrón declarada"]
+  DEG --> ERR["Paso 5: CATALOGO_INSUFICIENTE<br/>con detalle completo"]
+  ERR --> COLA["→ cola editorial de contenido"]
+</pre>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">La invalidez es segura por diseño</div>
+  <p>Una entrada inválida no produce una sesión defectuosa: produce <strong>ausencia de candidato</strong>, que el sistema propaga como fallo visible con detalle. "Rellenar huecos con 'el menos malo' — <strong>Descartado</strong>: violaría P6 y el filtro de seguridad. Un vacío de catálogo es trabajo editorial, no un problema a maquillar en runtime". Y el Motor lo propaga sin parchear: "<code>CATALOGO_INSUFICIENTE</code> se propaga, jamás se parchea".</p>
+</div>
+
+<h2 id="ausencia-vacio">La distinción crítica: ausencia ≠ lista vacía</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Estado</th><th>Afirma</th><th>Elegible</th><th>Riesgo si se confunden</th></tr></thead>
+<tbody>
+<tr><td><code>zonasRiesgo</code> ausente</td><td>"Sin evaluar"</td><td><strong>No</strong></td><td>—</td></tr>
+<tr><td><code>zonasRiesgo: []</code></td><td>"Evaluado: no carga zonas en riesgo"</td><td>Sí</td><td>Si se trata la ausencia como lista vacía, <strong>las 19 entradas sin evaluar pasarían el filtro de seguridad de cualquier usuario lesionado</strong></td></tr>
+</tbody>
+</table>
+</div>
+<p>La distinción se sostiene sobre una afirmación de la fuente: "la existencia del filtro es de seguridad y <strong>no removible</strong>". Un filtro que deja pasar lo no evaluado no es un filtro.</p>
+
+<h2 id="integridad-referencial">Integridad referencial</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Referencia</th><th>Debe apuntar a</th><th>Si el destino no existe</th></tr></thead>
+<tbody>
+<tr><td><code>cadena.anterior</code> / <code>cadena.siguiente</code></td><td>Un <code>slug</code> de entrada del catálogo</td><td>Cadena rota — validación estructural falla</td></tr>
+<tr><td><code>capacidadesRequeridas[]</code></td><td>Slugs de capacidad existentes</td><td>Gate irresoluble — el filtro no puede evaluarse</td></tr>
+<tr><td><code>sistemasVinculados[]</code></td><td>Slugs de Sistema del catálogo de Sistemas</td><td>Referencia colgante</td></tr>
+<tr><td><code>patronPrimario</code> / <code>patronesSecundarios[]</code></td><td>Los 9 patrones publicados</td><td>Valor fuera de vocabulario</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">La integridad de cadena es frágil ante la retirada de entradas</div>
+  <p>CT-07 establece que una entrada nunca se borra, pero <strong>no existe estado que la retire</strong> (módulo <a href="../11-estados/index.html">11</a>). Si en la práctica alguien elimina una entrada referenciada por la cadena de otra, la cadena queda rota sin que ningún mecanismo documentado lo impida. Deuda <a href="../17-roadmap/index.html">CT-D09</a>.</p>
+</div>
+
+<h2 id="dos-capas">Integridad estructural ≠ integridad de contenido</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Una entrada íntegra puede estar equivocada</div>
+  <p>Todas las invalideces de este módulo son <strong>estructurales</strong>: las detecta una máquina. Una entrada con patrón primario válido pero <em>equivocado</em>, o con una zona de riesgo etiquetada como <code>medio</code> cuando es <code>alto</code>, pasa todas las validaciones de integridad y es silenciosamente incorrecta. Esa segunda capa es responsabilidad de la revisión humana — es la asimetría que el Tagging Handbook tipifica como su anti-patrón crítico.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../09-relaciones/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 09 · Mapa de Relaciones</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../11-estados/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">11 · Estados →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

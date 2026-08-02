@@ -20,3 +20,30 @@ export function iniciales(nombre: string) {
 export function fechaISOLocal(d: Date = new Date()) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
+
+/**
+ * Unidad de despliegue para peso/altura (Sprint I-02, Configuración). No es
+ * una columna de `profiles` — `profiles.peso_kg`/`altura_cm` siguen siendo
+ * siempre métricos; esto solo controla cómo se muestran. Preferencia de
+ * dispositivo (ver PreferencesProvider), no un campo de dominio.
+ */
+export type UnidadSistema = "metrico" | "imperial";
+
+/** kg (siempre el valor real almacenado) → texto en la unidad activa. */
+export function formatPeso(kg: number | null, unidades: UnidadSistema): string {
+  if (kg === null) return "—";
+  if (unidades === "imperial") return `${(kg * 2.20462).toFixed(1)} lb`;
+  return `${kg} kg`;
+}
+
+/** cm (siempre el valor real almacenado) → texto en la unidad activa. */
+export function formatAltura(cm: number | null, unidades: UnidadSistema): string {
+  if (cm === null) return "—";
+  if (unidades === "imperial") {
+    const totalPulgadas = cm / 2.54;
+    const pies = Math.floor(totalPulgadas / 12);
+    const pulgadas = Math.round(totalPulgadas % 12);
+    return `${pies}′${pulgadas}″`;
+  }
+  return `${cm} cm`;
+}

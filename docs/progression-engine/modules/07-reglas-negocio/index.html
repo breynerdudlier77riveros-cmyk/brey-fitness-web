@@ -1,0 +1,710 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>07 · Reglas de Negocio — Progression Engine Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="reglas-negocio" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 07 · Reglas</p>
+<h1>Reglas de Negocio</h1>
+<p class="lede">Catálogo completo PE-001–PE-039. Cada regla es atómica, tiene una prioridad en la escalera de precedencia (05), un nivel de evidencia, y su relación explícita con las demás. Los módulos 08–12 explican la mecánica de cada subsistema; este módulo es la fuente canónica de cada regla individual.</p>
+
+<div class="callout callout--nota">
+  <div class="callout__label">Convención de lectura</div>
+  <p>Prioridad = nivel de la escalera de precedencia general (05): 1 Seguridad, 2 Integridad de datos, 3 Estancamiento/alerta, 4 Progresión normal, 5 Desempate. La mayoría de reglas de progresión normal vive en nivel 4; las de frontera con Recovery y deload reactivo viven en nivel 1; estancamiento y deload preventivo en nivel 3.</p>
+</div>
+
+<h2 id="microprogresion">Microprogresión (PE-001–PE-012)</h2>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-001</span><span class="perule__badges"><span class="eb eb--moderada">🟡 moderada</span><span class="perule__prio">Prioridad 4</span></span></div>
+<h3>Progresión de carga por cumplimiento + RPE bajo objetivo</h3>
+<dl>
+<dt>Descripción</dt><dd>Si el usuario cumple el rango de repeticiones prescrito con RPE reportado por debajo del objetivo en la banda de tolerancia (PE-007) durante 2 apariciones consecutivas, la carga sube en el siguiente ciclo.</dd>
+<dt>Justificación</dt><dd>El uso de RPE/RIR para autorregular carga tiene soporte moderado en la literatura de entrenamiento de fuerza; la magnitud exacta del incremento es decisión de producto.</dd>
+<dt class="half">Entradas</dt><dd class="half">Ventana (≥2 apariciones), Prescripción vigente, cadencia de señal: por aparición</dd>
+<dt class="half">Salida</dt><dd class="half">Nueva carga en Prescripción vigente, cadencia de decisión: por ciclo (tras 2 apariciones)</dd>
+<dt>Consumidor</dt><dd>Workout Generator (recibe la nueva Prescripción vigente)</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">RPE 6, 6 en objetivo 7 → sube carga</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">RPE 6 en una sola aparición → no dispara (requiere 2)</dd>
+<dt>Contraejemplo</dt><dd>RPE 6, 9 (no consecutivo bajo) → no dispara, la variabilidad no es tendencia</dd>
+<dt>Relación</dt><dd>Cede ante PE-021 (gate de cumplimiento) y ante PE-026 (veredicto de Recovery); compite con PE-002 vía PE-012</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-002</span><span class="perule__badges"><span class="eb eb--moderada">🟡 moderada</span><span class="perule__prio">Prioridad 4</span></span></div>
+<h3>Doble progresión — repeticiones antes que carga</h3>
+<dl>
+<dt>Descripción</dt><dd>Dentro de un rango de repeticiones prescrito (ej. 8–12), el usuario progresa primero en repeticiones; solo al tocar el techo del rango con RPE bajo objetivo se habilita PE-001.</dd>
+<dt>Justificación</dt><dd>La doble progresión es un patrón ampliamente documentado en programación de fuerza para evitar saltos de carga prematuros.</dd>
+<dt class="half">Entradas</dt><dd class="half">Prescripción vigente (rango de reps), última Aparición, cadencia de señal: por aparición</dd>
+<dt class="half">Salida</dt><dd class="half">Repeticiones objetivo del siguiente ciclo, o habilitación de PE-001, cadencia de decisión: por ciclo</dd>
+<dt>Consumidor</dt><dd>Workout Generator</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">8→10 reps dentro del rango 8–12</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Subir reps más allá del techo del rango sin activar PE-001</dd>
+<dt>Contraejemplo</dt><dd>Rango prescrito de una sola cifra fija (ej. isometría con duración, no rango) — PE-002 no aplica, se rige por PE-009</dd>
+<dt>Relación</dt><dd>Precede a PE-001 dentro del mismo Slot; ver PE-012 para el árbitro cuando ambas compiten en el mismo ciclo</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-003</span><span class="perule__badges"><span class="eb eb--producto">🟠 producto</span><span class="perule__prio">Prioridad 4</span></span></div>
+<h3>Techo de repeticiones dispara avance de eslabón</h3>
+<dl>
+<dt>Descripción</dt><dd>Si el techo del rango de repeticiones se alcanza con RPE bajo objetivo y el Slot pertenece a una progresión de patrón corporal (no de carga externa), la señal se redirige a "avanza eslabón de cadena" en vez de "sube carga".</dd>
+<dt>Justificación</dt><dd>Distinción operativa BREY entre progresión por carga externa y progresión por dificultad de patrón (calistenia) — no hay una única variable "peso" en el segundo caso.</dd>
+<dt class="half">Entradas</dt><dd class="half">Tipo de Slot (carga externa vs. patrón), cadencia de señal: por aparición</dd>
+<dt class="half">Salida</dt><dd class="half">Solicitud de "siguiente eslabón" a la Cadena de progresión, cadencia de decisión: por ciclo</dd>
+<dt>Consumidor</dt><dd>Knowledge Base (resuelve el eslabón a ejercicio concreto)</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">Flexiones a 15 reps con RPE 6 → siguiente eslabón</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Aplicar esta regla a un Slot de carga externa (press con barra) — ahí rige PE-001</dd>
+<dt>Contraejemplo</dt><dd>Cadena sin eslabón siguiente disponible (usuario en el tope de la cadena) — la señal se degrada a PE-001 dentro del mismo eslabón si el ejercicio admite carga añadida, o a "sostiene" si no</dd>
+<dt>Relación</dt><dd>Alternativa mutuamente excluyente de PE-001 según tipo de Slot</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-004</span><span class="perule__badges"><span class="eb eb--producto">🟠 producto</span><span class="perule__prio">Prioridad 4</span></span></div>
+<h3>Ajuste de series por volumen semanal objetivo</h3>
+<dl>
+<dt>Descripción</dt><dd>El número de series de un Slot se ajusta para converger al volumen semanal objetivo del Mesociclo vigente (Training Framework), nunca de forma independiente al objetivo de volumen.</dd>
+<dt>Justificación</dt><dd>Series es una variable derivada del volumen objetivo, no una decisión aislada del motor.</dd>
+<dt class="half">Entradas</dt><dd class="half">Volumen semanal objetivo, series actuales, cadencia de señal: por Microciclo</dd>
+<dt class="half">Salida</dt><dd class="half">Nuevo número de series, cadencia de decisión: por Microciclo</dd>
+<dt>Consumidor</dt><dd>Workout Generator</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">Volumen objetivo sube → series suben en Slots del patrón afectado</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Cambiar series sin que el volumen objetivo del Mesociclo haya cambiado</dd>
+<dt>Contraejemplo</dt><dd>Cambio de series motivado solo por preferencia del usuario — no es una entrada de este motor (03, "no reconocidas")</dd>
+<dt>Relación</dt><dd>Depende de PE-010 (techo de volumen) como límite superior</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-005</span><span class="perule__badges"><span class="eb eb--producto">🟠 producto</span><span class="perule__prio">Prioridad 4</span></span></div>
+<h3>Tempo — inmutable por autorregulación</h3>
+<dl>
+<dt>Descripción</dt><dd>El tempo prescrito nunca cambia por ninguna señal de autorregulación (RPE, cumplimiento). Solo cambia si el programa (Training Framework) lo redefine explícitamente para el nuevo Mesociclo/Bloque.</dd>
+<dt>Justificación</dt><dd>El tempo es una variable de técnica/estímulo, no de esfuerzo — mezclar su ajuste con señales de fatiga introduciría una fuente de variabilidad no controlada. Regla negativa deliberada.</dd>
+<dt class="half">Entradas</dt><dd class="half">Tempo prescrito por el programa, cadencia de señal: n/a (no reactiva)</dd>
+<dt class="half">Salida</dt><dd class="half">Tempo sin cambios salvo transición de Bloque, cadencia de decisión: por Bloque</dd>
+<dt>Consumidor</dt><dd>Workout Generator</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">RPE alto 3 sesiones seguidas → tempo no cambia, solo carga/reps (otras reglas)</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Motor reduce el tempo excéntrico porque el usuario reportó fatiga — prohibido por esta regla</dd>
+<dt>Contraejemplo</dt><dd>N/A — esta regla no tiene contraejemplo positivo, es una prohibición</dd>
+<dt>Relación</dt><dd>Frontera dura con PE-019–026 (autorregulación) — ninguna de ellas puede tocar tempo</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-006</span><span class="perule__badges"><span class="eb eb--moderada">🟡 moderada</span><span class="perule__prio">Prioridad 4</span></span></div>
+<h3>Descanso — ajuste por RIR reportado</h3>
+<dl>
+<dt>Descripción</dt><dd>El descanso prescrito se alarga si el RIR reportado está por debajo del objetivo (esfuerzo mayor al esperado) y se acorta, dentro de un piso mínimo, si está consistentemente por encima.</dd>
+<dt>Justificación</dt><dd>La relación entre proximidad al fallo y necesidad de recuperación entre series tiene soporte moderado en la literatura.</dd>
+<dt class="half">Entradas</dt><dd class="half">RIR reportado, descanso prescrito, cadencia de señal: por aparición</dd>
+<dt class="half">Salida</dt><dd class="half">Nuevo descanso, cadencia de decisión: por ciclo</dd>
+<dt>Consumidor</dt><dd>Workout Generator</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">RIR 0 reportado en objetivo RIR 2 → descanso sube</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Ajustar descanso por debajo de un piso de seguridad definido por el programa</dd>
+<dt>Contraejemplo</dt><dd>RIR bajo explicado por incumplimiento del descanso prescrito en la sesión previa (dato de ejecución, no de capacidad) — PE-021 filtra este caso antes de que PE-006 lo procese</dd>
+<dt>Relación</dt><dd>Espejo operativo de PE-008 (RIR como señal); cede ante PE-021</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-007</span><span class="perule__badges"><span class="eb eb--producto">🟠 producto</span><span class="perule__prio">Prioridad 4</span></span></div>
+<h3>RPE objetivo — banda de tolerancia ±1</h3>
+<dl>
+<dt>Descripción</dt><dd>El RPE reportado se considera "en objetivo" dentro de una banda de ±1 respecto al RPE objetivo prescrito. Fuera de banda dispara ajuste (PE-001 si consistentemente bajo, retención/reducción si consistentemente alto).</dd>
+<dt>Justificación</dt><dd>El uso de RPE es 🟡 moderado; el ancho exacto de la banda (±1, no ±0.5 ni ±2) es un umbral de producto sin validación externa de ese valor específico.</dd>
+<dt class="half">Entradas</dt><dd class="half">RPE reportado, RPE objetivo, cadencia de señal: por aparición</dd>
+<dt class="half">Salida</dt><dd class="half">Flag "en banda" / "bajo banda" / "sobre banda", cadencia de decisión: por ciclo (tras patrón, no una sola lectura)</dd>
+<dt>Consumidor</dt><dd>PE-001, PE-012, motor de estancamiento (11)</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">Objetivo 7, reportado 8 → en banda</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Tratar objetivo 7 / reportado 9 como en banda</dd>
+<dt>Contraejemplo</dt><dd>Programa que prescribe por RIR en vez de RPE — esta regla no aplica, rige PE-008</dd>
+<dt>Relación</dt><dd>Mutuamente excluyente con PE-008 según el sistema de esfuerzo que use el Slot</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-008</span><span class="perule__badges"><span class="eb eb--producto">🟠 producto</span><span class="perule__prio">Prioridad 4</span></span></div>
+<h3>RIR objetivo — espejo de PE-007</h3>
+<dl>
+<dt>Descripción</dt><dd>Idéntica mecánica a PE-007 pero sobre RIR objetivo, con banda de tolerancia ±1 repetición-en-reserva, para Slots prescritos por RIR en vez de RPE.</dd>
+<dt>Justificación</dt><dd>Misma base que PE-007 — RIR y RPE son inversos aproximados de la misma escala de esfuerzo percibido.</dd>
+<dt class="half">Entradas</dt><dd class="half">RIR reportado, RIR objetivo, cadencia de señal: por aparición</dd>
+<dt class="half">Salida</dt><dd class="half">Flag "en banda" / fuera de banda, cadencia de decisión: por ciclo</dd>
+<dt>Consumidor</dt><dd>PE-001, PE-006, PE-012</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">Objetivo RIR 2, reportado RIR 3 → en banda</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Combinar PE-007 y PE-008 sobre el mismo Slot en el mismo ciclo</dd>
+<dt>Contraejemplo</dt><dd>N/A, ver PE-007</dd>
+<dt>Relación</dt><dd>Mutuamente excluyente con PE-007</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-009</span><span class="perule__badges"><span class="eb eb--producto">🟠 producto</span><span class="perule__prio">Prioridad 4</span></span></div>
+<h3>Duración de sesión — ajuste por cumplimiento de tiempo</h3>
+<dl>
+<dt>Descripción</dt><dd>Si la duración real registrada excede consistentemente la duración prescrita, el motor reduce volumen (vía PE-004/PE-010) antes que sugerir simplemente "más tiempo" — la duración objetivo del programa no se re-negocia por esta vía.</dd>
+<dt>Justificación</dt><dd>Restricción operativa de adherencia: el tiempo disponible del usuario es un dato de contexto, no una variable fisiológica.</dd>
+<dt class="half">Entradas</dt><dd class="half">Duración real vs. prescrita, cadencia de señal: por aparición</dd>
+<dt class="half">Salida</dt><dd class="half">Solicitud de reducción de volumen, cadencia de decisión: por ciclo tras patrón (3 apariciones)</dd>
+<dt>Consumidor</dt><dd>PE-004, PE-010</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">3 sesiones seguidas 20% sobre tiempo prescrito → reduce series</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Reaccionar a una sola sesión larga (evento aislado, no patrón)</dd>
+<dt>Contraejemplo</dt><dd>Sesión larga explicada por descanso extendido de PE-006 — no cuenta como señal de sobre-tiempo estructural</dd>
+<dt>Relación</dt><dd>Alimenta PE-004 y PE-010, no actúa directamente sobre la Prescripción</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-010</span><span class="perule__badges"><span class="eb eb--producto">🟠 producto</span><span class="perule__prio">Prioridad 4</span></span></div>
+<h3>Techo de volumen por Mesociclo</h3>
+<dl>
+<dt>Descripción</dt><dd>El volumen total semanal de un patrón corporal nunca excede el techo definido por el Mesociclo vigente (Training Framework), independientemente de cuánto "pida" PE-004.</dd>
+<dt>Justificación</dt><dd>Límite superior de seguridad/producto — evita crecimiento sin fin del volumen prescrito por acumulación de reglas de progresión.</dd>
+<dt class="half">Entradas</dt><dd class="half">Volumen calculado por PE-004, techo del Mesociclo, cadencia de señal: por Microciclo</dd>
+<dt class="half">Salida</dt><dd class="half">Volumen recortado al techo si lo excede, cadencia de decisión: por Microciclo</dd>
+<dt>Consumidor</dt><dd>Workout Generator</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">PE-004 pide +2 series, techo permite solo +1 → se aplica +1</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Ignorar el techo porque el usuario "se siente bien"</dd>
+<dt>Contraejemplo</dt><dd>Techo alcanzado dispara evaluación macro (avance de Mesociclo, PE-014), no un error</dd>
+<dt>Relación</dt><dd>Límite superior de PE-004; entrada de PE-014</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-011</span><span class="perule__badges"><span class="eb eb--producto">🟠 producto</span><span class="perule__prio">Prioridad 4</span></span></div>
+<h3>Densidad — variable derivada, nunca prescrita directa</h3>
+<dl>
+<dt>Descripción</dt><dd>La densidad (volumen/tiempo) se calcula y reporta (14) pero el motor nunca la fija como objetivo directo — es consecuencia de series, descanso y duración ya decididos por otras reglas.</dd>
+<dt>Justificación</dt><dd>Evita doble-conteo: fijar densidad directamente entraría en conflicto estructural con PE-006/PE-009.</dd>
+<dt class="half">Entradas</dt><dd class="half">Series, descanso, duración ya resueltos, cadencia de señal: por ciclo</dd>
+<dt class="half">Salida</dt><dd class="half">Métrica reportada (observabilidad, 14), cadencia de decisión: n/a — no es una decisión</dd>
+<dt>Consumidor</dt><dd>Módulo de observabilidad (14) únicamente</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">Densidad calculada y expuesta en el evento de decisión</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Una regla que fije densidad objetivo y de ahí derive series/descanso — orden invertido prohibido</dd>
+<dt>Contraejemplo</dt><dd>N/A — regla puramente derivativa</dd>
+<dt>Relación</dt><dd>Consume la salida de PE-006, PE-009</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-012</span><span class="perule__badges"><span class="eb eb--producto">🟠 producto</span><span class="perule__prio">Prioridad 5</span></span></div>
+<h3>Árbitro entre variables micro en conflicto</h3>
+<dl>
+<dt>Descripción</dt><dd>Cuando dos reglas micro compiten por aplicarse en el mismo ciclo sobre variables entrelazadas (ej. PE-001 y PE-002 ambas elegibles), gana la de menor magnitud de cambio — el motor nunca combina dos incrementos en el mismo ciclo para el mismo Slot.</dd>
+<dt>Justificación</dt><dd>Aplica el principio de desempate conservador de 05 a nivel micro concreto.</dd>
+<dt class="half">Entradas</dt><dd class="half">Conjunto de candidatas del paso 4 del pipeline (06), cadencia de señal: por ciclo</dd>
+<dt class="half">Salida</dt><dd class="half">Una única regla ganadora, cadencia de decisión: por ciclo</dd>
+<dt>Consumidor</dt><dd>Paso 5 del pipeline (Resolución de conflictos)</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">PE-002 (subir 1 rep) y PE-001 (subir carga) ambas elegibles → gana PE-002 (menor magnitud)</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Aplicar PE-001 y PE-002 en el mismo ciclo</dd>
+<dt>Contraejemplo</dt><dd>PE-003 y PE-001 nunca compiten realmente — son mutuamente excluyentes por tipo de Slot, no requieren árbitro</dd>
+<dt>Relación</dt><dd>Instancia concreta del modelo de decisión (05) para el dominio micro</dd>
+</dl>
+</div>
+
+<h2 id="macroprogresion">Macroprogresión (PE-013–PE-018)</h2>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-013</span><span class="perule__badges"><span class="eb eb--producto">🟠 producto</span><span class="perule__prio">Prioridad 4</span></span></div>
+<h3>Avance de Microciclo</h3>
+<dl>
+<dt>Descripción</dt><dd>Al cierre de cada Microciclo, si el cumplimiento agregado y el patrón de RPE de la ventana están dentro de banda, el motor avanza el puntero al siguiente Microciclo del Mesociclo.</dd>
+<dt>Justificación</dt><dd>Escalón más frecuente y de menor riesgo de la jerarquía macro.</dd>
+<dt class="half">Entradas</dt><dd class="half">Ventana del Microciclo cerrado (≥4 apariciones, IN-P3), cadencia de señal: por Microciclo</dd>
+<dt class="half">Salida</dt><dd class="half">Puntero de Microciclo +1, cadencia de decisión: por Microciclo</dd>
+<dt>Consumidor</dt><dd>Motor BPS (aplica la transición de puntero)</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">Cumplimiento 90%, RPE en banda → avanza</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Avanzar con ventana &lt;4 apariciones</dd>
+<dt>Contraejemplo</dt><dd>Último Microciclo del Mesociclo — el avance se redirige a PE-014, no crea un Microciclo inexistente</dd>
+<dt>Relación</dt><dd>Gatilla evaluación de PE-014 cuando es el último Microciclo del Mesociclo</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-014</span><span class="perule__badges"><span class="eb eb--producto">🟠 producto</span><span class="perule__prio">Prioridad 4</span></span></div>
+<h3>Avance de Mesociclo</h3>
+<dl>
+<dt>Descripción</dt><dd>Al completar todos los Microciclos de un Mesociclo con avance sostenido (sin más de 1 "sostiene" en la ventana completa), el motor avanza al siguiente Mesociclo del Bloque.</dd>
+<dt>Justificación</dt><dd>Escalón intermedio — umbral de tolerancia (máximo 1 "sostiene") es decisión de producto.</dd>
+<dt class="half">Entradas</dt><dd class="half">Historial de decisiones de Microciclo del Mesociclo completo, cadencia de señal: por Mesociclo</dd>
+<dt class="half">Salida</dt><dd class="half">Puntero de Mesociclo +1, cadencia de decisión: por Mesociclo</dd>
+<dt>Consumidor</dt><dd>Motor BPS</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">4 Microciclos, 0 "sostiene" → avanza</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Avanzar con 2+ "sostiene" en la ventana</dd>
+<dt>Contraejemplo</dt><dd>Techo de volumen alcanzado (PE-010) es motivo válido adicional de avance aunque el RPE esté en banda — el cuerpo ya no tiene margen de progresión en la variable micro</dd>
+<dt>Relación</dt><dd>Consume la salida acumulada de PE-013 y de PE-010</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-015</span><span class="perule__badges"><span class="eb eb--producto">🟠 producto</span><span class="perule__prio">Prioridad 4</span></span></div>
+<h3>Avance de Bloque</h3>
+<dl>
+<dt>Descripción</dt><dd>Al completar todos los Mesociclos de un Bloque con avance sostenido, el motor avanza al siguiente Bloque del Nivel vigente.</dd>
+<dt>Justificación</dt><dd>Mismo mecanismo que PE-014, un nivel más arriba en la jerarquía.</dd>
+<dt class="half">Entradas</dt><dd class="half">Historial de decisiones de Mesociclo del Bloque completo, cadencia de señal: por Bloque</dd>
+<dt class="half">Salida</dt><dd class="half">Puntero de Bloque +1, cadencia de decisión: por Bloque</dd>
+<dt>Consumidor</dt><dd>Motor BPS</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">Todos los Mesociclos del Bloque avanzaron sin retroceso → avanza Bloque</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Avanzar Bloque con un Mesociclo aún pendiente</dd>
+<dt>Contraejemplo</dt><dd>Último Bloque del Nivel — el avance se redirige a PE-016, no crea un Bloque inexistente</dd>
+<dt>Relación</dt><dd>Consume PE-014; gatilla PE-016 en el último Bloque</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-016</span><span class="perule__badges"><span class="eb eb--producto">🟠 producto</span><span class="perule__prio">Prioridad 4</span></span></div>
+<h3>Avance de Nivel</h3>
+<dl>
+<dt>Descripción</dt><dd>Al completar el último Bloque de un Nivel con avance sostenido, el motor emite una recomendación de avance de <code>nivel_actual</code> — no lo escribe directamente; el Motor BPS es quien aplica la transición de estado (05/06 del Motor BPS Handbook).</dd>
+<dt>Justificación</dt><dd>El Progression Engine decide la progresión del contenido; el Motor BPS decide y persiste la transición formal de estado del usuario — separación de capas (P4).</dd>
+<dt class="half">Entradas</dt><dd class="half">Historial de decisiones de Bloque del Nivel completo, cadencia de señal: por Nivel</dd>
+<dt class="half">Salida</dt><dd class="half">Recomendación de avance de Nivel, cadencia de decisión: por Nivel</dd>
+<dt>Consumidor</dt><dd>Motor BPS (única autoridad para escribir <code>nivel_actual</code>)</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">Último Bloque completado con avance sostenido → recomienda avance de Nivel</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Este motor escribiendo <code>nivel_actual</code> directamente en base de datos</dd>
+<dt>Contraejemplo</dt><dd>Nivel máximo del Sistema alcanzado — la recomendación se degrada a "sostiene Nivel, continúa refinando" (no existe Nivel siguiente que recomendar)</dd>
+<dt>Relación</dt><dd>Consume PE-015; nunca decide Track/Sistema (PE-018)</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-017</span><span class="perule__badges"><span class="eb eb--producto">🟠 producto</span><span class="perule__prio">Prioridad 4</span></span></div>
+<h3>Retroceso de escalón por incumplimiento sostenido</h3>
+<dl>
+<dt>Descripción</dt><dd>Si el cumplimiento agregado de un Microciclo cae bajo un umbral mínimo durante 2 Microciclos consecutivos, el motor retrocede el puntero un escalón (nunca más de uno por evaluación).</dd>
+<dt>Justificación</dt><dd>Mecanismo simétrico a los de avance — el retroceso también requiere patrón sostenido, nunca un evento aislado (P6).</dd>
+<dt class="half">Entradas</dt><dd class="half">Cumplimiento agregado de 2 Microciclos, cadencia de señal: por Microciclo</dd>
+<dt class="half">Salida</dt><dd class="half">Puntero -1 escalón, cadencia de decisión: por Microciclo (evaluado en el segundo)</dd>
+<dt>Consumidor</dt><dd>Motor BPS</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">Cumplimiento &lt;60% en 2 Microciclos seguidos → retrocede</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Retroceder 2 escalones de una vez</dd>
+<dt>Contraejemplo</dt><dd>Bajo cumplimiento explicado por deload activo (12) — no cuenta, el deload ya es la respuesta correcta a esa ventana</dd>
+<dt>Relación</dt><dd>Precedencia 4, cede ante deload (nivel 1/3) si coincide en el tiempo</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-018</span><span class="perule__badges"><span class="eb eb--producto">🟠 producto</span><span class="perule__prio">Prioridad 4</span></span></div>
+<h3>Exclusión explícita de Track y Sistema</h3>
+<dl>
+<dt>Descripción</dt><dd>Este motor nunca produce una recomendación de cambio de Track ni de Sistema. Esa decisión pertenece exclusivamente al Motor BPS (activación, ADR-005/BPS-012 del Motor BPS Handbook).</dd>
+<dt>Justificación</dt><dd>Frontera de capa explícita, ya razonada en 00/02 de este documento — se codifica aquí como regla formal para que el catálogo sea auto-contenido.</dd>
+<dt class="half">Entradas</dt><dd class="half">N/A — regla negativa, sin disparador</dd>
+<dt class="half">Salida</dt><dd class="half">Ninguna — ausencia deliberada de salida</dd>
+<dt>Consumidor</dt><dd>N/A</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">Usuario completa el Nivel más alto de un Sistema → el motor recomienda "sostiene, en tope de contenido", nunca "cambia de Sistema"</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Cualquier código que haga que este motor escriba <code>sistema_actual</code></dd>
+<dt>Contraejemplo</dt><dd>N/A</dd>
+<dt>Relación</dt><dd>Límite superior de PE-016</dd>
+</dl>
+</div>
+
+<h2 id="autorregulacion">Autorregulación (PE-019–PE-026)</h2>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-019</span><span class="perule__badges"><span class="eb eb--moderada">🟡 moderada</span><span class="perule__prio">Prioridad 4</span></span></div>
+<h3>RPE como señal primaria</h3>
+<dl>
+<dt>Descripción</dt><dd>Cuando el Slot está prescrito por RPE, esta es la señal primaria de todo ajuste micro reactivo — precede a cualquier progresión programada por calendario.</dd>
+<dt>Justificación</dt><dd>Ya cubierto en su base por PE-007; aquí se declara su estatus de precedencia sobre progresión no-reactiva.</dd>
+<dt class="half">Entradas</dt><dd class="half">RPE reportado, cadencia de señal: por aparición</dd>
+<dt class="half">Salida</dt><dd class="half">Prioridad de evaluación sobre reglas no reactivas, cadencia de decisión: por ciclo</dd>
+<dt>Consumidor</dt><dd>Paso 5 del pipeline (05, tabla de conflictos por variable)</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">RPE reportado contradice la progresión de calendario → gana RPE</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Ignorar el RPE reportado y aplicar solo el calendario</dd>
+<dt>Contraejemplo</dt><dd>Slot sin RPE prescrito (usa RIR) — rige PE-020, no esta</dd>
+<dt>Relación</dt><dd>Mutuamente excluyente con PE-020; ver 05</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-020</span><span class="perule__badges"><span class="eb eb--moderada">🟡 moderada</span><span class="perule__prio">Prioridad 4</span></span></div>
+<h3>RIR como señal alterna</h3>
+<dl>
+<dt>Descripción</dt><dd>Espejo exacto de PE-019 para Slots prescritos por RIR en vez de RPE.</dd>
+<dt>Justificación</dt><dd>Misma base que PE-019.</dd>
+<dt class="half">Entradas</dt><dd class="half">RIR reportado, cadencia de señal: por aparición</dd>
+<dt class="half">Salida</dt><dd class="half">Prioridad de evaluación sobre reglas no reactivas, cadencia de decisión: por ciclo</dd>
+<dt>Consumidor</dt><dd>Paso 5 del pipeline</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">RIR reportado contradice el calendario → gana RIR</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Combinar PE-019 y PE-020 sobre el mismo Slot</dd>
+<dt>Contraejemplo</dt><dd>N/A, ver PE-019</dd>
+<dt>Relación</dt><dd>Mutuamente excluyente con PE-019</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-021</span><span class="perule__badges"><span class="eb eb--producto">🟠 producto</span><span class="perule__prio">Prioridad 4</span></span></div>
+<h3>Cumplimiento como gate previo</h3>
+<dl>
+<dt>Descripción</dt><dd>Si el usuario no completó lo prescrito en una Aparición (series/reps incompletas), esa Aparición se excluye de la evaluación de progresión de esa variable — no cuenta ni a favor ni en contra, se marca "no evaluable".</dd>
+<dt>Justificación</dt><dd>Evita que una sesión interrumpida (llamada, equipo ocupado) se lea como una señal fisiológica real.</dd>
+<dt class="half">Entradas</dt><dd class="half">Flag de cumplimiento de la Aparición, cadencia de señal: por aparición</dd>
+<dt class="half">Salida</dt><dd class="half">Exclusión de esa Aparición del cómputo de PE-001/002/006/007/008, cadencia de decisión: inmediata</dd>
+<dt>Consumidor</dt><dd>Todas las reglas de microprogresión</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">2 de 3 series completadas → Aparición marcada no evaluable</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Contar una Aparición incompleta como "RPE bajo" (falso positivo de progreso)</dd>
+<dt>Contraejemplo</dt><dd>Incumplimiento explicado por deload activo — no es la misma vía, ver 12</dd>
+<dt>Relación</dt><dd>Precede a PE-001, PE-002, PE-006, PE-007, PE-008</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-022</span><span class="perule__badges"><span class="eb eb--producto">🟠 producto</span><span class="perule__prio">Prioridad 4</span></span></div>
+<h3>Eventos inesperados</h3>
+<dl>
+<dt>Descripción</dt><dd>Un evento inesperado reportado por el usuario en una Aparición (equipo no disponible, interrupción externa) marca esa Aparición como "no evaluable" — igual que PE-021, pero con causa explícita registrada para observabilidad (14).</dd>
+<dt>Justificación</dt><dd>Diferenciar la causa (incumplimiento silencioso vs. evento reportado) importa para auditoría aunque el efecto inmediato en progresión sea el mismo.</dd>
+<dt class="half">Entradas</dt><dd class="half">Flag de evento inesperado con causa, cadencia de señal: por aparición</dd>
+<dt class="half">Salida</dt><dd class="half">Exclusión + registro de causa, cadencia de decisión: inmediata</dd>
+<dt>Consumidor</dt><dd>Todas las reglas de microprogresión; módulo de observabilidad</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">"Gimnasio cerrado" reportado → Aparición excluida con causa</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Tratar un evento inesperado como retroceso de escalón (PE-017)</dd>
+<dt>Contraejemplo</dt><dd>Evento inesperado que se repite 3+ veces seguidas dispara revisión humana, no una regla automática — fuera del alcance del motor</dd>
+<dt>Relación</dt><dd>Variante con causa de PE-021</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-023</span><span class="perule__badges"><span class="eb eb--producto">🟠 producto</span><span class="perule__prio">Prioridad 1</span></span></div>
+<h3>Frontera con Recovery — Dolor</h3>
+<dl>
+<dt>Descripción</dt><dd>El motor no recibe, no procesa y no interpreta ninguna señal cruda de dolor. Su única relación con el dolor es indirecta, vía el Veredicto de Recovery ya resuelto.</dd>
+<dt>Justificación</dt><dd>P8 — separación de capas, evita duplicar/contradecir la interpretación clínica que hace Recovery.</dd>
+<dt class="half">Entradas</dt><dd class="half">N/A</dd>
+<dt class="half">Salida</dt><dd class="half">N/A</dd>
+<dt>Consumidor</dt><dd>N/A — regla de frontera, no de cómputo</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">Dolor reportado → procesado íntegramente por Recovery, el motor solo ve <code>{procede: false}</code></dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Un campo "dolor" en el contrato de entradas de este motor</dd>
+<dt>Contraejemplo</dt><dd>N/A</dd>
+<dt>Relación</dt><dd>Junto con PE-024/025, fundamenta PE-026</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-024</span><span class="perule__badges"><span class="eb eb--producto">🟠 producto</span><span class="perule__prio">Prioridad 1</span></span></div>
+<h3>Frontera con Recovery — Fatiga</h3>
+<dl>
+<dt>Descripción</dt><dd>Idéntica a PE-023, para fatiga percibida cruda.</dd>
+<dt>Justificación</dt><dd>P8, misma base.</dd>
+<dt class="half">Entradas</dt><dd class="half">N/A</dd>
+<dt class="half">Salida</dt><dd class="half">N/A</dd>
+<dt>Consumidor</dt><dd>N/A</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">Fatiga alta reportada → resuelta por Recovery, no por este motor</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Este motor leyendo un cuestionario de fatiga directamente</dd>
+<dt>Contraejemplo</dt><dd>N/A</dd>
+<dt>Relación</dt><dd>Ver PE-023</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-025</span><span class="perule__badges"><span class="eb eb--producto">🟠 producto</span><span class="perule__prio">Prioridad 1</span></span></div>
+<h3>Frontera con Recovery — Sueño</h3>
+<dl>
+<dt>Descripción</dt><dd>Idéntica a PE-023, para datos de sueño.</dd>
+<dt>Justificación</dt><dd>P8, misma base.</dd>
+<dt class="half">Entradas</dt><dd class="half">N/A</dd>
+<dt class="half">Salida</dt><dd class="half">N/A</dd>
+<dt>Consumidor</dt><dd>N/A</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">Horas de sueño bajas → resueltas por Recovery</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Este motor ajustando volumen directamente por horas de sueño</dd>
+<dt>Contraejemplo</dt><dd>N/A</dd>
+<dt>Relación</dt><dd>Ver PE-023</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-026</span><span class="perule__badges"><span class="eb eb--fuerte">🟢 fuerte</span><span class="perule__prio">Prioridad 1</span></span></div>
+<h3>Precedencia absoluta del veredicto de Recovery</h3>
+<dl>
+<dt>Descripción</dt><dd>Si <code>Recovery.procede === false</code>, ninguna otra regla de este catálogo se evalúa ese ciclo — el pipeline sale en el paso 5 con "sostiene" y razón = veredicto de Recovery.</dd>
+<dt>Justificación</dt><dd>El principio de que la señal de seguridad debe ser terminal, no ponderada, es la aplicación directa y bien establecida de "seguridad antes que progreso".</dd>
+<dt class="half">Entradas</dt><dd class="half">Veredicto de Recovery, cadencia de señal: por ciclo</dd>
+<dt class="half">Salida</dt><dd class="half">Terminación temprana del pipeline con "sostiene", cadencia de decisión: por ciclo</dd>
+<dt>Consumidor</dt><dd>Paso 2/5 del pipeline (06)</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half"><code>procede: false</code> → sostiene, sin evaluar PE-001…025</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Aplicar una progresión "reducida" en vez de sostener por completo</dd>
+<dt>Contraejemplo</dt><dd>N/A — es la regla de mayor precedencia del catálogo entero</dd>
+<dt>Relación</dt><dd>Superior a todas las demás reglas sin excepción</dd>
+</dl>
+</div>
+
+<h2 id="estancamiento-reglas">Estancamiento (PE-027–PE-032)</h2>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-027</span><span class="perule__badges"><span class="eb eb--producto">🟠 producto</span><span class="perule__prio">Prioridad 3</span></span></div>
+<h3>Detección de estancamiento</h3>
+<dl>
+<dt>Descripción</dt><dd>Un Slot entra en estado "candidato a estancamiento" cuando 3 apariciones evaluables consecutivas (no excluidas por PE-021/022) no producen ninguna decisión de avance (PE-001/002/003).</dd>
+<dt>Justificación</dt><dd>Formaliza el umbral de "3 apariciones" ya usado informalmente en el Motor BPS Handbook (05) — consistencia terminológica entre handbooks.</dd>
+<dt class="half">Entradas</dt><dd class="half">Historial de decisiones del Slot, cadencia de señal: por aparición</dd>
+<dt class="half">Salida</dt><dd class="half">Flag "candidato a estancamiento", cadencia de decisión: al alcanzar 3</dd>
+<dt>Consumidor</dt><dd>PE-028</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">3 apariciones seguidas sin avance evaluable → candidato</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Marcar candidato con solo 2 apariciones</dd>
+<dt>Contraejemplo</dt><dd>3 apariciones sin avance pero con 1 excluida por PE-021 en medio — no cuenta como consecutivo, ver PE-030</dd>
+<dt>Relación</dt><dd>Alimenta PE-028; ver 11 para mecánica completa</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-028</span><span class="perule__badges"><span class="eb eb--producto">🟠 producto</span><span class="perule__prio">Prioridad 3</span></span></div>
+<h3>Confirmación de estancamiento</h3>
+<dl>
+<dt>Descripción</dt><dd>Un candidato (PE-027) se confirma como estancamiento real solo si las 3 apariciones son estrictamente consecutivas en el registro (sin Aparición excluida entre ellas).</dd>
+<dt>Justificación</dt><dd>Evita confirmar sobre una ventana con huecos que en realidad esconde menos de 3 intentos genuinos.</dd>
+<dt class="half">Entradas</dt><dd class="half">Flag candidato + continuidad de la ventana, cadencia de señal: por aparición</dd>
+<dt class="half">Salida</dt><dd class="half">Flag "estancamiento confirmado", cadencia de decisión: al confirmarse</dd>
+<dt>Consumidor</dt><dd>PE-031 (escalera de acciones)</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">3 apariciones consecutivas sin hueco → confirmado</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Confirmar con una Aparición excluida en medio de las 3</dd>
+<dt>Contraejemplo</dt><dd>Ver PE-029/030 para los casos que invalidan la confirmación</dd>
+<dt>Relación</dt><dd>Depende de PE-027; entra en la escalera de precedencia en nivel 3</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-029</span><span class="perule__badges"><span class="eb eb--producto">🟠 producto</span><span class="perule__prio">Prioridad 3</span></span></div>
+<h3>Falso positivo — no-intento no es estancamiento</h3>
+<dl>
+<dt>Descripción</dt><dd>Si alguna de las apariciones que compondría el patrón de 3 fue excluida por PE-021 (incumplimiento) o PE-022 (evento inesperado), no cuenta para la confirmación — el contador se reinicia desde la siguiente Aparición evaluable.</dd>
+<dt>Justificación</dt><dd>Un usuario que no completó la sesión no es evidencia de una meseta fisiológica real.</dd>
+<dt class="half">Entradas</dt><dd class="half">Flags de exclusión en la ventana relevante, cadencia de señal: por aparición</dd>
+<dt class="half">Salida</dt><dd class="half">Reinicio del contador de candidatura, cadencia de decisión: inmediata</dd>
+<dt>Consumidor</dt><dd>PE-027</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">Aparición 2 de 3 excluida por evento inesperado → contador reinicia en 0</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Ignorar la exclusión y contar la aparición igual</dd>
+<dt>Contraejemplo</dt><dd>N/A</dd>
+<dt>Relación</dt><dd>Modula PE-027/028</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-030</span><span class="perule__badges"><span class="eb eb--producto">🟠 producto</span><span class="perule__prio">Prioridad 3</span></span></div>
+<h3>Falso negativo — huecos no reinician silenciosamente sin registro</h3>
+<dl>
+<dt>Descripción</dt><dd>Una ventana con huecos (Slot no programado esa semana, no ejecutado) no confirma NI descarta un estancamiento por sí sola — el contador queda "en pausa" con la causa registrada, no se pierde el progreso previo del conteo silenciosamente.</dd>
+<dt>Justificación</dt><dd>Evita el error opuesto a PE-029: perder una señal real de estancamiento solo porque hubo una semana de por medio sin ese Slot programado.</dd>
+<dt class="half">Entradas</dt><dd class="half">Ausencia del Slot en el ciclo, cadencia de señal: por Microciclo</dd>
+<dt class="half">Salida</dt><dd class="half">Contador en pausa con causa, cadencia de decisión: inmediata</dd>
+<dt>Consumidor</dt><dd>PE-027</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">Slot no programado en semana de deload → contador pausado, no reiniciado</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Reiniciar el contador a 0 por una semana sin el Slot</dd>
+<dt>Contraejemplo</dt><dd>N/A</dd>
+<dt>Relación</dt><dd>Complementa PE-029 sin contradecirla — huecos ≠ incumplimiento</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-031</span><span class="perule__badges"><span class="eb eb--producto">🟠 producto</span><span class="perule__prio">Prioridad 3</span></span></div>
+<h3>Escalera de acciones ante estancamiento confirmado</h3>
+<dl>
+<dt>Descripción</dt><dd>Confirmado el estancamiento (PE-028), el motor aplica en orden: (1) variar variable secundaria (tempo del programa, no autorregulado — vía transición de Bloque si aplica; o descanso); (2) si persiste 3 apariciones más, sugerir deload preventivo (PE-035); (3) si persiste tras el deload, retroceder eslabón de cadena — nunca escalón macro completo.</dd>
+<dt>Justificación</dt><dd>Escalera de menor a mayor intervención, coherente con "fallo visible" y con no sobre-reaccionar a una meseta que puede resolverse con la intervención más leve.</dd>
+<dt class="half">Entradas</dt><dd class="half">Flag "estancamiento confirmado", historial de acciones previas sobre este Slot, cadencia de señal: por aparición</dd>
+<dt class="half">Salida</dt><dd class="half">Acción de la escalera correspondiente, cadencia de decisión: por ciclo</dd>
+<dt>Consumidor</dt><dd>Motor BPS, Workout Generator</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">Primera confirmación → variar descanso; persiste → deload preventivo</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Saltar directo a retroceso de eslabón en la primera confirmación</dd>
+<dt>Contraejemplo</dt><dd>Retroceso de escalón macro completo (PE-017) — nunca es una acción de esta escalera, son mecanismos independientes</dd>
+<dt>Relación</dt><dd>Consume PE-028; puede invocar PE-035</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-032</span><span class="perule__badges"><span class="eb eb--producto">🟠 producto</span><span class="perule__prio">Prioridad 3</span></span></div>
+<h3>Salida del estado de estancamiento</h3>
+<dl>
+<dt>Descripción</dt><dd>El estado "estancamiento confirmado" se limpia en cuanto una Aparición evaluable produce una decisión de avance (PE-001/002/003) para ese Slot — no requiere un proceso de "recuperación" separado.</dd>
+<dt>Justificación</dt><dd>Simetría: la condición de entrada y salida usan la misma señal (avance evaluable), evitando un segundo sistema de reglas paralelo.</dd>
+<dt class="half">Entradas</dt><dd class="half">Decisión de avance del Slot, cadencia de señal: por aparición</dd>
+<dt class="half">Salida</dt><dd class="half">Limpieza del flag de estancamiento, cadencia de decisión: inmediata</dd>
+<dt>Consumidor</dt><dd>PE-027 (reinicia su contador)</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">Tras variar descanso, la siguiente aparición muestra RPE bajo → avanza y limpia el flag</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Mantener el flag activo tras una decisión de avance real</dd>
+<dt>Contraejemplo</dt><dd>N/A</dd>
+<dt>Relación</dt><dd>Cierra el ciclo abierto por PE-027/028</dd>
+</dl>
+</div>
+
+<h2 id="deload-reglas">Deload (PE-033–PE-039)</h2>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-033</span><span class="perule__badges"><span class="eb eb--producto">🟠 producto</span><span class="perule__prio">Prioridad 4</span></span></div>
+<h3>Deload programado</h3>
+<dl>
+<dt>Descripción</dt><dd>El Training Framework puede marcar un Microciclo como deload dentro de la estructura de un Bloque — el motor lo aplica reduciendo volumen/intensidad según el factor definido por el programa, sin evaluar progresión normal ese Microciclo.</dd>
+<dt>Justificación</dt><dd>La periodización con descargas programadas es una práctica estándar de diseño de programas.</dd>
+<dt class="half">Entradas</dt><dd class="half">Flag de Microciclo-deload del programa, cadencia de señal: por Microciclo</dd>
+<dt class="half">Salida</dt><dd class="half">Prescripción reducida según factor del programa, cadencia de decisión: por Microciclo</dd>
+<dt>Consumidor</dt><dd>Workout Generator</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">Microciclo 4 de un Mesociclo de 4 marcado deload → reduce volumen 40%</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Evaluar PE-001…012 con normalidad en un Microciclo de deload programado</dd>
+<dt>Contraejemplo</dt><dd>N/A</dd>
+<dt>Relación</dt><dd>Cede ante PE-034 si ambos coinciden (PE-037)</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-034</span><span class="perule__badges"><span class="eb eb--fuerte">🟢 fuerte</span><span class="perule__prio">Prioridad 1</span></span></div>
+<h3>Deload reactivo</h3>
+<dl>
+<dt>Descripción</dt><dd>Cuando <code>Recovery.tipo === "descarga"</code>, el motor aplica la reducción que Recovery indique — este motor no calcula la magnitud, solo la ejecuta como parte de PE-026.</dd>
+<dt>Justificación</dt><dd>Consecuencia directa y bien establecida de la precedencia de seguridad.</dd>
+<dt class="half">Entradas</dt><dd class="half">Veredicto de Recovery con tipo descarga, cadencia de señal: por ciclo</dd>
+<dt class="half">Salida</dt><dd class="half">Prescripción reducida según indicación de Recovery, cadencia de decisión: por ciclo</dd>
+<dt>Consumidor</dt><dd>Workout Generator</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">Recovery indica descarga del 50% → el motor la aplica sin cuestionarla</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Este motor decidiendo un porcentaje de descarga distinto al de Recovery</dd>
+<dt>Contraejemplo</dt><dd>N/A</dd>
+<dt>Relación</dt><dd>Es la aplicación concreta de PE-026 al dominio de deload</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-035</span><span class="perule__badges"><span class="eb eb--hipotesis">🔴 hipótesis</span><span class="perule__prio">Prioridad 3</span></span></div>
+<h3>Deload preventivo</h3>
+<dl>
+<dt>Descripción</dt><dd>Mecanismo propio de este motor (no de Recovery): si la escalera de estancamiento (PE-031) llega a su segundo escalón, el motor sugiere un deload preventivo — no vinculante, requiere que el flujo normal de la app lo confirme, a diferencia del reactivo que es obligatorio.</dd>
+<dt>Justificación</dt><dd>Hipótesis de producto sin validación externa aún: que una descarga temprana ante estancamiento sostenido mejora el resultado más que continuar empujando. Marcado 🔴 explícitamente por ser un mecanismo nuevo de BREY.</dd>
+<dt class="half">Entradas</dt><dd class="half">Segundo escalón de PE-031 alcanzado, cadencia de señal: por aparición</dd>
+<dt class="half">Salida</dt><dd class="half">Sugerencia no vinculante de deload, cadencia de decisión: por ciclo</dd>
+<dt>Consumidor</dt><dd>Capa de presentación (fuera de este handbook) — el usuario o el flujo decide si se aplica</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">Estancamiento persiste tras variar descanso → sugiere deload preventivo</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Aplicar el deload preventivo automáticamente sin paso de confirmación</dd>
+<dt>Contraejemplo</dt><dd>Si Recovery simultáneamente indica descarga reactiva, PE-034 gana y esta sugerencia queda redundante/absorbida (PE-037)</dd>
+<dt>Relación</dt><dd>Se origina en PE-031; cede ante PE-034</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-036</span><span class="perule__badges"><span class="eb eb--producto">🟠 producto</span><span class="perule__prio">Prioridad 3</span></span></div>
+<h3>Cancelación de deload</h3>
+<dl>
+<dt>Descripción</dt><dd>Un deload programado o preventivo puede cancelarse antes de aplicarse si, en la evaluación inmediatamente previa, el Veredicto de Recovery cambia a favorable Y no hay estancamiento activo. Un deload reactivo nunca es cancelable por este motor (solo Recovery puede revertir su propio veredicto).</dd>
+<dt>Justificación</dt><dd>Evita rigidez cuando la condición que motivó el deload ya no aplica, preservando a la vez la autoridad exclusiva de Recovery sobre lo reactivo.</dd>
+<dt class="half">Entradas</dt><dd class="half">Veredicto de Recovery actualizado, estado de estancamiento, cadencia de señal: por ciclo</dd>
+<dt class="half">Salida</dt><dd class="half">Cancelación del deload programado/preventivo pendiente, cadencia de decisión: por ciclo</dd>
+<dt>Consumidor</dt><dd>Workout Generator</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">Deload preventivo pendiente, estancamiento se resuelve solo → se cancela</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Cancelar un deload reactivo porque "ya se ve mejor"</dd>
+<dt>Contraejemplo</dt><dd>N/A</dd>
+<dt>Relación</dt><dd>Aplica sobre PE-033/035, nunca sobre PE-034</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-037</span><span class="perule__badges"><span class="eb eb--producto">🟠 producto</span><span class="perule__prio">Prioridad 1</span></span></div>
+<h3>Prioridad entre tipos de deload coincidentes</h3>
+<dl>
+<dt>Descripción</dt><dd>Si dos tipos de deload aplican al mismo ciclo, el orden de precedencia es: reactivo (PE-034) &gt; programado (PE-033) &gt; preventivo (PE-035). El de mayor precedencia absorbe a los demás — nunca se suman sus reducciones.</dd>
+<dt>Justificación</dt><dd>Instancia concreta del modelo de decisión (05) para este subsistema — evita una "doble descarga" acumulada sin sentido fisiológico.</dd>
+<dt class="half">Entradas</dt><dd class="half">Flags de los 3 tipos de deload evaluados en el ciclo, cadencia de señal: por ciclo</dd>
+<dt class="half">Salida</dt><dd class="half">Un único tipo de deload aplicado, cadencia de decisión: por ciclo</dd>
+<dt>Consumidor</dt><dd>Paso 5 del pipeline</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">Reactivo y programado coinciden → se aplica solo el reactivo (con su magnitud)</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Sumar la reducción de ambos tipos</dd>
+<dt>Contraejemplo</dt><dd>N/A</dd>
+<dt>Relación</dt><dd>Árbitro de PE-033/034/035</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-038</span><span class="perule__badges"><span class="eb eb--producto">🟠 producto</span><span class="perule__prio">Prioridad 4</span></span></div>
+<h3>Duración de un deload</h3>
+<dl>
+<dt>Descripción</dt><dd>Todo deload (de cualquier tipo) dura exactamente 1 Microciclo salvo que Recovery indique explícitamente una duración distinta para el reactivo — el motor nunca extiende un deload por su propia cuenta más allá de lo indicado.</dd>
+<dt>Justificación</dt><dd>Duración fija por defecto simplifica la reincorporación (PE-039) y evita deslizamiento indefinido del programa.</dd>
+<dt class="half">Entradas</dt><dd class="half">Tipo de deload, duración indicada por Recovery si aplica, cadencia de señal: por Microciclo</dd>
+<dt class="half">Salida</dt><dd class="half">Número de Microciclos que dura el deload, cadencia de decisión: al iniciar el deload</dd>
+<dt>Consumidor</dt><dd>Motor BPS (programación del ciclo)</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">Deload programado sin indicación adicional → dura 1 Microciclo</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Extender un deload preventivo a 3 Microciclos sin justificación de Recovery</dd>
+<dt>Contraejemplo</dt><dd>N/A</dd>
+<dt>Relación</dt><dd>Aplica a los 3 tipos de deload</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">PE-039</span><span class="perule__badges"><span class="eb eb--producto">🟠 producto</span><span class="perule__prio">Prioridad 4</span></span></div>
+<h3>Reincorporación post-deload</h3>
+<dl>
+<dt>Descripción</dt><dd>Al finalizar un deload, la Prescripción vigente vuelve exactamente al valor previo al deload (no al valor reducido, no con un "extra" de compensación) — el ciclo siguiente evalúa progresión normal desde ese punto.</dd>
+<dt>Justificación</dt><dd>Evita tanto perder progreso acumulado como sobrecompensar de forma no controlada al salir del deload.</dd>
+<dt class="half">Entradas</dt><dd class="half">Prescripción previa al deload (guardada en contexto del evento, 14), cadencia de señal: al cerrar el Microciclo de deload</dd>
+<dt class="half">Salida</dt><dd class="half">Prescripción vigente restaurada, cadencia de decisión: inmediata al cierre</dd>
+<dt>Consumidor</dt><dd>Workout Generator</dd>
+<dt class="half">Ejemplo válido</dt><dd class="half">Deload al 60% del volumen → siguiente ciclo vuelve al 100% previo, luego evalúa progresión normal</dd>
+<dt class="half">Ejemplo inválido</dt><dd class="half">Volver al 110% "para compensar" el deload</dd>
+<dt>Contraejemplo</dt><dd>N/A</dd>
+<dt>Relación</dt><dd>Cierra el ciclo abierto por PE-033/034/035</dd>
+</dl>
+</div>
+
+<h2 id="matriz-input-regla">Matriz Input → Regla</h2>
+<p class="matrix-note">Qué entradas del contrato (04) consume cada categoría de regla.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Entrada</th><th>Reglas que la consumen</th></tr></thead>
+<tbody>
+<tr><td>Ventana de historial</td><td>PE-001–003, 006–011, 013–017, 027–032</td></tr>
+<tr><td>Prescripción vigente</td><td>PE-001–011, 033–039</td></tr>
+<tr><td>Veredicto de Recovery</td><td>PE-023–026, 034, 037</td></tr>
+<tr><td>Cadenas + capacidades</td><td>PE-003, 016, 018</td></tr>
+<tr><td>Fecha del ciclo</td><td>Todas (determinismo, IN-P1)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="matriz-regla-salida">Matriz Regla → Salida</h2>
+<p class="matrix-note">Qué tipo de salida produce cada categoría de regla.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Categoría</th><th>Tipo de salida</th></tr></thead>
+<tbody>
+<tr><td>Microprogresión (001–012)</td><td>Prescripción vigente actualizada</td></tr>
+<tr><td>Macroprogresión (013–018)</td><td>Puntero de jerarquía (Microciclo/Mesociclo/Bloque/Nivel) o recomendación al Motor BPS</td></tr>
+<tr><td>Autorregulación (019–026)</td><td>Modulación de precedencia sobre otras reglas — no produce salida propia salvo terminación temprana (PE-026)</td></tr>
+<tr><td>Estancamiento (027–032)</td><td>Flag de estado + acción de escalera</td></tr>
+<tr><td>Deload (033–039)</td><td>Prescripción reducida + duración + evento</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../06-pipeline/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 06 · Pipeline</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../08-microprogresion/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">08 · Microprogresión →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>01 · Modelo — Anatomical Vocabulary</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="modelo" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Sección 01 · Fundamento</p>
+<h1>Modelo</h1>
+<p class="lede">Siete campos por estructura. Ni uno más. Todo campo que alguien eche en falta pertenece a otro módulo — la <a href="../00-introduccion/index.html#no-incluye">tabla de exclusiones</a> dice a cuál.</p>
+
+<h2 id="campos">Los siete campos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Campo</th><th>Tipo</th><th>Card.</th><th>Estatuto</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>id</code></td><td><code>snake_case</code> ASCII</td><td>1</td><td>OBLIGATORIO · inmutable · único</td></tr>
+<tr><td>2</td><td><code>display_name</code></td><td>Texto — nomenclatura latina</td><td>1</td><td>OBLIGATORIO · único</td></tr>
+<tr><td>3</td><td><code>common_name_es</code></td><td>Texto — español</td><td>1</td><td>OBLIGATORIO · único</td></tr>
+<tr><td>4</td><td><code>group</code></td><td>Uno de 13</td><td>1</td><td>OBLIGATORIO</td></tr>
+<tr><td>5</td><td><code>region</code></td><td>Una de 4</td><td>1</td><td>OBLIGATORIO · <strong>derivado de <code>group</code></strong></td></tr>
+<tr><td>6</td><td><code>status</code></td><td><code>active</code></td><td>1</td><td>OBLIGATORIO · único valor en v1.0</td></tr>
+<tr><td>7</td><td><code>synonyms</code></td><td>Lista de texto</td><td>0..N</td><td>OPCIONAL · <code>[]</code> válido</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label"><code>region</code> es función de <code>group</code></div>
+  <p>Un grupo pertenece siempre a la misma región. <code>region</code> no se decide por estructura: se lee de la tabla de grupos. Por eso no puede haber dos estructuras del mismo grupo en regiones distintas, y por eso el catálogo no repite la columna en cada fila.</p>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label"><code>status</code> tiene un solo valor en v1.0</div>
+  <p>Todas las estructuras publicadas están en <code>active</code>. <strong>No</strong> se definen <code>deprecated</code>, <code>archived</code> ni ningún otro estado: el campo existe para que añadirlos después no requiera cambiar el modelo, pero su máquina de estados no se especifica hoy.</p>
+</div>
+
+<h2 id="reglas">Reglas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Regla</th><th>Estatuto</th></tr></thead>
+<tbody>
+<tr><td>AV-1</td><td>El <code>id</code> es <code>snake_case</code>: minúsculas, dígitos y guion bajo; empieza por letra</td><td>OBLIGATORIO</td></tr>
+<tr><td>AV-2</td><td>El <code>id</code> es inmutable y nunca se reutiliza</td><td>OBLIGATORIO</td></tr>
+<tr><td>AV-3</td><td>El <code>id</code> es único en todo el vocabulario</td><td>OBLIGATORIO</td></tr>
+<tr><td>AV-4</td><td><strong>Nunca dos <code>id</code> para el mismo músculo</strong></td><td>OBLIGATORIO</td></tr>
+<tr><td>AV-5</td><td>Cada estructura tiene un único <code>display_name</code>, y ningún otro lo repite</td><td>OBLIGATORIO</td></tr>
+<tr><td>AV-6</td><td>Cada estructura tiene un único <code>common_name_es</code>, y ningún otro lo repite</td><td>OBLIGATORIO</td></tr>
+<tr><td>AV-7</td><td>El <code>display_name</code> usa nomenclatura latina; las porciones se expresan como <code>(pars …)</code> o <code>(caput …)</code></td><td>OBLIGATORIO</td></tr>
+<tr><td>AV-8</td><td>El <code>id</code> no codifica grupo, región ni orden</td><td>PROHIBIDO codificar</td></tr>
+<tr><td>AV-9</td><td>Una estructura pertenece a exactamente un <code>group</code></td><td>OBLIGATORIO</td></tr>
+<tr><td>AV-10</td><td>No se crean grupos sin estructuras</td><td>PROHIBIDO</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">AV-4 · La regla que gobierna el vocabulario</div>
+  <p>Es la razón de ser del documento. Si <code>psoas_major</code> e <code>iliopsoas</code> existieran a la vez, dos ejercicios equivalentes quedarían etiquetados con identificadores distintos y ninguna estadística los agregaría. Por eso <code>iliopsoas</code> es la única entrada y <code>psoas</code> es un sinónimo suyo, no un <code>id</code>.</p>
+  <p>Cuando la anatomía admite dos niveles de detalle, el vocabulario elige <strong>uno</strong> y el otro se registra como sinónimo.</p>
+</div>
+
+<h2 id="porciones">Criterio de subdivisión</h2>
+<p>Un músculo se subdivide en porciones cuando el ecosistema necesita distinguirlas. No se subdivide por precisión anatómica.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Criterio</th><th>Decisión</th><th>Ejemplo aplicado</th></tr></thead>
+<tbody>
+<tr><td>Las porciones se entrenan de forma diferenciable</td><td><strong>Se subdivide</strong></td><td>Pectoral mayor → 3 porciones · Deltoides → 3 · Tríceps → 3</td></tr>
+<tr><td>Las porciones responden igual a todo estímulo</td><td>No se subdivide</td><td>Sóleo, sartorio, pectíneo: entrada única</td></tr>
+<tr><td>La distinción solo importa en clínica</td><td>No se subdivide</td><td>No se separan fascículos internos</td></tr>
+<tr><td>Dos nombres describen el mismo músculo</td><td><strong>Una sola entrada</strong> + sinónimo</td><td><code>iliopsoas</code>, con <code>psoas</code> como sinónimo</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Consecuencia visible</div>
+  <p>El bíceps braquial tiene dos entradas y el sóleo una sola. No es inconsistencia: es que un programa distingue porción larga de porción corta y no distingue partes del sóleo. El nivel de detalle lo fija el uso, no la anatomía.</p>
+</div>
+
+<h2 id="grupos">Los trece grupos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th><code>group</code></th><th><code>region</code></th><th>Estructuras</th></tr></thead>
+<tbody>
+<tr><td><code>Chest</code></td><td>Torso</td><td>5</td></tr>
+<tr><td><code>Back</code></td><td>Torso</td><td>9</td></tr>
+<tr><td><code>Core</code></td><td>Core</td><td>6</td></tr>
+<tr><td><code>Shoulders</code></td><td>Upper Body</td><td>7</td></tr>
+<tr><td><code>Arm</code></td><td>Upper Body</td><td>8</td></tr>
+<tr><td><code>Forearm</code></td><td>Upper Body</td><td>8</td></tr>
+<tr><td><code>Neck</code></td><td>Upper Body</td><td>3</td></tr>
+<tr><td><code>Hip</code></td><td>Lower Body</td><td>4</td></tr>
+<tr><td><code>Glute</code></td><td>Lower Body</td><td>3</td></tr>
+<tr><td><code>Quadriceps</code></td><td>Lower Body</td><td>4</td></tr>
+<tr><td><code>Hamstrings</code></td><td>Lower Body</td><td>4</td></tr>
+<tr><td><code>Adductors</code></td><td>Lower Body</td><td>5</td></tr>
+<tr><td><code>Calves</code></td><td>Lower Body</td><td>6</td></tr>
+<tr><td colspan="2"><strong>Total</strong></td><td><strong>72</strong></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--descartado">
+  <div class="callout__label">Descartado — el grupo <code>Abductors</code></div>
+  <p>La abducción de cadera la ejecutan <code>gluteus_medius</code>, <code>gluteus_minimus</code> y <code>tensor_fasciae_latae</code>, que ya están en <code>Glute</code> y <code>Hip</code>. Crear el grupo obligaría a moverlas —dejando <code>Glute</code> con una sola entrada— o a duplicarlas, lo que viola AV-9.</p>
+  <p><code>group</code> es una <strong>partición por localización</strong>, no por función. Agrupar por función exigiría acciones musculares, que la <a href="../00-introduccion/index.html#no-incluye">tabla de exclusiones</a> deja fuera de alcance.</p>
+</div>
+<div class="callout callout--tradeoff">
+  <div class="callout__label"><code>Calves</code> nombra toda la pierna inferior</div>
+  <p>El grupo incluye <code>tibialis_anterior</code>, que está en la cara anterior de la pierna y no es una pantorrilla. Se acepta la imprecisión del nombre: el grupo cubre el compartimento de la pierna por debajo de la rodilla, y crear un grupo <code>Shin</code> de una a dos entradas añadiría una faceta que ningún filtro necesita.</p>
+</div>
+
+<h2 id="regiones">Las cuatro regiones</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th><code>region</code></th><th>Grupos</th><th>Estructuras</th><th>%</th></tr></thead>
+<tbody>
+<tr><td><code>Upper Body</code></td><td>Shoulders · Arm · Forearm · Neck</td><td>26</td><td>36,1 %</td></tr>
+<tr><td><code>Lower Body</code></td><td>Hip · Glute · Quadriceps · Hamstrings · Adductors · Calves</td><td>26</td><td>36,1 %</td></tr>
+<tr><td><code>Torso</code></td><td>Chest · Back</td><td>14</td><td>19,4 %</td></tr>
+<tr><td><code>Core</code></td><td>Core</td><td>6</td><td>8,3 %</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>13 grupos</strong></td><td><strong>72</strong></td><td><strong>100 %</strong></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label"><code>Torso</code> y <code>Core</code> son regiones distintas</div>
+  <p><code>Torso</code> cubre la musculatura que mueve los brazos desde el tronco —pectorales, dorsal, trapecio—. <code>Core</code> cubre la que estabiliza la columna y la pelvis. La separación existe porque el generador reparte volumen de forma distinta entre ambas: el torso se entrena por patrón de empuje y tracción, el core por función antagonista.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Regiones y grupos — 72 estructuras</div>
+<pre class="mermaid">
+graph TD
+  V["Anatomical Vocabulary<br/>72 estructuras"] --> UB["Upper Body · 26"]
+  V --> LB["Lower Body · 26"]
+  V --> T["Torso · 14"]
+  V --> C["Core · 6"]
+  UB --> UB1["Shoulders 7 · Arm 8<br/>Forearm 8 · Neck 3"]
+  LB --> LB1["Hip 4 · Glute 3 · Quadriceps 4<br/>Hamstrings 4 · Adductors 5 · Calves 6"]
+  T --> T1["Chest 5 · Back 9"]
+  C --> C1["Core 6"]
+</pre>
+</div>
+
+<h2 id="ejemplo">Forma de una entrada</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Campo</th><th>Valor</th></tr></thead>
+<tbody>
+<tr><td><code>id</code></td><td><code>latissimus_dorsi</code></td></tr>
+<tr><td><code>display_name</code></td><td>Latissimus dorsi</td></tr>
+<tr><td><code>common_name_es</code></td><td>Dorsal ancho</td></tr>
+<tr><td><code>group</code></td><td><code>Back</code></td></tr>
+<tr><td><code>region</code></td><td><code>Torso</code> <span class="matrix-note">— derivado de <code>group</code></span></td></tr>
+<tr><td><code>status</code></td><td><code>active</code></td></tr>
+<tr><td><code>synonyms</code></td><td><code>lat</code> · <code>lats</code> · <code>dorsal</code> · <code>dorsales</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../00-introduccion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 00 · Introducción</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../02-vocabulario/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">02 · Catálogo →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

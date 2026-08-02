@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>04 · Modelo Oficial — Master Exercise Dataset</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="modelo" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Sección 04 · El Exercise</p>
+<h1>Modelo Oficial del Exercise</h1>
+<p class="lede"><strong>38 campos en 7 bloques.</strong> Este es el esquema congelado de v1.0. Ningún campo se añade, renombra, elimina ni cambia de tipo sin una versión mayor del dataset.</p>
+
+<h2 id="convenciones">Convenciones del esquema</h2>
+<div class="table-wrap">
+<table>
+<tbody>
+<tr><td><strong>Nomenclatura de campos</strong></td><td><code>snake_case</code> en inglés — convención de dataset del ecosistema, y el formato que consumirán una API y modelos futuros sin traducción intermedia</td></tr>
+<tr><td><strong>Valores enumerados</strong></td><td>Conservan los <strong>slugs originales de la ontología</strong> (<code>empuje-horizontal</code>, <code>core-final</code>…). No se traducen: son vocabulario cerrado ya publicado</td></tr>
+<tr><td><strong>Fechas</strong></td><td>UTC, formato de fecha completa</td></tr>
+<tr><td><strong><code>null</code> frente a lista vacía</strong></td><td><code>null</code> = <em>no evaluado</em> · <code>[]</code> = <em>evaluado, sin elementos</em>. Son afirmaciones distintas (DS-09)</td></tr>
+<tr><td><strong>RESERVADO</strong></td><td>El campo existe y su semántica está fijada; no se puebla en las primeras fases</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="resumen">Resumen de bloques</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Bloque</th><th>Campos</th><th>Capa</th><th>Determina elegibilidad</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Identidad</td><td>5</td><td>Núcleo</td><td>No</td></tr>
+<tr><td>2</td><td>Clasificación</td><td>9</td><td>Clasificación</td><td><strong>Sí</strong></td></tr>
+<tr><td>3</td><td>Elegibilidad</td><td>5</td><td>Clasificación</td><td><strong>Sí</strong></td></tr>
+<tr><td>4</td><td>Relaciones</td><td>5</td><td>Relaciones</td><td>Indirectamente</td></tr>
+<tr><td>5</td><td>Contenido</td><td>6</td><td>Contenido</td><td>No</td></tr>
+<tr><td>6</td><td>Media</td><td>3</td><td>Contenido</td><td>No</td></tr>
+<tr><td>7</td><td>Gobierno</td><td>5</td><td>Núcleo</td><td>Solo vía <code>status</code></td></tr>
+<tr><td colspan="2"><strong>Total</strong></td><td><strong>38</strong></td><td colspan="2">—</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="b1">Bloque 1 · Identidad</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Campo</th><th>Tipo</th><th>Card.</th><th>Estatuto</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>id</code></td><td><code>EX-NNNN</code></td><td>1</td><td>OBLIGATORIO · inmutable</td></tr>
+<tr><td>2</td><td><code>slug</code></td><td>kebab-case ASCII</td><td>1</td><td>OBLIGATORIO · inmutable</td></tr>
+<tr><td>3</td><td><code>name_canonical</code></td><td>texto</td><td>1</td><td>OBLIGATORIO · único</td></tr>
+<tr><td>4</td><td><code>name_display</code></td><td>texto</td><td>1</td><td>OBLIGATORIO</td></tr>
+<tr><td>5</td><td><code>name_short</code></td><td>texto ≤ 24 car.</td><td>1</td><td>OBLIGATORIO</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="b2">Bloque 2 · Clasificación</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Campo</th><th>Tipo / enumerado</th><th>Card.</th><th>Estatuto</th></tr></thead>
+<tbody>
+<tr><td>6</td><td><code>pattern_primary</code></td><td>9 patrones</td><td>1</td><td>OBLIGATORIO — sin él la entrada no es publicable</td></tr>
+<tr><td>7</td><td><code>patterns_secondary</code></td><td>9 patrones</td><td>0..N</td><td>OPCIONAL · <code>[]</code> válido</td></tr>
+<tr><td>8</td><td><code>roles</code></td><td>5 roles</td><td>1..5</td><td>OBLIGATORIO · sin repetidos</td></tr>
+<tr><td>9</td><td><code>modality</code></td><td>objeto <code>{execution, laterality}</code></td><td>1</td><td>OBLIGATORIO · ambos subcampos</td></tr>
+<tr><td>10</td><td><code>equipment</code></td><td>6 equipos</td><td>1..N</td><td>OBLIGATORIO · semántica conjuntiva (ver abajo)</td></tr>
+<tr><td>11</td><td><code>muscle_primary</code></td><td>8 grupos musculares</td><td>1</td><td>OBLIGATORIO</td></tr>
+<tr><td>12</td><td><code>muscles_secondary</code></td><td>8 grupos musculares</td><td>0..N</td><td>OPCIONAL</td></tr>
+<tr><td>13</td><td><code>exercise_type</code></td><td><code>compound</code> · <code>isolation</code> · <code>bodyweight</code></td><td>1</td><td>OBLIGATORIO</td></tr>
+<tr><td>14</td><td><code>level</code></td><td><code>beginner</code> · <code>intermediate</code> · <code>advanced</code></td><td>1</td><td>OBLIGATORIO</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Semántica de <code>equipment</code> — decisión fijada</div>
+  <p><code>equipment</code> es <strong>conjuntivo</strong>: enumera el equipo <em>imprescindible</em> para ejecutar el ejercicio. Un ejercicio es elegible solo si <strong>todos</strong> los elementos de su lista están disponibles en el contexto del usuario. Un movimiento que puede ejecutarse con implementos alternativos se modela como <strong>entradas distintas relacionadas como variantes</strong>, no como una lista disyuntiva.</p>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Valores enumerados de clasificación</div>
+  <p><strong>Patrones (9):</strong> <code>empuje-horizontal</code> · <code>empuje-vertical</code> · <code>traccion-horizontal</code> · <code>traccion-vertical</code> · <code>dominante-rodilla</code> · <code>dominante-cadera</code> · <code>core</code> · <code>locomocion</code> · <code>rotacion-potencia</code><br>
+  <strong>Roles (5):</strong> <code>activacion</code> · <code>principal</code> · <code>accesorio</code> · <code>core-final</code> · <code>metabolico</code><br>
+  <strong>Ejecución (2):</strong> <code>dynamic</code> · <code>isometric</code> — determina si la prescripción se expresa en repeticiones o en segundos<br>
+  <strong>Lateralidad (2):</strong> <code>bilateral</code> · <code>unilateral</code><br>
+  <strong>Equipo (6):</strong> <code>barra</code> · <code>mancuernas</code> · <code>maquina</code> · <code>peso-corporal</code> · <code>cables</code> · <code>kettlebell</code><br>
+  <strong>Grupos musculares (8):</strong> <code>pecho</code> · <code>espalda</code> · <code>hombros</code> · <code>brazos</code> · <code>piernas</code> · <code>core</code> · <code>gluteos</code> · <code>full-body</code></p>
+</div>
+
+<h2 id="b3">Bloque 3 · Elegibilidad</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Campo</th><th>Tipo / enumerado</th><th>Card.</th><th>Estatuto</th></tr></thead>
+<tbody>
+<tr><td>15</td><td><code>risk_zones</code></td><td>lista de <code>{zone, intensity}</code></td><td>0..6 · <code>null</code> permitido</td><td>OBLIGATORIO evaluarlo · <code>null</code> = no evaluado ⇒ no elegible</td></tr>
+<tr><td>16</td><td><code>load_type</code></td><td>objeto <code>{type, accepts_added_load}</code></td><td>1</td><td>OBLIGATORIO</td></tr>
+<tr><td>17</td><td><code>capabilities_required</code></td><td>lista de identificadores de capacidad</td><td>0..N</td><td>OPCIONAL · <code>[]</code> válido</td></tr>
+<tr><td>18</td><td><code>systems</code></td><td>5 slugs de Sistema</td><td>1..N</td><td>OBLIGATORIO</td></tr>
+<tr><td>19</td><td><code>space_requirement</code></td><td><code>minimal</code> · <code>moderate</code> · <code>large</code></td><td>1</td><td>OBLIGATORIO</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label"><code>risk_zones</code> — el campo de seguridad</div>
+  <p><strong>Zonas (6):</strong> <code>rodilla</code> · <code>cadera</code> · <code>lumbar</code> · <code>hombro</code> · <code>codo-muneca</code> · <code>tobillo</code>. <strong>Intensidad (3):</strong> <code>alto</code> · <code>medio</code> · <code>bajo</code>.</p>
+  <p>Los tres estados posibles del campo tienen significados distintos y no intercambiables:</p>
+  <ul>
+    <li><code>null</code> — <strong>no evaluado</strong>. La entrada <strong>no es elegible</strong> para ningún usuario con zonas declaradas.</li>
+    <li><code>[]</code> — evaluado: no carga ninguna zona en riesgo. Es una afirmación positiva.</li>
+    <li><code>[{zone, intensity}, …]</code> — evaluado, con las cargas declaradas.</li>
+  </ul>
+  <p>Ante duda sobre una intensidad, el valor correcto es <strong>no publicar el campo</strong> — nunca elegir el valor intermedio, que es el permisivo.</p>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label"><code>load_type</code> — cómo progresa el ejercicio</div>
+  <p><strong><code>type</code>:</strong> <code>external_load</code> (progresa añadiendo carga) · <code>bodyweight_pattern</code> (progresa avanzando en dificultad de patrón) · <code>isometric_hold</code> (progresa en tiempo).<br>
+  <strong><code>accepts_added_load</code>:</strong> booleano — si el ejercicio admite lastre además de su progresión natural.</p>
+  <p>Este campo resuelve la bifurcación que el motor de progresión necesita y que ningún atributo anterior expresaba: distinguir progresión por carga de progresión por dificultad, y saber si un ejercicio en tope de cadena todavía admite carga añadida.</p>
+</div>
+
+<h2 id="b4">Bloque 4 · Relaciones</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Campo</th><th>Tipo</th><th>Card.</th><th>Estatuto</th></tr></thead>
+<tbody>
+<tr><td>20</td><td><code>variant_of</code></td><td>referencia <code>EX-NNNN</code></td><td>0..1</td><td>OPCIONAL · <code>null</code> = es entrada raíz</td></tr>
+<tr><td>21</td><td><code>variants</code></td><td>lista de referencias</td><td>0..N</td><td>DERIVADO · inverso de <code>variant_of</code></td></tr>
+<tr><td>22</td><td><code>chain_previous</code></td><td>referencia <code>EX-NNNN</code></td><td>0..1</td><td>OPCIONAL</td></tr>
+<tr><td>23</td><td><code>chain_next</code></td><td>referencia <code>EX-NNNN</code></td><td>0..1</td><td>OPCIONAL</td></tr>
+<tr><td>24</td><td><code>substitutes</code></td><td>lista de referencias</td><td>0..N</td><td>OPCIONAL · RESERVADO en v1.0</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="b5">Bloque 5 · Contenido</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Campo</th><th>Tipo</th><th>Card.</th><th>Estatuto</th></tr></thead>
+<tbody>
+<tr><td>25</td><td><code>description</code></td><td>texto libre</td><td>1</td><td>OBLIGATORIO</td></tr>
+<tr><td>26</td><td><code>instructions</code></td><td>lista de texto libre</td><td>1..N</td><td>OBLIGATORIO</td></tr>
+<tr><td>27</td><td><code>common_errors</code></td><td>lista de texto libre</td><td>0..N</td><td>RECOMENDADO</td></tr>
+<tr><td>28</td><td><code>benefits</code></td><td>lista de texto libre</td><td>0..N</td><td>RECOMENDADO</td></tr>
+<tr><td>29</td><td><code>coach_notes</code></td><td>texto libre</td><td>0..1</td><td>OPCIONAL</td></tr>
+<tr><td>30</td><td><code>search_terms</code></td><td>lista de texto</td><td>0..N</td><td>OPCIONAL — alias y sinónimos de búsqueda</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Invariante del bloque de Contenido</div>
+  <p><strong>Ningún proceso automático interpreta estos seis campos.</strong> Son canal humano→humano. Si un consumidor necesitara un dato que solo aparece aquí, el dato falta en el bloque de Clasificación y debe añadirse allí mediante versión mayor — nunca extraerse de este texto.</p>
+  <p>La única excepción es <code>search_terms</code>, que alimenta búsqueda de usuario: su resultado nunca determina una decisión del sistema.</p>
+</div>
+
+<h2 id="b6">Bloque 6 · Media</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Campo</th><th>Tipo</th><th>Card.</th><th>Estatuto</th></tr></thead>
+<tbody>
+<tr><td>31</td><td><code>media_thumbnail</code></td><td>referencia de recurso</td><td>0..1</td><td>OPCIONAL · RESERVADO en v1.0</td></tr>
+<tr><td>32</td><td><code>media_image</code></td><td>referencia de recurso</td><td>0..1</td><td>OPCIONAL · RESERVADO en v1.0</td></tr>
+<tr><td>33</td><td><code>media_video</code></td><td>referencia de recurso</td><td>0..1</td><td>OPCIONAL · RESERVADO en v1.0</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Por qué existen ya si no se pueblan</div>
+  <p>Reservar los tres campos ahora evita que añadir media en el futuro requiera una versión mayor del dataset. Su forma está fijada; su contenido llegará. Es la aplicación directa de DS-04: <strong>anticipar la extensión previsible es lo que permite congelar el modelo</strong>.</p>
+</div>
+
+<h2 id="b7">Bloque 7 · Gobierno</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Campo</th><th>Tipo</th><th>Card.</th><th>Estatuto</th></tr></thead>
+<tbody>
+<tr><td>34</td><td><code>status</code></td><td>6 estados</td><td>1</td><td>OBLIGATORIO</td></tr>
+<tr><td>35</td><td><code>rev</code></td><td>entero ≥ 1</td><td>1</td><td>OBLIGATORIO</td></tr>
+<tr><td>36</td><td><code>provenance</code></td><td>objeto <code>{created_by, created_at, approved_by, approved_at}</code></td><td>1</td><td>OBLIGATORIO</td></tr>
+<tr><td>37</td><td><code>revisions</code></td><td>lista de <code>{rev, date, author, type, reason}</code></td><td>1..N</td><td>OBLIGATORIO · nunca se reescribe</td></tr>
+<tr><td>38</td><td><code>superseded_by</code></td><td>referencia <code>EX-NNNN</code></td><td>0..1</td><td>OBLIGATORIO si <code>status = deprecated</code> y existe sucesor</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Estados (6)</div>
+  <p><code>draft</code> · <code>review</code> · <code>approved</code> · <code>published</code> · <code>deprecated</code> · <code>archived</code>. Sus transiciones y quién puede ejecutarlas se definen en la <a href="../15-mantenimiento/index.html">sección 15</a>.</p>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label"><code>revisions</code> — el historial es append-only</div>
+  <p>Cada entrada del array registra: número de revisión, fecha, autor, <code>type</code> (<code>major</code> · <code>minor</code> · <code>fix</code>) y <code>reason</code> en texto. <strong>Una entrada de revisión nunca se edita ni se elimina.</strong> Corregir un registro erróneo significa añadir una revisión nueva que lo explique.</p>
+</div>
+
+<h2 id="mapa">Mapa completo del modelo</h2>
+<div class="diagram">
+<div class="diagram-label">38 campos · 7 bloques · 4 capas</div>
+<pre class="mermaid">
+graph TD
+  EX["Exercise"] --> B1["1 · IDENTIDAD · 5<br/>id · slug · 3 nombres"]
+  EX --> B2["2 · CLASIFICACIÓN · 9<br/>patrón · roles · modalidad<br/>equipo · músculos · tipo · nivel"]
+  EX --> B3["3 · ELEGIBILIDAD · 5<br/>zonas · load_type · capacidades<br/>sistemas · espacio"]
+  EX --> B4["4 · RELACIONES · 5<br/>variantes · cadena · sustitutos"]
+  EX --> B5["5 · CONTENIDO · 6<br/>descripción · instrucciones<br/>errores · beneficios · notas · búsqueda"]
+  EX --> B6["6 · MEDIA · 3<br/>reservado v1.0"]
+  EX --> B7["7 · GOBIERNO · 5<br/>status · rev · provenance<br/>revisions · superseded_by"]
+</pre>
+</div>
+
+<h2 id="validez">Condiciones de publicación</h2>
+<p class="matrix-note">Una entrada solo puede alcanzar <code>status: published</code> si cumple <strong>todas</strong>:</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Condición</th></tr></thead>
+<tbody>
+<tr><td>V1</td><td>Los 5 campos de Identidad presentes; <code>id</code> y <code>slug</code> únicos en el dataset</td></tr>
+<tr><td>V2</td><td>Los 9 campos de Clasificación presentes, con valores dentro de sus enumerados</td></tr>
+<tr><td>V3</td><td><code>pattern_primary</code> presente y único</td></tr>
+<tr><td>V4</td><td><code>roles</code> no vacío y sin repetidos</td></tr>
+<tr><td>V5</td><td><code>modality</code> con ambos subcampos</td></tr>
+<tr><td>V6</td><td><code>risk_zones</code> <strong>no es <code>null</code></strong> — la entrada ha sido evaluada</td></tr>
+<tr><td>V7</td><td><code>load_type</code> presente con ambos subcampos</td></tr>
+<tr><td>V8</td><td><code>systems</code> no vacío, con slugs existentes</td></tr>
+<tr><td>V9</td><td>Toda referencia de Relaciones apunta a un <code>id</code> existente</td></tr>
+<tr><td>V10</td><td>La cadena no forma ciclo y no cruza de <code>pattern_primary</code></td></tr>
+<tr><td>V11</td><td><code>description</code> e <code>instructions</code> presentes y no vacíos</td></tr>
+<tr><td>V12</td><td><code>provenance</code> con <code>approved_by</code> y <code>approved_at</code> informados</td></tr>
+<tr><td>V13</td><td><code>revisions</code> contiene al menos la revisión 1</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="extension">Extensión de vocabularios</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Regla de extensión aditiva</div>
+  <p>Añadir un valor a un enumerado <strong>no</strong> es una versión mayor si la operación es puramente aditiva: las entradas existentes siguen siendo válidas y ningún consumidor deja de funcionar. Requiere: versión menor del dataset, registro del motivo y confirmación de que ninguna proyección asume la lista cerrada anterior.</p>
+  <p><strong>Eliminar</strong> o <strong>renombrar</strong> un valor de un enumerado sí es versión mayor: invalida entradas existentes.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../03-identidad/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 03 · Identidad</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../05-organizacion/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">05 · Organización →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

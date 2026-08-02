@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03 · Nacimiento — Content Lifecycle</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="nacimiento" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 03 · El ciclo</p>
+<h1>Nacimiento</h1>
+<p class="lede">Preguntas 1 y 2: cómo nace oficialmente una entrada y cuándo puede empezar a existir. Es la parte del ciclo <strong>mejor documentada</strong> — y aun así le falta el disparador.</p>
+
+<h2 id="condiciones">Las cuatro condiciones de existencia</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Una entrada existe cuando cumple las cuatro simultáneamente</div>
+  <ol>
+    <li>Tiene un <strong>slug</strong> estable y único</li>
+    <li>Tiene <strong>identidad única</strong> — ninguna otra entrada la duplica</li>
+    <li>Ha completado el <strong>proceso de etiquetado</strong> — los siete pasos</li>
+    <li>Ha superado <strong>todas las validaciones</strong> — estructurales y de contenido</li>
+  </ol>
+  <p>Faltando cualquiera, la entrada existe como <em>candidato</em> y ningún consumidor puede resolverla en un slot.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">El único camino documentado hacia la existencia</div>
+<pre class="mermaid">
+flowchart LR
+  C["Candidato"] --> P1["Paso 1-6 · Etiquetado<br/>patrón → roles → modalidad →<br/>equipamiento → restricciones → cadena"]
+  P1 --> P7["Paso 7 · Validación<br/>estructural + contenido"]
+  P7 -->|falla| COLA["Cola editorial<br/>con detalle del defecto"]
+  P7 --> CH["Checklist de publicación<br/>23 ítems"]
+  CH -->|falla| COLA
+  CH --> E["ENTRADA OFICIAL<br/>elegible para slots"]
+  E --> V["Nueva versión de catálogo"]
+  COLA --> C
+</pre>
+</div>
+
+<h2 id="cuando">¿Cuándo puede comenzar a existir?</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Requisito previo</th><th>Estado</th><th>Fuente</th></tr></thead>
+<tbody>
+<tr><td>Que exista la ontología (vocabularios cerrados)</td><td><span class="tag tag--implementado">cumplido</span></td><td>9 patrones · 5 roles · 6 zonas · 6 equipos publicados</td></tr>
+<tr><td>Que exista el contrato de entrada</td><td><span class="tag tag--implementado">cumplido</span></td><td>Modelo de 21 atributos</td></tr>
+<tr><td>Que exista el proceso de etiquetado</td><td><span class="tag tag--implementado">cumplido</span></td><td>7 pasos, checklist de 30 ítems</td></tr>
+<tr><td>Que exista criterio de entrenador disponible</td><td><span class="tag tag--futuro">pendiente</span></td><td>Roadmap, bloqueante #2 — dueño "Contenido"</td></tr>
+<tr><td>Que exista un proceso de solicitud</td><td><span class="tag tag--futuro">no existe</span></td><td>Barrido: 0 archivos</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">La respuesta</div>
+  <p>Una entrada <strong>puede</strong> empezar a existir en cuanto haya criterio de entrenador disponible para etiquetar sus siete atributos pendientes. Todo lo demás —ontología, contrato, proceso, validaciones, checklist— ya está publicado. El nacimiento no está bloqueado por documentación: está bloqueado por contenido.</p>
+</div>
+
+<h2 id="disparador">Lo que falta: el disparador</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Deuda CL-D01 — no existe proceso de solicitud</div>
+  <p>El proceso documentado describe <strong>cómo</strong> etiquetar una entrada, no <strong>cómo se decide</strong> que una entrada debe existir. El barrido devuelve cero para <code>solicitud</code> aplicada a catálogo y cero para <code>flujo editorial</code>. No hay:</p>
+  <ul>
+    <li>Quién puede proponer una entrada nueva</li>
+    <li>Qué información acompaña a la propuesta</li>
+    <li>Cómo se prioriza frente a otras propuestas</li>
+    <li>Dónde queda registrada la propuesta pendiente</li>
+  </ul>
+  <p>Consecuencia: el ciclo de vida <strong>empieza en su segundo paso</strong>. Lo único documentado que se le parece es la cola editorial, y es <em>reactiva</em>: recibe defectos de entradas que ya existen, no propuestas de entradas que deberían existir.</p>
+</div>
+
+<h2 id="identidad">Lo que nace con la entrada y no cambia</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Elemento</th><th>Mutabilidad</th><th>Fuente</th></tr></thead>
+<tbody>
+<tr><td><code>slug</code></td><td><strong>Inmutable de por vida</strong></td><td>P15 — "slug estable desde el nacimiento"</td></tr>
+<tr><td><code>nombre</code></td><td>Mutable — es presentación, no identidad</td><td>Modelo de atributos</td></tr>
+<tr><td>Clasificación completa</td><td>Mutable por decisión editorial + versión nueva</td><td>R-2 · BPS-023</td></tr>
+<tr><td>Ficha educativa</td><td>Mutable</td><td>Modelo de atributos</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">El slug es el único punto fijo del ciclo</div>
+  <p>Nace con la entrada y sobrevive a toda modificación, reclasificación y eventual retirada. Es lo que permite que un Workout generado hace meses siga pudiendo reconstruir la ficha del ejercicio que prescribió — y la razón por la que renombrarlo equivale a borrar una entrada y crear otra.</p>
+</div>
+
+<h2 id="reservados">Nacimiento diferido: identidad antes que contenido</h2>
+<p>El ecosistema admite fijar identidad antes de tener contenido: los patrones <code>locomocion</code> y <code>rotacion-potencia</code> existen como <strong>slugs reservados</strong> sin ejercicios asociados, "para fijar identidad antes de tener contenido", y se activan "agregando ejercicios etiquetados — cero cambio estructural".</p>
+<div class="callout callout--nota">
+  <div class="callout__label">Un precedente aplicable, no aplicado</div>
+  <p>El mecanismo está documentado para <strong>vocabularios</strong>, no para entradas de catálogo. Que una entrada pueda reservar su slug antes de estar etiquetada sería una extensión razonable — y sería una regla nueva. Se registra como precedente disponible, sin adoptarlo.</p>
+</div>
+
+<h2 id="resumen">Resumen del nacimiento</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Aspecto</th><th>Proceso</th><th>Autoridad</th><th>Registro</th></tr></thead>
+<tbody>
+<tr><td>Solicitar una entrada</td><td>❌ no existe</td><td>❌</td><td>❌</td></tr>
+<tr><td>Crear (etiquetar) una entrada</td><td>✅ 7 pasos + checklist</td><td>✅ Contenido · P14</td><td>❌ sin autoría</td></tr>
+<tr><td>Validar la entrada</td><td>✅ dos capas</td><td>✅ Ingeniería + Contenido</td><td>⚠️ cola editorial</td></tr>
+<tr><td>Que empiece a existir</td><td>✅ 4 condiciones</td><td>—</td><td>⚠️ versión de catálogo</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../02-barrido/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 02 · Barrido Documental</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../04-validez/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">04 · Validez y Vigencia →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

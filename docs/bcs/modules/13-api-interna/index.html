@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>13 · API Interna — BCS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="api-interna" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 13 · Sistema y gobernanza</p>
+<h1>API Interna</h1>
+<p class="lede">Los contratos de los 9 casos de uso (02) en pseudocódigo conceptual — sin código real, sin tipos de ningún lenguaje — más los contratos de repositorio y el catálogo de eventos de dominio prometido en 01.</p>
+
+<h2 id="convencion">Convención de los contratos</h2>
+<p>Cada caso de uso se especifica como: entrada, precondiciones, salida, errores posibles, postcondiciones y eventos que emite. Esto es lo que un equipo de implementación traduce directamente a funciones — este documento no elige lenguaje ni framework.</p>
+
+<h2 id="casos-uso">Contratos de casos de uso</h2>
+
+<div class="codeblock-label">UC-05 · RegistrarMedición</div>
+<pre class="codeblock">
+CASO DE USO: RegistrarMedición
+ENTRADA: clienteId, fecha, valores (subconjunto del catálogo de 03), fotografía (opcional)
+PRECONDICIONES:
+  - el Cliente existe y no está en estado Eliminado
+  - fecha no es futura
+  - todos los valores presentes pasan su validación individual (03)
+SALIDA: Medición nueva, estado = Vigente
+ERRORES POSIBLES:
+  - CLIENTE_NO_ENCONTRADO
+  - CLIENTE_ELIMINADO
+  - FECHA_FUTURA
+  - VALOR_FUERA_DE_RANGO_FISICO (03, "valor imposible")
+POSTCONDICIONES:
+  - la Medición queda persistida y visible en el historial (05)
+EVENTOS EMITIDOS: medicion_registrada
+</pre>
+
+<div class="codeblock-label">UC-06 · CorregirMedición</div>
+<pre class="codeblock">
+CASO DE USO: CorregirMedición
+ENTRADA: medicionId (la que se corrige), nuevos valores, fecha (opcional, si también se corrige)
+PRECONDICIONES:
+  - la Medición referenciada existe y está Vigente
+SALIDA: Medición original → Anulada; Medición nueva → Vigente
+ERRORES POSIBLES:
+  - MEDICION_NO_ENCONTRADA
+  - MEDICION_YA_ANULADA (no se puede corregir una corrección directamente sin pasar por la vigente actual)
+POSTCONDICIONES:
+  - ambas Mediciones (anulada y nueva) quedan en el historial completo (05, IN-D1)
+EVENTOS EMITIDOS: medicion_corregida
+</pre>
+
+<div class="codeblock-label">UC-07 · CrearEnlacePúblico</div>
+<pre class="codeblock">
+CASO DE USO: CrearEnlacePúblico
+ENTRADA: clienteId
+PRECONDICIONES:
+  - el Cliente existe
+SALIDA: EnlacePúblico nuevo, estado = Activo, token aleatorio (10)
+ERRORES POSIBLES:
+  - CLIENTE_NO_ENCONTRADO
+POSTCONDICIONES:
+  - si existía un EnlacePúblico Activo previo para el mismo Cliente, este pasa a Revocado (09-IN-1)
+EVENTOS EMITIDOS: enlace_creado, enlace_revocado (si aplica el reemplazo automático)
+</pre>
+
+<div class="codeblock-label">UC-08 · RevocarEnlacePúblico</div>
+<pre class="codeblock">
+CASO DE USO: RevocarEnlacePúblico
+ENTRADA: enlaceId
+PRECONDICIONES:
+  - el EnlacePúblico existe y está Activo
+SALIDA: EnlacePúblico → Revocado
+ERRORES POSIBLES:
+  - ENLACE_NO_ENCONTRADO
+  - ENLACE_YA_REVOCADO
+POSTCONDICIONES:
+  - el token deja de resolver, permanentemente (IN-D4, 02)
+EVENTOS EMITIDOS: enlace_revocado
+</pre>
+
+<div class="codeblock-label">UC-09 · VisualizarReportePúblico</div>
+<pre class="codeblock">
+CASO DE USO: VisualizarReportePúblico
+ENTRADA: token
+PRECONDICIONES: ninguna — es el único caso de uso invocable sin autenticación (08)
+SALIDA: Reporte computado (04) del Cliente dueño del token
+ERRORES POSIBLES:
+  - TOKEN_INVALIDO (no existe)
+  - TOKEN_REVOCADO (existió, ya no es válido)
+POSTCONDICIONES: ninguna mutación — es de solo lectura
+EVENTOS EMITIDOS: ninguno de negocio; el acceso se audita a nivel de infraestructura (08)
+</pre>
+
+<p>Los cuatro casos de uso restantes (CrearCliente, EditarCliente, ArchivarCliente, EliminarClientePermanentemente) siguen el mismo patrón de contrato — se listan de forma resumida en la matriz siguiente en vez de repetir el bloque completo para cada uno.</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso de uso</th><th>Errores posibles clave</th><th>Evento emitido</th></tr></thead>
+<tbody>
+<tr><td>UC-01 CrearCliente</td><td>NOMBRE_VACIO</td><td><code>cliente_creado</code></td></tr>
+<tr><td>UC-02 EditarCliente</td><td>CLIENTE_NO_ENCONTRADO</td><td><code>cliente_editado</code></td></tr>
+<tr><td>UC-03 ArchivarCliente</td><td>CLIENTE_NO_ENCONTRADO, CLIENTE_YA_ARCHIVADO</td><td><code>cliente_archivado</code></td></tr>
+<tr><td>UC-04 EliminarClientePermanentemente</td><td>CLIENTE_NO_ENCONTRADO</td><td><code>cliente_eliminado</code> (dispara revocación en cascada de enlaces, 10)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="repositorios">Contratos de repositorio</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Repositorio</th><th>Operaciones conceptuales</th></tr></thead>
+<tbody>
+<tr><td>RepositorioCliente</td><td>obtenerPorId, listarPorEntrenador(paginado), guardar, cambiarEstado</td></tr>
+<tr><td>RepositorioMedicion</td><td>obtenerPorId, listarVigentesPorCliente(ordenado por fecha), guardar, anular</td></tr>
+<tr><td>RepositorioEnlacePublico</td><td>obtenerPorToken, obtenerActivoPorCliente, guardar, revocar</td></tr>
+</tbody>
+</table>
+</div>
+<p>Cada repositorio opera sobre un único tipo de agregado (02) — ninguno hace join de conveniencia entre agregados; componer datos de más de un agregado (ej. el Reporte, 04) es responsabilidad de la capa de aplicación, no del repositorio.</p>
+
+<h2 id="eventos-dominio">Catálogo de eventos de dominio</h2>
+<p>Cumpliendo lo prometido en el módulo 01: todo evento que un caso de uso emite, en un solo lugar.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Evento</th><th>Origen</th></tr></thead>
+<tbody>
+<tr><td><code>cliente_creado</code></td><td>UC-01</td></tr>
+<tr><td><code>cliente_editado</code></td><td>UC-02</td></tr>
+<tr><td><code>cliente_archivado</code></td><td>UC-03</td></tr>
+<tr><td><code>cliente_eliminado</code></td><td>UC-04</td></tr>
+<tr><td><code>medicion_registrada</code></td><td>UC-05</td></tr>
+<tr><td><code>medicion_corregida</code></td><td>UC-06</td></tr>
+<tr><td><code>enlace_creado</code></td><td>UC-07</td></tr>
+<tr><td><code>enlace_revocado</code></td><td>UC-08 (y UC-07 cuando reemplaza uno existente)</td></tr>
+<tr><td><code>token_invalido_intentado</code> / <code>token_revocado_intentado</code></td><td>UC-09 (rama de error) — eventos de seguridad, ver 08</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../12-escalabilidad/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 12 · Escalabilidad</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../14-roadmap/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">14 · Roadmap →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

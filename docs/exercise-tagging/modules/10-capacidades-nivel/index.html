@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10 · Capacidades y Nivel — Exercise Tagging Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="capacidades-nivel" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 10 · Reglas por atributo</p>
+<h1>Reglas de Etiquetado — Capacidades, Nivel y Compatibilidades</h1>
+<p class="lede">Los tres ejes restantes de la ficha: el gate demostrable, la dificultad del ejercicio y el vínculo con Sistemas. Los tres ya existen en el modelo; ninguno tiene criterio de asignación publicado.</p>
+
+<h2 id="capacidades">Capacidades requeridas</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Definición publicada</div>
+  <p>"Un <strong>prerequisito demostrable</strong> para que un ejercicio sea elegible, independiente del Nivel nominal — el mecanismo formal de los 'gates' de calistenia (ej. <code>muscle-up</code> exige capacidad <code>dominada-estricta-x8</code>)."</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Pregunta</th><th>Respuesta documental</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>¿Qué estructura tiene una capacidad?</td><td><code>{slug, descripcion, comoSeDemuestra}</code></td><td><span class="tag tag--implementado">documentada</span></td></tr>
+<tr><td>¿El vocabulario es cerrado?</td><td><strong>No</strong> — a diferencia de patrones, roles, zonas y equipo, cada capacidad tiene su propio slug</td><td><span class="tag tag--implementado">documentada</span></td></tr>
+<tr><td>¿Es obligatorio?</td><td>No — atributo opcional</td><td><span class="tag tag--implementado">documentada</span></td></tr>
+<tr><td>¿Qué Sistemas lo usan?</td><td>"En v1 el vocabulario existe pero <strong>solo el Sistema de Calistenia lo usa</strong> — gym progresa por carga, no por gates"</td><td><span class="tag tag--implementado">documentada</span></td></tr>
+<tr><td>¿Cuándo un ejercicio debe declarar una capacidad?</td><td><strong>Ninguna regla</strong></td><td><span class="tag tag--futuro">deuda</span></td></tr>
+<tr><td>¿Quién crea una capacidad nueva?</td><td><strong>No declarado</strong> — al ser vocabulario abierto, no hay proceso de alta</td><td><span class="tag tag--futuro">deuda</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Vocabulario abierto sin proceso de alta</div>
+  <p>Es el único eje del etiquetado cuyo vocabulario <strong>no</strong> está cerrado. Eso significa que etiquetar una capacidad puede crear una capacidad nueva, y ninguna fuente define quién lo autoriza ni cómo se evita que dos etiquetadores creen dos slugs distintos para el mismo prerequisito. Deuda <a href="../17-auditoria/index.html">TG-D09</a>.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Los dos lados de la capacidad — solo uno se etiqueta aquí</div>
+<pre class="mermaid">
+graph LR
+  subgraph CAT["CATÁLOGO · se etiqueta"]
+    EJ["Ejercicio"] -->|declara| CR["capacidadesRequeridas[]"]
+  end
+  subgraph USR["USUARIO · no se etiqueta"]
+    EV["Eventos (P3)"] -->|acumula| CD["capacidades demostradas"]
+  end
+  CR --> RES["Filtro de elegibilidad<br/>paso 0 de la resolución"]
+  CD --> RES
+</pre>
+</div>
+
+<h2 id="nivel">Nivel del ejercicio</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Pregunta</th><th>Respuesta documental</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>¿Qué valores admite?</td><td><code>principiante</code> · <code>intermedio</code> · <code>avanzado</code></td><td><span class="tag tag--implementado">documentada</span></td></tr>
+<tr><td>¿Es obligatorio?</td><td>Sí</td><td><span class="tag tag--implementado">documentada</span></td></tr>
+<tr><td>¿Ya está etiquetado?</td><td>Sí — la tabla de atributos lo marca "Existe" en los 19</td><td><span class="tag tag--implementado">documentada</span></td></tr>
+<tr><td>¿Cómo se decide?</td><td><strong>Ninguna regla</strong></td><td><span class="tag tag--futuro">deuda</span></td></tr>
+<tr><td>¿Cómo se relaciona con el Nivel del usuario?</td><td><strong>No existe mapeo</strong> pese a que el filtro de elegibilidad lo usa</td><td><span class="tag tag--futuro">deuda crítica</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Tres significados de "nivel", uno de ellos prohibido</div>
+  <p>(1) <code>Exercise.nivel</code> — dificultad del ejercicio, que es lo que se etiqueta aquí. (2) <strong>Nivel</strong> (capa 3 del Training Framework) — la posición de progresión del usuario, con nombres propios por Sistema, que vive en <code>profiles.nivel_actual</code>. (3) <code>nivel_experiencia</code> — autopercibido, que P12 prohíbe usar algorítmicamente.</p>
+  <p>El paso 0 de la resolución filtra por "nivelCompatible: nivel" confrontando (1) contra (2), <strong>sin que ninguna fuente declare la traducción</strong>. Es el bloqueante más severo del proceso completo: el etiquetado de nivel es correcto y ya existe, pero no se sabe contra qué se compara. Deuda <a href="../17-auditoria/index.html">TG-D10</a>.</p>
+</div>
+
+<h2 id="compatibilidades">Compatibilidad con Sistemas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Pregunta</th><th>Respuesta documental</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>¿Qué atributo la expresa?</td><td><code>sistemasVinculados[]</code> — slugs de Sistema</td><td><span class="tag tag--implementado">documentada</span></td></tr>
+<tr><td>¿Es obligatorio?</td><td>Sí</td><td><span class="tag tag--implementado">documentada</span></td></tr>
+<tr><td>¿Ya está etiquetado?</td><td>Sí, en los 19</td><td><span class="tag tag--implementado">documentada</span></td></tr>
+<tr><td>¿Participa en el filtro de elegibilidad?</td><td><strong>No</strong> — el paso 0 no lo menciona entre sus filtros</td><td><span class="tag tag--implementado">documentada</span></td></tr>
+<tr><td>¿Cómo se decide a qué Sistemas vincular?</td><td><strong>Ninguna regla</strong></td><td><span class="tag tag--futuro">deuda</span></td></tr>
+<tr><td>¿Existe compatibilidad con fases, bloques u objetivos?</td><td><strong>No existe</strong> ningún vínculo ejercicio↔fase/bloque/objetivo</td><td><span class="tag tag--futuro">deuda</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Un atributo obligatorio que ningún filtro consume</div>
+  <p><code>sistemasVinculados[]</code> es obligatorio y está completo, pero el algoritmo de resolución de slots no lo usa: filtra por patrón, rol, nivel, equipo, capacidades y zonas — nunca por Sistema. Su función documentada más clara es editorial/informativa. Se registra la discrepancia sin resolverla: nada autoriza a añadirlo al filtro ni a retirarlo de la ficha.</p>
+</div>
+<p>Sobre compatibilidad con <strong>objetivos</strong>, el Progression Engine cierra la cuestión por otra vía: el objetivo "ya fue resuelto aguas arriba en la construcción del programa; el motor progresa la prescripción que recibe, no re-decide el objetivo". Cuando un ejercicio llena un slot, no queda ninguna decisión de objetivo pendiente.</p>
+
+<h2 id="validaciones">Validaciones aplicables</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Validación</th><th>Eje</th><th>Capa</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>La estructura de cada capacidad es <code>{slug, descripcion, comoSeDemuestra}</code></td><td>Capacidades</td><td>Estructural</td><td><span class="tag tag--implementado">verificable</span></td></tr>
+<tr><td>Las capacidades referenciadas existen</td><td>Capacidades</td><td>Estructural</td><td><span class="tag tag--especificado">derivada</span></td></tr>
+<tr><td>No hay dos slugs para el mismo prerequisito</td><td>Capacidades</td><td>Contenido</td><td><span class="tag tag--futuro">sin proceso</span></td></tr>
+<tr><td>El nivel pertenece a los 3 valores</td><td>Nivel</td><td>Estructural</td><td><span class="tag tag--implementado">verificable</span></td></tr>
+<tr><td>Los Sistemas referenciados existen</td><td>Compatibilidad</td><td>Estructural</td><td><span class="tag tag--implementado">verificable</span></td></tr>
+<tr><td>El nivel refleja la dificultad real</td><td>Nivel</td><td><strong>Contenido</strong></td><td>Solo revisión humana</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../09-cadena/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 09 · Cadena</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../11-hibridos-conflictos/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">11 · Híbridos y Conflictos →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>09 · Integración — Implementation Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="integracion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 09 · Construcción</p>
+<h1>Integración</h1>
+<p class="lede">Dónde convergen las dos pistas — el momento en que Motor BPS y Progression Engine, construidos por separado, se conectan por primera vez.</p>
+
+<h2 id="diagrama-integracion">Diagrama de integración</h2>
+<div class="diagram">
+<div class="diagram-label">El ciclo semanal completo, primera ejecución real</div>
+<pre class="mermaid">
+sequenceDiagram
+  participant MB as Motor BPS
+  participant REC as Recovery Engine
+  participant PE as Progression Engine
+  participant DB as progression_events
+  MB->>REC: consulta veredicto (contrato IMP-ADR-01)
+  REC-->>MB: Veredicto
+  MB->>PE: invoca(ventana, prescripción, veredicto, fecha)
+  PE->>PE: pipeline de 9 pasos
+  PE-->>MB: Decisión + evento
+  MB->>DB: persiste evento (tipo, origen, razones, contexto)
+  MB->>MB: aplica transición si corresponde
+</pre>
+</div>
+
+<h2 id="orden-integracion">Orden exacto de integración</h2>
+<ol>
+  <li><strong>Integración de contrato</strong> — verificar que la forma real que Motor BPS envía a Progression Engine coincide byte a byte con la forma que Progression Engine espera (IMP-ADR-01 aplicado en código, no solo en documento).</li>
+  <li><strong>Integración de persistencia</strong> — verificar que un evento producido por Progression Engine se inserta correctamente en <code>progression_events</code> sin violar el CHECK de <code>tipo</code> (los 25 valores de la migración M2).</li>
+  <li><strong>Integración de invocación</strong> — Motor BPS invoca a Progression Engine con datos reales de un usuario de prueba y recibe una Decisión válida.</li>
+  <li><strong>Integración de aplicación</strong> — la Decisión de Progression Engine se traduce correctamente en una transición de Motor BPS (incluida la transición de avance de Nivel que 08 exige resolver primero).</li>
+  <li><strong>Integración de Recovery</strong> — el veredicto de descarga (cuando <code>procede: false</code>) efectivamente detiene la evaluación de Progression Engine ese ciclo, sin excepción (Progression Engine Handbook, PE-026, prioridad 1).</li>
+</ol>
+
+<h2 id="checklist-integracion">Checklist antes de considerar la integración completa</h2>
+<ul class="checklist">
+  <li>Un ciclo con veredicto <code>procede: true</code> produce una Decisión de progresión normal, persistida correctamente.</li>
+  <li>Un ciclo con veredicto <code>procede: false</code> produce "sostiene", sin evaluar ninguna de las 39 reglas (PE-026).</li>
+  <li>Un ciclo con ventana insuficiente (&lt;4 apariciones) produce <code>VENTANA_INSUFICIENTE</code>, nunca una extrapolación.</li>
+  <li>Una Decisión de avance de Nivel se refleja correctamente como transición de Motor BPS (requiere la transición añadida en 08).</li>
+  <li>El evento persistido en <code>progression_events</code> tiene <code>razones</code> no vacío en el 100% de los casos (nunca nulo).</li>
+</ul>
+
+<h2 id="integracion-bcs">Integración del BCS con el resto del sistema</h2>
+<p>No aplica en el sentido de este módulo — el BCS Handbook (00) confirma explícitamente que el BCS no se integra con Motor BPS ni Progression Engine en v1. Su único punto de integración es la identidad de autenticación del entrenador (Core Product, ya implementada) — verificar únicamente que un entrenador autenticado en el Core Product puede acceder al panel del BCS sin una segunda sesión.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../08-motores/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 08 · Motores</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../10-testing/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">10 · Testing →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

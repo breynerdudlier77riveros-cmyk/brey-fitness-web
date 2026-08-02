@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>07 · Catálogo de Endpoints — BREY API Contract Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="catalogo-endpoints" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 07 · Contrato</p>
+<h1>Catálogo de Endpoints</h1>
+<p class="lede">45 endpoints, en 13 subsistemas — el techo real de lo que los nueve handbooks existentes ya especifican como operación invocable. No 100+: inflar el número inventando operaciones que ningún handbook pide violaría la restricción explícita de este encargo. Ver la autoauditoría (16) para la justificación completa de esta cifra.</p>
+
+<div class="meta-row">
+  <span class="chip">45 endpoints</span>
+  <span class="chip">13 subsistemas</span>
+  <span class="chip">Cada fila cita su handbook de origen</span>
+</div>
+
+<h2 id="como-leer-catalogo">Cómo leer cada tabla</h2>
+<p>Cada tabla de subsistema es, simultáneamente, la matriz Endpoint→Actor, Endpoint→DTO y Endpoint→Evento de ese subsistema — consolidadas en una sola fila por endpoint en vez de repetidas cuatro veces con las mismas 45 rutas. La columna <strong>Ownership</strong> y los efectos secundarios que se apartan de CRUD simple se documentan en un callout por subsistema, no por fila, cuando la regla es uniforme para todo el grupo. La matriz Error→Status vive en 09; la matriz Endpoint→Rate Limit vive en 12 (ambas son transversales a todo el catálogo, no por subsistema).</p>
+
+<h2 id="sistema">Sistema (catálogo)</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Ownership</div>
+  <p>Lectura pública — incluso el actor Anonymous. <code>systems</code> es catálogo comercial, no dato personal (Security Handbook, Engineering 08).</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Método</th><th>Ruta</th><th>Actor</th><th>Entrada</th><th>Salida</th><th>Eventos</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td><span class="method method--get">GET</span></td><td><code>/sistemas</code></td><td>Anonymous</td><td>—</td><td><code>Sistema[]</code></td><td>—</td><td><span class="tag tag--implementado">implementado</span></td></tr>
+<tr><td><span class="method method--get">GET</span></td><td><code>/sistemas/{slug}</code></td><td>Anonymous</td><td>—</td><td><code>Sistema</code></td><td>—</td><td><span class="tag tag--implementado">implementado</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="perfil">Perfil</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Ownership</div>
+  <p><code>auth.uid() = profiles.id</code> — un Usuario nunca lee ni edita el Perfil de otro. <code>getOrCreateProfile</code> no aparece como endpoint: es un trigger de base de datos (<code>on_auth_user_created</code>) sin invocación externa.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Método</th><th>Ruta</th><th>Actor</th><th>Entrada</th><th>Salida</th><th>Eventos</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td><span class="method method--get">GET</span></td><td><code>/perfil</code></td><td>Usuario</td><td>—</td><td><code>Profile</code></td><td>—</td><td><span class="tag tag--implementado">implementado</span></td></tr>
+<tr><td><span class="method method--patch">PATCH</span></td><td><code>/perfil</code></td><td>Usuario</td><td><code>ProfileUpdateInput</code></td><td><code>Profile</code></td><td>—</td><td><span class="tag tag--implementado">implementado</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="diagnostico">Diagnóstico</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Ownership · nota de estado</div>
+  <p><code>auth.uid() = diagnoses.user_id</code>. Un Usuario puede tener múltiples Diagnósticos en el tiempo — retomar siempre crea uno nuevo, nunca sobrescribe (Domain Model Handbook, DM-ADR-07). La tabla <code>diagnoses</code> existe pero, según el Engineering Handbook (05), sin escritor conectado todavía — de ahí el estado <span class="tag tag--especificado">especificado</span> en la creación.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Método</th><th>Ruta</th><th>Actor</th><th>Entrada</th><th>Salida</th><th>Eventos</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td><span class="method method--post">POST</span></td><td><code>/diagnosticos</code></td><td>Usuario</td><td><code>DiagnosticoInput</code> (respuestas)</td><td><code>Diagnostico</code> + <code>ResultadoDiagnostico</code></td><td>—</td><td><span class="tag tag--especificado">especificado</span></td></tr>
+<tr><td><span class="method method--get">GET</span></td><td><code>/diagnosticos</code></td><td>Usuario</td><td>—</td><td><code>Diagnostico[]</code></td><td>—</td><td><span class="tag tag--especificado">especificado</span></td></tr>
+<tr><td><span class="method method--get">GET</span></td><td><code>/diagnosticos/{id}</code></td><td>Usuario</td><td>—</td><td><code>Diagnostico</code></td><td>—</td><td><span class="tag tag--especificado">especificado</span></td></tr>
+<tr><td><span class="method method--get">GET</span></td><td><code>/diagnosticos/vigente</code></td><td>Usuario</td><td>—</td><td><code>Diagnostico | null</code></td><td>—</td><td><span class="tag tag--especificado">especificado</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="motor-bps">Motor BPS</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Ownership · actor interno</div>
+  <p><code>auth.uid() = user_id</code> para las lecturas y las dos acciones de pausa/reanudación. <code>activacion</code> y <code>ciclo-semanal</code> nunca son invocados por el frontend — el primero lo dispara el flujo de Checkout (<code>compra_confirmada</code>), el segundo un Scheduler de servidor (Motor BPS Handbook, 12). Ningún endpoint de este grupo es idempotente por defecto salvo <code>activacion</code> (clave <code>transaccionId</code>, 11).</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Método</th><th>Ruta</th><th>Actor</th><th>Entrada</th><th>Salida</th><th>Eventos producidos</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td><span class="method method--post">POST</span></td><td><code>/motor-bps/activacion</code></td><td>Sistema (interno, vía Checkout)</td><td><code>{sistema_slug, transaccion_id}</code></td><td><code>EstadoUsuario</code></td><td><code>activacion</code></td><td><span class="tag tag--especificado">especificado</span></td></tr>
+<tr><td><span class="method method--post">POST</span></td><td><code>/motor-bps/ciclo-semanal</code></td><td>Sistema (interno, Scheduler)</td><td><code>{fecha_ciclo, version_catalogo}</code></td><td><code>Workout[] | Transicion</code></td><td><code>semana_generada</code>, <code>descarga_programada</code>/<code>descarga_reactiva</code>, <code>avanza</code>/<code>sostiene</code>/<code>retrocede</code>, <code>transicion_estado</code>, <code>gate_fallado</code></td><td><span class="tag tag--especificado">especificado</span></td></tr>
+<tr><td><span class="method method--get">GET</span></td><td><code>/motor-bps/estado</code></td><td>Usuario</td><td>—</td><td><code>EstadoUsuario</code></td><td>consume: su propio log de <code>progression_events</code> (replay, IN-5)</td><td><span class="tag tag--especificado">especificado</span></td></tr>
+<tr><td><span class="method method--get">GET</span></td><td><code>/motor-bps/puede-generar</code></td><td>Usuario</td><td>—</td><td><code>{puede: true} | Error</code></td><td>—</td><td><span class="tag tag--especificado">especificado</span></td></tr>
+<tr><td><span class="method method--get">GET</span></td><td><code>/motor-bps/eventos</code></td><td>Usuario</td><td>query: <code>tipo</code>, <code>origen</code>, <code>fecha_desde</code>/<code>fecha_hasta</code></td><td><code>EventoProgresion[]</code></td><td>—</td><td><span class="tag tag--especificado">especificado</span></td></tr>
+<tr><td><span class="method method--get">GET</span></td><td><code>/motor-bps/eventos/{id}</code></td><td>Usuario</td><td>—</td><td><code>EventoProgresion</code></td><td>—</td><td><span class="tag tag--especificado">especificado</span></td></tr>
+<tr><td><span class="method method--post">POST</span></td><td><code>/motor-bps/pausa</code></td><td>Usuario</td><td><code>{motivo: lesion|voluntaria}</code></td><td><code>EstadoUsuario</code></td><td><code>pausa</code></td><td><span class="tag tag--especificado">especificado</span></td></tr>
+<tr><td><span class="method method--post">POST</span></td><td><code>/motor-bps/reanudacion</code></td><td>Usuario</td><td>—</td><td><code>EstadoUsuario</code></td><td><code>reanudacion</code></td><td><span class="tag tag--especificado">especificado</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="progression-engine">Progression Engine</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Prohibido — nunca invocable directamente por el frontend</div>
+  <p><code>POST /progression-engine/evaluar</code> es un contrato interno, invocado únicamente por <code>ciclo-semanal</code> de Motor BPS. Un frontend que lo llamara directamente sería una violación de capas (Architecture Handbook, 11, "Casos límite e inválidos"). Se documenta aquí porque es un contrato real e invocable — no porque el frontend deba conocerlo.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Método</th><th>Ruta</th><th>Actor</th><th>Entrada</th><th>Salida</th><th>Eventos producidos</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td><span class="method method--post">POST</span></td><td><code>/progression-engine/evaluar</code></td><td>Motor BPS (interno)</td><td>Ventana historial, Prescripción vigente, Veredicto Recovery, cadenas, fecha ciclo (08)</td><td><code>DecisionProgresion</code></td><td><code>avanza</code>/<code>sostiene</code>/<code>retrocede</code>, <code>prescripcion_actualizada</code>, <code>escalon_avanzado</code>/<code>escalon_retrocedido</code>, <code>estancamiento_confirmado</code>/<code>estancamiento_resuelto</code>, <code>deload_aplicado</code>/<code>deload_cancelado</code>, <code>conflicto_resuelto</code>, <code>error_invocacion</code></td><td><span class="tag tag--especificado">especificado</span></td></tr>
+<tr><td><span class="method method--get">GET</span></td><td><code>/progression-engine/prescripciones</code></td><td>Usuario</td><td>—</td><td><code>Prescripcion[]</code> (vigente por Slot)</td><td>—</td><td><span class="tag tag--especificado">especificado</span></td></tr>
+<tr><td><span class="method method--get">GET</span></td><td><code>/progression-engine/prescripciones/{slotId}</code></td><td>Usuario</td><td>—</td><td><code>Prescripcion</code></td><td>—</td><td><span class="tag tag--especificado">especificado</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="recovery-engine">Recovery Engine</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Contrato mínimo — IMP-ADR-02</div>
+  <p>No existe un Recovery Engine Handbook propio (AR-006). Este único endpoint formaliza el contrato mínimo ya aceptado por el Implementation Handbook para no bloquear a sus dos consumidores — la lógica real de qué constituye fatiga queda pendiente de un handbook futuro. No hay lectura directa de "último veredicto": al ser derivado (Domain Model Handbook, 13), solo es reconstruible vía <code>GET /motor-bps/eventos?tipo=descarga_programada,descarga_reactiva</code>.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Método</th><th>Ruta</th><th>Actor</th><th>Entrada</th><th>Salida</th><th>Eventos producidos</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td><span class="method method--post">POST</span></td><td><code>/recovery-engine/evaluar</code></td><td>Motor BPS (interno)</td><td><code>{mesociclo, ventana}</code></td><td><code>VeredictoRecovery</code> (forma canónica, API-ADR-02)</td><td><code>descarga_reactiva</code>, <code>dolor_reportado</code>, <code>restriccion_zona</code></td><td><span class="tag tag--especificado">especificado</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="workout-generator">Workout Generator</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Idempotencia</div>
+  <p>Invocado únicamente por <code>ciclo-semanal</code> de Motor BPS. Dos invocaciones para la misma semana devuelven la semana ya existente (<code>SEMANA_YA_GENERADA</code>, 11) — nunca duplican ni regeneran sin invalidación explícita.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Método</th><th>Ruta</th><th>Actor</th><th>Entrada</th><th>Salida</th><th>Eventos producidos</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td><span class="method method--post">POST</span></td><td><code>/workouts/generar-semana</code></td><td>Motor BPS (interno)</td><td>Microciclo vigente, Perfil, Prescripción, Veredicto Recovery, catálogo</td><td><code>Workout[]</code></td><td><code>semana_generada</code></td><td><span class="tag tag--especificado">especificado</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="workouts">Workouts (lectura)</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Ownership</div>
+  <p><code>auth.uid() = workouts.user_id</code>. <code>/programa-actual</code> es una vista derivada (Domain Model Handbook, 13) — nunca un recurso <code>/programas/{id}</code>, porque Programa no tiene fila propia.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Método</th><th>Ruta</th><th>Actor</th><th>Entrada</th><th>Salida</th><th>Eventos</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td><span class="method method--get">GET</span></td><td><code>/workouts</code></td><td>Usuario</td><td>query: <code>fecha_desde</code>/<code>fecha_hasta</code></td><td><code>Workout[]</code></td><td>—</td><td><span class="tag tag--implementado">implementado</span></td></tr>
+<tr><td><span class="method method--get">GET</span></td><td><code>/workouts/{id}</code></td><td>Usuario</td><td>—</td><td><code>Workout</code></td><td>—</td><td><span class="tag tag--implementado">implementado</span></td></tr>
+<tr><td><span class="method method--get">GET</span></td><td><code>/workouts/hoy</code></td><td>Usuario</td><td>—</td><td><code>Workout | null</code></td><td>—</td><td><span class="tag tag--implementado">implementado</span></td></tr>
+<tr><td><span class="method method--get">GET</span></td><td><code>/programa-actual</code></td><td>Usuario</td><td>—</td><td>Vista derivada: Sistema, Track, Nivel, posición Bloque/Mesociclo/Microciclo</td><td>—</td><td><span class="tag tag--especificado">especificado</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="workout-logs">Workout Logs / Player</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Ownership · idempotencia</div>
+  <p><code>auth.uid() = workout_logs.user_id</code>. <code>/workout-logs/eventos</code> recibe el replay de la cola offline del Player — idempotente por <code>device_id</code>+número de secuencia (Architecture Handbook, 09). Un log cerrado nunca se edita: una corrección posterior crea un evento nuevo, nunca reabre el log (I-W3).</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Método</th><th>Ruta</th><th>Actor</th><th>Entrada</th><th>Salida</th><th>Eventos</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td><span class="method method--post">POST</span></td><td><code>/workout-logs/eventos</code></td><td>Usuario (dispositivo)</td><td>Evento de cola: <code>sesion_iniciada</code>, <code>serie_registrada</code>, <code>serie_corregida</code>, <code>descanso_iniciado/saltado</code>, <code>ejercicio_sustituido/omitido</code>, <code>dolor_reportado</code>, <code>sesion_pausada/reanudada</code></td><td><code>{ack: true}</code></td><td>El evento recibido, tal cual (local, no <code>progression_events</code>)</td><td><span class="tag tag--especificado">especificado</span></td></tr>
+<tr><td><span class="method method--post">POST</span></td><td><code>/workout-logs</code></td><td>Usuario</td><td>Cierre de sesión (<code>cerrarSesion</code>)</td><td><code>WorkoutLog</code></td><td><code>sesion_cerrada</code></td><td><span class="tag tag--implementado">implementado</span> (tabla existe, escritor nuevo)</td></tr>
+<tr><td><span class="method method--get">GET</span></td><td><code>/workout-logs</code></td><td>Usuario</td><td>query: <code>fecha_desde</code>/<code>fecha_hasta</code></td><td><code>WorkoutLog[]</code></td><td>—</td><td><span class="tag tag--implementado">implementado</span></td></tr>
+<tr><td><span class="method method--get">GET</span></td><td><code>/workout-logs/{id}</code></td><td>Usuario</td><td>—</td><td><code>WorkoutLog</code></td><td>—</td><td><span class="tag tag--implementado">implementado</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="bcs-clientes">BCS — Clientes</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Ownership</div>
+  <p>Todo endpoint de este grupo exige Entrenador autenticado, dueño del Cliente referenciado (BCS Handbook, 08). <code>/reactivar</code> corresponde a la transición Archivado→Activo ya presente en la máquina de estados de Cliente (Domain Model Handbook, 10) aunque el BCS Handbook (02) no le asigna un UC numerado propio — se documenta como extensión directa de UC-03, no como invención.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Método</th><th>Ruta</th><th>Actor</th><th>Entrada</th><th>Salida</th><th>Eventos</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td><span class="method method--post">POST</span></td><td><code>/bcs/clientes</code></td><td>Entrenador</td><td><code>ClienteInput</code></td><td><code>Cliente</code></td><td><code>cliente_creado</code></td><td><span class="tag tag--especificado">especificado</span></td></tr>
+<tr><td><span class="method method--get">GET</span></td><td><code>/bcs/clientes</code></td><td>Entrenador</td><td>query: <code>estado</code>, <code>cursor</code></td><td><code>Cliente[]</code></td><td>—</td><td><span class="tag tag--especificado">especificado</span></td></tr>
+<tr><td><span class="method method--get">GET</span></td><td><code>/bcs/clientes/{id}</code></td><td>Entrenador</td><td>—</td><td><code>Cliente</code></td><td>—</td><td><span class="tag tag--especificado">especificado</span></td></tr>
+<tr><td><span class="method method--patch">PATCH</span></td><td><code>/bcs/clientes/{id}</code></td><td>Entrenador</td><td><code>ClienteInput</code> parcial</td><td><code>Cliente</code></td><td><code>cliente_editado</code></td><td><span class="tag tag--especificado">especificado</span></td></tr>
+<tr><td><span class="method method--post">POST</span></td><td><code>/bcs/clientes/{id}/archivar</code></td><td>Entrenador</td><td>—</td><td><code>Cliente</code></td><td><code>cliente_archivado</code></td><td><span class="tag tag--especificado">especificado</span></td></tr>
+<tr><td><span class="method method--post">POST</span></td><td><code>/bcs/clientes/{id}/reactivar</code></td><td>Entrenador</td><td>—</td><td><code>Cliente</code></td><td><em>no nombrado explícitamente — ver nota</em></td><td><span class="tag tag--especificado">especificado</span>*</td></tr>
+<tr><td><span class="method method--delete">DELETE</span></td><td><code>/bcs/clientes/{id}</code></td><td>Entrenador</td><td>—</td><td><code>{ok: true}</code></td><td><code>cliente_eliminado</code> + cascada <code>enlace_revocado</code></td><td><span class="tag tag--especificado">especificado</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="bcs-mediciones">BCS — Mediciones</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">PATCH que no es un PATCH ordinario — ver API-ADR-09</div>
+  <p><code>PATCH /bcs/mediciones/{id}</code> nunca edita en sitio: por IN-D1/IN-23 (Domain Model Handbook), crea una Medición <code>vigente</code> nueva y marca la anterior como <code>anulada</code>. La respuesta 200 devuelve la Medición nueva; el <code>id</code> del path pertenece a la que queda anulada. Se documenta explícitamente porque se aparta de la semántica estándar de PATCH (reemplazo parcial en sitio).</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Método</th><th>Ruta</th><th>Actor</th><th>Entrada</th><th>Salida</th><th>Eventos</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td><span class="method method--post">POST</span></td><td><code>/bcs/clientes/{id}/mediciones</code></td><td>Entrenador</td><td><code>MedicionInput</code> (subconjunto de las 25 variables, 08) + fotografía opcional</td><td><code>Medicion</code></td><td><code>medicion_registrada</code></td><td><span class="tag tag--especificado">especificado</span></td></tr>
+<tr><td><span class="method method--get">GET</span></td><td><code>/bcs/clientes/{id}/mediciones</code></td><td>Entrenador</td><td>query: <code>cursor</code> (&gt;50 → 20/pág, 06)</td><td><code>Medicion[]</code></td><td>—</td><td><span class="tag tag--especificado">especificado</span></td></tr>
+<tr><td><span class="method method--get">GET</span></td><td><code>/bcs/mediciones/{id}</code></td><td>Entrenador</td><td>—</td><td><code>Medicion</code></td><td>—</td><td><span class="tag tag--especificado">especificado</span></td></tr>
+<tr><td><span class="method method--patch">PATCH</span></td><td><code>/bcs/mediciones/{id}</code></td><td>Entrenador</td><td>Valores corregidos</td><td><code>Medicion</code> (la nueva vigente)</td><td><code>medicion_corregida</code></td><td><span class="tag tag--especificado">especificado</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="bcs-enlaces">BCS — Links Públicos</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Side effect — un enlace activo por Cliente</div>
+  <p>Crear un EnlacePúblico para un Cliente que ya tiene uno <code>activo</code> revoca automáticamente el anterior — nunca coexisten dos activos (BCS Handbook, 09-IN-1). El token nunca es derivable de <code>clienteId</code> (21+ caracteres alfanuméricos, BCS-ADR-02).</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Método</th><th>Ruta</th><th>Actor</th><th>Entrada</th><th>Salida</th><th>Eventos</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td><span class="method method--post">POST</span></td><td><code>/bcs/clientes/{id}/enlaces</code></td><td>Entrenador</td><td>—</td><td><code>EnlacePublico</code> (token nuevo)</td><td><code>enlace_creado</code> (+ <code>enlace_revocado</code> si hubo reemplazo)</td><td><span class="tag tag--especificado">especificado</span></td></tr>
+<tr><td><span class="method method--get">GET</span></td><td><code>/bcs/clientes/{id}/enlaces</code></td><td>Entrenador</td><td>—</td><td><code>EnlacePublico[]</code> (histórico, incl. revocados)</td><td>—</td><td><span class="tag tag--especificado">especificado</span></td></tr>
+<tr><td><span class="method method--post">POST</span></td><td><code>/bcs/enlaces/{id}/revocar</code></td><td>Entrenador</td><td>—</td><td><code>EnlacePublico</code></td><td><code>enlace_revocado</code></td><td><span class="tag tag--especificado">especificado</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="bcs-reportes">BCS — Reportes</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Paridad privado/público — BCS-ADR-05</div>
+  <p>El Reporte que ve el Entrenador y el que ve el Cliente por enlace público muestran exactamente el mismo contenido informativo — la única diferencia es la ausencia total de controles de edición en la vista pública. Ninguno de los dos persiste el Reporte: se computa on-demand en cada visualización (IN-D3).</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Método</th><th>Ruta</th><th>Actor</th><th>Entrada</th><th>Salida</th><th>Eventos</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td><span class="method method--get">GET</span></td><td><code>/bcs/clientes/{id}/reporte</code></td><td>Entrenador</td><td>—</td><td><code>Reporte</code></td><td>—</td><td><span class="tag tag--especificado">especificado</span></td></tr>
+<tr><td><span class="method method--get">GET</span></td><td><code>/reportes/{token}</code></td><td>Anonymous</td><td>—</td><td><code>Reporte</code> | Error</td><td><code>token_invalido_intentado</code> / <code>token_revocado_intentado</code> (seguridad, 14 — nunca negocio)</td><td><span class="tag tag--especificado">especificado</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="salud">Sistema / Health — gap documentado</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">No hay endpoint de salud — y no se inventa uno aquí</div>
+  <p>Ningún handbook especifica un health-check. El Observability Handbook (Engineering, 11) lo confirma como ausencia explícita: "no existe endpoint de salud, no existe alerting". Este documento no fabrica un <code>GET /health</code> para completar la categoría que el encargo original nombra — se registra como pregunta abierta (AP-06, 16), con el consumidor que le daría sentido (monitor de uptime externo) todavía sin definir.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../06-convenciones-responses/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 06 · Convenciones de Responses</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../08-dto-oficiales/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">08 · DTO Oficiales →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

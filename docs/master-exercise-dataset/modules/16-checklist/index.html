@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>16 · Checklist de Alta — Master Exercise Dataset</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="checklist" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Sección 16 · Operación</p>
+<h1>Checklist de Alta</h1>
+<p class="lede">28 ítems en 7 fases. Completarlos todos es lo que autoriza la transición <code>T2</code>: de <code>draft</code> a <code>review</code>. Este es el procedimiento operativo que se repetirá 220 veces.</p>
+
+<h2 id="f1">Fase 1 · Decidir si procede</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Ítem</th><th>Referencia</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Verificar que el gesto <strong>no existe ya</strong> en el dataset — buscar por movimiento, implemento y alias</td><td>Criterio de identidad, §03</td></tr>
+<tr><td>2</td><td>Determinar si es entrada nueva, <a href="../12-variantes/index.html">variante</a> o paso de <a href="../13-progresiones/index.html">cadena</a></td><td>Árbol de decisión, §12</td></tr>
+<tr><td>3</td><td>Confirmar que aporta cobertura real: ¿qué combinación rol × equipo × nivel cubre que hoy no está cubierta?</td><td>Criterio de suficiencia, §05</td></tr>
+<tr><td>4</td><td>Confirmar que su patrón primario tiene colección <strong>activa</strong></td><td>§05</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">El ítem 3 es el que evita un catálogo hinchado</div>
+  <p>Un ejercicio que no cubre ninguna combinación nueva es trabajo de mantenimiento permanente a cambio de nada: hay que clasificarlo, evaluar sus zonas de riesgo, revisarlo y versionarlo, y el resolutor nunca lo elegirá porque otro ya ocupa su lugar. Si el ítem 3 no tiene respuesta clara, la entrada no procede.</p>
+</div>
+
+<h2 id="f2">Fase 2 · Identidad</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Ítem</th><th>Referencia</th></tr></thead>
+<tbody>
+<tr><td>5</td><td>Formar el <code>name_canonical</code>: movimiento + implemento + modificador, solo lo necesario</td><td>N-1…N-8, §08</td></tr>
+<tr><td>6</td><td>Verificar que el canónico no colisiona; si colisiona, aplicar los 5 criterios en orden</td><td>§08</td></tr>
+<tr><td>7</td><td>Derivar el <code>slug</code> con los 8 pasos y verificar disponibilidad</td><td>§10</td></tr>
+<tr><td>8</td><td>Asignar el <code>id</code>: máximo del índice maestro + 1</td><td>IX-2, §09</td></tr>
+<tr><td>9</td><td>Escribir <code>name_display</code> y <code>name_short</code> (≤ 24 caracteres, reduciendo, no truncando)</td><td>D-1…D-6, S-1…S-5</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="f3">Fase 3 · Clasificación</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Ítem</th><th>Referencia</th></tr></thead>
+<tbody>
+<tr><td>10</td><td>Asignar <code>pattern_primary</code> — uno solo, y determina la colección</td><td>§04</td></tr>
+<tr><td>11</td><td>Asignar <code>patterns_secondary</code> si los hay; <code>[]</code> es una respuesta válida</td><td>§04</td></tr>
+<tr><td>12</td><td>Asignar <code>roles</code> — al menos uno, sin repetidos</td><td>§04</td></tr>
+<tr><td>13</td><td>Asignar <code>modality</code>: ejecución y lateralidad, ambos</td><td>§04</td></tr>
+<tr><td>14</td><td>Asignar <code>equipment</code> — <strong>solo lo imprescindible</strong>, semántica conjuntiva</td><td>§04</td></tr>
+<tr><td>15</td><td>Asignar <code>muscle_primary</code> y <code>muscles_secondary</code></td><td>§04</td></tr>
+<tr><td>16</td><td>Asignar <code>exercise_type</code> y <code>level</code></td><td>§04</td></tr>
+<tr><td>17</td><td>Verificar que ningún dato de esta fase aparece <strong>también</strong> en el nombre</td><td>N-8, §08</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Ítem 14 · «Imprescindible», no «habitual»</div>
+  <p>Se listan los implementos <strong>sin los cuales el ejercicio no puede ejecutarse</strong>, no los que se usan normalmente. Un ejercicio que suele hacerse con banco pero no lo requiere no lista banco: si lo hiciera, dejaría de ser elegible para quien no lo tiene, sin razón.</p>
+</div>
+
+<h2 id="f4">Fase 4 · Elegibilidad</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Ítem</th><th>Referencia</th></tr></thead>
+<tbody>
+<tr><td>18</td><td><strong>Evaluar <code>risk_zones</code></strong>: recorrer las 6 zonas y declarar intensidad, o declarar <code>[]</code> tras evaluarlas</td><td>§04 · <strong>bloquea publicación</strong></td></tr>
+<tr><td>19</td><td>Asignar <code>load_type</code>: tipo de progresión y <code>accepts_added_load</code></td><td>§04</td></tr>
+<tr><td>20</td><td>Asignar <code>capabilities_required</code>; <code>[]</code> es una respuesta válida</td><td>§04</td></tr>
+<tr><td>21</td><td>Asignar <code>systems</code> — al menos uno</td><td>§04</td></tr>
+<tr><td>22</td><td>Asignar <code>space_requirement</code></td><td>§04</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Ítem 18 · Es el único ítem que no admite «lo dejo para después»</div>
+  <p>Se recorren las <strong>seis</strong> zonas, una por una, y para cada una se decide: no la carga, la carga poco, la carga de forma moderada, o la carga de forma intensa. El resultado es una lista —posiblemente vacía— pero <strong>nunca <code>null</code></strong> en una entrada que vaya a publicarse.</p>
+  <p>Ante duda genuina sobre una intensidad, se deja la entrada en <code>draft</code> y se consulta. Nunca se elige el valor intermedio como salida cómoda: el intermedio es el permisivo, y elegirlo por comodidad hace elegible un ejercicio para alguien que no debería recibirlo.</p>
+</div>
+
+<h2 id="f5">Fase 5 · Relaciones</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Ítem</th><th>Referencia</th></tr></thead>
+<tbody>
+<tr><td>23</td><td>Si es variante: fijar <code>variant_of</code> <strong>y</strong> añadirse al <code>variants</code> de la raíz</td><td>RL-3, VAR-3</td></tr>
+<tr><td>24</td><td>Si es raíz de un conjunto nuevo: verificar los criterios 1–4 de elección de raíz</td><td>§12</td></tr>
+<tr><td>25</td><td>Si entra en una cadena: fijar <code>chain_previous</code>/<code>chain_next</code> <strong>y sus recíprocos</strong> en los vecinos</td><td>RL-3, CAD-3</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Los tres ítems son condicionales</div>
+  <p>Una entrada independiente, sin conjunto de variantes ni cadena, deja los cinco campos de Relaciones en <code>null</code> / <code>[]</code> y pasa la fase 5 sin trabajo. Es el caso normal antes de la fase 4 del <a href="../17-roadmap/index.html">roadmap</a>.</p>
+</div>
+
+<h2 id="f6">Fase 6 · Contenido</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Ítem</th><th>Referencia</th></tr></thead>
+<tbody>
+<tr><td>26</td><td>Escribir <code>description</code> e <code>instructions</code> — ambos obligatorios</td><td>V11, §04</td></tr>
+<tr><td>27</td><td>Añadir <code>common_errors</code>, <code>benefits</code> y <code>search_terms</code> (alias, sinónimos, términos en inglés)</td><td>A-1…A-5, §08</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="f7">Fase 7 · Cierre</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Ítem</th><th>Referencia</th></tr></thead>
+<tbody>
+<tr><td>28</td><td>Rellenar <code>provenance.created_*</code>, fijar <code>rev: 1</code>, añadir la primera fila a <code>revisions</code> y pasar a <code>review</code></td><td>T2, §15</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="flujo">Flujo completo</h2>
+<div class="diagram">
+<div class="diagram-label">Las 7 fases y sus salidas</div>
+<pre class="mermaid">
+flowchart TD
+  F1["FASE 1 · ¿Procede?<br/>ítems 1-4"] -->|"no aporta cobertura"| STOP["No se crea la entrada"]
+  F1 -->|"procede"| F2["FASE 2 · Identidad<br/>ítems 5-9<br/><i>id y slug quedan consumidos</i>"]
+  F2 --> F3["FASE 3 · Clasificación<br/>ítems 10-17"]
+  F3 --> F4["FASE 4 · Elegibilidad<br/>ítems 18-22"]
+  F4 -->|"duda en risk_zones"| HOLD["Permanece en draft<br/>hasta resolver"]
+  F4 --> F5["FASE 5 · Relaciones<br/>ítems 23-25"]
+  F5 --> F6["FASE 6 · Contenido<br/>ítems 26-27"]
+  F6 --> F7["FASE 7 · Cierre<br/>ítem 28"]
+  F7 --> RV["review · T2"]
+  RV --> AP["approved · T4<br/><b>aprobación de un segundo</b>"]
+</pre>
+</div>
+
+<h2 id="revision">Qué comprueba la revisión</h2>
+<p class="matrix-note">Quien aprueba (T4) no repite el checklist: verifica lo que el checklist no puede garantizar por sí solo.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Comprobación de revisión</th><th>Por qué no puede automatizarse</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>La clasificación de patrón y roles es <strong>correcta</strong>, no solo válida</td><td>Un valor del enumerado siempre es válido; que sea el acertado es criterio</td></tr>
+<tr><td>2</td><td>Las <code>risk_zones</code> reflejan la carga real del gesto</td><td>Exige conocimiento de entrenamiento</td></tr>
+<tr><td>3</td><td>El <code>level</code> es coherente con las entradas ya publicadas del patrón</td><td>Es una comparación con el resto del catálogo</td></tr>
+<tr><td>4</td><td><code>equipment</code> no incluye implementos prescindibles</td><td>Exige saber si el ejercicio se puede hacer sin ellos</td></tr>
+<tr><td>5</td><td>Si entra en cadena, el salto es abordable en <strong>ambos sentidos</strong></td><td>PG-4 y RG-1 son editoriales por definición</td></tr>
+<tr><td>6</td><td>Las instrucciones describen el gesto que la clasificación afirma</td><td>Coherencia entre texto y campos</td></tr>
+<tr><td>7</td><td>La entrada aporta la cobertura que declaró el ítem 3</td><td>Confirma la decisión de la fase 1</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">La división del trabajo</div>
+  <p>El checklist garantiza que la entrada está <strong>completa y bien formada</strong>. La revisión garantiza que está <strong>bien</strong>. Son cosas distintas, y confundirlas es lo que hace que un catálogo pase todas sus validaciones automáticas y siga estando mal.</p>
+</div>
+
+<h2 id="orden">Nota sobre el orden</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Las fases 2 y 4 tienen orden obligatorio; el resto no</div>
+  <p>La <strong>fase 2</strong> va antes que ninguna otra porque consume <code>id</code> y <code>slug</code>, y hacerlo tarde permite que dos personas trabajen sobre el mismo gesto sin enterarse. La <strong>fase 4</strong> va antes que la 5 porque las relaciones dependen de <code>load_type</code> y <code>capabilities_required</code> (PG-8, CAD-6).</p>
+  <p>Las fases 3 y 6 pueden intercalarse libremente, y de hecho se recomienda: redactar las instrucciones ayuda a detectar que la clasificación asignada no corresponde al gesto que se está describiendo.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../15-mantenimiento/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 15 · Mantenimiento</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../17-roadmap/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">17 · Roadmap →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

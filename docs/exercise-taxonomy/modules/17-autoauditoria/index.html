@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>17 · Autoauditoría — Exercise Taxonomy Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="autoauditoria" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 17 · Gobernanza</p>
+<h1>Autoauditoría</h1>
+<p class="lede">Verificación del propio handbook contra las restricciones que se le impusieron: métricas reales, contradicciones detectadas entre fuentes, vocabularios duplicados, definiciones inconsistentes y el estado final de la taxonomía.</p>
+
+<h2 id="metricas">Métricas reales</h2>
+<p class="matrix-note">Contadas sobre los archivos entregados, no estimadas.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Métrica</th><th>Valor</th></tr></thead>
+<tbody>
+<tr><td>Módulos</td><td>18 (00–17)</td></tr>
+<tr><td>Tablas</td><td>57</td></tr>
+<tr><td>Diagramas Mermaid</td><td>25</td></tr>
+<tr><td>Callouts (reglas, notas, riesgos, trade-offs, descartes)</td><td>65</td></tr>
+<tr><td>Principios de taxonomía (TX-01…TX-08)</td><td>8</td></tr>
+<tr><td>ADR (TX-ADR-01…08)</td><td>8</td></tr>
+<tr><td>Anti-patrones (TXA-01…14)</td><td>14</td></tr>
+<tr><td>Entradas de deuda documental</td><td>28 (17 tipo A · 11 tipo B)</td></tr>
+<tr><td>Preguntas heredadas de las fuentes</td><td>5</td></tr>
+<tr><td>Handbooks barridos</td><td>11</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="restricciones">Cumplimiento de las restricciones</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Restricción</th><th>Estado</th><th>Verificación</th></tr></thead>
+<tbody>
+<tr><td>No crear ejercicios</td><td>✅</td><td>Cero ejercicios nombrados salvo los ejemplos que ya aparecen en las fuentes citadas</td></tr>
+<tr><td>No inventar patrones</td><td>✅</td><td>Los 9 patrones son transcripción literal de la tabla del Architecture Handbook 04</td></tr>
+<tr><td>No inventar niveles</td><td>✅</td><td>Se documenta la ausencia de mapeo (TX-Q22) en lugar de proponer uno</td></tr>
+<tr><td>No inventar progresiones ni cadenas</td><td>✅</td><td>Se documentan las 4 reglas de cadena; ninguna cadena concreta se declara</td></tr>
+<tr><td>No modificar el catálogo, <code>systems.ts</code>, <code>Exercise</code>, DTOs, repositorios ni motores</td><td>✅</td><td>Cero archivos de <code>src/</code> tocados — este handbook solo añade <code>docs/exercise-taxonomy/</code></td></tr>
+<tr><td>No escribir código</td><td>✅</td><td>Cero bloques de código ejecutable; los nombres de campo aparecen como referencia documental</td></tr>
+<tr><td>Derivar todo de la documentación existente</td><td>✅</td><td>Cada afirmación normativa cita su fuente; lo no derivable se declara en el módulo 16</td></tr>
+<tr><td>Declarar como deuda lo que no exista</td><td>✅</td><td>28 entradas registradas con el resultado exacto del barrido</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="contradicciones">Contradicciones detectadas entre handbooks</h2>
+<p class="matrix-note">Ninguna se resuelve editando una fuente. Se registran con severidad y ubicación.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Contradicción</th><th>Entre</th><th>Severidad</th></tr></thead>
+<tbody>
+<tr><td>C-01</td><td>El Architecture Handbook 08 exige que cada fila de Workout lleve <strong>patrón, rol, slug, RPE objetivo, descanso, tempo y notas</strong>; el DTO oficial <code>EjercicioPlan</code> solo admite <code>{nombre, series, reps, peso?, intensidad?}</code>. Siete datos exigidos no tienen destino.</td><td>Architecture Handbook 08 ↔ contrato de datos vigente</td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td>C-02</td><td>PE-003 exige distinguir "Slot de carga externa" de "progresión de patrón corporal", y saber si un ejercicio "admite carga añadida". <strong>Ninguno de los dos es un atributo declarado</strong> en la tabla de atributos del Ejercicio.</td><td>Progression Engine ↔ Architecture Handbook 04</td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td>C-03</td><td>El paso 0 de la resolución filtra por "nivelCompatible: nivel", pero no existe mapeo entre el Nivel del usuario (capa 3, nombres propios por Sistema) y el <code>nivel</code> del ejercicio (<code>principiante</code>/<code>intermedio</code>/<code>avanzado</code>).</td><td>Architecture Handbook 04 ↔ Architecture Handbook 03</td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td>C-04</td><td>El grafo de degradación tiene tres ciclos de longitud 2 y el paso 4 recursa sin guarda declarada — la especificación literal no termina si un par queda vacío.</td><td>Interna al Architecture Handbook 04</td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td>C-05</td><td>El contrato con los 5 consumidores promete que Progression usa "roles (peso de la señal)", pero ninguna de las 39 reglas PE-001…039 menciona el rol.</td><td>Architecture Handbook 04 ↔ Progression Engine</td><td><span class="severity severity--media">media</span></td></tr>
+<tr><td>C-06</td><td>La regla de exclusión por zona exige que el Perfil capture lesiones como zonas estructuradas, pero el Perfil las guarda como texto libre — y el texto libre "nunca se parsea". El eje de seguridad está roto por ambos extremos.</td><td>Architecture Handbook 04 ↔ modelo de Perfil vigente</td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td>C-07</td><td>La "tabla de equivalencias autorizada" reps↔segundos es requisito del algoritmo de sustitución, pero ninguna fuente la especifica ni declara dónde vive.</td><td>Interna al Architecture Handbook 04</td><td><span class="severity severity--alta">alta</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="vocabularios">Vocabularios duplicados</h2>
+<p class="matrix-note">Tokens que significan cosas distintas en ejes distintos. Ninguno es un error de las fuentes; todos son riesgo real de confusión.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Token</th><th>Usos simultáneos</th><th>Riesgo</th><th>Resolución</th></tr></thead>
+<tbody>
+<tr><td><code>core</code></td><td><strong>Tres</strong>: grupo muscular · patrón de movimiento · componente del rol <code>core-final</code></td><td>Alto — un filtro por "core" puede referirse a tres ejes distintos</td><td>Documentado; el contexto (eje) siempre debe indicarse</td></tr>
+<tr><td><code>hombro</code> / <code>hombros</code></td><td><strong>Dos</strong>: zona de riesgo articular (singular) · grupo muscular (plural)</td><td>Alto — se distinguen <em>solo</em> por el número gramatical</td><td><a href="../15-adr/index.html">TX-ADR-02</a> · "zona" = riesgo articular</td></tr>
+<tr><td><code>cadena</code></td><td><strong>Dos</strong>: cadena de progresión (existe) · cadena cinética (solicitada, no existe)</td><td>Medio — la segunda acepción es la habitual en la literatura</td><td><a href="../15-adr/index.html">TX-ADR-03</a> · reservado a progresión</td></tr>
+<tr><td><code>capacidad</code></td><td><strong>Dos</strong>: prerequisito demostrable (existe) · cualidad física entrenable (no existe)</td><td>Medio — nombres casi idénticos, conceptos distintos</td><td><a href="../15-adr/index.html">TX-ADR-05</a></td></tr>
+<tr><td><code>nivel</code></td><td><strong>Tres</strong>: <code>Exercise.nivel</code> · Nivel de la capa 3 · <code>nivel_experiencia</code> autopercibido</td><td>Alto — la tercera acepción está prohibida algorítmicamente (P12)</td><td><a href="../15-adr/index.html">TX-ADR-06</a> · sin mapeo entre las dos primeras</td></tr>
+<tr><td><code>dominante</code></td><td><strong>Dos</strong>: prefijo de dos slugs de patrón · eje de "dominancia" solicitado (no existe)</td><td>Bajo</td><td>TX-Q03 · no se define dominancia como eje</td></tr>
+</tbody>
+</table>
+</div>
+<div class="diagram">
+<div class="diagram-label">El caso más grave: un token, tres ejes</div>
+<pre class="mermaid">
+graph TD
+  T["token: core"] --> E1["Eje MUSCULAR<br/>musculoPrincipal: core"]
+  T --> E2["Eje PATRÓN<br/>patronPrimario: core"]
+  T --> E3["Eje ROL<br/>rol: core-final"]
+  E1 --> R["Una consulta por 'core'<br/>puede significar tres cosas"]
+  E2 --> R
+  E3 --> R
+</pre>
+</div>
+
+<h2 id="inconsistencias">Definiciones inconsistentes</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Concepto</th><th>Inconsistencia</th><th>Tratamiento</th></tr></thead>
+<tbody>
+<tr><td>"Movimiento"</td><td>Se usa como sinónimo informal de Ejercicio y como parte de "patrón de movimiento", sin definición propia en ninguna fuente</td><td>Se declara que no es entidad formal — <a href="../14-anti-patterns/index.html">TXA-08</a></td></tr>
+<tr><td><code>zonasRiesgo</code> ausente vs. vacío</td><td>La fuente dice "lista vacía válida" sin distinguir el caso "sin etiquetar"</td><td><a href="../15-adr/index.html">TX-ADR-07</a> · se declaran estados distintos</td></tr>
+<tr><td><code>equipo[]</code> conjunción o disyunción</td><td>Ninguna fuente declara si se necesita todo el equipo listado o basta uno</td><td>TX-Q20 · ambas lecturas documentadas, ninguna elegida</td></tr>
+<tr><td>Volumen de <code>metabolico</code></td><td>"Cuenta, pero como acondicionamiento, no fuerza" — sin mecanismo para contabilizarlo aparte frente al techo de PE-010</td><td>TX-Q15</td></tr>
+<tr><td>"Huecos de nivel" en cadenas</td><td>La validación estructural debe detectarlos, pero no se define qué son</td><td>TX-Q24</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="cobertura">Cobertura de la taxonomía</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Eje</th><th>Vocabulario publicado</th><th>Catálogo etiquetado</th><th>Utilizable hoy</th></tr></thead>
+<tbody>
+<tr><td>Patrón</td><td>✅ 9 valores (7 activos)</td><td>❌ 0 de 19</td><td>No</td></tr>
+<tr><td>Rol</td><td>✅ 5 valores</td><td>❌ 0 de 19</td><td>No</td></tr>
+<tr><td>Modalidad</td><td>✅ 2 ejes × 2 valores</td><td>❌ 0 de 19</td><td>No</td></tr>
+<tr><td>Equipamiento</td><td>✅ 6 valores</td><td>✅ 19 de 19</td><td>Parcial — falta el mapeo a Track</td></tr>
+<tr><td>Zona de riesgo</td><td>✅ 6 valores + 3 intensidades</td><td>❌ 0 de 19</td><td>No — y el Perfil tampoco captura zonas</td></tr>
+<tr><td>Cadena</td><td>✅ reglas completas</td><td>❌ 0 de 19</td><td>No</td></tr>
+<tr><td>Capacidades</td><td>✅ estructura definida</td><td>❌ 0 de 19</td><td>No</td></tr>
+<tr><td>Identidad (slug/nombre)</td><td>✅</td><td>✅ 19 de 19</td><td>Sí</td></tr>
+<tr><td>Ficha educativa</td><td>✅</td><td>✅ 19 de 19</td><td>Sí</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Lectura de la tabla</div>
+  <p>La <strong>ontología está completa</strong> en los 9 ejes: no falta ni un vocabulario por publicar. Lo que falta es su aplicación al catálogo — el bloqueante #2 del Roadmap, que las fuentes describen como "etiquetado con criterio, no código". Este handbook no puede cerrarlo, y describirlo con precisión es exactamente su aporte.</p>
+</div>
+
+<h2 id="limitaciones">Limitaciones de esta autoauditoría</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Limitación</th><th>Alcance real</th></tr></thead>
+<tbody>
+<tr><td>El barrido es textual</td><td>Se buscaron términos en los <code>.html</code> del repositorio documental. Un concepto descrito con palabras completamente distintas a las buscadas podría haberse pasado por alto.</td></tr>
+<tr><td>La severidad es un juicio</td><td>Las etiquetas crítica/alta/media reflejan el impacto sobre la resolución de slots, no una escala formal de ninguna fuente.</td></tr>
+<tr><td>No se auditó el código</td><td>Salvo la comprobación del DTO <code>EjercicioPlan</code> (C-01) y del número de ejercicios del catálogo, este handbook se limita a la documentación.</td></tr>
+<tr><td>Las contradicciones no están priorizadas por negocio</td><td>El orden sugerido en el módulo 16 se basa en dependencias técnicas, no en valor de producto.</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="estado">Estado final</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Veredicto</div>
+  <p>El <strong>Exercise Taxonomy Handbook v1.0 está completo</strong> como Single Source of Truth de la <em>clasificación</em>: los 9 ejes están consolidados, las 7 fronteras del Ejercicio declaradas, los 5 estatutos de atributo definidos, y los 34 atributos solicitados resueltos — 13 con respaldo pleno, 4 parcial y 17 declarados como deuda con su barrido documentado.</p>
+  <p>La taxonomía <strong>no es operativa todavía</strong>, y no por una carencia de este documento: <strong>7 contradicciones</strong> entre fuentes (3 críticas) y <strong>28 entradas de deuda</strong> bloquean la resolución de slots. Las tres críticas — el mapeo de niveles, la distinción carga externa/patrón corporal, y el DTO que no admite lo que la arquitectura exige — deben resolverse por decisión documental antes de que ningún etiquetado de catálogo produzca sesiones reales.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Qué está listo y qué bloquea</div>
+<pre class="mermaid">
+graph TD
+  ONT["Ontología publicada<br/>9 ejes completos"] --> OK["✅ LISTO"]
+  TAX["Taxonomía consolidada<br/>este handbook"] --> OK
+  C1["C-01 · DTO insuficiente"] --> BL["⛔ BLOQUEA<br/>resolución de slots"]
+  C2["C-02 · carga externa vs.<br/>patrón corporal"] --> BL
+  C3["C-03 · mapeo de niveles"] --> BL
+  ETQ["Etiquetado del catálogo<br/>0 de 19 · criterio humano"] --> BL
+  PERF["Perfil captura lesiones<br/>como texto libre"] --> BL
+</pre>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../16-preguntas-abiertas/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 16 · Preguntas Abiertas</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../../index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">Portada →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

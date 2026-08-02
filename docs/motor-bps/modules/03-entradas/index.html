@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03 · Entradas — Motor BPS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="entradas" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 03 · Contrato de datos</p>
+<h1>Entradas</h1>
+<p class="lede">El inventario exhaustivo. Regla estructural del módulo 02: si un dato no está en esta página, el Motor no puede leerlo. Cada entrada declara tipo, origen, obligatoriedad, productor, consumidor interno, frecuencia de lectura, validación y casos inválidos.</p>
+
+<h2 id="grupo-diagnostico">Grupo 1 — Diagnóstico y activación</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Entrada</th><th>Tipo</th><th>Origen / productor</th><th>Oblig.</th><th>Consumidor interno</th><th>Frecuencia</th><th>Validación</th><th>Inválido si…</th></tr></thead>
+<tbody>
+<tr><td>Resultado del Diagnóstico</td><td>DTO {sistema, nivelEntrada, disponible, razones[]}</td><td>Diagnóstico BPS (guionado)</td><td>Sí para activar</td><td>Activación (06)</td><td>Una vez por activación</td><td>sistema ∈ catálogo; nivelEntrada ∈ niveles del sistema o null (Elite)</td><td>Sistema inexistente; nivel que no pertenece al sistema</td></tr>
+<tr><td>Evento <code>compra_confirmada</code></td><td>{userId, sistemaSlug, transaccionId, timestamp}</td><td>Checkout (fuera del dominio)</td><td>Sí para activar</td><td>Activación (06)</td><td>Una vez por compra (re-entregas absorbidas por idempotencia)</td><td>transaccionId único; sistemaSlug ∈ catálogo disponible</td><td>Sin transaccionId; sistema no disponible a la venta</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="grupo-perfil">Grupo 2 — Perfil (vivo, se lee fresco cada ciclo — IN-6)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Entrada</th><th>Tipo</th><th>Oblig.</th><th>Consumidor interno</th><th>Frecuencia</th><th>Validación</th><th>Inválido si…</th></tr></thead>
+<tbody>
+<tr><td>Días por semana (disponibilidad)</td><td>entero 1–7</td><td><strong>Sí — gate</strong></td><td>Ciclo → Generator (R-1 del marco)</td><td>Cada ciclo</td><td>1 ≤ n ≤ 7 (check en DB)</td><td>Ausente → <code>PERFIL_INCOMPLETO</code></td></tr>
+<tr><td>Lugar de entrenamiento → Track</td><td>enum {gym, casa, ambos}</td><td><strong>Sí — gate</strong></td><td>Ciclo → Generator (filtro de equipo)</td><td>Cada ciclo</td><td>∈ vocabulario cerrado</td><td>Ausente → <code>PERFIL_INCOMPLETO</code></td></tr>
+<tr><td>Lesiones / zonas de riesgo declaradas</td><td>lista de slugs de zona (estructurada); "ninguna" es válido y distinto de ausente</td><td><strong>Sí — gate</strong></td><td>Ciclo → Generator (exclusión)</td><td>Cada ciclo</td><td>Slugs ∈ las 6 zonas del marco</td><td>Ausente (nunca declarado) → <code>PERFIL_INCOMPLETO</code>. El texto libre de lesiones NO es esta entrada — jamás se parsea</td></tr>
+<tr><td>Duración por sesión</td><td>entero &gt; 0 (min)</td><td>No — default por Bloque</td><td>Ciclo → Generator (recorte R-G2)</td><td>Cada ciclo</td><td>&gt; 0</td><td>—</td></tr>
+<tr><td>Objetivo (del Perfil)</td><td>enum del vocabulario del Diagnóstico</td><td>No</td><td>Ninguno algorítmico en el Motor — informativo/UI</td><td>—</td><td>∈ vocabulario</td><td>— (cambiarlo NO re-evalúa el Sistema — módulo 08)</td></tr>
+<tr><td>Nivel de experiencia (autopercibido)</td><td>enum {Principiante, Intermedio, Avanzado}</td><td>No</td><td><strong>NINGUNO — prohibido</strong> (BPS-006, ADR-003)</td><td>Nunca</td><td>—</td><td>Cualquier lectura por el Motor es un defecto</td></tr>
+<tr><td>Edad / peso / altura / sexo</td><td>según Perfil</td><td>No</td><td>Ninguno en v1 (edad: solo mensajería del Diagnóstico; peso/altura: reservados a %1RM v2)</td><td>—</td><td>Checks de DB</td><td>—</td></tr>
+<tr><td>Preferencias (v2: ejercicios favoritos/vetados)</td><td>— no existe en v1 —</td><td>—</td><td>Reservado: entraría al Generator como filtro blando, nunca al Motor</td><td>—</td><td>—</td><td>Registrado en 16 — no especular</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="grupo-veredictos">Grupo 3 — Veredictos de motores (el Motor consume decisiones, no señales — BPS-019)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Entrada</th><th>Tipo</th><th>Productor</th><th>Oblig.</th><th>Consumidor</th><th>Frecuencia</th><th>Validación</th><th>Inválido si…</th></tr></thead>
+<tbody>
+<tr><td>Veredicto de Recovery</td><td>{si, tipo?: programada|reactiva, razon?}</td><td>Recovery Engine (función pura sobre ventana + mesociclo)</td><td>Sí en cada ciclo</td><td>Ciclo (IN-7: primero, terminal)</td><td>1×/ciclo</td><td>Forma del DTO</td><td>si=true sin tipo ni razón</td></tr>
+<tr><td>Decisión de Progression</td><td>{accion, alcance?, razones, contexto}</td><td>Progression Engine</td><td>Solo si Recovery no exigió descarga</td><td>Ciclo (aplicar transición)</td><td>≤1×/ciclo</td><td>accion ∈ {avanza, sostiene, retrocede, pausa-progresion}</td><td>avanza/retrocede sin alcance</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Historial, adherencia y fatiga NO son entradas del Motor</div>
+  <p>El workout history, la adherencia y las señales de fatiga son entradas de Recovery/Progression — el Motor recibe sus veredictos ya digeridos. Esta es la frontera más importante del módulo: si alguna vez el Motor "necesita" leer un log crudo, el diseño se rompió (BPS-019). La única lectura de historial que el Motor hace directamente es estructural, no interpretativa: ¿existe semana generada? ¿alguna sesión fue ejecutada? (para idempotencia e invalidación) y la fecha del último log (para la auto-pausa por inactividad, BPS-025 — un COUNT/MAX, no una interpretación).</p>
+</div>
+
+<h2 id="grupo-contexto">Grupo 4 — Contexto del ciclo</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Entrada</th><th>Tipo</th><th>Origen</th><th>Oblig.</th><th>Consumidor</th><th>Frecuencia</th><th>Validación</th><th>Inválido si…</th></tr></thead>
+<tbody>
+<tr><td>Fecha del ciclo</td><td>fecha explícita (parámetro)</td><td>El programador del ciclo (scheduler)</td><td>Sí</td><td>Todo el ciclo (BPS-022 — determinismo)</td><td>1×/ciclo</td><td>Fecha válida, no futura respecto al reloj del sistema en más de 1 día</td><td>Leída ad-hoc dentro de la lógica</td></tr>
+<tr><td>Versión de catálogo</td><td>identificador (commit/etiqueta)</td><td>Build del catálogo en código (ADR-009 del marco)</td><td>Sí</td><td>Ciclo → Generator; registrada en <code>semana_generada</code></td><td>1×/ciclo</td><td>Versión existente</td><td>Generación sin versión registrada (BPS-023)</td></tr>
+<tr><td>Estructura del Sistema activo (Bloques/Mesociclos/Microciclos, niveles)</td><td>plantillas del catálogo</td><td>Training Framework</td><td>Sí en ciclo</td><td>Ciclo (¿fin de bloque? ¿semana de descarga programada?)</td><td>Cada ciclo</td><td>Jerarquía no vacía (Elite la tiene vacía → <code>SISTEMA_SIN_JERARQUIA</code>)</td><td>Sistema activo sin plantillas para el Track/Nivel</td></tr>
+<tr><td>Restricciones temporales de zona</td><td>eventos <code>restriccion_zona</code> vigentes (no expirados)</td><td>Recovery Engine (vía dolor reportado)</td><td>—</td><td>Ciclo → Generator (se suman a las declaradas)</td><td>Cada ciclo</td><td>Vigencia por fecha del ciclo</td><td>—</td></tr>
+<tr><td>Estado actual + secuencia de eventos propia</td><td>puntero + eventos</td><td>El propio Motor (SSoT)</td><td>Sí</td><td>FSM (05)</td><td>Cada operación</td><td>IN-5: puntero recomputable</td><td>Puntero ≠ replay de eventos → se reconstruye del replay</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="matriz">Matriz productor → consumidor</h2>
+<div class="diagram">
+<div class="diagram-label">Quién produce cada entrada y qué parte del Motor la consume</div>
+<pre class="mermaid">
+graph LR
+  DX[Diagnóstico] -->|Resultado| ACT["Activación"]
+  CK[Checkout] -->|compra_confirmada| ACT
+  U[Usuario] -->|Perfil| GATES["Gates + Ciclo"]
+  RE[Recovery] -->|Veredicto| CICLO["Ciclo semanal"]
+  PE[Progression] -->|Decisión| CICLO
+  SCH[Scheduler] -->|Fecha| CICLO
+  GIT["Catálogo versionado"] -->|Plantillas + versión| CICLO
+  MB[("Eventos propios")] -->|replay| FSM["Máquina de estados"]
+</pre>
+</div>
+
+<h2 id="validacion">Reglas de validación transversales</h2>
+<ul>
+  <li><strong>V-1:</strong> toda entrada se valida en la frontera del Motor, antes de tocar la FSM — una entrada inválida produce error tipado (04), jamás un estado corrupto.</li>
+  <li><strong>V-2:</strong> ausencia ≠ inválido: un campo de gate ausente produce <code>PERFIL_INCOMPLETO</code> (esperable, accionable); un valor presente pero fuera de vocabulario produce <code>ENTRADA_INVALIDA</code> (defecto de quien lo produjo).</li>
+  <li><strong>V-3:</strong> los DTOs de veredictos se validan por forma, no se re-derivan — el Motor confía en sus motores; verificar su lógica sería duplicarla (P4 del marco).</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../02-arquitectura/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 02 · Arquitectura General</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../04-salidas/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">04 · Salidas →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

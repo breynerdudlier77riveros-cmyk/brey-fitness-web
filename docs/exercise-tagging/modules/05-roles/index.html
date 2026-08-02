@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>05 · Roles — Exercise Tagging Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="roles" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 05 · Reglas por atributo</p>
+<h1>Reglas de Etiquetado — Roles</h1>
+<p class="lede">El único eje donde las definiciones publicadas contienen semántica utilizable para decidir. No es un criterio formal, pero es más de lo que ofrece cualquier otro atributo biomecánico.</p>
+
+<h2 id="naturaleza">Un conjunto, no un valor</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">El ejercicio declara qué roles PUEDE desempeñar</div>
+  <p>Un ejercicio no "tiene un rol": declara <code>rolesPosibles[]</code>. El rol concreto lo fija el slot que lo invoca. La fuente lo dice explícitamente al describir el atributo: "slugs de rol (<strong>con nivel: un mismo ejercicio puede ser <code>principal</code> en Avanzado y <code>accesorio</code> en Elite de otro más exigente</strong>)".</p>
+</div>
+
+<h2 id="distinguir">¿Cómo distinguir principal de accesorio?</h2>
+<p class="matrix-note">Las definiciones publicadas de los cinco roles son la mejor evidencia disponible. No constituyen un criterio formal — no hay umbral, ni métrica, ni procedimiento — pero sí acotan la decisión.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Rol</th><th>Definición publicada</th><th>Señal utilizable para decidir</th></tr></thead>
+<tbody>
+<tr><td><code>activacion</code></td><td>"Prepara el patrón antes del trabajo pesado, <strong>esfuerzo bajo</strong>"</td><td>Intención preparatoria + esfuerzo bajo</td></tr>
+<tr><td><code>principal</code></td><td>"El movimiento <strong>más pesado/complejo</strong> del patrón"</td><td>Comparativo <em>dentro del patrón</em> — es relativo, no absoluto</td></tr>
+<tr><td><code>accesorio</code></td><td>"Apoya al principal — <strong>menor carga, más reps</strong>"</td><td>Relación de subordinación a un principal</td></tr>
+<tr><td><code>core-final</code></td><td>"Estabilidad/core al cierre, <strong>sin fatigar patrones grandes</strong>"</td><td>No debe comprometer el trabajo posterior</td></tr>
+<tr><td><code>metabolico</code></td><td>"Finisher de acondicionamiento — <strong>opcional</strong>, según énfasis del Bloque"</td><td>Acondicionamiento, no fuerza</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">"Más pesado/complejo del patrón" es comparativo, y el término de comparación no está fijado</div>
+  <p>La definición de <code>principal</code> es relativa a los demás ejercicios del mismo patrón. Eso significa que la etiqueta de un ejercicio <strong>depende del contenido del catálogo en el momento de etiquetarlo</strong>: añadir mañana un ejercicio más pesado del mismo patrón podría, en rigor, degradar el de hoy a accesorio.</p>
+  <p>Ninguna fuente declara si <code>rolesPosibles</code> debe reevaluarse al crecer el catálogo, ni respecto de qué conjunto se compara. Deuda registrada como <a href="../17-auditoria/index.html">TG-D02</a>.</p>
+</div>
+
+<h2 id="multiples">¿Cómo se asignan múltiples roles?</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Pregunta</th><th>Respuesta documental</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>¿Puede un ejercicio declarar varios roles?</td><td>Sí — el atributo es una lista, y la fuente da el ejemplo principal/accesorio según contexto</td><td><span class="tag tag--implementado">documentada</span></td></tr>
+<tr><td>¿Cuántos como máximo?</td><td>Sin límite declarado</td><td><span class="tag tag--futuro">deuda</span></td></tr>
+<tr><td>¿Cuántos como mínimo?</td><td>El atributo es obligatorio; la lista vacía dejaría al ejercicio sin poder llenar ningún slot</td><td><span class="tag tag--especificado">derivada</span></td></tr>
+<tr><td>¿Se puede declarar los 5?</td><td>Ninguna fuente lo prohíbe, aunque sería semánticamente dudoso</td><td><span class="tag tag--futuro">deuda</span></td></tr>
+<tr><td>¿Qué rol prevalece si el slot admite varios?</td><td><strong>La pregunta no aplica:</strong> el slot declara exactamente un rol; no hay elección</td><td><span class="tag tag--implementado">documentada</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Por qué no existe "qué rol prevalece"</div>
+  <p>Un slot es <strong>Patrón × Rol</strong>, con un rol único y explícito — "slot sin rol es plantilla malformada, sin excepción". Cuando el Generator resuelve, filtra por <code>rolesPosibles.includes(rol_del_slot)</code>: no hay ambigüedad que dirimir. La multiplicidad de roles del ejercicio existe para que <em>pueda</em> ser candidato en slots distintos, no para competir dentro de uno.</p>
+</div>
+
+<h2 id="consecuencias">Consecuencias de etiquetar mal un rol</h2>
+<div class="diagram">
+<div class="diagram-label">El rol arrastra tres decisiones aguas abajo</div>
+<pre class="mermaid">
+graph TD
+  ROL["rolesPosibles[]"] --> ORD["Orden en la sesión<br/>R-4 · inalterable"]
+  ROL --> DES["Descanso base<br/>rango por rol"]
+  ROL --> VOL["¿Cuenta como volumen<br/>productivo?"]
+  ORD --> S1["Un ejercicio etiquetado activacion<br/>irá siempre primero"]
+  DES --> S2["principal 120-180s vs.<br/>metabolico 30-60s"]
+  VOL --> S3["activacion NO suma volumen;<br/>los otros cuatro sí"]
+</pre>
+</div>
+<p>Un error de etiquetado en este eje no produce un fallo visible: produce una sesión que se genera correctamente pero con el ejercicio en la posición equivocada, con el descanso equivocado y contabilizado —o no— en el volumen semanal. Es el tipo de error que TG-05 asigna a la capa de validación humana, porque ninguna validación estructural puede detectarlo.</p>
+
+<h2 id="validaciones">Validaciones aplicables</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Validación</th><th>Capa</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>Todos los valores pertenecen a los 5 roles publicados</td><td>Estructural</td><td><span class="tag tag--implementado">verificable</span></td></tr>
+<tr><td>La lista no está vacía</td><td>Estructural</td><td><span class="tag tag--especificado">derivada</span> — el atributo es obligatorio</td></tr>
+<tr><td>No hay valores repetidos</td><td>Estructural</td><td><span class="tag tag--futuro">no declarada</span></td></tr>
+<tr><td>Los roles declarados son plausibles para el movimiento</td><td><strong>Contenido</strong></td><td>Solo revisión humana</td></tr>
+<tr><td>El ejercicio es realmente "el más pesado del patrón" si declara <code>principal</code></td><td><strong>Contenido</strong></td><td>Depende del catálogo — ver TG-D02</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../04-patrones/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 04 · Patrones</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../06-modalidad/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">06 · Modalidad →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

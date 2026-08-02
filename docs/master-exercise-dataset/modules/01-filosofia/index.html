@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>01 · Filosofía del Dataset — Master Exercise Dataset</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="filosofia" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Sección 01 · Fundamento</p>
+<h1>Filosofía del Dataset</h1>
+<p class="lede">Diez principios de diseño. No son aspiraciones: cada uno se traduce en una regla concreta del modelo, y juntos explican por qué el dataset puede crecer de 0 a 250 entradas sin una sola migración.</p>
+
+<h2 id="principios">Los diez principios</h2>
+
+<div class="callout callout--regla">
+  <div class="callout__label">DS-01 · Una sola colección</div>
+  <p>Existe exactamente <strong>un</strong> catálogo de ejercicios. Cualquier lista paralela —en código, en documentación, en una hoja de cálculo— es una copia y no tiene valor de verdad. Los consumidores leen del dataset o de una proyección declarada de él, nunca de una fuente propia.<br><strong>Se traduce en:</strong> las proyecciones de la <a href="../02-arquitectura/index.html">sección 02</a> son el único mecanismo autorizado de derivación.</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">DS-02 · Identidad numérica permanente</div>
+  <p>Cada ejercicio recibe un <code>id</code> numérico secuencial en el momento de su alta. Ese identificador <strong>no cambia jamás</strong>, no se reutiliza aunque el ejercicio se archive, y es la clave sobre la que apunta toda referencia interna del dataset.<br><strong>Se traduce en:</strong> el formato <code>EX-0001</code> y las reglas de la <a href="../09-ids/index.html">sección 09</a>.</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">DS-03 · Append-only: nada se borra</div>
+  <p>Un ejercicio nunca se elimina del dataset. Deja de ofrecerse cambiando de estado, conservando su entrada íntegra. Toda referencia histórica —una sesión generada hace meses, un evento, una cadena— sigue resolviendo.<br><strong>Se traduce en:</strong> los estados <code>deprecated</code> y <code>archived</code> de la <a href="../15-mantenimiento/index.html">sección 15</a>.</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">DS-04 · La estructura se congela; el contenido crece</div>
+  <p>El modelo de 38 campos queda fijado en v1.0. Añadir ejercicios no requiere tocar la estructura, y por tanto no requiere migrar nada. El coste marginal de la entrada número 220 es idéntico al de la número 2.<br><strong>Se traduce en:</strong> el compromiso de congelación y el procedimiento de versión mayor de la <a href="../06-versionado/index.html">sección 06</a>.</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">DS-05 · Toda entrada declara su madurez</div>
+  <p>Un ejercicio no es solo "válido o inválido": atraviesa un ciclo explícito de seis estados. Es posible tener trabajo en curso sin contaminar el catálogo activo, y es posible retirar sin destruir.<br><strong>Se traduce en:</strong> el campo <code>status</code> y su máquina de estados.</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">DS-06 · Toda modificación deja rastro</div>
+  <p>Cada entrada registra quién la creó, quién la aprobó, cuándo, y el historial de sus revisiones con motivo y tipo de cambio. La responsabilidad sobre lo que se prescribe a una persona es siempre rastreable a una decisión humana identificada.<br><strong>Se traduce en:</strong> el bloque de gobierno del modelo y el array <code>revisions</code>.</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">DS-07 · Vocabularios cerrados, valores enumerados</div>
+  <p>Todo campo de clasificación toma valores de una lista finita y publicada. No hay campos de clasificación en texto libre. Extender un vocabulario es una operación versionada y aditiva, nunca un efecto colateral de dar de alta un ejercicio.<br><strong>Se traduce en:</strong> los enumerados del <a href="../04-modelo/index.html">modelo oficial</a> y la regla de extensión de vocabulario.</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">DS-08 · Lo decidible se estructura; lo humano queda humano</div>
+  <p>Si un consumidor necesita un dato para decidir, ese dato es un campo enumerado. El texto libre —descripción, instrucciones, notas— es canal humano y <strong>ningún proceso automático lo interpreta</strong>. Un dato decidible escondido en prosa es un campo que falta, no una fuente alternativa.<br><strong>Se traduce en:</strong> la separación entre el bloque <em>Clasificación</em> y el bloque <em>Contenido</em>.</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">DS-09 · Ausencia explícita, nunca implícita</div>
+  <p>El modelo distingue "no evaluado" de "evaluado sin resultado". Un campo sin valor y una lista vacía son afirmaciones distintas, y el dataset las representa de forma distinta. Un ejercicio sin evaluar no se comporta como uno evaluado y seguro.<br><strong>Se traduce en:</strong> la distinción <code>null</code> / <code>[]</code> definida campo a campo en el modelo.</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">DS-10 · Las relaciones son explícitas y verificables</div>
+  <p>Variantes, progresiones y regresiones se declaran como referencias a IDs, nunca como texto. El grafo resultante es validable: sin referencias colgantes, sin ciclos, sin aristas que crucen patrones.<br><strong>Se traduce en:</strong> el bloque <em>Relaciones</em> y sus reglas de integridad.</p>
+</div>
+
+<h2 id="mapa">De principio a mecanismo</h2>
+<div class="diagram">
+<div class="diagram-label">Cada principio produce una decisión concreta del modelo</div>
+<pre class="mermaid">
+graph LR
+  DS02["DS-02 · Identidad<br/>permanente"] --> M1["campo id · EX-0001<br/>inmutable · no reutilizable"]
+  DS03["DS-03 · Append-only"] --> M2["estados deprecated<br/>y archived"]
+  DS04["DS-04 · Estructura<br/>congelada"] --> M3["38 campos fijos<br/>versión mayor para cambiarlos"]
+  DS05["DS-05 · Madurez<br/>declarada"] --> M4["campo status<br/>6 estados"]
+  DS06["DS-06 · Rastro"] --> M5["bloque de gobierno<br/>+ revisions[]"]
+  DS07["DS-07 · Vocabularios<br/>cerrados"] --> M6["campos enumerados<br/>sin texto libre"]
+  DS09["DS-09 · Ausencia<br/>explícita"] --> M7["null ≠ [] por campo"]
+  DS10["DS-10 · Relaciones<br/>explícitas"] --> M8["referencias por id<br/>grafo validable"]
+</pre>
+</div>
+
+<h2 id="crecer">Por qué el dataset puede crecer sin migrar</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Propiedad</th><th>Consecuencia sobre el crecimiento</th></tr></thead>
+<tbody>
+<tr><td>Estructura congelada (DS-04)</td><td>Añadir la entrada 221 no exige revisar las 220 anteriores</td></tr>
+<tr><td>Identidad permanente (DS-02)</td><td>Ninguna referencia se rompe al crecer; los IDs nuevos no colisionan por construcción</td></tr>
+<tr><td>Append-only (DS-03)</td><td>El dataset solo aumenta; ninguna operación reduce su contenido</td></tr>
+<tr><td>Particionado por patrón (sección 05)</td><td>Trabajar en un patrón no toca los otros ocho — permite lotes paralelos</td></tr>
+<tr><td>Vocabularios cerrados (DS-07)</td><td>Un ejercicio nuevo no puede introducir clasificación nueva por accidente</td></tr>
+<tr><td>Relaciones por ID (DS-10)</td><td>Encadenar dos ejercicios no modifica ningún otro campo de ninguno de los dos</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="tensiones">Tensiones aceptadas</h2>
+<div class="callout callout--tradeoff">
+  <div class="callout__label">Rigidez del modelo frente a flexibilidad futura</div>
+  <p>Congelar 38 campos implica que una necesidad no prevista exigirá una versión mayor. Se acepta: la alternativa —un modelo extensible con campos libres— degrada en pocos meses hacia un esquema que nadie conoce del todo y que ningún consumidor puede asumir. El modelo incluye campos <strong>RESERVADOS</strong> precisamente para absorber las extensiones previsibles sin romper la congelación.</p>
+</div>
+<div class="callout callout--tradeoff">
+  <div class="callout__label">Coste de alta por ejercicio</div>
+  <p>Un checklist de 28 ítems por ejercicio hace que 220 entradas sean trabajo real y sostenido. Se acepta: el catálogo es el activo del que dependen nueve consumidores, y un ejercicio mal clasificado no falla de forma visible — se propaga silenciosamente hasta la sesión que ejecuta una persona.</p>
+</div>
+<div class="callout callout--descartado">
+  <div class="callout__label">Descartado — esquema flexible con campos personalizados</div>
+  <p>Habría permitido empezar a poblar de inmediato y ajustar sobre la marcha. Descartado por DS-04 y DS-07: un campo libre se convierte en el vertedero donde acaban los datos que nadie supo dónde poner, y los consumidores terminan parseando texto para decidir — exactamente lo que DS-08 prohíbe.</p>
+</div>
+<div class="callout callout--descartado">
+  <div class="callout__label">Descartado — slug como clave primaria</div>
+  <p>Es legible y ya se usa en el ecosistema. Descartado como <em>clave</em>: un slug es una decisión editorial sobre el nombre, y las decisiones editoriales cambian de opinión. El ID numérico no significa nada y por eso nunca hay motivo para cambiarlo. El slug se conserva como identificador secundario estable — ver <a href="../03-identidad/index.html">sección 03</a>.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../00-introduccion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 00 · Introducción</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../02-arquitectura/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">02 · Arquitectura →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

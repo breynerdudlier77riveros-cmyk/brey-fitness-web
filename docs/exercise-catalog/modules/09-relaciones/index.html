@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>09 · Mapa de Relaciones — Exercise Catalog</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="relaciones" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 09 · Relaciones</p>
+<h1>Mapa de Relaciones</h1>
+<p class="lede">Cómo se articulan Exercise, variaciones, progresiones, regresiones, cadena y patrón en un solo modelo — y cuáles de esas relaciones son estructurales y cuáles solo nominales.</p>
+
+<h2 id="jerarquia">La jerarquía solicitada, verificada</h2>
+<p class="matrix-note">La cadena Exercise → Variaciones → Progresiones → Regresiones → Cadena → Patrón sugiere seis niveles anidados. El barrido muestra que la realidad documental es distinta: hay <strong>una sola estructura</strong> (la cadena), leída en dos direcciones, dentro de un patrón, y un atributo suelto sin relación definida.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Nivel solicitado</th><th>Qué es realmente</th><th>Tipo de relación</th></tr></thead>
+<tbody>
+<tr><td><strong>Exercise</strong></td><td>La entrada de catálogo — 21 atributos</td><td>Entidad</td></tr>
+<tr><td><strong>Variaciones</strong></td><td><code>variantes[]</code> — texto libre sin consumidor</td><td><span class="tag tag--futuro">nominal</span> — su vínculo con la cadena no está definido</td></tr>
+<tr><td><strong>Progresiones</strong></td><td><code>cadena.siguiente</code> — dirección de lectura</td><td>Estructural</td></tr>
+<tr><td><strong>Regresiones</strong></td><td><code>cadena.anterior</code> — dirección de lectura</td><td>Estructural</td></tr>
+<tr><td><strong>Cadena</strong></td><td>El atributo que contiene ambas direcciones</td><td>Estructural — <strong>es la única estructura real</strong></td></tr>
+<tr><td><strong>Patrón</strong></td><td>El eje de clasificación que contiene toda la cadena</td><td>Estructural — restricción de contención</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Progresión y regresión no son entidades</div>
+  <p>No existen como atributos independientes ni como registros: son las dos direcciones de lectura de <code>cadena</code>. Modelarlas por separado duplicaría la misma información y permitiría que divergieran.</p>
+</div>
+
+<h2 id="er">Modelo entidad-relación</h2>
+<div class="diagram">
+<div class="diagram-label">Conceptual — el catálogo no tiene tabla propia (ADR-009: vive en código versionado)</div>
+<pre class="mermaid">
+erDiagram
+  PATRON ||--o{ EXERCISE : "clasifica (primario, 1)"
+  PATRON }o--o{ EXERCISE : "clasifica (secundarios, 0..N)"
+  ROL }o--o{ EXERCISE : "admite (1..5)"
+  EQUIPO }o--o{ EXERCISE : "requiere (1..N)"
+  ZONA_RIESGO }o--o{ EXERCISE : "carga con intensidad (0..6)"
+  CAPACIDAD }o--o{ EXERCISE : "condiciona elegibilidad (0..N)"
+  EXERCISE ||--o| EXERCISE : "cadena.anterior (0..1)"
+  EXERCISE ||--o| EXERCISE : "cadena.siguiente (0..1)"
+  EXERCISE ||--o{ VARIANTE_TEXTO : "describe (0..N, sin estructura)"
+  SISTEMA }o--o{ EXERCISE : "vincula (sin consumidor)"
+</pre>
+</div>
+
+<h2 id="contencion">La regla de contención</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Toda la cadena vive dentro de un patrón</div>
+  <p>"Toda cadena vive DENTRO de un patrón y de un conjunto de roles compatibles — <strong>un eslabón nunca cruza de patrón</strong>". Es la única restricción documentada entre dos ejes distintos, y la que hace que la cadena sea validable.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Contención — y el atributo que queda fuera de ella</div>
+<pre class="mermaid">
+graph TD
+  subgraph P["PATRÓN · p. ej. traccion-vertical"]
+    A["Eslabón 1"] --> B["Eslabón 2"] --> C["Eslabón 3"]
+  end
+  V["variantes[]<br/><i>texto libre</i>"] -.->|"sin restricción<br/>de patrón declarada"| B
+  X["Otro patrón"] -.->|"❌ prohibido:<br/>la cadena no cruza"| B
+</pre>
+</div>
+
+<h2 id="cardinalidades">Cardinalidades del modelo</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Relación</th><th>Cardinalidad</th><th>Obligatoria</th><th>Restricción adicional</th></tr></thead>
+<tbody>
+<tr><td>Exercise → Patrón primario</td><td>1:1</td><td>Sí</td><td>Exactamente uno; sin él la entrada es inválida</td></tr>
+<tr><td>Exercise → Patrones secundarios</td><td>1:N</td><td>No</td><td>Ninguna declarada</td></tr>
+<tr><td>Exercise → Roles</td><td>1:N</td><td>Sí</td><td>Sin límite superior declarado</td></tr>
+<tr><td>Exercise → Equipo</td><td>1:N</td><td>Sí</td><td>Semántica conjunción/disyunción sin declarar</td></tr>
+<tr><td>Exercise → Zonas de riesgo</td><td>1:N</td><td>Sí</td><td>Lista vacía válida; ausencia no</td></tr>
+<tr><td>Exercise → Capacidades</td><td>1:N</td><td>No</td><td>Vocabulario abierto, sin proceso de alta</td></tr>
+<tr><td>Exercise → Exercise (cadena)</td><td>1:0..1 por dirección</td><td>No</td><td>Lineal, sin ciclos, dentro del mismo patrón</td></tr>
+<tr><td>Exercise → Sistemas</td><td>1:N</td><td>Sí</td><td>Sin consumidor documentado</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="hacia-fuera">Relaciones hacia fuera del catálogo</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Con</th><th>Naturaleza</th><th>Dirección</th></tr></thead>
+<tbody>
+<tr><td><strong>Slot</strong> (Training Framework, capa 8)</td><td>El slot se resuelve a exactamente un Exercise</td><td>El slot invoca; el catálogo no conoce slots</td></tr>
+<tr><td><strong>Workout</strong> (instancia)</td><td>Copia desnormalizada: slug + nombre + modalidad</td><td>El Workout copia; nunca referencia viva (I-G2)</td></tr>
+<tr><td><strong>Usuario</strong></td><td><strong>Ninguna.</strong> El catálogo no conoce usuarios (CT-05)</td><td>—</td></tr>
+<tr><td><strong>Prescripción</strong></td><td><strong>Ninguna.</strong> El ejercicio no declara series/reps/intensidad (CT-04)</td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">El catálogo es el nodo hoja del grafo</div>
+  <p>Ninguna relación sale del catálogo hacia el resto del ecosistema: son los consumidores quienes lo leen. Esa unidireccionalidad es lo que permite que el catálogo sea versionado e inmutable respecto de lo ya generado (CT-06), y que la Knowledge Base no conozca usuarios.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../08-progresiones/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 08 · Progresiones</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../10-integridad/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">10 · Integridad →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

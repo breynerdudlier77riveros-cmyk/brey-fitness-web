@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>01 · Estrategia general — Implementation Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="estrategia-general" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 01 · Fundamentos</p>
+<h1>Estrategia general</h1>
+<p class="lede">Cinco reglas de secuenciación. Todo el resto de este handbook (Roadmap, Orden de construcción, Migraciones, checklists) es una aplicación mecánica de estas cinco reglas — nunca una decisión nueva.</p>
+
+<h2 id="regla-1">Regla 1 — Nunca se construye sobre un contrato ambiguo</h2>
+<p>Si la Architecture Review señaló una contradicción 🔴 o 🟠 entre dos handbooks sobre un contrato específico (el caso real: la forma del Veredicto de Recovery, AR-001), ese contrato se arbitra en este documento (IMP-ADR, 14) <strong>antes</strong> de escribir la primera línea de código que lo consuma. Nunca se implementa "una de las dos formas, ya se verá" — eso produce el mismo tipo de deuda que la Architecture Review detectó, ahora en código en vez de en documentación.</p>
+
+<h2 id="regla-2">Regla 2 — De abajo hacia arriba: datos → backend → frontend</h2>
+<p>Ninguna pantalla se construye antes de que su repositorio exista; ningún repositorio se construye antes de que su tabla exista; ninguna tabla se construye antes de que su migración esté escrita y su RLS esté verificado. El orden inverso (frontend primero, "ya conectamos el backend después") es la causa más común de que un modelo de datos termine ajustado a las necesidades accidentales de una UI en vez de al dominio real.</p>
+
+<h2 id="regla-3">Regla 3 — Se paraleliza exactamente donde el dominio ya lo garantiza, nunca donde "parece" independiente</h2>
+<p>La paralelización de este handbook (02, 04) no es una estimación de conveniencia — se basa en declaraciones explícitas de dependencia (o ausencia de ella) ya escritas en los handbooks de dominio. El caso real: BCS Handbook declara "sin dependencia de otros motores" en su propio módulo 00 — eso es lo que autoriza a construir BCS en paralelo con Motor BPS/Progression Engine. Si un handbook de dominio no declara explícitamente la ausencia de una dependencia, este documento asume que existe y secuencia en serie.</p>
+
+<h2 id="regla-4">Regla 4 — Ningún motor se implementa sin su Definition of Ready satisfecha</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Definition of Ready de un motor</div>
+  <p>Un motor (Motor BPS, Progression Engine, o cualquier futuro) está listo para empezar a implementarse cuando: (1) su handbook de dominio existe y fue auditado sin hallazgos 🔴 abiertos que lo afecten directamente; (2) todo contrato de entrada que consume de otro motor está resuelto sin ambigüedad (Regla 1); (3) la migración de la tabla que va a escribir está aplicada y verificada (05); (4) no existe ninguna brecha de seguridad 🔴/🟠 conocida en las tablas que va a tocar (Regla 5). Formalizada como IMP-ADR-05 (14).</p>
+</div>
+
+<h2 id="regla-5">Regla 5 — Nunca se añade una feature nueva sobre una brecha de seguridad ya identificada</h2>
+<p>El caso real: la Architecture Review (AR-018) identificó que las políticas RLS de <code>workouts</code>/<code>workout_logs</code> eran más permisivas de lo que la inmutabilidad de historial exige — una migración de endurecimiento especificada por el Architecture Handbook, aplicada en Sprint 0 (05). Esta regla obligó a que esa migración se aplicara <strong>antes</strong> de que Progression Engine (que lee ese mismo historial como su entrada principal) empiece a escribirse — no en paralelo, no "después, ya que estemos" (05, orden de migraciones). Formalizada como IMP-ADR-04 (14).</p>
+
+<h2 id="definition-ready-done">Definition of Ready y Definition of Done — genéricas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th></th><th>Criterio</th></tr></thead>
+<tbody>
+<tr><td><strong>Definition of Ready</strong> (antes de empezar cualquier pieza de trabajo)</td><td>El handbook que la especifica existe; no tiene hallazgos 🔴 abiertos de la Architecture Review que la afecten directamente; sus dependencias (02) están en estado <span class="status status--implementado">implementado</span> o <span class="status status--verificado">verificado</span>; su contrato de entrada/salida no tiene ambigüedad sin resolver</td></tr>
+<tr><td><strong>Definition of Done</strong> (antes de marcar una pieza de trabajo como completa)</td><td>Cumple el checklist de PR correspondiente (13); cumple el checklist de Testing aplicable (10, 13); no introduce ningún hallazgo nuevo equivalente a los ya catalogados por la Architecture Review; su estado pasa a <span class="status status--implementado">implementado</span> en la tabla de 12 — <span class="status status--verificado">verificado</span> requiere además el checklist de Release (13)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="que-no-es-estrategia">Qué NO decide este módulo</h2>
+<p>Esta estrategia no elige tecnologías, no diseña componentes, no define reglas de negocio — solo fija el orden y las condiciones de entrada/salida entre piezas ya especificadas por otro documento. Cualquier duda sobre <em>qué</em> construir se resuelve releyendo el handbook de dominio correspondiente, nunca improvisando aquí.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../00-introduccion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 00 · Introducción</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../02-dependencias/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">02 · Dependencias →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

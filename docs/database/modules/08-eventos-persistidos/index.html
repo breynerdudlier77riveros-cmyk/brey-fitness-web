@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>08 · Eventos Persistidos — BREY Database Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="eventos-persistidos" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 08 · Esquema físico</p>
+<h1>Eventos Persistidos</h1>
+<p class="lede"><code>progression_events</code> — la única tabla de eventos de todo el ecosistema (ENG-ADR-03). Ownership, replay, el gap real de <code>contexto</code>, y su relación exacta con el catálogo de 35 eventos del Domain Model Handbook.</p>
+
+<div class="meta-row">
+  <span class="chip">1 tabla, 6 productores</span>
+  <span class="chip">25 de 35 eventos del dominio pasan por aquí</span>
+</div>
+
+<h2 id="por-que-una-tabla">Por qué una sola tabla — ENG-ADR-03</h2>
+<p>El Architecture Handbook especificó <code>progression_events</code> como tabla única antes de que existieran el Motor BPS Handbook y el Progression Engine Handbook. La alternativa descartada — una tabla por motor (<code>motor_bps_events</code>, <code>progression_engine_events</code>) — fragmentaría el timeline cronológico de un Usuario en múltiples tablas, forzando un <code>UNION</code> costoso para cualquier vista agregada. Cada motor nuevo declara su propio valor de <code>origen</code> y extiende el CHECK de <code>tipo</code> — nunca crea una tabla paralela.</p>
+
+<h2 id="ownership-eventos">Ownership — quién escribe qué <code>tipo</code></h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Productor (<code>origen</code>)</th><th>Tipos que emite</th></tr></thead>
+<tbody>
+<tr><td><code>motor_bps</code></td><td><code>activacion</code>, <code>pausa</code>, <code>reanudacion</code>, <code>sistema_completado</code>, <code>gate_fallado</code>, <code>transicion_estado</code>, <code>anomalia</code></td></tr>
+<tr><td><code>progression_engine</code></td><td><code>avanza</code>, <code>sostiene</code>, <code>retrocede</code>, <code>prescripcion_actualizada</code>, <code>escalon_avanzado</code>, <code>escalon_retrocedido</code>, <code>estancamiento_confirmado</code>, <code>estancamiento_resuelto</code>, <code>deload_aplicado</code>, <code>deload_cancelado</code>, <code>conflicto_resuelto</code>, <code>error_invocacion</code></td></tr>
+<tr><td><code>recovery_engine</code></td><td><code>descarga_reactiva</code>, <code>dolor_reportado</code>, <code>restriccion_zona</code></td></tr>
+<tr><td><code>workout_generator</code></td><td><code>semana_generada</code>, <code>descarga_programada</code></td></tr>
+<tr><td><code>usuario</code></td><td><code>override_usuario</code></td></tr>
+<tr><td><code>coach</code></td><td>Ninguno especificado todavía (AR-011, DB-ADR-04, 15) — reservado sin contenido</td></tr>
+</tbody>
+</table>
+</div>
+<p>25 tipos en total, entre los 6 productores — coincide exactamente con la porción de <code>progression_events</code> del catálogo de 35 eventos del Domain Model Handbook (11); los otros 10 son efectos del BCS que nunca tocan esta tabla (ver más abajo).</p>
+
+<h2 id="diagrama-eventos">Diagrama — flujo productor → tabla → consumidor</h2>
+<div class="diagram">
+<div class="diagram-label">Una sola tabla, seis productores, cuatro consumidores reales</div>
+<pre class="mermaid">
+flowchart LR
+  MB["motor_bps"] --> PE["progression_events"]
+  PGE["progression_engine"] --> PE
+  REC["recovery_engine"] --> PE
+  WG["workout_generator"] --> PE
+  US["usuario (override)"] --> PE
+  CO["coach — reservado, sin tipos"] -.-> PE
+  PE --> T["UI de timeline<br/>(todos los tipos)"]
+  PE --> MBR["Motor BPS<br/>(replay de estado, IN-5)"]
+  PE --> PGR["Progression Engine<br/>(evaluación del ciclo siguiente)"]
+  PE --> OBS["Observabilidad<br/>(anomalia, gate_fallado, error_invocacion)"]
+</pre>
+</div>
+
+<h2 id="replay">Replay — el mecanismo que hace el estado auditable</h2>
+<p>El estado de un Usuario (<code>profiles.sistema_actual</code>, <code>nivel_actual</code>, y la máquina FSM del Motor BPS) es un puntero materializado para lectura barata — pero es siempre recomputable desde cero recorriendo <code>progression_events</code> en orden de <code>created_at</code> (Motor BPS Handbook, MBPS-ADR-01; IN-5). Ante cualquier divergencia entre el puntero y lo que el replay produce, <strong>el replay gana</strong> — el puntero es una optimización, nunca la fuente de verdad. Esto exige, como precondición dura: ningún evento se reordena retroactivamente, y ningún evento se edita o elimina tras insertarse (append-only, DM-ADR-06).</p>
+
+<h2 id="diagrama-replay">Diagrama — replay determinista</h2>
+<div class="diagram">
+<div class="diagram-label">El puntero es una optimización de lectura; el log es la verdad (MBPS-ADR-01)</div>
+<pre class="mermaid">
+flowchart LR
+  LOG["progression_events<br/>(orden por created_at)"] -->|"replay completo"| REC["Estado recomputado"]
+  PTR["profiles.sistema_actual /<br/>nivel_actual (puntero)"] -.->|"lectura barata"| UI["UI / motores"]
+  REC -->|"ante divergencia, el replay gana"| PTR
+</pre>
+</div>
+
+<h2 id="contexto-gap">Contexto — el gap real, no inventado aquí</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">AR-013/AR-026 — sin esquema fijo por tipo de evento</div>
+  <p><code>contexto</code> (jsonb) existe exclusivamente para habilitar el replay determinista — pero ningún handbook define su forma exacta para cada uno de los 25 tipos. Hoy es "las métricas usadas al momento de la decisión", una descripción de intención, no un contrato verificable. Dos implementaciones del mismo tipo de evento podrían serializar <code>contexto</code> de forma distinta, rompiendo la comparabilidad histórica. Este documento no inventa ese esquema — lo declara abierto (16, AP-02).</p>
+</div>
+
+<h2 id="versionado-eventos">Versionado — el gap 14→25 del CHECK</h2>
+<p>El CHECK original de <code>tipo</code> (Architecture Handbook, 10) cubre 14 valores: <code>activacion, avanza, sostiene, retrocede, descarga_programada, descarga_reactiva, pausa, reanudacion, dolor_reportado, restriccion_zona, override_usuario, sistema_completado, semana_generada, anomalia</code>. Ni las adiciones de Motor BPS Handbook (<code>gate_fallado</code>, <code>transicion_estado</code>) ni las de Progression Engine Handbook (9 tipos, ver tabla de ownership arriba) están en ese CHECK original — el Engineering Handbook (07) ya consolidó los 25, y la migración M2 (Implementation Handbook, 05) los aplica desde el primer <code>CREATE TABLE</code>, no como parche posterior. Ver DB-ADR-03 (15).</p>
+
+<h2 id="relacion-domain-events">Relación con el catálogo de 35 Domain Events</h2>
+<p>El Domain Model Handbook (11) consolida 35 eventos totales. Esta tabla persiste exactamente 25 — los 10 restantes son efectos del BCS que nunca escriben aquí, por diseño (02):</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Evento BCS (efecto, no fila de <code>progression_events</code>)</th><th>Dónde se refleja</th></tr></thead>
+<tbody>
+<tr><td><code>cliente_creado</code>, <code>cliente_editado</code>, <code>cliente_archivado</code>, <code>cliente_eliminado</code></td><td>Efecto persistido directamente en <code>bcs_clientes.estado</code> — sin fila de evento propia</td></tr>
+<tr><td><code>medicion_registrada</code>, <code>medicion_corregida</code></td><td>Efecto persistido en <code>bcs_mediciones</code> (nueva fila <code>vigente</code> + anulación de la anterior)</td></tr>
+<tr><td><code>enlace_creado</code>, <code>enlace_revocado</code></td><td>Efecto persistido en <code>bcs_enlaces_publicos.estado</code></td></tr>
+<tr><td><code>token_invalido_intentado</code></td><td>Log de seguridad (13), fuera de <code>progression_events</code> por diseño — nunca mezcla auditoría de acceso anónimo con el timeline de decisiones de motor</td></tr>
+<tr><td><code>token_revocado_intentado</code></td><td>Log de seguridad (13), fuera de <code>progression_events</code> por diseño — distinto del anterior para diagnóstico interno (token existió pero fue revocado)</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Por qué no se fusionan en una sola tabla</div>
+  <p>BCS no comparte ningún <code>origen</code>/productor con los 25 tipos de <code>progression_events</code>, y es un bounded context standalone que nunca conoce Core Training/Progression (02, BC-01 del BCS Handbook). Mezclarlos forzaría a BCS a depender del esquema de Progression — exactamente la dependencia prohibida que 02 documenta.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../07-constraints/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 07 · Constraints</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../09-rls/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">09 · RLS →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

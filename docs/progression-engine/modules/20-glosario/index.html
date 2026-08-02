@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>20 · Glosario — Progression Engine Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="glosario" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 20 · Gobernanza</p>
+<h1>Glosario</h1>
+<p class="lede">Todo término de este handbook, en orden alfabético, con la definición exacta usada en este documento y su origen si viene heredado de otro handbook.</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr><th>Término</th><th>Definición</th></tr></thead>
+<tbody>
+<tr><td><strong>Adherencia</strong></td><td>Cumplimiento agregado en el tiempo, usado a nivel macro (09) — distinto de Cumplimiento puntual de una Aparición</td></tr>
+<tr><td><strong>Aparición</strong></td><td>Un registro puntual de la ejecución real de un Slot (03)</td></tr>
+<tr><td><strong>Bloque</strong></td><td>Escalón de la jerarquía de entrenamiento (Training Framework, Architecture Handbook) compuesto de Mesociclos</td></tr>
+<tr><td><strong>Cadena de progresión</strong></td><td>Secuencia ordenada de eslabones para un Slot, propiedad de la Knowledge Base (03)</td></tr>
+<tr><td><strong>Cadencia de decisión</strong></td><td>La frecuencia correcta con la que una señal debería producir una decisión — no siempre coincide con su cadencia de emisión (01)</td></tr>
+<tr><td><strong>Cadencia de señal</strong></td><td>La frecuencia natural con la que una señal de entrenamiento se emite (por serie, por sesión, por semana) (01)</td></tr>
+<tr><td><strong>Cumplimiento</strong></td><td>Flag de una Aparición: si el usuario completó lo prescrito (PE-021)</td></tr>
+<tr><td><strong>Decisión macro</strong></td><td>Salida del motor a nivel de jerarquía: avanza/sostiene/retrocede un escalón (03, 09)</td></tr>
+<tr><td><strong>Decisión micro</strong></td><td>Salida del motor a nivel de Slot: nueva Prescripción vigente (03, 08)</td></tr>
+<tr><td><strong>Deload preventivo</strong></td><td>Sugerencia no vinculante de descarga, propia de este motor, originada por estancamiento sostenido (PE-035) — 🔴</td></tr>
+<tr><td><strong>Deload programado</strong></td><td>Descarga definida por el Training Framework como parte del diseño del Bloque (PE-033)</td></tr>
+<tr><td><strong>Deload reactivo</strong></td><td>Descarga obligatoria disparada por el Veredicto de Recovery, obedecida sin cuestionamiento (PE-034)</td></tr>
+<tr><td><strong>Densidad</strong></td><td>Volumen entre tiempo — variable derivada, nunca prescrita directamente (PE-011)</td></tr>
+<tr><td><strong>Eslabón</strong></td><td>Posición dentro de una Cadena de progresión</td></tr>
+<tr><td><strong>Evento</strong></td><td>Registro inmutable de una Decisión, persistido por el Motor BPS (03, 14)</td></tr>
+<tr><td><strong>Mesociclo</strong></td><td>Escalón de la jerarquía compuesto de Microciclos (Training Framework)</td></tr>
+<tr><td><strong>Microciclo</strong></td><td>Escalón más frecuente de la jerarquía macro que este motor evalúa (09)</td></tr>
+<tr><td><strong>Nivel</strong></td><td>Escalón superior de la jerarquía, propiedad de <code>profiles.nivel_actual</code>, acoplado a un Sistema — su avance es una recomendación de este motor, aplicada por el Motor BPS (PE-016)</td></tr>
+<tr><td><strong>Patrón×Rol</strong></td><td>Unidad de clasificación de un Slot independiente del ejercicio concreto (P7 del Architecture Handbook)</td></tr>
+<tr><td><strong>Precedencia</strong></td><td>Mecanismo de resolución de conflictos de este motor — explícita, nunca ponderada (05, PE-ADR-01)</td></tr>
+<tr><td><strong>Prescripción vigente</strong></td><td>El conjunto de las 10 variables asignadas a un Slot para el próximo ciclo (03, 04)</td></tr>
+<tr><td><strong>RIR</strong></td><td>Repeticiones en reserva — sistema de esfuerzo alterno a RPE, mutuamente excluyente (PE-008, PE-020)</td></tr>
+<tr><td><strong>RPE</strong></td><td>Esfuerzo percibido — señal primaria de autorregulación cuando el Slot lo usa (PE-007, PE-019)</td></tr>
+<tr><td><strong>Señal de estancamiento</strong></td><td>Marca no vinculante adjunta a una Decisión, nunca una entidad persistible por separado (03, IN-M3)</td></tr>
+<tr><td><strong>Sistema</strong></td><td>Producto comercial de BREY (ej. Calistenia) — fuera del alcance de este motor (PE-018)</td></tr>
+<tr><td><strong>Slot</strong></td><td>Posición Patrón×Rol dentro de una sesión prescrita — unidad mínima de progresión (03)</td></tr>
+<tr><td><strong>Track</strong></td><td>Variante de ejecución de un Sistema (ej. Gym/Casa) — fuera del alcance de este motor (PE-018)</td></tr>
+<tr><td><strong>Ventana de historial</strong></td><td>Secuencia ordenada de Apariciones pasadas de un Slot (03, 04)</td></tr>
+<tr><td><code>VENTANA_INSUFICIENTE</code></td><td>Razón declarada cuando la ventana no alcanza el mínimo exigido para una decisión macro (P6, IN-P3)</td></tr>
+<tr><td><strong>Veredicto de Recovery</strong></td><td>DTO de entrada {procede, tipo, razon}, único punto de contacto de este motor con el Recovery Engine (03, 04, 10)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../19-preguntas/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 19 · Preguntas Abiertas</div>
+  </a>
+  <div></div>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

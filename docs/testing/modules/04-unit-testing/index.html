@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>04 · Unit Testing — BREY Testing Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="unit-testing" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 04 · Niveles</p>
+<h1>Unit Testing</h1>
+<p class="lede">Todo lo que puede probarse sin base de datos, sin red y sin reloj — el nivel de mayor prioridad porque no requiere ningún entorno además del propio código.</p>
+
+<h2 id="candidatos">Candidatos a unit — matriz completa</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Función/motor</th><th>Por qué es unit</th><th>Origen</th></tr></thead>
+<tbody>
+<tr><td>Progression Engine — pipeline completo (Validación → Normalización → Evaluación → Resolución de conflictos → Aplicación)</td><td>Función pura (IN-P1) — recibe ventana, prescripción, veredicto y fecha ya resueltos</td><td>Progression Engine Handbook, 02</td></tr>
+<tr><td>Recovery Engine — <code>evaluarRecuperacion</code></td><td>Función pura sobre historial ya leído (I-R4)</td><td>Architecture Handbook, 06</td></tr>
+<tr><td>Workout Generator — ensamblado plantilla→instancia</td><td>Pura salvo el <code>INSERT</code> final — la lógica de selección/filtrado/recorte es aislable</td><td>Architecture Handbook, 08</td></tr>
+<tr><td>Motor BPS — evaluación de gates (<code>puedeGenerar</code>)</td><td>Función de decisión sobre datos ya leídos, sin I/O propio</td><td>Motor BPS Handbook, 06</td></tr>
+<tr><td><code>numOrNull()</code></td><td>El único punto de coerción numérica del sistema — función pura por diseño (ADR-007)</td><td>Architecture Handbook, 07</td></tr>
+<tr><td>Validadores de CHECK (rango físico, vocabulario cerrado)</td><td>Puros — reciben un valor, devuelven válido/inválido</td><td>Database Handbook, 07</td></tr>
+<tr><td>Mappers de fila→DTO</td><td>Puros — transforman una fila ya obtenida, sin I/O propio</td><td>Architecture Handbook, 11</td></tr>
+<tr><td>Resolución de Ejercicio para Slot (Patrón×Rol → Ejercicio)</td><td>Pura sobre catálogo ya cargado</td><td>Architecture Handbook, 11</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="paridad-check">Paridad CHECK ↔ validación — el caso ya especificado</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Regla ya establecida — Engineering Handbook, 10</div>
+  <p>Todo CHECK de rango físico (Database Handbook, 07) debe tener su contraparte de test en la validación de aplicación — ambas capas deben rechazar exactamente los mismos valores inválidos, nunca divergir. Un test de unit de esta paridad construye el valor límite exacto (ej. <code>peso_kg = 20</code>, el borde del CHECK <code>&gt; 20</code>) y verifica que el validador de aplicación lo rechaza igual que lo haría la base de datos.</p>
+</div>
+
+<h2 id="matriz-check-validador">Matriz CHECK → Validador de aplicación</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>CHECK (Database Handbook, 07)</th><th>Caso límite exacto a probar</th></tr></thead>
+<tbody>
+<tr><td><code>profiles.edad</code> (0, 120)</td><td><code>edad = 0</code>, <code>edad = 120</code>, <code>edad = 1</code>, <code>edad = 119</code></td></tr>
+<tr><td><code>profiles.peso_kg &gt; 20</code></td><td><code>peso_kg = 20</code> (rechazo), <code>peso_kg = 20.01</code> (aceptado)</td></tr>
+<tr><td><code>profiles.altura_cm &gt; 80</code></td><td><code>altura_cm = 80</code> (rechazo), <code>altura_cm = 80.01</code> (aceptado)</td></tr>
+<tr><td><code>profiles.dias_por_semana</code> [1,7]</td><td><code>dias_por_semana = 0</code> (rechazo), <code>= 1</code> y <code>= 7</code> (aceptados), <code>= 8</code> (rechazo)</td></tr>
+<tr><td><code>bcs_mediciones</code> — masa &lt; <code>peso_kg</code></td><td>Cualquier variable de masa exactamente igual a <code>peso_kg</code> (límite), y 0.01 por encima (rechazo, <code>VALOR_FUERA_DE_RANGO_FISICO</code>)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="que-no-es-unit">Qué nunca se prueba en unit</h2>
+<ul>
+  <li>Cualquier cosa que requiera una fila real de <code>profiles</code>, <code>workouts</code> o cualquier otra tabla — eso es <span class="level level--integration">integration</span> (02, 09).</li>
+  <li>Un flujo que invoque más de un motor en secuencia (ej. Motor BPS orquestando Recovery + Progression + Generator) — cada motor se prueba aislado en unit; la orquestación completa es <span class="level level--integration">integration</span> o <span class="level level--e2e">e2e</span> (06).</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../03-convenciones-globales/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 03 · Convenciones Globales</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../05-domain-testing/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">05 · Domain Testing →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

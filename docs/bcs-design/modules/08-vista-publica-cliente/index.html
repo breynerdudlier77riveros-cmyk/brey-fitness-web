@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>08 · Vista pública del cliente — BCS Design System Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="vista-publica-cliente" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 08 · Componentes y pantallas</p>
+<h1>Vista pública del cliente</h1>
+<p class="lede">La única pantalla que el cliente final llega a ver. Debe sentirse como un informe profesional entregado por su entrenador — nunca como una vista de administración con partes ocultas.</p>
+
+<h2 id="como-sentirse">Cómo debe sentirse</h2>
+<p>Como un documento, no como una aplicación. Sin sidebar, sin menú de navegación, sin indicios de que existe "más sistema" detrás. El cliente debe sentir que está viendo <em>su</em> reporte, preparado específicamente para él — coherente con la paridad total de contenido ya establecida en el BCS Handbook (04, BCS-ADR-05).</p>
+
+<h2 id="que-ve">Qué puede ver</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Elemento</th><th>Visible</th></tr></thead>
+<tbody>
+<tr><td>Su nombre</td><td>Sí — encabezado del reporte</td></tr>
+<tr><td>Todas las Metric Cards de su Medición más reciente</td><td>Sí, igual que el entrenador (04 del BCS Handbook)</td></tr>
+<tr><td>Histórico completo, gráficos de tendencia, comparaciones</td><td>Sí (BCS Handbook, 05, 12)</td></tr>
+<tr><td>Fotografías de progreso, si existen</td><td>Sí, en galería cronológica (BCS Handbook, 11)</td></tr>
+<tr><td>Badges de procedencia en cada clasificación</td><td>Sí — la misma honestidad de datos que ve el entrenador (01, Explicabilidad)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="que-no-ve">Qué jamás debe ver</h2>
+<ul>
+  <li>Ningún botón de edición, eliminación, o generación/revocación de enlaces (BCS Handbook, IN-A1).</li>
+  <li>El nombre o dato de ningún otro cliente del entrenador.</li>
+  <li>El <code>clienteId</code> interno ni ningún identificador de base de datos (BCS Handbook, 10).</li>
+  <li>Cualquier control de navegación hacia el panel del entrenador.</li>
+</ul>
+
+<h2 id="compartir">Cómo compartir</h2>
+<p>El cliente no comparte desde esta vista — es el entrenador quien comparte la URL (BCS Handbook, 09). La vista pública sí incluye un botón "Copiar enlace" para que el propio cliente pueda reenviárselo a sí mismo entre dispositivos, sin exponer ninguna otra función.</p>
+
+<h2 id="imprimir-exportar">Cómo imprimir y exportar</h2>
+<p>Botón "Descargar / Imprimir" visible y prominente en la vista pública — dispara el flujo de exportación a PDF especificado en 14. El diseño de impresión reutiliza exactamente el mismo layout del Reporte, con los ajustes de márgenes y paginación que 14 especifica — nunca una plantilla de impresión distinta y desincronizada del reporte en pantalla.</p>
+
+<h2 id="casos-limite">Casos límite</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Comportamiento visual</th></tr></thead>
+<tbody>
+<tr><td>Enlace revocado o inválido (BCS Handbook, 10)</td><td>Pantalla de estado dedicada (13) — nunca un error de servidor genérico ni una pantalla en blanco</td></tr>
+<tr><td>Cliente con una sola medición</td><td>Se ocultan las secciones que requieren ≥2 mediciones (Comparación, tendencia) sin dejar espacios vacíos con título ("Comparación" no aparece si no hay nada que comparar)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../07-dashboard-entrenador/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 07 · Dashboard del entrenador</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../09-visualizacion-metricas/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">09 · Visualización de métricas →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

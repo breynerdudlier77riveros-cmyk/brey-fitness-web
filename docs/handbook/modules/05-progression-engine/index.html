@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>05 · Progression Engine — BREY Architecture Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="progression-engine" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 05 · Motores</p>
+<h1>Progression Engine</h1>
+<p class="lede">El dueño técnico de la Sobrecarga Progresiva y la Autorregulación. Decide, con la señal del historial real, cuándo la carga sube (micro), y cuándo el usuario avanza, se estanca o retrocede en la jerarquía (macro). Nunca decide contra la señal del Recovery Engine (P8) y nunca decide el Sistema (eso es del Diagnóstico/Motor BPS).</p>
+
+<div class="meta-row">
+  <span class="chip">Micro vs. Macro — dos cadencias</span>
+  <span class="chip">Ventana móvil 2 semanas</span>
+  <span class="chip">Subordinado a Recovery (P8)</span>
+</div>
+
+<h2 id="objetivo">Objetivo, alcance, dependencias, invariantes</h2>
+<p><strong>Objetivo:</strong> convertir el historial real en la siguiente prescripción correcta. <strong>Alcance:</strong> ajuste de carga por ejercicio, avance/retroceso de eslabón de cadena, avance/retroceso de Mesociclo/Bloque/Nivel, detección de estancamiento. <strong>Fuera de alcance:</strong> qué ejercicio sustituye a otro (04), cuándo frenar por fatiga (06), qué Sistema (07). <strong>Depende de:</strong> 03 (jerarquía), 04 (cadenas), 06 (precedencia). <strong>Invariantes:</strong> I-P1 toda decisión lleva razón (P2); I-P2 macro nunca reacciona a una sola sesión; I-P3 <code>exigeDescarga()</code> se consulta antes de cualquier evaluación macro y su veredicto es terminal; I-P4 el motor es función pura de (historial, prescripción vigente, catálogo) — cero estado oculto (P1).</p>
+
+<h2 id="senales">Señales de entrada</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Señal</th><th>Fuente</th><th>Base</th></tr></thead>
+<tbody>
+<tr><td>RPE real por serie vs. objetivo</td><td><code>workout_logs</code> (captura del Player, 09)</td><td>La escala RPE/RIR es herramienta validada de prescripción, con menor precisión en principiantes <span class="ev ev--moderada">evidencia moderada</span></td></tr>
+<tr><td>Reps logradas vs. rango objetivo</td><td><code>workout_logs</code></td><td>Base de la doble progresión (abajo)</td></tr>
+<tr><td>Adherencia (sesiones completadas/programadas)</td><td>Historial agregado</td><td>Señal de viabilidad del plan — estructural, sin reclamo fisiológico</td></tr>
+<tr><td>Cumplimiento de capacidades (calistenia)</td><td>Eventos de capacidad (04)</td><td>Gate de elegibilidad, no de carga</td></tr>
+<tr><td>Veredicto del Recovery Engine</td><td>06</td><td>Precedencia absoluta (P8)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="micro">Micro-ajuste — autorregulación por ejercicio</h2>
+<p>Cadencia: después de cada sesión registrada, para cada ejercicio ejecutado. Regla base: <strong>doble progresión</strong> — primero se llena el rango de reps al RPE objetivo, luego sube la carga y las reps vuelven al piso del rango. Práctica establecida de programación con racional sólido, sin RCTs que la comparen formalmente contra alternativas. <span class="ev ev--moderada">evidencia moderada</span> Los números concretos (5% de salto, ±1 de banda RPE) son calibrables. <span class="ev ev--producto">decisión de producto</span></p>
+<pre class="codeblock">
+<span class="kw">FUNCIÓN</span> microAjuste(ejercicioLog, prescripcionVigente):
+  <span class="cm">// Entrada: series reales {peso, reps, rpe} + prescripción {rangoReps, rpeObjetivo, carga}</span>
+  rpePromedio <span class="kw">←</span> promedio(ejercicioLog.series.rpe)
+  repsTope <span class="kw">←</span> todasLasSeries.reps <span class="kw">>=</span> rango.max
+
+  <span class="kw">SI</span> nivelUsuario <span class="kw">=</span> Inicial <span class="kw">ENTONCES</span>
+    <span class="cm">// Progresión fija: RPE solo educativo — su precisión en novatos es baja (ev. moderada)</span>
+    <span class="kw">SI</span> repsTope <span class="kw">ENTONCES RETORNAR</span> ajuste(+cargaMinima, razon: <span class="str">"Completaste el rango en todas las series"</span>)
+    <span class="kw">RETORNAR</span> ajuste(sinCambio, razon: <span class="str">"Sigue llenando el rango de repeticiones"</span>)
+
+  <span class="cm">// Intermedio/Avanzado: doble progresión + banda RPE</span>
+  <span class="kw">SI</span> repsTope <span class="kw">Y</span> rpePromedio <span class="kw">&lt;=</span> rpeObjetivo <span class="kw">ENTONCES</span>
+    <span class="kw">RETORNAR</span> ajuste(+carga: 2.5–5%, repsAlPiso, razon: <span class="str">"Rango completo al RPE objetivo"</span>)
+  <span class="kw">SI</span> rpePromedio <span class="kw">&gt;</span> rpeObjetivo <span class="kw">+</span> 1 <span class="kw">ENTONCES</span>
+    <span class="kw">RETORNAR</span> ajuste(-carga: 5%, razon: <span class="str">"RPE sostenido por encima del objetivo"</span>)
+  <span class="kw">SI</span> rpePromedio <span class="kw">&lt;</span> rpeObjetivo <span class="kw">-</span> 1 <span class="kw">Y NO</span> repsTope <span class="kw">ENTONCES</span>
+    <span class="kw">RETORNAR</span> ajuste(+reps: 1, razon: <span class="str">"Margen de esfuerzo disponible dentro del rango"</span>)
+  <span class="kw">RETORNAR</span> ajuste(sinCambio, razon: <span class="str">"Dentro del rango esperado"</span>)
+</pre>
+<div class="callout callout--regla">
+  <div class="callout__label">Proximidad al fallo, no fallo</div>
+  <p>Las prescripciones operan en RIR 1–3 la mayor parte del tiempo: entrenar cerca del fallo produce ganancias comparables al fallo con menos costo de fatiga. <span class="ev ev--moderada">evidencia moderada</span> El fallo verdadero se reserva a series marcadas (AMRAP de test) explícitamente en la plantilla.</p>
+</div>
+
+<h2 id="macro">Macro-evaluación — avance, estancamiento, regresión</h2>
+<p>Cadencia: al cierre de cada Microciclo (semana), evaluando la ventana móvil de las últimas 2 semanas. Nunca por sesión individual (I-P2).</p>
+<pre class="codeblock">
+<span class="kw">FUNCIÓN</span> macroEvaluacion(ventana):
+  <span class="kw">SI</span> RecoveryEngine.exigeDescarga() <span class="kw">ENTONCES</span>
+    <span class="kw">RETORNAR</span> decision(<span class="str">"pausa-progresion"</span>, razon: <span class="str">"Recovery tiene precedencia (P8)"</span>)   <span class="cm">// terminal</span>
+
+  adherencia <span class="kw">←</span> completadas / programadas
+  cumplimientoRPE <span class="kw">←</span> seriesEnBanda(±1) / seriesTotales
+
+  <span class="kw">SI</span> adherencia <span class="kw">&gt;=</span> 0.80 <span class="kw">Y</span> cumplimientoRPE <span class="kw">&gt;=</span> 0.70 <span class="kw">ENTONCES</span>
+    <span class="kw">RETORNAR</span> decision(<span class="str">"avanza"</span>, alcance: siguienteEscalon(), razon: métricas)
+  <span class="kw">SI</span> adherencia <span class="kw">&lt;</span> 0.50 <span class="kw">O</span> cumplimientoRPE <span class="kw">&lt;</span> 0.40 <span class="kw">ENTONCES</span>
+    <span class="kw">RETORNAR</span> decision(<span class="str">"retrocede"</span>, alcance: escalonAnterior(), razon: métricas)
+  <span class="kw">RETORNAR</span> decision(<span class="str">"sostiene"</span>, razon: <span class="str">"Sin señal suficiente para mover el punto actual"</span>)
+</pre>
+<p>Umbrales 0.80/0.70/0.50/0.40 y ventana de 2 semanas: puntos de partida razonables, no validados contra usuarios reales — configurables por definición. <span class="ev ev--producto">decisión de producto</span></p>
+
+<h3 id="escalones">Qué significa "siguiente escalón" — orden de agotamiento</h3>
+<p>El avance recorre la jerarquía de menor a mayor: primero <strong>eslabón de cadena</strong> (por ejercicio), luego <strong>Microciclo→Mesociclo</strong> (siguiente semana/tramo), luego <strong>Bloque</strong>, y solo al agotar los Bloques del Nivel, <strong>Nivel</strong>. Un avance de Mesociclo NO implica avance de Nivel. La regresión recorre el mismo orden invertido. Cada transición emite un evento con razón (P2, persistido según 10).</p>
+
+<h3 id="estancamiento">Estancamiento</h3>
+<p>Definición operativa: un ejercicio cuya carga y reps no mejoran en <strong>3 apariciones consecutivas</strong> a RPE igual o mayor. <span class="ev ev--producto">decisión de producto</span> Respuesta (en orden, una por vez, cada una con razón): (1) variación dentro de la cadena — eslabón lateral o anterior con +1 rep de objetivo; (2) reducción de volumen del patrón 20% por 1 semana (sobrecarga funcional local); (3) si el estancamiento es multi-patrón, elevar al Recovery Engine — el estancamiento global es señal de fatiga, no de programación. <span class="ev ev--hipotesis">hipótesis</span> (la escalera exacta de respuestas es práctica razonada, no protocolo validado).</p>
+
+<h2 id="estados">Máquina de estados macro</h2>
+<div class="diagram">
+<div class="diagram-label">Estados por usuario, evaluados al cierre de cada Microciclo</div>
+<pre class="mermaid">
+stateDiagram-v2
+  [*] --> Asignado: Diagnóstico + activación (07)
+  Asignado --> Evaluando: cierre de Microciclo
+  Evaluando --> Avanza: adherencia ≥0.80 ∧ RPE ≥0.70
+  Evaluando --> Sostiene: zona intermedia
+  Evaluando --> Retrocede: adherencia &lt;0.50 ∨ RPE &lt;0.40
+  Evaluando --> PausaProgresion: Recovery exige descarga (P8)
+  PausaProgresion --> Evaluando: descarga completada
+  Avanza --> Evaluando
+  Sostiene --> Evaluando
+  Retrocede --> Evaluando
+  Retrocede --> PausaLesion: lesión nueva declarada
+  PausaLesion --> Evaluando: perfil actualizado / revisión
+</pre>
+</div>
+
+<h2 id="volumen-frecuencia">Volumen, frecuencia e intensidad — posición del motor</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Variable</th><th>Quién la fija</th><th>Qué hace este motor</th><th>Base</th></tr></thead>
+<tbody>
+<tr><td>Volumen (series duras/semana por patrón)</td><td>Bloque/Mesociclo (plantilla)</td><td>Lo modula ±20% (estancamiento, micro-ajuste)</td><td>Dosis-respuesta con retornos decrecientes <span class="ev ev--moderada">evidencia moderada</span></td></tr>
+<tr><td>Frecuencia</td><td>Microciclo + R-1 de 03</td><td>No la toca — es logística del framework</td><td>Con volumen igualado, la frecuencia per se importa poco <span class="ev ev--moderada">evidencia moderada</span></td></tr>
+<tr><td>Intensidad (RPE objetivo)</td><td>Mesociclo (progresión semanal)</td><td>La ajusta por ejercicio vía micro-ajuste</td><td>RPE/RIR como herramienta <span class="ev ev--moderada">evidencia moderada</span></td></tr>
+<tr><td>Descarga</td><td>Recovery Engine (06)</td><td>La obedece, jamás la decide</td><td>P8</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="casos">Casos normales, límite e inválidos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Tipo</th><th>Comportamiento</th></tr></thead>
+<tbody>
+<tr><td>RPE 6 sostenido con rango lleno</td><td>Normal</td><td>Micro: sube carga 2.5–5%, reps al piso del rango.</td></tr>
+<tr><td>Adherencia 0.83 + cumplimiento 0.75 al cierre de semana</td><td>Normal</td><td>Macro: avanza al siguiente escalón (Microciclo 3), evento registrado.</td></tr>
+<tr><td>Ventana con &lt;4 sesiones registradas</td><td>Límite</td><td><code>sostiene</code> con razón "señal insuficiente" — no es error; es comportamiento definido.</td></tr>
+<tr><td>Usuario cumple umbral de avance Y Recovery exige descarga</td><td>Límite</td><td>Descarga. Sin ponderación, sin excepción (P8).</td></tr>
+<tr><td>Avance de Nivel sin siguiente Nivel definido (tope del Track)</td><td>Límite</td><td><code>sostiene</code> + evento "techo de catálogo alcanzado" → cola editorial. Nunca inventa un nivel (P14).</td></tr>
+<tr><td>Log sin RPE en usuario Intermedio+</td><td>Inválido</td><td>No debe existir — el Player lo exige (09). Si llega, la sesión cuenta para adherencia y se excluye de la señal RPE, con evento de anomalía.</td></tr>
+<tr><td>Evaluar macro a mitad de semana</td><td>Inválido</td><td>Rechazo — la cadencia es cierre de Microciclo (I-P2).</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="tradeoffs">Trade-offs y decisiones descartadas</h2>
+<div class="callout callout--tradeoff">
+  <div class="callout__label">Ventana móvil vs. reacción por sesión</div>
+  <p>Dos semanas es más lento pero inmune a la mala noche aislada. Estabilidad del programa sobre reactividad.</p>
+</div>
+<div class="callout callout--descartado">
+  <div class="callout__label">Motor único progresión+fatiga</div>
+  <p>Descartado (ADR-010): la ponderación interna es inauditable; dos motores con precedencia explícita sí se auditan.</p>
+</div>
+<div class="callout callout--descartado">
+  <div class="callout__label">%1RM como eje de prescripción en v1</div>
+  <p>Descartado por ahora: exige tests de 1RM (riesgo/fricción para el público objetivo) y datos que el Perfil aún no ejercita. RPE/RIR cubre v1; %1RM queda como extensión (Roadmap H4).</p>
+</div>
+
+<h2 id="riesgos">Riesgos, deuda y extensiones</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Bloqueante — sin captura por serie no hay motor</div>
+  <p><code>workout_logs.ejercicios</code> hoy solo guarda <code>completado</code>. Sin {peso, reps, rpe} por serie (09/10), micro y macro no tienen señal. Bloqueante #1 del Roadmap.</p>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Riesgo — RPE contaminado por defecto</div>
+  <p>Si el Player hace incómodo reportar, los usuarios repetirán "8" siempre. La calidad del dato es un problema de UX del 09 con consecuencias directas aquí.</p>
+</div>
+<div class="callout callout--escala">
+  <div class="callout__label">Extensión — ejes de progresión adicionales</div>
+  <p>%1RM (fuerza), tiempo bajo tensión (skills isométricas): entran como señales nuevas al mismo contrato de <code>microAjuste()</code> sin romperlo.</p>
+</div>
+
+<h2 id="preguntas">Preguntas abiertas</h2>
+<ul>
+  <li>Calibración de umbrales con los primeros cohortes reales — proceso de revisión aún sin definir (Roadmap H2).</li>
+  <li>¿El usuario puede solicitar avance manual ("esto me queda fácil") saltándose la ventana? Propuesta: sí con fricción (confirmación + evento <code>override_usuario</code>) — sin decidir.</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../04-knowledge-base/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 04 · Knowledge Base</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../06-recovery-engine/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">06 · Recovery Engine →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

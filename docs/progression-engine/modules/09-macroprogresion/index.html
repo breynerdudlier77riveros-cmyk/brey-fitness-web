@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>09 · Macroprogresión — Progression Engine Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="macroprogresion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 09 · Reglas</p>
+<h1>Macroprogresión</h1>
+<p class="lede">Cuándo avanza, sostiene o retrocede la posición del usuario en la jerarquía Microciclo → Mesociclo → Bloque → Nivel. Con la misma precisión que el alcance, la frontera dura: Track y Sistema NUNCA son decididos por este motor.</p>
+
+<h2 id="objetivo">Objetivo</h2>
+<p>Especificar la escalera de escalones que este motor sí gobierna, y documentar formalmente por qué dos escalones superiores de la jerarquía completa de BREY quedan fuera.</p>
+
+<h2 id="alcance">Alcance</h2>
+<p>Microciclo (PE-013), Mesociclo (PE-014), Bloque (PE-015), Nivel (PE-016, como recomendación) y el retroceso simétrico (PE-017).</p>
+
+<h2 id="no-alcance">No alcance — Track y Sistema</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Frontera dura, no una omisión</div>
+  <p>Track y Sistema son propiedad de activación comercial y de diagnóstico (ADR-005 y ADR-012 del Architecture Handbook; BPS-001/002/012 del Motor BPS Handbook) — se deciden por compra y por re-diagnóstico, nunca por rendimiento de entrenamiento. Que un usuario domine el Nivel más alto de un Sistema no genera, por sí mismo, ninguna señal de este motor hacia Track/Sistema: la salida en ese caso es "sostiene, en tope de contenido del Nivel actual" (PE-016, PE-018). Inventar aquí una lógica de cambio de Sistema duplicaría y podría contradecir la máquina de estados ya definida en el Motor BPS Handbook (05) — violaría P4 (una capa, una decisión).</p>
+</div>
+
+<h2 id="diagrama">Diagrama de la escalera</h2>
+<div class="diagram">
+<div class="diagram-label">Los 4 escalones que este motor gobierna — Track/Sistema quedan explícitamente fuera del diagrama</div>
+<pre class="mermaid">
+graph TD
+  MC["Microciclo<br/>(PE-013)"] -->|"todos completos, avance sostenido"| ME["Mesociclo<br/>(PE-014)"]
+  ME -->|"todos completos, avance sostenido"| BL["Bloque<br/>(PE-015)"]
+  BL -->|"todos completos, avance sostenido"| NV["Nivel<br/>(PE-016 — recomendación)"]
+  NV -.->|"fuera de alcance (PE-018)"| TR["Track / Sistema"]
+  style TR stroke-dasharray: 5 5
+</pre>
+</div>
+
+<h2 id="tabla">Tabla resumen por escalón</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Escalón</th><th>Regla de avance</th><th>Quién aplica el cambio</th></tr></thead>
+<tbody>
+<tr><td>Microciclo</td><td>PE-013</td><td>Motor BPS (puntero interno)</td></tr>
+<tr><td>Mesociclo</td><td>PE-014</td><td>Motor BPS</td></tr>
+<tr><td>Bloque</td><td>PE-015</td><td>Motor BPS</td></tr>
+<tr><td>Nivel</td><td>PE-016 (recomendación, no escritura directa)</td><td>Motor BPS (única autoridad de <code>nivel_actual</code>)</td></tr>
+<tr><td>Track / Sistema</td><td>Ninguna — fuera de alcance (PE-018)</td><td>Motor BPS vía activación (BPS-001)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="casos-limite">Casos límite</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Comportamiento</th></tr></thead>
+<tbody>
+<tr><td>Usuario en el último Nivel del Sistema, avance sostenido</td><td>PE-016 recomienda "sostiene, en tope" — nunca inventa un Nivel siguiente</td></tr>
+<tr><td>Retroceso que cruzaría de un Bloque a otro Mesociclo anterior</td><td>PE-017 solo retrocede un escalón dentro del nivel actual de la jerarquía en el que ocurre — nunca salta más de un nivel de profundidad en la misma evaluación</td></tr>
+<tr><td>Avance de Mesociclo coincide con techo de volumen (PE-010)</td><td>Ambas señales son consistentes — el techo de volumen es evidencia adicional a favor del avance, no un conflicto</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="contraejemplos">Contraejemplos</h2>
+<ul>
+  <li>El motor NO recomienda cambio de Track aunque el usuario complete el Nivel máximo de un Sistema.</li>
+  <li>El motor NO escribe <code>nivel_actual</code> directamente — PE-016 produce una recomendación, el Motor BPS decide la transición formal.</li>
+  <li>El motor NO retrocede dos escalones en una sola evaluación, sin importar cuán bajo sea el cumplimiento.</li>
+</ul>
+
+<h2 id="errores">Errores posibles</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Error</th><th>Tratamiento</th></tr></thead>
+<tbody>
+<tr><td><code>JERARQUIA_INCONSISTENTE</code></td><td>El puntero recibido no corresponde a una posición válida de la estructura del Training Framework — error de invocación, el pipeline aborta</td></tr>
+<tr><td><code>VENTANA_INSUFICIENTE</code> a nivel macro</td><td>No es error — sostiene, con razón explícita (05, nivel 2 de precedencia)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="deuda">Deuda técnica y preguntas abiertas de este módulo</h2>
+<p>El umbral de tolerancia de PE-014 ("máximo 1 sostiene en la ventana") no está validado contra datos reales de uso — es un punto de partida razonable, no una cifra derivada de evidencia. Su calibración post-lanzamiento se registra en 17/19.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../08-microprogresion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 08 · Microprogresión</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../10-autorregulacion/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">10 · Autorregulación →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

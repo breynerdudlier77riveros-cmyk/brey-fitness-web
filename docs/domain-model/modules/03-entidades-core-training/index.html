@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03 · Entidades del Core Training — Domain Model Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="entidades-core-training" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 03 · Entidades</p>
+<h1>Entidades del Core Training</h1>
+<p class="lede">Ocho entidades, de mayor a menor granularidad — Programa contiene Bloques, Bloques contienen Mesociclos, y así hasta Serie.</p>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">CT-01</span><span class="entity__badges"><span class="tag tag--especificado">especificado</span></span></div>
+<h3>Programa</h3>
+<dl>
+<dt>Descripción</dt><dd>La instancia personalizada de un Sistema para un Usuario — no un catálogo, un objeto único por Usuario activo (LU-06).</dd>
+<dt class="half">Identidad</dt><dd class="half">Conceptual, no un ID de fila propio — identificado por la combinación (Usuario, Sistema, fecha de activación)</dd>
+<dt class="half">Atributos conceptuales</dt><dd class="half">Sistema de origen, Track, posición actual en la jerarquía (Bloque/Mesociclo/Microciclo)</dd>
+<dt>Relaciones</dt><dd>1 Usuario tiene como máximo 1 Programa activo por Sistema; un Programa referencia sus Bloques por posición, no por contención física (08)</dd>
+<dt class="half">Ciclo de vida</dt><dd class="half">Nace en la activación (Motor BPS Handbook, T3/T4/T5), avanza por Progression Engine, termina en <code>sistema_completado</code> (T14)</dd>
+<dt class="half">Invariantes</dt><dd class="half">Nunca existe sin un Usuario activo en un Sistema (12)</dd>
+<dt class="half">Qué conoce</dt><dd class="half">Su posición actual en la jerarquía</dd>
+<dt class="half">Qué NO conoce</dt><dd class="half">El contenido de sus Ejercicios (eso es Knowledge Base) ni cómo se calculó su progresión (eso es Progression Engine)</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">CT-02</span><span class="entity__badges"><span class="tag tag--especificado">especificado</span></span></div>
+<h3>Bloque</h3>
+<dl>
+<dt>Descripción</dt><dd>Escalón de la jerarquía compuesto de Mesociclos.</dd>
+<dt class="half">Identidad</dt><dd class="half">Posicional — "Bloque N del Programa X", sin ID propio persistido</dd>
+<dt class="half">Atributos conceptuales</dt><dd class="half">Número de orden, cantidad de Mesociclos que contiene</dd>
+<dt>Relaciones</dt><dd>Pertenece a exactamente un Programa; contiene 1 o más Mesociclos</dd>
+<dt class="half">Ciclo de vida</dt><dd class="half">Avanza cuando todos sus Mesociclos avanzan con progreso sostenido (Progression Engine Handbook, PE-015)</dd>
+<dt class="half">Invariantes</dt><dd class="half">Nunca existe fuera de un Programa (12)</dd>
+<dt class="half">Qué conoce</dt><dd class="half">Su posición dentro del Programa</dd>
+<dt class="half">Qué NO conoce</dt><dd class="half">Nada sobre Clientes, Mediciones, ni ningún concepto del Body Composition System</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">CT-03</span><span class="entity__badges"><span class="tag tag--especificado">especificado</span></span></div>
+<h3>Mesociclo</h3>
+<dl>
+<dt>Descripción</dt><dd>Escalón compuesto de Microciclos, dentro de un Bloque.</dd>
+<dt class="half">Identidad</dt><dd class="half">Posicional, como Bloque</dd>
+<dt class="half">Atributos conceptuales</dt><dd class="half">Número de orden dentro del Bloque, techo de volumen objetivo (Progression Engine Handbook, PE-010)</dd>
+<dt>Relaciones</dt><dd>Pertenece a exactamente un Bloque; contiene 1 o más Microciclos</dd>
+<dt class="half">Ciclo de vida</dt><dd class="half">Avanza cuando todos sus Microciclos avanzan sin más de 1 "sostiene" (PE-014)</dd>
+<dt class="half">Invariantes</dt><dd class="half">Nunca existe fuera de un Bloque</dd>
+<dt class="half">Qué conoce</dt><dd class="half">Su techo de volumen objetivo</dd>
+<dt class="half">Qué NO conoce</dt><dd class="half">Las reglas de decisión que lo hacen avanzar — eso vive en Progression Engine</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">CT-04</span><span class="entity__badges"><span class="tag tag--especificado">especificado</span></span></div>
+<h3>Microciclo</h3>
+<dl>
+<dt>Descripción</dt><dd>Una semana de entrenamiento, compuesta de Workouts.</dd>
+<dt class="half">Identidad</dt><dd class="half">Posicional dentro del Mesociclo</dd>
+<dt class="half">Atributos conceptuales</dt><dd class="half">Número de semana, cumplimiento agregado de la semana</dd>
+<dt>Relaciones</dt><dd>Pertenece a exactamente un Mesociclo; contiene 1 o más Workouts</dd>
+<dt class="half">Ciclo de vida</dt><dd class="half">Cierra al completarse su última sesión planificada; dispara evaluación macro de Progression Engine al cierre (PE-013)</dd>
+<dt class="half">Invariantes</dt><dd class="half">Nunca existe fuera de un Mesociclo</dd>
+<dt class="half">Qué conoce</dt><dd class="half">El cumplimiento agregado de sus propios Workouts</dd>
+<dt class="half">Qué NO conoce</dt><dd class="half">El historial de Microciclos anteriores — cada uno es independiente, la ventana móvil la mantiene Progression Engine</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">CT-05</span><span class="entity__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>Workout</h3>
+<dl>
+<dt>Descripción</dt><dd>Una sesión de entrenamiento planificada — la única entidad de este módulo con tabla real (<code>workouts</code>).</dd>
+<dt class="half">Identidad</dt><dd class="half">Propia — <code>id</code> uuid, aggregate root (08)</dd>
+<dt class="half">Atributos conceptuales</dt><dd class="half">Fecha planificada, duración estimada, estado (planificado/completado/perdido), lista de Slots con sus Ejercicios prescritos</dd>
+<dt>Relaciones</dt><dd>Pertenece conceptualmente a un Microciclo (posición codificada en columnas <code>semana</code>/<code>semana_total</code>, no en una FK a tabla Microciclo — 13); contiene 1 o más Slots</dd>
+<dt class="half">Ciclo de vida</dt><dd class="half">planificado → completado / perdido (estado final, sin retorno)</dd>
+<dt class="half">Invariantes</dt><dd class="half">Nunca existe sin un Usuario propietario (12)</dd>
+<dt class="half">Qué conoce</dt><dd class="half">Sus propios Slots y su estado de ejecución</dd>
+<dt class="half">Qué NO conoce</dt><dd class="half">Por qué fue generado con esos valores específicos — esa razón vive en el evento de Progression Engine que lo originó, no en el Workout mismo</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">CT-06</span><span class="entity__badges"><span class="tag tag--especificado">especificado</span></span></div>
+<h3>Slot</h3>
+<dl>
+<dt>Descripción</dt><dd>Posición dentro de un Workout, identificada por Patrón×Rol — nunca por el nombre de un Ejercicio (LU-13, P7).</dd>
+<dt class="half">Identidad</dt><dd class="half">Posicional dentro del Workout — no tiene identidad propia fuera de él</dd>
+<dt class="half">Atributos conceptuales</dt><dd class="half">Patrón, Rol, posición en la Cadena de progresión, Prescripción vigente</dd>
+<dt>Relaciones</dt><dd>Pertenece a exactamente un Workout; referencia una Cadena de progresión (Knowledge Base); tiene una Prescripción (05); contiene Series ejecutadas</dd>
+<dt class="half">Ciclo de vida</dt><dd class="half">Nace con el Workout que lo contiene; su Prescripción se actualiza ciclo a ciclo sin que el Slot mismo cambie de identidad</dd>
+<dt class="half">Invariantes</dt><dd class="half">Nunca existe fuera de un Workout (12)</dd>
+<dt class="half">Qué conoce</dt><dd class="half">Su Patrón×Rol y su posición en la Cadena</dd>
+<dt class="half">Qué NO conoce</dt><dd class="half">El nombre del Ejercicio que lo resuelve (P7) — eso es responsabilidad exclusiva de la Knowledge Base al momento de renderizar</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">CT-07</span><span class="entity__badges"><span class="tag tag--especificado">especificado</span></span></div>
+<h3>Ejercicio</h3>
+<dl>
+<dt>Descripción</dt><dd>El movimiento concreto (nombre, video, equipamiento) que resuelve un Slot en un momento dado — propiedad exclusiva de la Knowledge Base.</dd>
+<dt class="half">Identidad</dt><dd class="half">Propia dentro de la Knowledge Base — fuera del alcance de este handbook (Architecture Handbook, 04)</dd>
+<dt class="half">Atributos conceptuales</dt><dd class="half">Nombre, patrón, rol, equipamiento — todos fuera de alcance aquí</dd>
+<dt>Relaciones</dt><dd>Resuelve un Slot en tiempo de generación — la relación es de resolución, no de contención permanente</dd>
+<dt class="half">Ciclo de vida</dt><dd class="half">Fuera de alcance de este handbook — gobernado por la Knowledge Base</dd>
+<dt class="half">Invariantes</dt><dd class="half">Ningún motor de progresión lo referencia por nombre (P7)</dd>
+<dt class="half">Qué conoce</dt><dd class="half">Fuera de alcance</dd>
+<dt class="half">Qué NO conoce</dt><dd class="half">Nada sobre el historial de progresión del Usuario — el Ejercicio es intercambiable dentro de su Patrón×Rol sin que el dominio de progresión lo note</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">CT-08</span><span class="entity__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>Serie</h3>
+<dl>
+<dt>Descripción</dt><dd>La unidad mínima de ejecución dentro de un Slot — una repetición agrupada con su carga/tempo/descanso real.</dd>
+<dt class="half">Identidad</dt><dd class="half">Posicional dentro del Slot, dentro del array <code>ejercicios</code> (jsonb) de <code>workout_logs</code></dd>
+<dt class="half">Atributos conceptuales</dt><dd class="half">Peso real, repeticiones reales, RPE/RIR reportado, completado (sí/no)</dd>
+<dt>Relaciones</dt><dd>Pertenece a exactamente un Slot ejecutado, dentro de un WorkoutLog</dd>
+<dt class="half">Ciclo de vida</dt><dd class="half">Se registra una vez, inmutable — una corrección crea un nuevo WorkoutLog, nunca edita la Serie original (FT-09)</dd>
+<dt class="half">Invariantes</dt><dd class="half">Nunca existe fuera de un Slot (12)</dd>
+<dt class="half">Qué conoce</dt><dd class="half">Sus propios valores reales de ejecución</dd>
+<dt class="half">Qué NO conoce</dt><dd class="half">Si esos valores dispararon una regla de progresión — esa evaluación ocurre después, en Progression Engine, nunca en la Serie misma</dd>
+</dl>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../02-arquitectura-dominio/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 02 · Arquitectura del Dominio</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../04-entidades-diagnostico/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">04 · Entidades de Diagnóstico →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

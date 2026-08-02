@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>04 · Knowledge Base — BREY Architecture Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="knowledge-base" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 04 · Arquitectura</p>
+<h1>Knowledge Base</h1>
+<p class="lede">La ontología del entrenamiento: patrones, roles, etiquetas, equipamiento, capacidades, atributos, progresiones/regresiones y las reglas de sustitución. Es el vocabulario cerrado que Diagnóstico, motores, Generator y Player consultan en vez de inventar cada uno su noción de "ejercicio válido". El catálogo real de ejercicios es una instancia de esta ontología — no la ontología.</p>
+
+<div class="meta-row">
+  <span class="chip">9 patrones (7 activos)</span>
+  <span class="chip">5 roles</span>
+  <span class="chip">6 zonas de riesgo</span>
+  <span class="chip">Contrato de 5 consumidores</span>
+</div>
+
+<h2 id="objetivo">Objetivo, alcance y dependencias</h2>
+<p><strong>Objetivo:</strong> que "¿este ejercicio es válido para este usuario en este slot?" tenga una única respuesta computable. <strong>Alcance:</strong> vocabularios, atributos y reglas de elegibilidad/sustitución — no la prescripción numérica (03/05) ni el orden de la sesión (03/R-4). <strong>Depende de:</strong> 03. <strong>Dependido por:</strong> 05, 08, 09.</p>
+
+<h2 id="patrones">Patrones de movimiento</h2>
+<p>Slug estable desde el nacimiento (P15) — los reservados existen para fijar identidad antes de tener contenido.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Slug</th><th>Patrón</th><th>Ejemplo gym</th><th>Ejemplo casa/calistenia</th><th>Degrada a</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td><code>empuje-horizontal</code></td><td>Empuje horizontal</td><td>Press banca</td><td>Flexiones, fondos</td><td><code>empuje-vertical</code></td><td>Activo</td></tr>
+<tr><td><code>empuje-vertical</code></td><td>Empuje vertical</td><td>Press militar</td><td>Pike push-up, pino</td><td><code>empuje-horizontal</code></td><td>Activo</td></tr>
+<tr><td><code>traccion-horizontal</code></td><td>Tracción horizontal</td><td>Remo con barra</td><td>Remo invertido</td><td><code>traccion-vertical</code></td><td>Activo</td></tr>
+<tr><td><code>traccion-vertical</code></td><td>Tracción vertical</td><td>Dominadas lastradas</td><td>Dominadas</td><td><code>traccion-horizontal</code></td><td>Activo</td></tr>
+<tr><td><code>dominante-rodilla</code></td><td>Dominante de rodilla</td><td>Sentadilla</td><td>Búlgara, pistol</td><td><code>dominante-cadera</code></td><td>Activo</td></tr>
+<tr><td><code>dominante-cadera</code></td><td>Dominante de cadera</td><td>Peso muerto</td><td>Hip thrust</td><td><code>dominante-rodilla</code></td><td>Activo</td></tr>
+<tr><td><code>core</code></td><td>Core / anti-rotación / anti-extensión</td><td>Rueda abdominal</td><td>Plancha, L-sit</td><td>— (sin degradación)</td><td>Activo</td></tr>
+<tr><td><code>locomocion</code></td><td>Locomoción / transporte</td><td>Farmer carry</td><td>Sprint</td><td>—</td><td>Reservado</td></tr>
+<tr><td><code>rotacion-potencia</code></td><td>Rotación / potencia</td><td>—</td><td>—</td><td>—</td><td>Reservado</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Reglas del vocabulario de patrones</div>
+  <p>(a) Un ejercicio declara exactamente un patrón <strong>primario</strong> y 0..N secundarios; solo el primario llena slots. (b) La degradación declarada aquí es la ÚNICA permitida — el paso 3 del algoritmo de sustitución no improvisa pares. (c) Al degradar patrón, el volumen se ajusta según la regla del patrón destino, y el evento queda registrado con razón (P2).</p>
+</div>
+
+<h2 id="roles">Roles</h2>
+<p>El Rol es la función del ejercicio dentro de la secuencia de la sesión — eje independiente del patrón. Un slot es siempre <strong>Patrón × Rol</strong>.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Slug</th><th>Significado</th><th>Posición (R-4 de 03)</th><th>¿Cuenta como volumen productivo?</th></tr></thead>
+<tbody>
+<tr><td><code>activacion</code></td><td>Prepara el patrón antes del trabajo pesado, esfuerzo bajo</td><td>Primero</td><td>No</td></tr>
+<tr><td><code>principal</code></td><td>El movimiento más pesado/complejo del patrón</td><td>Tras activación, cuerpo fresco</td><td>Sí</td></tr>
+<tr><td><code>accesorio</code></td><td>Apoya al principal — menor carga, más reps</td><td>Después de principales</td><td>Sí</td></tr>
+<tr><td><code>core-final</code></td><td>Estabilidad/core al cierre, sin fatigar patrones grandes</td><td>Penúltimo</td><td>Sí</td></tr>
+<tr><td><code>metabolico</code></td><td>Finisher de acondicionamiento — opcional, según énfasis del Bloque</td><td>Último</td><td>Sí (acondicionamiento, no fuerza)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="equipamiento">Equipamiento</h2>
+<p>Vocabulario ya existente en el catálogo: <code>barra</code> · <code>mancuernas</code> · <code>maquina</code> · <code>peso-corporal</code> · <code>cables</code> · <code>kettlebell</code>. El Track (03) declara qué subconjunto habilita. El mapeo exacto (¿kettlebell es <code>casa</code>?) es decisión de contenido pendiente — Roadmap H2; el vocabulario en sí queda cerrado aquí.</p>
+
+<h2 id="zonas">Zonas de riesgo articular</h2>
+<p>El eje de seguridad. Cada ejercicio declara qué zonas carga y con qué intensidad relativa (<code>alto</code>/<code>medio</code>/<code>bajo</code>) — no un flag binario, porque sentadilla con barra y extensión en máquina cargan <code>rodilla</code> de formas muy distintas.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Slug</th><th>Qué carga</th></tr></thead>
+<tbody>
+<tr><td><code>rodilla</code></td><td>Flexión profunda o carga axial en flexión</td></tr>
+<tr><td><code>cadera</code></td><td>Rango de flexión/rotación bajo carga</td></tr>
+<tr><td><code>lumbar</code></td><td>Carga axial o flexión de columna bajo carga</td></tr>
+<tr><td><code>hombro</code></td><td>Rango overhead o rotación externa cargada</td></tr>
+<tr><td><code>codo-muneca</code></td><td>Carga en extensión o hiperextensión</td></tr>
+<tr><td><code>tobillo</code></td><td>Dorsiflexión o impacto</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Regla de exclusión por zona</div>
+  <p>Usuario con zona declarada → se excluyen los ejercicios que cargan esa zona en <code>alto</code>. <code>medio</code>/<code>bajo</code> permanecen elegibles. El umbral es calibrable <span class="ev ev--producto">decisión de producto</span>; la existencia del filtro es de seguridad y no removible. Requiere que el Perfil capture lesiones como zonas de esta lista (hoy es texto libre — bloqueante registrado en el Roadmap; el texto libre actual se conserva como Notas del usuario, nunca parseado, coherente con la capa 15 de 03).</p>
+</div>
+
+<h2 id="atributos">Atributos completos de un Ejercicio</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Atributo</th><th>Tipo</th><th>Obligatorio</th><th>Estado en el catálogo actual</th></tr></thead>
+<tbody>
+<tr><td><code>slug</code></td><td>identificador estable (P15)</td><td>Sí</td><td>Existe</td></tr>
+<tr><td><code>nombre</code> / <code>nombreIngles</code></td><td>texto</td><td>Sí / No</td><td>Existe</td></tr>
+<tr><td><code>tipo</code></td><td><code>compuesto</code>·<code>aislamiento</code>·<code>peso-corporal</code></td><td>Sí</td><td>Existe</td></tr>
+<tr><td><code>nivel</code></td><td><code>principiante</code>·<code>intermedio</code>·<code>avanzado</code></td><td>Sí</td><td>Existe</td></tr>
+<tr><td><code>equipo[]</code></td><td>vocabulario de equipamiento</td><td>Sí</td><td>Existe</td></tr>
+<tr><td><code>musculoPrincipal</code> / <code>musculosSecundarios[]</code></td><td>grupos musculares</td><td>Sí / No</td><td>Existe</td></tr>
+<tr><td><code>descripcion</code>, <code>instrucciones[]</code>, <code>erroresComunes[]</code>, <code>beneficios[]</code></td><td>contenido educativo</td><td>Sí</td><td>Existe</td></tr>
+<tr><td><code>sistemasVinculados[]</code></td><td>slugs de Sistema</td><td>Sí</td><td>Existe</td></tr>
+<tr><td><code>patronPrimario</code></td><td>slug de patrón</td><td><strong>Sí — sin él, el ejercicio es inválido</strong></td><td><strong>Falta</strong></td></tr>
+<tr><td><code>patronesSecundarios[]</code></td><td>slugs de patrón</td><td>No</td><td><strong>Falta</strong></td></tr>
+<tr><td><code>rolesPosibles[]</code></td><td>slugs de rol (con nivel: un mismo ejercicio puede ser <code>principal</code> en Avanzado y <code>accesorio</code> en Elite de otro más exigente)</td><td>Sí</td><td><strong>Falta</strong></td></tr>
+<tr><td><code>modalidad</code></td><td><code>dinamico</code>·<code>isometrico</code> × <code>bilateral</code>·<code>unilateral</code></td><td>Sí</td><td><strong>Falta</strong></td></tr>
+<tr><td><code>zonasRiesgo[]</code></td><td>{zona, intensidad}</td><td>Sí (lista vacía válida)</td><td><strong>Falta</strong></td></tr>
+<tr><td><code>cadena</code></td><td>{anterior?, siguiente?} — misma familia de dificultad</td><td>No (pero sin cadena no hay progresión de ejercicio)</td><td><strong>Falta — <code>variantes[]</code> texto libre es su precursor sin estructura</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="capacidades">Capacidades</h2>
+<p>Una <strong>capacidad</strong> es un prerequisito demostrable para que un ejercicio sea elegible, independiente del Nivel nominal — el mecanismo formal de los "gates" de calistenia (ej. <code>muscle-up</code> exige capacidad <code>dominada-estricta-x8</code>). Estructura: <code>{ slug, descripcion, comoSeDemuestra }</code>. Un ejercicio declara <code>capacidadesRequeridas[]</code>; el usuario acumula capacidades demostradas en su historial (registradas como eventos, P3). En v1 el vocabulario existe pero solo el Sistema de Calistenia lo usa — gym progresa por carga, no por gates. <span class="ev ev--producto">decisión de producto</span></p>
+
+<h2 id="progresiones">Progresiones y regresiones — la cadena</h2>
+<p>La cadena de progresión ordena una familia de ejercicios por dificultad: <code>flexión de rodillas → flexión estándar → flexión pies elevados → flexión a un brazo</code>. Reglas:</p>
+<ul>
+  <li>Toda cadena vive DENTRO de un patrón y de un conjunto de roles compatibles — un eslabón nunca cruza de patrón.</li>
+  <li>La cadena es lineal en v1 (un anterior, un siguiente). Ramificaciones = dos cadenas separadas que comparten un eslabón raíz.</li>
+  <li>Avanzar/retroceder de eslabón es decisión del Progression Engine (05); la cadena solo declara el orden.</li>
+  <li>El orden lo autoriza criterio de entrenador (P14) — la estructura la valida ingeniería (sin ciclos, sin huecos de nivel).</li>
+</ul>
+
+<h2 id="sustitucion">Reglas de sustitución</h2>
+<pre class="codeblock">
+<span class="kw">FUNCIÓN</span> resolverEjercicioParaSlot(patron, rol, track, nivel, zonasUsuario, capacidadesUsuario, excluir <span class="kw">←</span> []):
+  <span class="cm">// Paso 0 — universo elegible</span>
+  candidatos <span class="kw">←</span> catalogo.filtrar(
+    patronPrimario: patron, rolCompatible: rol, nivelCompatible: nivel,
+    equipoElegible: track, capacidadesCumplidas: capacidadesUsuario
+  ).excluir(zonaRiesgoAlta: zonasUsuario).excluir(excluir)
+
+  <span class="cm">// Paso 1 — preferencia: el eslabón de cadena vigente del usuario para este patrón/rol</span>
+  <span class="kw">SI</span> eslabonVigente(usuario, patron, rol) <span class="kw">∈</span> candidatos <span class="kw">ENTONCES RETORNAR</span> ese eslabón
+
+  <span class="cm">// Paso 2 — misma cadena, eslabón elegible más cercano al vigente</span>
+  <span class="kw">SI</span> cadenaDelVigente ∩ candidatos <span class="kw">≠ ∅ ENTONCES RETORNAR</span> masCercano(eslabonVigente, cadenaDelVigente ∩ candidatos)
+
+  <span class="cm">// Paso 3 — mismo patrón + rol, fuera de la cadena</span>
+  <span class="kw">SI</span> candidatos <span class="kw">≠ ∅ ENTONCES RETORNAR</span> candidatos.primeroPorOrdenEstable()   <span class="cm">// orden determinista: nivel asc, slug asc (P1)</span>
+
+  <span class="cm">// Paso 4 — degradación de patrón declarada (única permitida), último recurso</span>
+  <span class="kw">SI</span> patron.degradaA <span class="kw">existe ENTONCES</span>
+    <span class="kw">RETORNAR</span> resolverEjercicioParaSlot(patron.degradaA, rol, …) <span class="kw">CON</span> ajusteVolumen(patron.degradaA) <span class="kw">Y</span> razonRegistrada
+
+  <span class="cm">// Paso 5 — fallo visible (P6)</span>
+  <span class="kw">RETORNAR</span> error(CATALOGO_INSUFICIENTE, detalle: {patron, rol, track, nivel, exclusiones})
+</pre>
+<div class="callout callout--regla">
+  <div class="callout__label">Qué se preserva al sustituir</div>
+  <p>Siempre: Patrón (salvo degradación declarada), Rol, intención de Intensidad. Series/Reps se heredan si la modalidad coincide (dinámico↔dinámico). Si cambia a isométrico, la prescripción se toma de la tabla de equivalencias autorizada del catálogo — <strong>no existe fórmula automática reps↔segundos</strong>; sin entrada en esa tabla, es <code>CATALOGO_INSUFICIENTE</code>, no una interpolación (P14).</p>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Determinismo del empate (P1)</div>
+  <p>Cuando varios candidatos empatan, el orden es estable y total: nivel ascendente, luego slug ascendente. Nunca "el primero que devuelva la base de datos".</p>
+</div>
+
+<h2 id="consumidores">Contrato con los 5 consumidores</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Consumidor</th><th>Qué lee</th></tr></thead>
+<tbody>
+<tr><td>Diagnóstico</td><td>Nada en v1; futuro: densidad de catálogo por Track para anticipar viabilidad</td></tr>
+<tr><td>Progression Engine (05)</td><td>Cadenas (unidad de avance/retroceso), capacidades, roles (peso de la señal)</td></tr>
+<tr><td>Recovery Engine (06)</td><td>Zonas de riesgo (restricción temporal por dolor)</td></tr>
+<tr><td>Workout Generator (08)</td><td>Resolución completa de slots + sustitución</td></tr>
+<tr><td>Workout Player (09)</td><td>Modalidad (contador vs. cronómetro), sustitución en vivo, contenido educativo</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="casos">Casos normales, límite e inválidos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Tipo</th><th>Comportamiento</th></tr></thead>
+<tbody>
+<tr><td>Lesión de rodilla + slot <code>dominante-rodilla/principal</code></td><td>Normal</td><td>Se excluyen los de <code>rodilla:alto</code>; paso 2 encuentra eslabón de menor carga en la cadena (ej. sentadilla a caja).</td></tr>
+<tr><td>Cambio Gym→Casa con sesión en curso</td><td>Límite</td><td>La sesión generada se conserva (P5); la sustitución en vivo del Player usa el Track nuevo.</td></tr>
+<tr><td>Ejercicio isométrico sustituye a dinámico sin equivalencia autorizada</td><td>Límite</td><td><code>CATALOGO_INSUFICIENTE</code> — ver regla de preservación.</td></tr>
+<tr><td>Ejercicio sin <code>patronPrimario</code></td><td>Inválido</td><td>Rechazado al validar el catálogo — nunca llega a ser elegible.</td></tr>
+<tr><td>Cadena con ciclo (A→B→A)</td><td>Inválido</td><td>Rechazado por validación estructural del catálogo.</td></tr>
+<tr><td>Slot sin rol ("2 empujes")</td><td>Inválido</td><td>Plantilla malformada — un slot es Patrón×Rol, sin excepción.</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="tradeoffs">Trade-offs y decisiones descartadas</h2>
+<div class="callout callout--tradeoff">
+  <div class="callout__label">Un solo patrón primario</div>
+  <p>Un burpee "es" varios patrones a la vez; se fuerza uno primario + secundarios porque el Generator necesita respuesta inequívoca de qué slot llena. La ambigüedad multi-primaria no paga su costo en v1.</p>
+</div>
+<div class="callout callout--tradeoff">
+  <div class="callout__label">Zona de riesgo con criterio experto manual</div>
+  <p>La intensidad relativa por zona no se infiere del nombre — exige etiquetado con criterio biomecánico. Más lento, pero es la única versión honesta del filtro de seguridad.</p>
+</div>
+<div class="callout callout--descartado">
+  <div class="callout__label">Rol como clasificación muscular (agonista/sinergista)</div>
+  <p>Descartado — eso ya existe como atributo muscular; el eje realmente nuevo es la función en la secuencia de sesión.</p>
+</div>
+<div class="callout callout--descartado">
+  <div class="callout__label">Fórmula automática reps↔tiempo</div>
+  <p>Descartado — inventarla sin evidencia sería fisiología fabricada (P11/P14). Tabla de equivalencias autorizada o fallo visible.</p>
+</div>
+
+<h2 id="riesgos">Riesgos, deuda y extensiones</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Riesgo — densidad de catálogo</div>
+  <p>Con 19 ejercicios, combinaciones legítimas (Casa + Avanzado + exclusión de hombro) caerán en <code>CATALOGO_INSUFICIENTE</code>. Correcto por diseño (P6) — el error alimenta la cola editorial de contenido.</p>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Deuda — los 6 atributos nuevos no existen en el catálogo</div>
+  <p>Patrón, roles, modalidad, zonas, cadena, capacidades: bloqueante #2 del Roadmap. Es etiquetado con criterio, no código.</p>
+</div>
+<div class="callout callout--escala">
+  <div class="callout__label">Extensión — patrones reservados</div>
+  <p><code>locomocion</code> y <code>rotacion-potencia</code> se activan agregando ejercicios etiquetados — cero cambio estructural.</p>
+</div>
+
+<h2 id="preguntas">Preguntas abiertas</h2>
+<ul>
+  <li>Mapeo equipo→Track (¿kettlebell = casa?) — contenido, Roadmap H2.</li>
+  <li>¿Las capacidades demostradas expiran (ej. tras 6 meses sin entrenar)? Propuesta: sí, con re-validación ligera — sin decidir, Roadmap H3.</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../03-training-framework/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 03 · Training Framework</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../05-progression-engine/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">05 · Progression Engine →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

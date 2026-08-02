@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>17 · Design Tokens — BCS Design System Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="design-tokens" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 17 · Gobernanza</p>
+<h1>Design Tokens</h1>
+<p class="lede">La tabla canónica única — todo valor ya especificado en 03–05 y 16, consolidado aquí para que exista una sola fuente de consulta rápida.</p>
+
+<h2 id="spacing">Spacing</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Token</th><th>Valor</th></tr></thead>
+<tbody>
+<tr><td><code>space-1</code></td><td>4px</td></tr>
+<tr><td><code>space-2</code></td><td>8px</td></tr>
+<tr><td><code>space-3</code></td><td>12px</td></tr>
+<tr><td><code>space-4</code></td><td>16px</td></tr>
+<tr><td><code>space-6</code></td><td>24px</td></tr>
+<tr><td><code>space-8</code></td><td>32px</td></tr>
+<tr><td><code>space-10</code></td><td>40px</td></tr>
+<tr><td><code>space-12</code></td><td>48px</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="radius">Radius</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Token</th><th>Valor</th><th>Uso</th></tr></thead>
+<tbody>
+<tr><td><code>radius-sm</code></td><td>8px (<code>--radius</code> − 4px)</td><td>Badges pequeños, chips</td></tr>
+<tr><td><code>radius-md</code></td><td>10px</td><td>Inputs, selects</td></tr>
+<tr><td><code>radius-lg</code></td><td>12px (<code>--radius</code> base)</td><td>Botones no-full (casos puntuales)</td></tr>
+<tr><td><code>radius-xl</code></td><td>16px (<code>rounded-2xl</code>)</td><td>Cards — todas las variantes de 06</td></tr>
+<tr><td><code>radius-full</code></td><td>9999px</td><td>Botones, badges, marcador de la barra de rango (10)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="shadow-elevation">Shadow y elevación</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Nivel</th><th>Especificación</th><th>Uso</th></tr></thead>
+<tbody>
+<tr><td>Reposo</td><td>Sin sombra — solo borde (<code>rgba(255,255,255,0.07)</code>)</td><td>Card en estado base</td></tr>
+<tr><td>Elevado</td><td><code>-translate-y-1.5</code> (6px) + borde más claro, sin box-shadow tradicional — el sitio usa elevación por desplazamiento, no por sombra difusa</td><td>Card interactiva en hover</td></tr>
+<tr><td>Flotante</td><td>Sombra suave <code>0 4px 24px rgba(0,0,0,0.4)</code></td><td>Dialog, Drawer, Toast — heredado</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="opacity">Opacidad</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Token</th><th>Valor</th><th>Uso</th></tr></thead>
+<tbody>
+<tr><td><code>opacity-disabled</code></td><td>60%</td><td>Botones e inputs deshabilitados</td></tr>
+<tr><td><code>opacity-surface</code></td><td>2–4%</td><td>Fondo de superficie de Card (reposo/hover)</td></tr>
+<tr><td><code>opacity-border</code></td><td>7–14%</td><td>Bordes (reposo/hover)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="typography-ref">Typography (referencia — detalle completo en 04)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Token</th><th>Tamaño / Peso</th></tr></thead>
+<tbody>
+<tr><td><code>text-display</code></td><td>36px / 900</td></tr>
+<tr><td><code>text-h1</code></td><td>30px / 900</td></tr>
+<tr><td><code>text-h2</code></td><td>24px / 900</td></tr>
+<tr><td><code>text-h3</code></td><td>18px / 700</td></tr>
+<tr><td><code>text-body</code></td><td>16px / 400</td></tr>
+<tr><td><code>text-small</code></td><td>14px / 400–500</td></tr>
+<tr><td><code>text-micro</code></td><td>10–12px / 700–900</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="grid-ref">Grid (referencia — detalle completo en 03)</h2>
+<p>Container <code>max-w-5xl</code> (1024px), grid de Metric Cards 1/2/3 columnas según breakpoint mobile/tablet/desktop.</p>
+
+<h2 id="animation-ref">Animation (referencia — detalle completo en 16)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Token</th><th>Valor</th></tr></thead>
+<tbody>
+<tr><td><code>motion-fast</code></td><td>150ms</td></tr>
+<tr><td><code>motion-base</code></td><td>200ms</td></tr>
+<tr><td><code>motion-medium</code></td><td>300ms</td></tr>
+<tr><td><code>motion-slow</code></td><td>500ms</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="naming">Convención de nombres</h2>
+<p><code>categoría-variante-escala</code> en minúsculas con guiones — ej. <code>space-4</code>, <code>text-h2</code>, <code>motion-slow</code>. Los colores usan el nombre semántico directamente (<code>color-error</code>, no <code>color-red-400</code>) para que un cambio futuro de la tonalidad exacta no obligue a renombrar en toda la base de código — el nombre describe el significado (Ley 2), no el valor.</p>
+
+<h2 id="versionado">Versionado de tokens</h2>
+<p>Este handbook es v1.0. Un cambio de <strong>valor</strong> de un token existente (ej. cambiar <code>space-4</code> de 16px a 18px) es una revisión menor documentada en 20 (ADR) con su razón. Un cambio de <strong>significado</strong> de un token (ej. que <code>color-error</code> deje de mapear a rojo) requiere una nueva versión mayor del handbook completo, porque invalida potencialmente cada referencia cruzada de los 22 módulos.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../16-motion-system/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 16 · Motion System</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../18-casos-especiales/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">18 · Casos especiales →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

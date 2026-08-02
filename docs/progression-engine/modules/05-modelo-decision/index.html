@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>05 · Modelo de Decisión — Progression Engine Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="modelo-decision" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 05 · Modelo</p>
+<h1>Modelo de Decisión</h1>
+<p class="lede">Qué información se usa, cuál se ignora, y qué gana cuando dos reglas quieren cosas distintas. Nunca ponderaciones — siempre precedencia explícita, documentada aquí y en cada regla individual del módulo 07.</p>
+
+<h2 id="objetivo">Objetivo</h2>
+<p>Que un conflicto entre reglas PE-XXX nunca se resuelva de forma implícita, ad-hoc, o por orden de ejecución accidental del código. Toda precedencia posible entre reglas de este motor está enumerada aquí.</p>
+
+<h2 id="principio">Por qué precedencia y no ponderación</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Regla de diseño no negociable</div>
+  <p>Un sistema de pesos numéricos (ej. "seguridad pesa 0.6, progresión 0.4") es indebugueable: nadie puede predecir el resultado de sumar pesos sin ejecutar el sistema, y un ajuste a un peso para arreglar un caso rompe silenciosamente otros diez. Una escalera de precedencia explícita es legible por un humano en segundos y sus efectos son predecibles por construcción. BREY elige legibilidad sobre flexibilidad numérica. <span class="eb eb--producto">🟠 Decisión de producto BREY</span></p>
+</div>
+
+<h2 id="niveles">Escalera de precedencia general</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Nivel</th><th>Categoría</th><th>Ejemplo de regla que vive aquí</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><strong>Seguridad</strong> — veredicto de Recovery</td><td>Si <code>procede: false</code>, ninguna otra categoría se evalúa ese ciclo (IN-P2)</td></tr>
+<tr><td>2</td><td><strong>Integridad de datos</strong> — suficiencia de ventana</td><td><code>VENTANA_INSUFICIENTE</code> fuerza "sostiene" antes de considerar cualquier regla de progresión (P6)</td></tr>
+<tr><td>3</td><td><strong>Estancamiento confirmado</strong></td><td>Una vez confirmado (11), su acción de salida gana sobre la sugerencia normal de progresión para ese Slot</td></tr>
+<tr><td>4</td><td><strong>Progresión normal</strong> — reglas de micro/macro</td><td>La mayoría del catálogo PE-XXX (08, 09)</td></tr>
+<tr><td>5</td><td><strong>Preferencia / desempate</strong></td><td>Cuando dos progresiones son igualmente válidas, gana la más conservadora — nunca la más agresiva</td></tr>
+</tbody>
+</table>
+</div>
+<p>Un nivel superior nunca se "combina" con uno inferior — es terminal para ese ciclo. No hay mezcla parcial entre "descarga" y "progresión reducida"; si Recovery exige descarga, el ciclo entero de progresión se omite (queda registrado en el evento, no en la prescripción).</p>
+
+<h2 id="diagrama">Diagrama de la máquina de decisión</h2>
+<div class="diagram">
+<div class="diagram-label">Orden de evaluación — cada nivel es un gate, no un voto</div>
+<pre class="mermaid">
+flowchart TD
+  A["¿Recovery.procede?"] -- No --> Z1["Salida: sostiene<br/>razón = veredicto de Recovery"]
+  A -- Sí --> B["¿Ventana suficiente para el tipo de decisión pedida?"]
+  B -- No --> Z2["Salida: sostiene<br/>razón = VENTANA_INSUFICIENTE"]
+  B -- Sí --> C["¿Estancamiento confirmado en este Slot?"]
+  C -- Sí --> Z3["Salida: acción de escalera de estancamiento (11)"]
+  C -- No --> D["Evaluar reglas de progresión normal (08/09)"]
+  D --> E{"¿Más de una progresión válida?"}
+  E -- Sí --> F["Desempate: gana la más conservadora"]
+  E -- No --> G["Aplicar la única progresión válida"]
+  F --> H["Salida: Decisión con razón + contexto"]
+  G --> H
+</pre>
+</div>
+
+<h2 id="uso-info">Qué información se usa, ignora y prioriza</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Entrada</th><th>Tratamiento</th></tr></thead>
+<tbody>
+<tr><td>RPE reportado / RIR</td><td>Usado directamente — es la señal primaria de autorregulación (10)</td></tr>
+<tr><td>Cumplimiento (completó lo prescrito sí/no)</td><td>Usado — gate previo a cualquier regla de progresión: si no cumplió, no se evalúa avance ese Slot esa aparición</td></tr>
+<tr><td>Fatiga / Dolor / Sueño crudos</td><td>Ignorados por completo — el motor solo ve el Veredicto ya resuelto de Recovery, nunca la señal cruda (P8, 10)</td></tr>
+<tr><td>Nivel de experiencia autoreportado (<code>nivel_experiencia</code>)</td><td>Ignorado — no es un dato algorítmico en ningún motor de BREY (ADR-003 del Architecture Handbook), tampoco en este</td></tr>
+<tr><td>Objetivo del usuario (fuerza, hipertrofia, etc.)</td><td>Ignorado aquí — ya fue resuelto aguas arriba en la construcción del programa (Training Framework); el motor progresa la prescripción que recibe, no re-decide el objetivo</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="conflictos-variable">Conflictos dentro de la misma categoría — precedencia por variable</h2>
+<p>Cuando dos reglas de progresión normal (nivel 4) afectan la misma variable de la Prescripción en el mismo ciclo:</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Conflicto</th><th>Gana</th><th>Razón</th></tr></thead>
+<tbody>
+<tr><td>Regla basada en RPE reportado vs. regla de progresión programada (calendario)</td><td>RPE reportado</td><td>La señal real siempre precede al plan — el plan es una expectativa, no un hecho (08)</td></tr>
+<tr><td>Regla de microprogresión vs. regla de macroprogresión, mismo ciclo</td><td>Se aplican ambas si son de variables distintas; si compiten por el mismo campo (raro — ver 09), macro precede, porque un cambio de escalón redefine el rango válido de la variable micro</td></tr>
+<tr><td>Regla de deload preventivo (12) vs. progresión normal</td><td>Deload preventivo gana — es nivel 3 (estancamiento/alerta temprana), no nivel 4</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="no-alcance">No alcance de este módulo</h2>
+<p>El catálogo de reglas individuales que alimentan cada nivel vive en 07–12. Este módulo especifica únicamente el árbitro entre ellas.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../04-contrato-entradas/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 04 · Contrato de Entradas</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../06-pipeline/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">06 · Pipeline →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

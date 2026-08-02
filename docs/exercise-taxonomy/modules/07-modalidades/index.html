@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>07 · Modalidades — Exercise Taxonomy Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="modalidades" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 07 · Ejes de clasificación</p>
+<h1>Modalidades</h1>
+<p class="lede">El eje que responde "¿cómo se ejecuta y cómo se mide?". Dos sub-ejes ortogonales — ejecución y lateralidad — que determinan la unidad de prescripción, la interfaz del Player y la única frontera del ecosistema que se declara explícitamente incruzable sin autorización humana.</p>
+
+<h2 id="definicion">Definición</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Modalidad</div>
+  <p>La forma de ejecución del movimiento, expresada como el producto de dos ejes independientes: <code>dinamico</code>·<code>isometrico</code> × <code>bilateral</code>·<code>unilateral</code>. Es atributo <strong>obligatorio</strong> del ejercicio y hoy <strong>falta</strong> en los 19 del catálogo.</p>
+</div>
+
+<h2 id="ejes">Los dos ejes</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Eje</th><th>Valores</th><th>Qué determina</th></tr></thead>
+<tbody>
+<tr><td><strong>Ejecución</strong></td><td><code>dinamico</code> · <code>isometrico</code></td><td>La unidad de medida de la prescripción y la interfaz del Player</td></tr>
+<tr><td><strong>Lateralidad</strong></td><td><code>bilateral</code> · <code>unilateral</code></td><td>Declarativo — ninguna fuente le asigna consecuencia algorítmica</td></tr>
+</tbody>
+</table>
+</div>
+<div class="diagram">
+<div class="diagram-label">Producto cartesiano — 4 modalidades posibles</div>
+<pre class="mermaid">
+graph TD
+  M["modalidad"] --> E["eje ejecución"]
+  M --> L["eje lateralidad"]
+  E --> D["dinamico<br/><i>unidad: repeticiones</i>"]
+  E --> I["isometrico<br/><i>unidad: segundos</i>"]
+  L --> B["bilateral"]
+  L --> U["unilateral"]
+  D --> C1["dinamico × bilateral"]
+  D --> C2["dinamico × unilateral"]
+  I --> C3["isometrico × bilateral"]
+  I --> C4["isometrico × unilateral"]
+</pre>
+</div>
+
+<h2 id="consecuencias">Consecuencias del eje de ejecución</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Consecuencia</th><th><code>dinamico</code></th><th><code>isometrico</code></th><th>Fuente</th></tr></thead>
+<tbody>
+<tr><td>Unidad de la capa 11</td><td>Rango de repeticiones (ej. 6–8)</td><td>Duración objetivo en segundos</td><td>Training Framework, capa 11</td></tr>
+<tr><td>Interfaz del Player</td><td>Contador de repeticiones</td><td>Cronómetro</td><td>Training Framework, capa 9 — "determina si el Player muestra contador de reps o cronómetro"</td></tr>
+<tr><td>Aplicabilidad de PE-002 (doble progresión)</td><td>Sí — hay rango de reps que agotar</td><td>No — se rige por PE-009</td><td>Progression Engine, PE-002 contraejemplo</td></tr>
+<tr><td>Herencia de prescripción al sustituir</td><td>Series/reps se heredan si la modalidad coincide</td><td>Ídem, dentro de isométrico</td><td>Architecture Handbook 04, "Qué se preserva al sustituir"</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="frontera">La frontera dinámico↔isométrico</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">No existe fórmula automática reps↔segundos</div>
+  <p>Cuando una sustitución cruza de dinámico a isométrico, "la prescripción se toma de la <strong>tabla de equivalencias autorizada</strong> del catálogo — <strong>no existe fórmula automática reps↔segundos</strong>; sin entrada en esa tabla, es <code>CATALOGO_INSUFICIENTE</code>, no una interpolación (P14)".</p>
+</div>
+<p>Es una de las prohibiciones más explícitas del ecosistema, y el Architecture Handbook 04 la refuerza en sus decisiones descartadas: "Fórmula automática reps↔tiempo — Descartado: inventarla sin evidencia sería fisiología fabricada (P11/P14). Tabla de equivalencias autorizada o fallo visible".</p>
+<div class="diagram">
+<div class="diagram-label">Árbol de decisión al sustituir cruzando modalidad</div>
+<pre class="mermaid">
+flowchart TD
+  S["Sustitución requerida"] --> Q1{"¿La modalidad de origen<br/>y destino coinciden?"}
+  Q1 -->|Sí| H["Series/reps se HEREDAN<br/>directamente"]
+  Q1 -->|No| Q2{"¿Existe entrada en la tabla<br/>de equivalencias autorizada?"}
+  Q2 -->|Sí| T["Usar la equivalencia autorizada"]
+  Q2 -->|No| F["CATALOGO_INSUFICIENTE<br/><b>nunca interpolar</b>"]
+</pre>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">La tabla de equivalencias no existe</div>
+  <p>El algoritmo depende de una "tabla de equivalencias autorizada del catálogo" que <strong>ninguna fuente publica ni especifica en forma</strong>. Se sabe qué debe hacer y qué pasa si falta una entrada, pero no qué columnas tiene, dónde vive ni quién la autoriza. Con la tabla ausente, toda sustitución que cruce modalidad termina en <code>CATALOGO_INSUFICIENTE</code> — comportamiento correcto, pero equivale a que el cruce de modalidad sea hoy imposible. Registrado en <a href="../16-preguntas-abiertas/index.html">TX-Q17</a>.</p>
+</div>
+
+<h2 id="lateralidad">El eje de lateralidad</h2>
+<p>El barrido documental encuentra <code>bilateral</code>/<code>unilateral</code> definido como parte de la modalidad y presente en el ejemplo de la cadena de 15 capas ("Press banca (dinámico, bilateral)"), pero <strong>ninguna fuente le asigna una consecuencia algorítmica</strong>: no filtra elegibilidad, no cambia la unidad de prescripción, no altera el conteo de volumen y no modifica la interfaz del Player.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Pregunta</th><th>Respuesta documental</th></tr></thead>
+<tbody>
+<tr><td>¿Un ejercicio unilateral duplica las series (una por lado)?</td><td><strong>No especificado</strong></td></tr>
+<tr><td>¿El volumen de un unilateral cuenta doble o simple?</td><td><strong>No especificado</strong></td></tr>
+<tr><td>¿Puede un unilateral sustituir a un bilateral del mismo patrón?</td><td>Sí — la regla de preservación solo exige que coincida el <em>eje de ejecución</em>, no el de lateralidad</td></tr>
+</tbody>
+</table>
+</div>
+<p>Es, por tanto, un atributo hoy <strong>puramente descriptivo</strong>. Se documenta como tal en vez de asignarle una semántica que ninguna fuente le da — ver <a href="../16-preguntas-abiertas/index.html">TX-Q18</a>.</p>
+
+<h2 id="mixto">Prohibición de sistema de esfuerzo mixto</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Un solo sistema de esfuerzo por Slot</div>
+  <p>Un Slot usa RPE o RIR, nunca ambos: "cada Slot usa exactamente un sistema de esfuerzo por Mesociclo". Un slot que llegue con RPE objetivo y RIR objetivo simultáneos es un error de invocación (<code>SISTEMA_ESFUERZO_MIXTO</code>), no un caso de negocio.</p>
+</div>
+<p>Esta regla pertenece a la prescripción, no al ejercicio — se documenta aquí porque interactúa con la modalidad: ambos determinan conjuntamente cómo se mide el esfuerzo de una serie. El ejercicio no declara qué sistema de esfuerzo usa; lo fija la prescripción vigente.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../06-roles/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 06 · Roles</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../08-equipamiento/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">08 · Equipamiento →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

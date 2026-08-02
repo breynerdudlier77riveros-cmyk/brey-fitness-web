@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>15 · ADR — Exercise Taxonomy Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="adr" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 15 · Gobernanza</p>
+<h1>Decisiones de Arquitectura (ADR)</h1>
+<p class="lede">Ocho decisiones propias de este handbook. Todas son de <strong>arbitraje documental</strong> o de <strong>declaración</strong>: ninguna crea una clasificación, ninguna edita una fuente, y todas pueden revertirse sin tocar código. Prefijo <code>TX-ADR-</code>, sin colisión con las once familias de ADR ya existentes.</p>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">TX-ADR-01</div>
+  <h3>Cada patrón se intenta a lo sumo una vez por resolución</h3>
+  <p><strong>Contexto:</strong> el grafo de degradación del Architecture Handbook 04 tiene tres pares mutuos (<code>empuje-horizontal ⇄ empuje-vertical</code>, <code>traccion-horizontal ⇄ traccion-vertical</code>, <code>dominante-rodilla ⇄ dominante-cadera</code>). El paso 4 del algoritmo de sustitución recursa sobre <code>patron.degradaA</code> sin declarar guarda alguna.</p>
+  <p><strong>Problema:</strong> si ambos patrones de un par quedan sin candidatos elegibles, la recursión literal no termina. La fuente no lo menciona.</p>
+  <p><strong>Alternativas consideradas:</strong> (a) declarar que los pares dejan de ser mutuos y elegir una dirección; (b) añadir un límite de profundidad numérico; (c) declarar que cada patrón se visita a lo sumo una vez por resolución.</p>
+  <p><strong>Decisión:</strong> se adopta (c). Es la única que <strong>no altera la tabla de degradación</strong> ni introduce un número arbitrario: preserva "la degradación declarada es la única permitida" y simplemente hace explícito que agotado el par corresponde el paso 5.</p>
+  <p><strong>Consecuencias:</strong> el comportamiento observable no cambia en ningún caso que hoy termine; los casos que hoy no terminarían pasan a devolver <code>CATALOGO_INSUFICIENTE</code>, que es la salida ya prevista para "sin candidatos".</p>
+</div>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">TX-ADR-02</div>
+  <h3>"Zona" designa zona de riesgo articular; los músculos se llaman músculos</h3>
+  <p><strong>Contexto:</strong> el ecosistema tiene dos vocabularios de localización corporal: los grupos musculares del catálogo (<code>musculoPrincipal</code>/<code>musculosSecundarios</code>) y las seis zonas de riesgo articular. Se solapan parcialmente: <code>hombros</code> es grupo muscular y <code>hombro</code> es zona de riesgo — mismo lugar del cuerpo, dos vocabularios, distinguidos solo por el plural.</p>
+  <p><strong>Problema:</strong> "zona primaria" y "zona secundaria" son términos ambiguos: pueden leerse como músculo o como zona de riesgo, y significan cosas opuestas (qué trabaja vs. qué pone en riesgo).</p>
+  <p><strong>Alternativas consideradas:</strong> (a) unificar ambos vocabularios; (b) renombrar uno de los dos; (c) fijar el significado de "zona" y exigir el término explícito para el otro eje.</p>
+  <p><strong>Decisión:</strong> se adopta (c). En este handbook y en toda documentación derivada, <strong>"zona" significa siempre zona de riesgo articular</strong>; el eje muscular se nombra siempre "músculo" o "grupo muscular". Unificar o renombrar sería editar una fuente de rango superior.</p>
+  <p><strong>Consecuencias:</strong> "zona primaria/secundaria" queda registrado como respaldo <em>parcial</em> — existe el eje muscular, pero no con ese nombre.</p>
+</div>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">TX-ADR-03</div>
+  <h3>"Cadena" significa cadena de progresión, nunca cadena cinética</h3>
+  <p><strong>Contexto:</strong> "cadena" es un término establecido en el ecosistema con un significado preciso: la secuencia ordenada de ejercicios por dificultad dentro de un patrón. En la literatura de entrenamiento, "cadena cinética" (abierta/cerrada) designa algo completamente distinto.</p>
+  <p><strong>Problema:</strong> usar "cadena" sin calificar en un contexto biomecánico produce ambigüedad grave, y "cadena cinética" tiene cero apariciones en todo el repositorio documental.</p>
+  <p><strong>Decisión:</strong> <strong>"cadena" queda reservado para la cadena de progresión.</strong> La cadena cinética no existe como atributo y se registra como deuda (<a href="../16-preguntas-abiertas/index.html">TX-Q</a>); si algún día se incorpora, deberá usar un nombre que no colisione.</p>
+  <p><strong>Consecuencias:</strong> ningún documento derivado puede usar "cadena" para referirse a la cadena cinética sin calificarlo explícitamente.</p>
+</div>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">TX-ADR-04</div>
+  <h3>Los slugs de ejercicio y de patrón viven en espacios de nombres distintos</h3>
+  <p><strong>Contexto:</strong> tanto los ejercicios como los patrones usan slugs estables, y ninguna fuente declara si comparten espacio de nombres. Hoy no hay colisión observable, pero nada la impide.</p>
+  <p><strong>Problema:</strong> sin la declaración, un ejercicio podría llamarse <code>core</code> y volverse indistinguible del patrón <code>core</code> en cualquier referencia textual.</p>
+  <p><strong>Decisión:</strong> se declara que son <strong>espacios de nombres separados</strong>: la unicidad se exige dentro de cada vocabulario, no entre ellos. Es la lectura que hace consistente el resto del ecosistema, donde patrón y ejercicio nunca aparecen en el mismo campo.</p>
+  <p><strong>Consecuencias:</strong> una referencia a un slug siempre debe indicar de qué vocabulario es. Este handbook lo hace en todas sus tablas.</p>
+</div>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">TX-ADR-05</div>
+  <h3>"Capacidad" es un prerequisito demostrable, no una cualidad física</h3>
+  <p><strong>Contexto:</strong> el Architecture Handbook 04 define <code>capacidad</code> como "un prerequisito demostrable para que un ejercicio sea elegible, independiente del Nivel nominal". La literatura del entrenamiento usa "capacidad física" para las cualidades entrenables (fuerza, resistencia, movilidad).</p>
+  <p><strong>Problema:</strong> el módulo solicitado se titula "Capacidades físicas", lo que induce a esperar la segunda acepción, que no existe en el ecosistema.</p>
+  <p><strong>Decisión:</strong> se conserva la acepción del Architecture Handbook 04 — <strong>capacidad = gate demostrable</strong> — y se documenta explícitamente la diferencia con la acepción fisiológica, que se registra como deuda.</p>
+  <p><strong>Consecuencias:</strong> el módulo <a href="../09-capacidades-fisicas/index.html">09</a> abre con una advertencia terminológica en lugar de una definición, para que nadie lo lea al revés.</p>
+</div>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">TX-ADR-06</div>
+  <h3>El nivel del ejercicio y el Nivel del usuario son ejes distintos sin mapeo declarado</h3>
+  <p><strong>Contexto:</strong> <code>Exercise.nivel</code> (<code>principiante</code>·<code>intermedio</code>·<code>avanzado</code>) clasifica la dificultad del ejercicio. <strong>Nivel</strong> (capa 3) es la posición de progresión del usuario y vive en <code>profiles.nivel_actual</code>, con nombres propios de cada Sistema. <code>nivel_experiencia</code> es un tercer uso, autopercibido y prohibido algorítmicamente (P12).</p>
+  <p><strong>Problema:</strong> el paso 0 de la resolución filtra por "nivelCompatible: nivel" sin que ninguna fuente declare cómo se traduce un Nivel de usuario al conjunto de niveles de ejercicio aceptables.</p>
+  <p><strong>Alternativas consideradas:</strong> (a) proponer un mapeo; (b) declarar la brecha y exigir que el conjunto de niveles aceptables llegue ya resuelto a la Knowledge Base.</p>
+  <p><strong>Decisión:</strong> se adopta (b). Proponer un mapeo sería inventar una regla de seguridad — es exactamente lo que P6 prohíbe en datos de nivel.</p>
+  <p><strong>Consecuencias:</strong> la brecha queda registrada como <a href="../16-preguntas-abiertas/index.html">TX-Q22</a> y como bloqueante de la resolución de slots.</p>
+</div>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">TX-ADR-07</div>
+  <h3>Ausencia de etiquetado y ausencia de riesgo son estados distintos</h3>
+  <p><strong>Contexto:</strong> la tabla de atributos declara <code>zonasRiesgo[]</code> obligatorio con la nota "(lista vacía válida)". No distingue explícitamente el caso "sin etiquetar".</p>
+  <p><strong>Problema:</strong> si ambos estados colapsan en el mismo valor, los 19 ejercicios no etiquetados pasarían el filtro de seguridad de cualquier usuario con lesión declarada.</p>
+  <p><strong>Decisión:</strong> se declara que <strong>lista vacía significa "evaluado, no carga zonas en riesgo"</strong> y <strong>ausente significa "sin evaluar"</strong>, y que el segundo estado <strong>no es elegible</strong>. Deriva de que "la existencia del filtro es de seguridad y no removible" — un filtro que deja pasar lo no evaluado no es un filtro.</p>
+  <p><strong>Consecuencias:</strong> es la causa directa de que hoy haya 0 ejercicios elegibles. Es el comportamiento correcto, no un defecto.</p>
+</div>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">TX-ADR-08</div>
+  <h3>Este handbook no crea atributos; los solicitados sin respaldo se declaran como deuda</h3>
+  <p><strong>Contexto:</strong> se solicitaron 34 atributos para definición oficial. El barrido documental encuentra respaldo pleno para 13, parcial para 4 y ninguno para 17.</p>
+  <p><strong>Problema:</strong> un documento titulado "Single Source of Truth" convierte en oficial todo lo que contiene, por el solo hecho de contenerlo. Definir aquí un atributo sin respaldo lo volvería canónico sin que ninguna autoridad de contenido lo haya aprobado.</p>
+  <p><strong>Alternativas consideradas:</strong> (a) definir los 17 por analogía con la práctica habitual del entrenamiento; (b) definirlos marcándolos como "propuesta"; (c) no definirlos y registrarlos como deuda documental con el resultado exacto del barrido.</p>
+  <p><strong>Decisión:</strong> se adopta (c). La opción (b) es la más peligrosa de las tres: una propuesta escrita en el documento canónico se cita como canon en cuanto pasa el tiempo suficiente.</p>
+  <p><strong>Consecuencias:</strong> el módulo <a href="../16-preguntas-abiertas/index.html">16</a> es más largo que varios módulos de contenido, y eso es información sobre el estado real de la especificación.</p>
+</div>
+
+<h2 id="resumen">Resumen</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>ADR</th><th>Tipo</th><th>¿Edita alguna fuente?</th><th>¿Crea clasificación?</th></tr></thead>
+<tbody>
+<tr><td>TX-ADR-01</td><td>Declaración de propiedad implícita</td><td>No</td><td>No</td></tr>
+<tr><td>TX-ADR-02</td><td>Arbitraje terminológico</td><td>No</td><td>No</td></tr>
+<tr><td>TX-ADR-03</td><td>Arbitraje terminológico</td><td>No</td><td>No</td></tr>
+<tr><td>TX-ADR-04</td><td>Declaración de espacio de nombres</td><td>No</td><td>No</td></tr>
+<tr><td>TX-ADR-05</td><td>Arbitraje terminológico</td><td>No</td><td>No</td></tr>
+<tr><td>TX-ADR-06</td><td>Declaración de brecha</td><td>No</td><td>No</td></tr>
+<tr><td>TX-ADR-07</td><td>Declaración semántica</td><td>No</td><td>No</td></tr>
+<tr><td>TX-ADR-08</td><td>Política del handbook</td><td>No</td><td>No</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../14-anti-patterns/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 14 · Anti-patterns</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../16-preguntas-abiertas/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">16 · Preguntas Abiertas →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

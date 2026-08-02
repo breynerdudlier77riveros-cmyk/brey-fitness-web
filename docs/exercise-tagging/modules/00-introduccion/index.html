@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>00 · Introducción — Exercise Tagging Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="introduccion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 00 · Empezar</p>
+<h1>Introducción</h1>
+<p class="lede">El Exercise Taxonomy Handbook respondió <em>qué atributos existen</em>. Este responde <em>cómo se asignan</em> — y, con la misma precisión, qué parte de esa asignación el ecosistema define deliberadamente como criterio humano en lugar de como regla.</p>
+
+<div class="meta-row">
+  <span class="chip">SSoT del etiquetado</span>
+  <span class="chip">Barrido rehecho desde cero</span>
+  <span class="chip">Cero biomecánica inventada</span>
+</div>
+
+<h2 id="proposito">Propósito</h2>
+<p>Después de este handbook, ninguna pregunta del tipo "¿por qué este ejercicio tiene este patrón?" debe quedar sin una respuesta rastreable. La respuesta puede ser una regla documentada, o puede ser <em>"porque una persona con criterio de entrenador lo autorizó, y el ecosistema define esa decisión como suya"</em> — pero nunca puede ser el silencio.</p>
+<p>Esa segunda forma de respuesta no es una evasiva: es el diseño explícito del sistema. El principio <strong>P14</strong> lo enuncia sin ambigüedad:</p>
+<div class="callout callout--regla">
+  <div class="callout__label">P14 · El motor ensambla; el humano autoriza</div>
+  <p>"Ningún motor crea contenido de entrenamiento. Los motores seleccionan, combinan y ajustan piezas que <strong>una persona con criterio de entrenador autorizó</strong> (Bloques, prescripciones, cadenas, ejercicios). <strong>El catálogo es la frontera de autoridad humana.</strong>"</p>
+</div>
+<p>El etiquetado de ejercicios ocurre exactamente en esa frontera. Por eso este handbook no puede — ni debe — producir un algoritmo que decida el patrón de un ejercicio. Lo que sí puede producir, y produce, es todo lo que rodea a esa decisión: el orden del proceso, las restricciones estructurales, las validaciones, los criterios de rechazo y el checklist de aceptación.</p>
+
+<h2 id="alcance">Alcance</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Dentro del alcance</th><th>Forma que toma</th></tr></thead>
+<tbody>
+<tr><td>El proceso oficial de etiquetado</td><td>Siete pasos en orden fijo, con entrada, salida y condición de rechazo por paso</td></tr>
+<tr><td>La jerarquía de reglas ante conflicto</td><td>Cinco niveles de precedencia derivados de principios existentes</td></tr>
+<tr><td>Las reglas de asignación por atributo</td><td>Un módulo por familia — con la evidencia documental de cada una</td></tr>
+<tr><td>Las validaciones que invalidan un etiquetado</td><td>Separadas en verificables por máquina y verificables solo por revisión</td></tr>
+<tr><td>El checklist oficial de aceptación</td><td>Lista de verificación aplicable a cualquier ejercicio</td></tr>
+<tr><td>La medición de cuánto del proceso está realmente especificado</td><td>Matriz cuantitativa de 57 celdas — módulo <a href="../17-auditoria/index.html">17</a></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="no-alcance">No alcance</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Fuera del alcance</th><th>Por qué</th></tr></thead>
+<tbody>
+<tr><td>Etiquetar ejercicios concretos</td><td>Es la decisión que P14 reserva a autoridad humana</td></tr>
+<tr><td>Crear el catálogo, cadenas o progresiones</td><td>Contenido, no documentación — bloqueante #2 del Roadmap</td></tr>
+<tr><td>Decidir biomecánica</td><td>"La intensidad relativa por zona no se infiere del nombre — exige etiquetado con criterio biomecánico"</td></tr>
+<tr><td>Definir atributos nuevos</td><td>Eso lo cerró el <a href="../../../exercise-taxonomy/index.html">Exercise Taxonomy Handbook</a>; aquí solo se asignan los existentes</td></tr>
+<tr><td>Escribir ejemplos inventados de etiquetado</td><td>Un ejemplo inventado en el documento canónico se cita como canon con el tiempo</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="barrido">Barrido documental — rehecho desde cero</h2>
+<p>Este handbook no reutiliza las conclusiones del Exercise Taxonomy Handbook: repite el barrido con términos propios del <strong>proceso</strong> de etiquetado (no del vocabulario). Los conteos se hicieron sobre los archivos <code>.html</code> del repositorio documental, <strong>excluyendo el propio Exercise Taxonomy Handbook</strong> del recuento de evidencia independiente, para no contar como fuente lo que ya era consolidación.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Término buscado</th><th>Archivos con coincidencia</th><th>Lectura</th></tr></thead>
+<tbody>
+<tr><td><code>etiquetad*</code></td><td>7</td><td>Existe el concepto de etiquetado y su asignación de responsabilidad</td></tr>
+<tr><td><code>criterio de entrenador</code></td><td>4</td><td>La autoridad está nombrada explícitamente</td></tr>
+<tr><td><code>desempate</code></td><td>10</td><td>Todos en contexto de <em>resolución de slots</em> o <em>progresión</em>, ninguno de etiquetado</td></tr>
+<tr><td><code>ambiguo</code></td><td>6</td><td>Ninguno sobre ejercicios multi-patrón</td></tr>
+<tr><td><code>prevalece</code></td><td>1</td><td>Testing Handbook, contexto no relacionado</td></tr>
+<tr><td><code>patronPrimario</code></td><td>1</td><td>Fuente única: Architecture Handbook 04</td></tr>
+<tr><td><code>híbrido</code></td><td>10</td><td><strong>Ninguno se refiere a ejercicios híbridos</strong> — todos son el Sistema Híbrido o un patrón de arquitectura</td></tr>
+<tr><td><code>cola editorial</code></td><td>12</td><td>El circuito de corrección de catálogo sí está establecido</td></tr>
+<tr><td><code>versión de catálogo</code></td><td>15</td><td>La trazabilidad temporal del etiquetado está resuelta</td></tr>
+<tr><td><code>P14</code></td><td>8</td><td>El principio de autoridad humana es transversal</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">El hallazgo que define este handbook</div>
+  <p>El barrido devuelve un patrón muy nítido: el ecosistema documenta con detalle <strong>qué</strong> etiquetar, <strong>qué restricciones estructurales</strong> cumple el etiquetado y <strong>qué lo invalida</strong> — pero no documenta <strong>cómo decidir</strong> ninguno de los atributos biomecánicos, y en dos casos (intensidad de zona y orden de cadena) declara explícitamente que esa decisión es criterio humano. La medición exacta está en el módulo <a href="../17-auditoria/index.html">17</a>.</p>
+</div>
+
+<h2 id="fuentes">Fuentes barridas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Fuente</th><th>Qué aporta al etiquetado</th></tr></thead>
+<tbody>
+<tr><td>Architecture Handbook 01 · Principios</td><td>P14 (autoridad humana), P6, P11, P15 — el marco normativo de todo el proceso</td></tr>
+<tr><td>Architecture Handbook 04 · Knowledge Base</td><td>Fuente primaria: vocabularios, reglas de cardinalidad, casos inválidos, reglas de cadena</td></tr>
+<tr><td>Architecture Handbook 03 · Training Framework</td><td>R-3 (ninguna capa superior nombra ejercicios), R-4 (orden por rol), frontera plantilla/instancia</td></tr>
+<tr><td>Architecture Handbook 08 · Workout Generator</td><td>Qué consume el etiquetado y cómo falla cuando es insuficiente</td></tr>
+<tr><td>Architecture Handbook 09 · Workout Player</td><td>Consecuencia de la modalidad en la interfaz</td></tr>
+<tr><td>Architecture Handbook 13 · Roadmap</td><td>El etiquetado como bloqueante #2, con dueño declarado: <strong>Contenido</strong>, no Ingeniería</td></tr>
+<tr><td>Progression Engine Handbook</td><td>Consumo de cadenas y capacidades; PE-003 y su exigencia no declarada</td></tr>
+<tr><td>Domain Model · Database · API Contract · Engineering</td><td>Persistencia, DTOs y convenciones que condicionan la forma del etiquetado</td></tr>
+<tr><td>Exercise Taxonomy Handbook</td><td>Los atributos y estatutos sobre los que este proceso opera — dependencia declarada</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="regla-deuda">Regla de deuda documental</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Regla fundacional</div>
+  <p>Si una regla de asignación no existe en la documentación, este handbook <strong>la declara como deuda</strong> con el resultado exacto del barrido, y define el <strong>protocolo de escalado</strong> aplicable mientras no exista. Nunca la sustituye por una regla propia. Inventar aquí un criterio biomecánico sería exactamente lo que P14 prohíbe: crear contenido de entrenamiento sin autoridad humana.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../../index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← Portada</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../01-filosofia/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">01 · Filosofía del Etiquetado →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

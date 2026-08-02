@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>11 · Estados — Exercise Catalog</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="estados" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 11 · Ciclo de vida</p>
+<h1>Estados</h1>
+<p class="lede">Draft · Approved · Deprecated · Archived. Los cuatro se buscaron por separado, en español y en inglés, y se contrastaron contra el catálogo de máquinas de estado del Domain Model. <strong>Ninguno existe.</strong> Este módulo documenta esa ausencia y sus consecuencias.</p>
+
+<h2 id="barrido">Resultado del barrido — doble verificación</h2>
+<p class="matrix-note">Sobre los <code>.html</code> del repositorio documental, excluyendo los dos handbooks previos de la trilogía.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Término</th><th>Archivos</th><th>Contexto real de las coincidencias</th></tr></thead>
+<tbody>
+<tr><td><code>draft</code></td><td><strong>0</strong></td><td>—</td></tr>
+<tr><td><code>borrador</code></td><td><strong>0</strong></td><td>—</td></tr>
+<tr><td><code>approved</code></td><td><strong>0</strong></td><td>—</td></tr>
+<tr><td><code>aprobado</code></td><td>1</td><td>Sin relación con ejercicios</td></tr>
+<tr><td><code>deprecated</code></td><td><strong>0</strong></td><td>—</td></tr>
+<tr><td><code>deprecación</code></td><td>4</td><td><strong>Contratos de API</strong> — "una fecha de deprecación para el contrato viejo"</td></tr>
+<tr><td><code>archived</code></td><td><strong>0</strong></td><td>—</td></tr>
+<tr><td><code>archivado</code></td><td>30</td><td><strong>Cliente del BCS</strong> — la FSM activo ⇄ archivado → eliminado</td></tr>
+<tr><td><code>obsoleto</code></td><td>1</td><td>Vigencia de diagnóstico, no de ejercicio</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="segunda">Segunda verificación — el catálogo de FSM</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Exercise no está entre las entidades con máquina de estados</div>
+  <p>El módulo 10 del Domain Model Handbook se titula "Máquinas de Estado" y publica exactamente <strong>cinco</strong>: Diagnóstico, Programa, Workout, Medición y EnlacePúblico. <strong>Exercise no figura.</strong> No es un olvido de redacción: el módulo enumera "cinco entidades con estados reales" y Exercise no es una de ellas.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Las cinco entidades con ciclo de vida formal — y la que no lo tiene</div>
+<pre class="mermaid">
+graph TD
+  DM["Domain Model 10<br/>Máquinas de Estado"] --> E1["Diagnóstico<br/>en_curso → completado"]
+  DM --> E2["Programa<br/>sin_diagnostico → … → completado"]
+  DM --> E3["Workout<br/>planificado → completado / perdido"]
+  DM --> E4["Medición<br/>vigente → anulada"]
+  DM --> E5["EnlacePúblico<br/>activo → revocado"]
+  EX["EXERCISE<br/>❌ sin máquina de estados"] -.->|"no figura"| DM
+</pre>
+</div>
+
+<h2 id="veredicto">Veredicto</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Deuda documental CT-D05 — el ciclo de vida de una entrada de catálogo no existe</div>
+  <p>No hay atributo de estado, no hay máquina de estados, no hay transiciones y no hay vocabulario. Una entrada de catálogo, hoy, solo puede estar en dos situaciones implícitas: <strong>cumple las cuatro condiciones de existencia</strong> (CT-01) o no las cumple. Ambas se derivan de la completitud de sus atributos, no de un campo que las declare.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Estado solicitado</th><th>Sustituto implícito hoy</th><th>Limitación</th></tr></thead>
+<tbody>
+<tr><td><strong>Draft</strong></td><td>Entrada con atributos obligatorios incompletos</td><td>Indistinguible de una entrada abandonada o de un error de etiquetado</td></tr>
+<tr><td><strong>Approved</strong></td><td>Entrada que cumple CT-01 completo</td><td>No registra <em>quién</em> aprobó ni <em>cuándo</em> — pese a que P14 exige trazar la autoría</td></tr>
+<tr><td><strong>Deprecated</strong></td><td><strong>Ninguno</strong></td><td>No hay forma de marcar una entrada como "ya no se ofrece pero sigue existiendo"</td></tr>
+<tr><td><strong>Archived</strong></td><td><strong>Ninguno</strong></td><td>Ídem — y colisiona con CT-07 (nunca se borra)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="consecuencias">Consecuencias de la ausencia</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Consecuencia</th><th>Severidad</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><strong>CT-07 no es ejecutable.</strong> "Una entrada nunca se borra" es correcto, pero sin estado de retirada la única forma práctica de dejar de ofrecer un ejercicio es eliminarlo — que es lo que la regla prohíbe</td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td>2</td><td><strong>No se puede trabajar en borrador.</strong> Una entrada a medio etiquetar es indistinguible de una defectuosa; ambas simplemente no son elegibles</td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td>3</td><td><strong>No se registra la autorización.</strong> P14 exige que "la responsabilidad se rastree a una decisión humana", pero no hay campo donde conste quién aprobó la entrada ni cuándo</td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td>4</td><td><strong>La integridad de cadena queda expuesta.</strong> Sin estado de retirada, retirar un eslabón implica borrarlo, rompiendo las cadenas que lo referencian</td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td>5</td><td><strong>No hay revisión periódica posible.</strong> Nada permite marcar entradas que necesiten re-evaluación tras un cambio de vocabulario</td><td><span class="severity severity--media">media</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="precedentes">Precedentes disponibles en el ecosistema</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Existen dos patrones aplicables — en otros dominios</div>
+  <p>El ecosistema ya resolvió problemas análogos dos veces, y ambas soluciones están documentadas: <strong>(a)</strong> la FSM de Cliente del BCS (<code>activo ⇄ archivado → eliminado</code>), que distingue archivado reversible de eliminación permanente; y <strong>(b)</strong> la disciplina de deprecación de contratos de API — "nunca mutación in-place de un contrato publicado", con ADR que registre la razón y fecha de deprecación.</p>
+  <p>Este handbook <strong>no adopta ninguna de las dos</strong>: ambas pertenecen a dominios distintos y aplicarlas al catálogo sería crear una regla nueva, que el brief prohíbe. Se registran como precedentes que la decisión documental futura puede considerar.</p>
+</div>
+
+<h2 id="propuesta">Qué haría falta para cerrar la deuda</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Elemento</th><th>Quién debe definirlo</th></tr></thead>
+<tbody>
+<tr><td>El vocabulario de estados y su cardinalidad</td><td>Decisión documental — nivel Domain Model o Architecture Handbook 04</td></tr>
+<tr><td>Las transiciones válidas y sus guards</td><td>Domain Model 10, que es donde viven las otras cinco FSM</td></tr>
+<tr><td>Qué estados son elegibles para resolución de slots</td><td>Architecture Handbook 04</td></tr>
+<tr><td>Cómo interactúa con la versión de catálogo</td><td>Módulo <a href="../12-versionado/index.html">12</a> — hoy tampoco resuelto</td></tr>
+<tr><td>Quién autoriza cada transición</td><td>P14 ya lo responde: autoridad de contenido</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Por qué este handbook no los define</div>
+  <p>Definir aquí un ciclo de vida de Exercise crearía una sexta máquina de estados fuera del módulo que las centraliza, sin pasar por la jerarquía documental y sin que ninguna autoridad la hubiera acordado. Un catálogo con estados inventados sería peor que uno sin estados: parecería resuelto.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../10-integridad/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 10 · Integridad</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../12-versionado/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">12 · Versionado →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10 · Testing — Implementation Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="testing" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 10 · Calidad</p>
+<h1>Testing</h1>
+<p class="lede">El Engineering Handbook (10) ya fija la estrategia (Unit → Integration → E2E, motores como funciones puras testeables sin mocks). Este módulo fija cuándo, exactamente, se escribe cada nivel en relación con el orden de construcción de 04.</p>
+
+<h2 id="orden-testing">Orden exacto de testing</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Momento</th><th>Qué se prueba</th><th>Nivel</th></tr></thead>
+<tbody>
+<tr><td>Inmediatamente tras M1 (05)</td><td>Que <code>DELETE</code> sobre <code>workouts</code>/<code>workout_logs</code> es rechazado por RLS</td><td>Integration</td></tr>
+<tr><td>Inmediatamente tras cada repositorio nuevo (06)</td><td>Forma exacta del DTO devuelto, manejo de ausencia (null, FT-05)</td><td>Unit (con Supabase real de test, no mock — Engineering Handbook 10)</td></tr>
+<tr><td>Inmediatamente tras el pipeline base de Progression Engine (08)</td><td>El pipeline sin reglas siempre produce "sostiene" — comportamiento base antes de añadir lógica</td><td>Unit</td></tr>
+<tr><td>Tras cada grupo de reglas añadido (08 — micro, macro, autorregulación, estancamiento, deload)</td><td>Los casos límite ya documentados en el propio catálogo (Progression Engine Handbook, 07 — "ejemplo inválido" de cada regla)</td><td>Unit</td></tr>
+<tr><td>Tras completar la máquina de estados de Motor BPS (08)</td><td>Las 15 transiciones, con foco en las que la Architecture Review marcó como casos límite (T11 auto-pausa, T13 retroceso propuesto)</td><td>Unit</td></tr>
+<tr><td>Tras el paso 14 de 04 (Integración)</td><td>Los 5 casos del checklist de integración (09)</td><td>Integration</td></tr>
+<tr><td>Tras el paso 15 de 04 (primer ciclo E2E)</td><td>El flujo completo de un usuario real desde registro hasta primera semana generada</td><td>E2E — el único punto del roadmap donde se justifica, según la propia prioridad del Engineering Handbook (10: E2E es "el más costoso de mantener, se introduce último")</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="factories-orden">Orden de construcción de factories/fixtures</h2>
+<p>Antes que el primer test de cada dominio, no después: una <code>factory</code> de <code>Profile</code>/<code>Workout</code> para el Core Product ya debería existir (aunque no haya tests hoy — es deuda, Engineering Handbook 10); las factories de <code>Cliente</code>/<code>Medición</code> del BCS y de <code>Decision</code>/<code>Veredicto</code> de los motores se crean en el mismo paso que su primer repositorio o pipeline, nunca como una tarea separada "para después".</p>
+
+<h2 id="lista-roja-aplicada">La lista roja del Engineering Handbook, aplicada a este roadmap</h2>
+<p>Los tres invariantes que "nunca deben romperse" (Engineering Handbook, 10) se verifican en los siguientes puntos exactos de este roadmap:</p>
+<ul class="checklist">
+  <li>Inmutabilidad de historial — verificada en el primer punto de la tabla de arriba (tras M1), antes de cualquier otra prueba.</li>
+  <li>RLS activo en toda tabla nueva — verificado inmediatamente después de cada migración (M2, M3), antes de escribir el primer repositorio que la use.</li>
+  <li>Ningún secreto con prefijo <code>NEXT_PUBLIC_</code> — verificado en el checklist de Seguridad de cada Pull Request (13), no como una prueba automatizada separada mientras no exista CI (Engineering Handbook, 12).</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../09-integracion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 09 · Integración</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../11-observabilidad/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">11 · Observabilidad →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

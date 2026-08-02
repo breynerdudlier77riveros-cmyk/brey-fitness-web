@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>13 · Knowledge Base — Exercise Taxonomy Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="knowledge-base" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 13 · Relaciones</p>
+<h1>Relación con la Knowledge Base</h1>
+<p class="lede">La distinción entre la ontología y su instancia, el contrato con los cinco consumidores, las reglas de validación estructural del catálogo, y por qué la Knowledge Base es la única fuente que este handbook consolida en lugar de reinterpretar.</p>
+
+<h2 id="ontologia-instancia">Ontología ≠ instancia</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">La distinción fundacional</div>
+  <p>"Es el <strong>vocabulario cerrado</strong> que Diagnóstico, motores, Generator y Player consultan en vez de inventar cada uno su noción de 'ejercicio válido'. <strong>El catálogo real de ejercicios es una instancia de esta ontología — no la ontología.</strong>"</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th></th><th>Ontología</th><th>Instancia</th></tr></thead>
+<tbody>
+<tr><td>Qué es</td><td>Los vocabularios, atributos y reglas de elegibilidad</td><td>Las entradas concretas del catálogo</td></tr>
+<tr><td>Contenido</td><td>9 patrones · 5 roles · 6 zonas · 6 equipos · modalidad · reglas</td><td>19 ejercicios hoy</td></tr>
+<tr><td>Quién la cambia</td><td>Decisión documental explícita</td><td>Trabajo editorial continuo (P14)</td></tr>
+<tr><td>Estado</td><td><span class="tag tag--implementado">completa y publicada</span></td><td><span class="tag tag--futuro">sin etiquetar</span> — bloqueante #2</td></tr>
+<tr><td>Dónde vive este handbook</td><td>Consolida y relaciona la ontología</td><td>No la toca — no crea ni etiqueta ejercicios</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="consumidores">Contrato con los cinco consumidores</h2>
+<p class="matrix-note">Qué lee cada consumidor del catálogo. Transcripción de la tabla del Architecture Handbook 04.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Consumidor</th><th>Qué lee</th><th>Atributos implicados</th></tr></thead>
+<tbody>
+<tr><td>Diagnóstico</td><td>"Nada en v1; futuro: densidad de catálogo por Track para anticipar viabilidad"</td><td>— (futuro: <code>equipo[]</code> agregado)</td></tr>
+<tr><td>Progression Engine</td><td>"Cadenas (unidad de avance/retroceso), capacidades, roles (peso de la señal)"</td><td><code>cadena</code>, <code>capacidadesRequeridas[]</code>, <code>rolesPosibles[]</code></td></tr>
+<tr><td>Recovery Engine</td><td>"Zonas de riesgo (restricción temporal por dolor)"</td><td><code>zonasRiesgo[]</code></td></tr>
+<tr><td>Workout Generator</td><td>"Resolución completa de slots + sustitución"</td><td>Todos los atributos de elegibilidad</td></tr>
+<tr><td>Workout Player</td><td>"Modalidad (contador vs. cronómetro), sustitución en vivo, contenido educativo"</td><td><code>modalidad</code>, ficha educativa</td></tr>
+</tbody>
+</table>
+</div>
+<div class="diagram">
+<div class="diagram-label">Un vocabulario, cinco consumidores — ninguno define el suyo</div>
+<pre class="mermaid">
+graph TD
+  KB["Knowledge Base<br/>ontología + catálogo"]
+  KB --> DX["Diagnóstico<br/><i>nada en v1</i>"]
+  KB --> PE["Progression Engine<br/>cadenas · capacidades · roles"]
+  KB --> RE["Recovery Engine<br/>zonas de riesgo"]
+  KB --> WG["Workout Generator<br/>resolución completa"]
+  KB --> WP["Workout Player<br/>modalidad · contenido educativo"]
+  KB -.->|"NO conoce"| USR["Usuarios"]
+</pre>
+</div>
+
+<h2 id="zonas">Zonas de riesgo — el eje de seguridad</h2>
+<p>Es el eje que este handbook no consolida en su propio módulo porque pertenece íntegramente a la Knowledge Base, pero que la taxonomía debe declarar: cada ejercicio declara <strong>qué zonas carga y con qué intensidad relativa</strong>.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Slug</th><th>Qué carga</th></tr></thead>
+<tbody>
+<tr><td><code>rodilla</code></td><td>Flexión profunda o carga axial en flexión</td></tr>
+<tr><td><code>cadera</code></td><td>Rango de flexión/rotación bajo carga</td></tr>
+<tr><td><code>lumbar</code></td><td>Carga axial o flexión de columna bajo carga</td></tr>
+<tr><td><code>hombro</code></td><td>Rango overhead o rotación externa cargada</td></tr>
+<tr><td><code>codo-muneca</code></td><td>Carga en extensión o hiperextensión</td></tr>
+<tr><td><code>tobillo</code></td><td>Dorsiflexión o impacto</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Regla de exclusión por zona</div>
+  <p>"Usuario con zona declarada → se excluyen los ejercicios que cargan esa zona en <code>alto</code>. <code>medio</code>/<code>bajo</code> permanecen elegibles. El umbral es calibrable; <strong>la existencia del filtro es de seguridad y no removible</strong>."</p>
+</div>
+<p>La intensidad relativa (<code>alto</code>/<code>medio</code>/<code>bajo</code>) no es un flag binario por una razón declarada: "sentadilla con barra y extensión en máquina cargan <code>rodilla</code> de formas muy distintas".</p>
+<div class="callout callout--riesgo">
+  <div class="callout__label">El filtro de seguridad depende de un dato que el Perfil no captura</div>
+  <p>La fuente lo declara sin ambigüedad: "Requiere que el Perfil capture lesiones como zonas de esta lista (<strong>hoy es texto libre</strong> — bloqueante registrado en el Roadmap; el texto libre actual se conserva como Notas del usuario, <strong>nunca parseado</strong>, coherente con la capa 15)". Es decir: aunque los 19 ejercicios estuvieran perfectamente etiquetados con sus zonas, el filtro no podría aplicarse, porque el lado del usuario es prosa. Ambos extremos del eje de seguridad están pendientes.</p>
+</div>
+
+<h2 id="validacion">Validación estructural del catálogo</h2>
+<p class="matrix-note">Los casos que el Architecture Handbook 04 declara inválidos. Son las reglas que una validación automática debe hacer cumplir — la única parte del catálogo que no requiere criterio humano.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso inválido</th><th>Regla violada</th><th>Comportamiento exigido</th></tr></thead>
+<tbody>
+<tr><td>Ejercicio sin <code>patronPrimario</code></td><td>Atributo obligatorio</td><td>"Rechazado al validar el catálogo — nunca llega a ser elegible"</td></tr>
+<tr><td>Cadena con ciclo (A→B→A)</td><td>Regla 4 de la cadena</td><td>"Rechazado por validación estructural del catálogo"</td></tr>
+<tr><td>Slot sin rol ("2 empujes")</td><td>Un slot es Patrón×Rol</td><td>"Plantilla malformada — sin excepción"</td></tr>
+<tr><td>Ejercicio isométrico sustituye a dinámico sin equivalencia autorizada</td><td>Regla de preservación</td><td><code>CATALOGO_INSUFICIENTE</code></td></tr>
+</tbody>
+</table>
+</div>
+<div class="diagram">
+<div class="diagram-label">Dos validaciones distintas, con dueños distintos</div>
+<pre class="mermaid">
+flowchart LR
+  E["Entrada de catálogo"] --> V1["Validación ESTRUCTURAL<br/>automática · ingeniería"]
+  V1 --> C1["sin ciclos<br/>sin atributos obligatorios ausentes<br/>sin huecos de nivel"]
+  E --> V2["Validación de CONTENIDO<br/>manual · criterio de entrenador (P14)"]
+  V2 --> C2["¿es correcto el patrón?<br/>¿es correcta la zona de riesgo?<br/>¿es correcto el orden de la cadena?"]
+  C1 --> OK["Entrada válida y elegible"]
+  C2 --> OK
+</pre>
+</div>
+
+<h2 id="densidad">Densidad de catálogo</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">El riesgo declarado por la fuente</div>
+  <p>"Con 19 ejercicios, combinaciones legítimas (Casa + Avanzado + exclusión de hombro) caerán en <code>CATALOGO_INSUFICIENTE</code>. <strong>Correcto por diseño (P6)</strong> — el error alimenta la cola editorial de contenido."</p>
+</div>
+<p>La densidad es la métrica que relaciona la taxonomía con la viabilidad del producto: no basta con que el vocabulario sea correcto, hace falta que cada combinación de patrón × rol × track × nivel tenga al menos un ejercicio elegible. Es el trabajo que sigue al etiquetado, y la razón por la que los patrones reservados existen sin coste: activarlos es "cero cambio estructural".</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../12-progression-engine/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 12 · Progression Engine</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../14-anti-patterns/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">14 · Anti-patterns →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

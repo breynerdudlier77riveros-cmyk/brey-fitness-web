@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>04 · Patrones — Exercise Tagging Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="patrones" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 04 · Reglas por atributo</p>
+<h1>Reglas de Etiquetado — Patrones</h1>
+<p class="lede">El paso 1 del proceso y el más consecuente: condiciona el rol, la cadena y la degradación. También es el atributo cuyo criterio de decisión está más claramente ausente de toda la documentación.</p>
+
+<h2 id="que-manda">¿Qué evidencia manda?</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Pregunta</th><th>Respuesta documental</th><th>Fuente</th></tr></thead>
+<tbody>
+<tr><td>¿Cuántos patrones primarios puede tener un ejercicio?</td><td><strong>Exactamente uno.</strong> Más 0..N secundarios.</td><td>AH04, regla (a) del vocabulario</td></tr>
+<tr><td>¿Cuáles llenan slots?</td><td><strong>Solo el primario.</strong> Los secundarios describen, no habilitan.</td><td>AH04, regla (a)</td></tr>
+<tr><td>¿Qué pasa si falta el primario?</td><td>El ejercicio es <strong>inválido</strong> y "nunca llega a ser elegible"</td><td>AH04, casos inválidos</td></tr>
+<tr><td>¿Puede etiquetarse un patrón reservado?</td><td>Sí — y eso mismo lo activa: "se activan agregando ejercicios etiquetados, cero cambio estructural"</td><td>AH04, extensiones</td></tr>
+<tr><td><strong>¿Cómo se decide cuál es el primario?</strong></td><td><strong>No existe regla.</strong></td><td>— (ver abajo)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="ausencia">La ausencia central</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">No existe criterio documentado para elegir el patrón primario</div>
+  <p>El barrido devuelve <code>patronPrimario</code> en <strong>un solo archivo</strong> (Architecture Handbook 04) y ninguna búsqueda de términos de decisión ("cómo se decide", "prevalece", "ambiguo" aplicado a patrones) produce una regla de selección.</p>
+  <p>Lo único que la fuente aporta es la <strong>justificación de la cardinalidad</strong>, no el criterio de elección: "Un burpee <em>es</em> varios patrones a la vez; se fuerza uno primario + secundarios porque el Generator necesita respuesta inequívoca de qué slot llena. La ambigüedad multi-primaria no paga su costo en v1."</p>
+  <p>Es decir: la fuente explica <strong>por qué hay que elegir uno</strong>, y explícitamente reconoce que hay ejercicios donde la elección es ambigua — pero no dice <strong>cuál elegir</strong>. Deuda registrada como <a href="../17-auditoria/index.html">TG-D01</a>.</p>
+</div>
+
+<h2 id="que-si-decide">Lo que sí queda decidido</h2>
+<div class="diagram">
+<div class="diagram-label">Árbol de decisión con lo documentado — el nodo final es humano</div>
+<pre class="mermaid">
+flowchart TD
+  A["Ejercicio candidato"] --> B{"¿El movimiento encaja en<br/>alguno de los 9 patrones?"}
+  B -- No --> R1["RECHAZO · nivel 3<br/>el vocabulario es cerrado"]
+  B -- Sí, en uno solo --> OK1["patronPrimario = ese<br/>secundarios = []"]
+  B -- Sí, en varios --> C{"¿Alguna regla documentada<br/>decide cuál es primario?"}
+  C -- No, ninguna existe --> ESC["ESCALAR · TG-07<br/>autoridad de contenido decide<br/>y la decisión se registra"]
+  ESC --> OK2["patronPrimario = el autorizado<br/>secundarios = los demás"]
+  OK1 --> V["Verificar: exactamente<br/>un primario · nivel 2"]
+  OK2 --> V
+</pre>
+</div>
+
+<h2 id="secundarios">Patrones secundarios</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Aspecto</th><th>Regla</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>Cardinalidad</td><td>0..N — la lista vacía es válida</td><td><span class="tag tag--implementado">documentada</span></td></tr>
+<tr><td>Efecto en elegibilidad</td><td>Ninguno — "solo el primario llena slots"</td><td><span class="tag tag--implementado">documentada</span></td></tr>
+<tr><td>¿Puede el primario repetirse en secundarios?</td><td>Ninguna fuente lo prohíbe explícitamente</td><td><span class="tag tag--futuro">deuda</span></td></tr>
+<tr><td>¿Cómo se decide qué patrones son secundarios?</td><td>Ninguna regla</td><td><span class="tag tag--futuro">deuda</span></td></tr>
+<tr><td>¿Para qué sirven entonces?</td><td>Descripción. Ningún consumidor documentado los lee</td><td><span class="tag tag--futuro">deuda</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Un atributo obligatorio sin consumidor conocido</div>
+  <p><code>patronesSecundarios[]</code> figura en la tabla de atributos, pero el barrido no encuentra ningún consumidor que los lea: la resolución de slots filtra por primario, la degradación usa la tabla del vocabulario, y el contrato de los cinco consumidores no los menciona. Se etiquetan porque el modelo los contempla, no porque algo los use hoy.</p>
+</div>
+
+<h2 id="degradacion">La degradación no se etiqueta</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Es propiedad del patrón, no del ejercicio</div>
+  <p>El campo <code>degradaA</code> pertenece al <strong>vocabulario de patrones</strong>, no a la ficha del ejercicio. Ningún ejercicio declara a qué degrada: lo hereda de su patrón primario. Etiquetar una degradación por ejercicio permitiría que dos ejercicios del mismo patrón degradaran distinto — rompiendo "la degradación declarada aquí es la ÚNICA permitida".</p>
+</div>
+
+<h2 id="hibridos">Ejercicios que encajan en varios patrones</h2>
+<p>La fuente los reconoce por su nombre genérico ("un burpee es varios patrones a la vez") pero no publica ni un procedimiento ni un ejemplo resuelto. El tratamiento completo, incluido el protocolo de escalado aplicable, está en el módulo <a href="../11-hibridos-conflictos/index.html">11</a>.</p>
+
+<h2 id="validaciones">Validaciones aplicables</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Validación</th><th>Capa</th><th>Resultado si falla</th></tr></thead>
+<tbody>
+<tr><td>Existe <code>patronPrimario</code></td><td>Estructural (automática)</td><td>Ejercicio inválido — no elegible</td></tr>
+<tr><td>Hay exactamente uno</td><td>Estructural</td><td>Rechazo de nivel 2</td></tr>
+<tr><td>El valor pertenece a los 9 publicados</td><td>Estructural</td><td>Rechazo de nivel 3</td></tr>
+<tr><td>Los secundarios pertenecen a los 9</td><td>Estructural</td><td>Rechazo de nivel 3</td></tr>
+<tr><td>El patrón elegido describe correctamente el movimiento</td><td><strong>Contenido (humana)</strong></td><td>Corrección editorial + nueva versión de catálogo</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../03-proceso-oficial/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 03 · Proceso Oficial</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../05-roles/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">05 · Roles →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

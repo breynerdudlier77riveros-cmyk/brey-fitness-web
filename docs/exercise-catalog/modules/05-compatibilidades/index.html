@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>05 · Compatibilidades — Exercise Catalog</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="compatibilidades" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 05 · El contrato</p>
+<h1>Compatibilidades</h1>
+<p class="lede">De las doce compatibilidades que el contrato debería declarar, <strong>tres existen</strong> como atributo real y <strong>nueve no tienen respaldo documental alguno</strong>. Este módulo documenta las tres y declara las nueve con el barrido que lo demuestra.</p>
+
+<h2 id="existen">Las tres que existen</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Compatibilidad</th><th>Atributo</th><th>¿Participa en la resolución de slots?</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td><strong>Equipamiento</strong></td><td><code>equipo[]</code></td><td>Sí — filtro del paso 0 contra el conjunto elegible del Track</td><td><span class="tag tag--implementado">poblado</span></td></tr>
+<tr><td><strong>Lesiones</strong></td><td><code>zonasRiesgo[]</code></td><td>Sí — se excluyen los que cargan la zona en <code>alto</code></td><td><span class="tag tag--futuro">vacío</span></td></tr>
+<tr><td><strong>Sistema</strong></td><td><code>sistemasVinculados[]</code></td><td><strong>No</strong> — ningún filtro documentado lo consume</td><td><span class="tag tag--implementado">poblado</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Dos de las tres no son operativas hoy</div>
+  <p><strong>Lesiones:</strong> el atributo está vacío en los 19 ejercicios, y el otro extremo del filtro tampoco funciona — el Perfil captura las lesiones como texto libre que "nunca se parsea". El eje de seguridad está roto por ambos lados.<br>
+  <strong>Sistema:</strong> el atributo está completo, pero el paso 0 de la resolución filtra por patrón, rol, nivel, equipo, capacidades y zonas — nunca por Sistema. Es una compatibilidad declarada sin consumidor documentado.</p>
+</div>
+
+<h2 id="ambiguas">Las dos que existen con ambigüedad</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Compatibilidad</th><th>Estado</th><th>Ambigüedad</th></tr></thead>
+<tbody>
+<tr><td><strong>Nivel</strong></td><td>Atributo poblado en los 19</td><td>No existe mapeo entre el <code>nivel</code> del ejercicio y el <strong>Nivel</strong> del usuario (capa 3), pese a que el paso 0 filtra por él. Sin ese mapeo, la compatibilidad no es computable.</td></tr>
+<tr><td><strong>Modalidad</strong></td><td>Atributo vacío</td><td>La compatibilidad entre modalidades solo aplica al <em>sustituir</em>: series/reps se heredan si coincide el eje de ejecución. Cruzar de dinámico a isométrico exige una "tabla de equivalencias autorizada" que ninguna fuente especifica.</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="inexistentes">Las nueve sin respaldo documental</h2>
+<p class="matrix-note">Barrido sobre los <code>.html</code> del repositorio, excluyendo los dos handbooks previos de la trilogía.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Solicitada</th><th>Resultado del barrido</th><th>Lo más cercano que existe</th></tr></thead>
+<tbody>
+<tr><td><strong>Hemofilia</strong></td><td><strong>0 apariciones.</strong> Además, fuera del dominio declarado: "El sistema NO diagnostica ni trata"</td><td>Ninguno. Toda condición clínica está fuera del alcance del ecosistema</td></tr>
+<tr><td><strong>Espacio físico</strong></td><td><strong>0 apariciones.</strong> El Track es contexto de <em>equipo</em>, explícitamente no de espacio (ADR-005)</td><td>Track <code>gym</code>/<code>casa</code> — se le parece, no lo es</td></tr>
+<tr><td><strong>Tiempo disponible</strong></td><td>Se gestiona por <strong>recorte de slots</strong> (R-G2) y por PE-009, ambos a nivel de sesión</td><td>La duración estimada vive en la Sesión, no en el ejercicio</td></tr>
+<tr><td><strong>Objetivos</strong></td><td>El objetivo es del Sistema y del Perfil. El Progression Engine lo declara <strong>ignorado</strong>: "ya fue resuelto aguas arriba"</td><td><code>sistemasVinculados[]</code> — el Sistema ya encapsula el objetivo</td></tr>
+<tr><td><strong>Fases</strong></td><td>No existe vínculo ejercicio↔fase</td><td>El énfasis del Bloque modula la <em>prescripción</em>, no la elegibilidad</td></tr>
+<tr><td><strong>Bloques</strong></td><td>No existe vínculo ejercicio↔bloque</td><td>Ídem</td></tr>
+<tr><td><strong>Mesociclos / Microciclos</strong></td><td>Ningún vínculo con el ejercicio; son capas de plantilla que R-3 impide que nombren ejercicios</td><td>El slot Patrón×Rol es la única interfaz entre plantilla y catálogo</td></tr>
+<tr><td><strong>Edad / sexo</strong></td><td><strong>0 apariciones</strong> como criterio de elegibilidad de ejercicio</td><td>Son campos del Perfil sin uso algorítmico declarado en este dominio</td></tr>
+<tr><td><strong>Embarazo / condiciones especiales</strong></td><td><strong>0 apariciones.</strong> Mismo límite de dominio que hemofilia</td><td>Ninguno</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Por qué las condiciones clínicas no son deuda saldable</div>
+  <p>Hemofilia, embarazo y condiciones análogas no son un hueco que el catálogo deba rellenar: el ecosistema declara explícitamente que <strong>"el sistema NO diagnostica ni trata"</strong>, y ante dolor articular su respuesta documentada es "recomendación explícita de evaluación profesional". Añadir compatibilidad clínica al catálogo cruzaría una frontera de dominio deliberada, no cerraría una omisión.</p>
+</div>
+
+<h2 id="modelo">Modelo de compatibilidad del catálogo</h2>
+<div class="diagram">
+<div class="diagram-label">Qué compatibilidades se evalúan realmente al resolver un slot</div>
+<pre class="mermaid">
+flowchart TD
+  S["Slot: Patrón × Rol"] --> F["Filtros del paso 0"]
+  F --> F1["patronPrimario ✓ eje de clasificación"]
+  F --> F2["rolesPosibles ✓ eje de clasificación"]
+  F --> F3["nivel ⚠ sin mapeo al Nivel del usuario"]
+  F --> F4["equipo[] ⚠ sin mapeo equipo→Track"]
+  F --> F5["capacidadesRequeridas ✓"]
+  F --> F6["zonasRiesgo ⛔ vacío + Perfil no estructurado"]
+  F -.->|"NO se evalúa"| X1["sistemasVinculados"]
+  F -.->|"no existe"| X2["objetivo · fase · bloque<br/>espacio · tiempo · clínico"]
+</pre>
+</div>
+
+<h2 id="resumen">Resumen</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Categoría</th><th>N.º</th><th>Detalle</th></tr></thead>
+<tbody>
+<tr><td>Existen y son operativas</td><td><strong>1</strong></td><td>Equipamiento — con la ambigüedad conjunción/disyunción pendiente</td></tr>
+<tr><td>Existen pero no operativas</td><td><strong>4</strong></td><td>Lesiones (vacío + Perfil no estructurado), Sistema (sin consumidor), Nivel (sin mapeo), Modalidad (vacío + sin tabla de equivalencias)</td></tr>
+<tr><td>Sin respaldo documental</td><td><strong>9</strong></td><td>Hemofilia, espacio, tiempo, objetivos, fases, bloques, mesociclos/microciclos, edad/sexo, condiciones especiales</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../04-clasificacion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 04 · Clasificación</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../06-variaciones/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">06 · Variaciones →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

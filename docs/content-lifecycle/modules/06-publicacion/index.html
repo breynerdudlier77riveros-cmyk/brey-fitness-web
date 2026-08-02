@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>06 · Publicación — Content Lifecycle</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="publicacion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 06 · El ciclo</p>
+<h1>Publicación</h1>
+<p class="lede">Preguntas 13 y 14. Ni <code>publish</code>, ni <code>publication</code>, ni <code>publicación</code>, ni <code>despublicar</code> aparecen en el ecosistema base. Y aun así "publicar" tiene un significado derivable con precisión — "despublicar" no tiene ninguno.</p>
+
+<h2 id="barrido">Punto de partida: el barrido</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Término</th><th>Base</th><th>Contexto</th></tr></thead>
+<tbody>
+<tr><td><code>publish</code></td><td><strong>0</strong></td><td>—</td></tr>
+<tr><td><code>publication</code></td><td><strong>0</strong></td><td>—</td></tr>
+<tr><td><code>publicación</code></td><td><strong>0</strong></td><td>—</td></tr>
+<tr><td><code>despublicar</code></td><td><strong>0</strong></td><td>—</td></tr>
+<tr><td><code>publicar</code></td><td>1</td><td>"en el momento de publicar este handbook" — publicación de un documento</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="publicar">Qué significa "publicar"</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Definición derivada, no citada</div>
+  <p><strong>Publicar</strong> es el acto por el que una entrada pasa a cumplir las cuatro condiciones de existencia y, en consecuencia, entra al universo elegible de la resolución de slots. No es una operación nombrada en ninguna fuente: es el <em>efecto observable</em> de completar el etiquetado y superar las validaciones.</p>
+</div>
+<p>El término se deriva de tres hechos documentados que, juntos, describen la operación completa:</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Hecho documentado</th><th>Aporta</th></tr></thead>
+<tbody>
+<tr><td>Las cuatro condiciones de existencia (slug, identidad, tagging, validaciones)</td><td>El umbral que separa candidato de entrada oficial</td></tr>
+<tr><td>El checklist de 23 ítems del contrato de catálogo</td><td>La verificación que precede al cruce del umbral</td></tr>
+<tr><td>BPS-023 — toda modificación genera versión de catálogo</td><td>El efecto sobre el sistema: una versión nueva</td></tr>
+<tr><td>El paso 0 de la resolución filtra sobre atributos completos</td><td>La consecuencia: la entrada pasa a ser candidata a llenar slots</td></tr>
+</tbody>
+</table>
+</div>
+<div class="diagram">
+<div class="diagram-label">"Publicar" como efecto, no como acto nombrado</div>
+<pre class="mermaid">
+flowchart LR
+  C["Candidato"] --> T["Etiquetado completo"]
+  T --> V["Validaciones superadas"]
+  V --> U{"¿Cumple las 4<br/>condiciones?"}
+  U -- No --> C
+  U -- Sí --> P["'PUBLICADA'<br/>= elegible para slots"]
+  P --> VER["Nueva versión de catálogo"]
+  P -.->|"⚠ nadie 'publica':<br/>la entrada pasa a serlo"| U
+</pre>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">La publicación es un efecto, no un acto — y eso invierte P14</div>
+  <p>Una entrada se vuelve oficial <strong>porque se completó</strong>, no porque alguien la publicó. El ecosistema quiere que la autorización humana sea la <em>causa</em> de la existencia (P14), y con el modelo actual es una coincidencia: quien complete el último atributo la publica sin proponérselo y sin que quede constancia de decisión alguna. Es la contradicción KL-01 del módulo <a href="../16-adr-antipatterns/index.html">16</a>.</p>
+</div>
+
+<h2 id="despublicar">Qué significa "despublicar"</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Deuda CL-D04 — no existe, ni como término ni como operación</div>
+  <p>Cero apariciones y, más importante, <strong>cero mecanismos que produzcan el efecto</strong>. Para despublicar una entrada haría falta una de dos cosas, y ninguna existe:</p>
+  <ul>
+    <li><strong>Un estado de retirada</strong> que la excluya del universo elegible conservándola — no hay estados (módulo <a href="../07-estados/index.html">07</a>).</li>
+    <li><strong>Vaciar un atributo obligatorio</strong> para que deje de cumplir las condiciones — funcionaría por efecto, pero es indistinguible de un error de datos y ninguna fuente lo contempla como operación.</li>
+  </ul>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Vía posible</th><th>¿Documentada?</th><th>Problema</th></tr></thead>
+<tbody>
+<tr><td>Borrar la entrada</td><td>❌ Prohibida</td><td>Rompe cadenas, Workouts históricos y eventos que la referencian</td></tr>
+<tr><td>Marcarla como retirada</td><td>❌ No existe el estado</td><td>Sin vocabulario de estados no hay dónde marcarlo</td></tr>
+<tr><td>Vaciar un atributo obligatorio</td><td>❌ No contemplada</td><td>Indistinguible de un defecto; el sistema lo trataría como error, no como decisión</td></tr>
+<tr><td>Retirarla del catálogo en código</td><td>❌ Equivale a borrar</td><td>Ídem primera fila</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="checklist">Lo que sí existe: el checklist de publicación</h2>
+<p>Aunque el acto no esté nombrado, su verificación sí está completamente especificada. El contrato de catálogo define <strong>23 ítems</strong> agrupados en cuatro secciones, de los que <strong>22 son verificables</strong> hoy:</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Sección</th><th>Ítems</th><th>Verifica</th></tr></thead>
+<tbody>
+<tr><td>A · Existencia</td><td>5</td><td>Las cuatro condiciones (CT-01)</td></tr>
+<tr><td>B · Completitud</td><td>7</td><td>Los 15 atributos obligatorios y sus vocabularios</td></tr>
+<tr><td>C · Integridad</td><td>7</td><td>Referencias, cadenas, ciclos</td></tr>
+<tr><td>D · Autoridad y versionado</td><td>4</td><td>Versión nueva, historial intacto — y el ítem de autoría, <strong>el único no verificable</strong></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">La asimetría de la publicación</div>
+  <p>El ecosistema sabe <strong>comprobar</strong> el resultado de una publicación con 22 verificaciones, y no tiene definido el <strong>acto</strong> que la produce ni su inverso. Sabe validar lo que no sabe nombrar.</p>
+</div>
+
+<h2 id="resumen">Resumen</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Aspecto</th><th>Proceso</th><th>Autoridad</th><th>Registro</th></tr></thead>
+<tbody>
+<tr><td><strong>Publicar</strong></td><td>✅ Checklist de 23 ítems</td><td>❌ Sin acto de aprobación</td><td>⚠️ Solo versión de catálogo</td></tr>
+<tr><td><strong>Despublicar</strong></td><td>❌ No existe</td><td>❌</td><td>❌</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../05-autoridad/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 05 · Autoridad</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../07-estados/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">07 · Estados →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

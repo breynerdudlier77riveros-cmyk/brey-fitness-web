@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>02 · Modelo Global — BREY Database Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="modelo-global" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 02 · Modelo</p>
+<h1>Modelo Global</h1>
+<p class="lede">El mapa completo del ecosistema: 9 tablas propias de BREY, más <code>auth.users</code> como raíz externa gestionada por Supabase Auth. Ninguna tabla nueva — cada una ya está implícita en el Architecture Handbook (10), el Engineering Handbook (05) o el Implementation Handbook (05).</p>
+
+<div class="meta-row">
+  <span class="chip">9 tablas propias + 1 raíz externa</span>
+  <span class="chip">7 bounded contexts</span>
+</div>
+
+<h2 id="mapa">Mapa completo de tablas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tabla</th><th>Bounded context</th><th>Aggregate root</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td><code>auth.users</code></td><td>Identity (externa, Supabase Auth)</td><td>Usuario (raíz de identidad)</td><td><span class="tag tag--implementado">implementado</span></td></tr>
+<tr><td><code>profiles</code></td><td>Identity</td><td>Usuario</td><td><span class="tag tag--implementado">implementado</span></td></tr>
+<tr><td><code>systems</code></td><td>Core Training (catálogo-espejo)</td><td>Ninguno — es catálogo, no dato de usuario</td><td><span class="tag tag--implementado">implementado</span></td></tr>
+<tr><td><code>diagnoses</code></td><td>Diagnostics</td><td>Diagnóstico</td><td><span class="tag tag--implementado">implementado</span> (sin escritor conectado)</td></tr>
+<tr><td><code>workouts</code></td><td>Core Training</td><td>Workout</td><td><span class="tag tag--implementado">implementado</span> (sin escritor — el Generator lo será)</td></tr>
+<tr><td><code>workout_logs</code></td><td>Core Training</td><td>WorkoutLog</td><td><span class="tag tag--implementado">implementado</span></td></tr>
+<tr><td><code>progression_events</code></td><td>Progression (compartida con Recovery/Core Training vía <code>origen</code>)</td><td>EventoProgresión</td><td><span class="tag tag--especificado">especificado</span> — requerida, no existe</td></tr>
+<tr><td><code>bcs_clientes</code></td><td>Body Composition</td><td>Cliente</td><td><span class="tag tag--especificado">especificado</span></td></tr>
+<tr><td><code>bcs_mediciones</code></td><td>Body Composition</td><td>Medición</td><td><span class="tag tag--especificado">especificado</span></td></tr>
+<tr><td><code>bcs_enlaces_publicos</code></td><td>Body Composition / Reporting</td><td>EnlacePúblico</td><td><span class="tag tag--especificado">especificado</span></td></tr>
+</tbody>
+</table>
+</div>
+<p class="matrix-note">Fuentes: Architecture Handbook (10, 5 tablas reales) · Engineering Handbook (05, 07, consolidación de <code>progression_events</code>) · Implementation Handbook (05, mapeo de las 3 tablas del BCS) · Domain Model Handbook (08, aggregate roots).</p>
+
+<h2 id="diagrama-completo">Diagrama — el modelo completo</h2>
+<div class="diagram">
+<div class="diagram-label">9 tablas propias + auth.users — ninguna relación cruza la frontera Core Training ↔ Body Composition</div>
+<pre class="mermaid">
+erDiagram
+  AUTH_USERS ||--|| PROFILES : "id (cascade)"
+  AUTH_USERS ||--o{ DIAGNOSES : user_id
+  AUTH_USERS ||--o{ WORKOUTS : user_id
+  AUTH_USERS ||--o{ WORKOUT_LOGS : user_id
+  AUTH_USERS ||--o{ PROGRESSION_EVENTS : user_id
+  AUTH_USERS ||--o{ BCS_CLIENTES : "entrenador_id (identidad, no dominio)"
+  SYSTEMS ||--o{ PROFILES : sistema_actual
+  SYSTEMS ||--o{ DIAGNOSES : sistema_recomendado
+  SYSTEMS ||--o{ WORKOUTS : system_slug
+  WORKOUTS ||--o{ WORKOUT_LOGS : "workout_id (set null)"
+  WORKOUT_LOGS ||--o{ PROGRESSION_EVENTS : "workout_log_id (opcional)"
+  BCS_CLIENTES ||--o{ BCS_MEDICIONES : cliente_id
+  BCS_CLIENTES ||--o{ BCS_ENLACES_PUBLICOS : cliente_id
+</pre>
+</div>
+
+<h2 id="bounded-contexts">Bounded context → tablas que posee</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Bounded Context</th><th>Tablas</th><th>Puede depender de</th></tr></thead>
+<tbody>
+<tr><td>Identity</td><td><code>auth.users</code>, <code>profiles</code></td><td>Nada — raíz del árbol</td></tr>
+<tr><td>Diagnostics</td><td><code>diagnoses</code></td><td>Identity</td></tr>
+<tr><td>Core Training</td><td><code>systems</code>, <code>workouts</code>, <code>workout_logs</code></td><td>Identity, Diagnostics</td></tr>
+<tr><td>Progression</td><td><code>progression_events</code> (compartida — ver nota)</td><td>Recovery (solo el Veredicto ya resuelto, nunca su tabla — Recovery no tiene tabla propia)</td></tr>
+<tr><td>Recovery</td><td>Ninguna — 100% derivado/efímero (Domain Model Handbook, DM-ADR-04)</td><td>Nada — hoja del árbol</td></tr>
+<tr><td>Body Composition</td><td><code>bcs_clientes</code>, <code>bcs_mediciones</code>, <code>bcs_enlaces_publicos</code></td><td>Identity (solo identidad de Entrenador, vía <code>auth.users</code>)</td></tr>
+<tr><td>Reporting</td><td>Ninguna propia — el Reporte nunca se persiste (BCS Handbook, IN-D3)</td><td>Body Composition</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label"><code>progression_events</code> es una tabla, no un bounded context</div>
+  <p>Por decisión ya tomada (Engineering Handbook, ENG-ADR-03), <code>progression_events</code> es la única tabla de eventos de todo el ecosistema — Motor BPS, Progression Engine, Recovery Engine y Workout Generator escriben en ella, cada uno declarando su propio valor de <code>origen</code> (08). No pertenece a un solo bounded context; su columna <code>origen</code> es, en sí misma, la partición lógica.</p>
+</div>
+
+<h2 id="diagrama-persistencia">Diagrama — categoría de persistencia por tabla</h2>
+<div class="diagram">
+<div class="diagram-label">8 de 9 tablas son historial o dato de usuario puro — <code>systems</code> es la única de catálogo-espejo</div>
+<pre class="mermaid">
+graph LR
+  subgraph Catálogo-espejo
+    S["systems"]
+  end
+  subgraph "Dato de usuario"
+    P["profiles"]
+    BC["bcs_clientes"]
+  end
+  subgraph Historial
+    D["diagnoses"]
+    W["workouts"]
+    WL["workout_logs"]
+    PEV["progression_events"]
+    BM["bcs_mediciones"]
+  end
+  subgraph "Dato de usuario (acceso)"
+    BE["bcs_enlaces_publicos"]
+  end
+</pre>
+</div>
+
+<h2 id="prohibido">Qué tablas nunca deben conocer otras — fronteras duras</h2>
+<div class="diagram">
+<div class="diagram-label">Ninguna de estas líneas existe en ningún handbook de dominio — su ausencia es una regla, no un olvido</div>
+<pre class="mermaid">
+flowchart LR
+  BCS1["bcs_clientes<br/>bcs_mediciones<br/>bcs_enlaces_publicos"] -.->|"PROHIBIDO — BCS es standalone en v1"| CORE1["profiles / workouts /<br/>workout_logs / progression_events"]
+  CORE1 -.->|"PROHIBIDO — Core Training nunca lee BCS"| BCS1
+  PROF["profiles.sistema_actual/nivel_actual"] -.->|"PROHIBIDO — ningún otro escritor"| OTROS["Cualquier proceso salvo<br/>Diagnóstico/Motor BPS"]
+</pre>
+</div>
+<ul>
+  <li><strong>Body Composition nunca referencia Core Training, Progression, Diagnostics ni Recovery</strong> — <code>bcs_clientes</code> solo referencia <code>auth.users</code> para identificar al Entrenador dueño, nunca a <code>profiles</code>, <code>workouts</code> ni ninguna otra tabla del Core Product (BCS Handbook, 00; Domain Model Handbook, 02). Es la regla que hace del BCS un sistema standalone en v1.</li>
+  <li><strong>Ninguna tabla de Core Training referencia una tabla del BCS.</strong> La relación es unidireccional y de un solo lado: solo BCS conoce la identidad de <code>auth.users</code>, nunca al revés.</li>
+  <li><strong>Ninguna tabla nueva de un motor futuro (Coach IA) puede crear su propia tabla de eventos.</strong> Debe extender <code>progression_events</code> con un <code>origen</code> nuevo (ENG-ADR-03) — nunca fragmentar el timeline.</li>
+  <li><strong><code>profiles.sistema_actual</code>/<code>nivel_actual</code> no tienen más escritor legítimo que Diagnóstico/Motor BPS</strong> — ninguna otra tabla ni proceso los escribe, aunque la RLS real hoy no lo impida a nivel de columna (09, brecha heredada).</li>
+</ul>
+
+<div class="callout callout--nota">
+  <div class="callout__label">BCS Design System Handbook — sin huella en este modelo</div>
+  <p>Confirmado por lectura directa: el BCS Design System Handbook especifica componentes visuales, tokens y layout — cero entidades, columnas o tablas. Su única relación con este documento es indirecta, a través de qué datos de <code>bcs_mediciones</code>/<code>bcs_clientes</code> renderiza (AR-003, dependencia de presentación, no de dominio). No aparece en el mapa de tablas de este módulo porque no tiene ninguna.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../01-filosofia-persistencia/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 01 · Filosofía de Persistencia</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../03-tablas-oficiales/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">03 · Tablas Oficiales →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

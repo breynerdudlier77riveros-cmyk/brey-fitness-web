@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>14 · Testing ADR — BREY Testing Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="testing-adr" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 14 · Gobernanza</p>
+<h1>Testing ADR</h1>
+<p class="lede">Doce decisiones. La primera cierra AR-024. Las dos siguientes tratan AR-025, AR-026 y AR-013 exactamente como se pidió: documentadas, nunca resueltas mediante un cambio funcional.</p>
+
+<div class="adr" id="test-adr-01">
+<span class="adr__estado">Aceptada</span>
+<span class="adr__id">TEST-ADR-01</span>
+<h3>Este handbook cierra AR-024 documentalmente — la ejecución permanece en 0%</h3>
+<p><strong>Contexto:</strong> AR-024 (Architecture Review) encontró que ninguna de las 39 reglas de Progression Engine, 15 transiciones de Motor BPS, o 25 tipos de evento tiene verificación ejecutable — porque no existe test runner ni lógica implementada.</p>
+<p><strong>Problema:</strong> AR-024 podría interpretarse como que solo se cierra escribiendo tests reales — pero eso requeriría motores implementados que hoy no existen, y este documento no implementa nada.</p>
+<p><strong>Alternativas consideradas:</strong> (a) declarar AR-024 sin cambios hasta que exista implementación real; (b) cerrar la mitad especificable de AR-024 — el <em>plan</em> completo de qué probar, en qué nivel, con qué caso — dejando explícito que la <em>ejecución</em> (0% de cobertura real) no cambia con este documento.</p>
+<p><strong>Decisión:</strong> se adopta (b). AR-024 se cierra en su dimensión de especificación: las once matrices de 04-12 cubren el 100% de las reglas/transiciones/endpoints ya documentados (13). La cobertura de código sigue siendo 0% — este documento no la cambia, solo elimina la excusa de "no sabíamos qué probar".</p>
+<p><strong>Consecuencias:</strong> el día que se implemente el primer motor real, el plan de pruebas ya existe completo — la única deuda pendiente es de ejecución, no de diseño.</p>
+</div>
+
+<div class="adr" id="test-adr-02">
+<span class="adr__estado">Aceptada</span>
+<span class="adr__id">TEST-ADR-02</span>
+<h3>AR-025 se cierra indirectamente — la ambigüedad que lo motivaba ya no existe</h3>
+<p><strong>Contexto:</strong> AR-025 advertía que cualquier mock del Veredicto de Recovery heredaría la ambigüedad de AR-001 (dos formas incompatibles entre Motor BPS Handbook y Progression Engine Handbook).</p>
+<p><strong>Problema:</strong> este documento necesita especificar cómo mockear el Veredicto sin reabrir esa ambigüedad ni inventar una tercera forma.</p>
+<p><strong>Alternativas consideradas:</strong> (a) documentar ambas formas históricas como igualmente válidas para mock, dejando la elección a cada implementador; (b) usar la forma ya reconciliada por un documento de mayor autoridad, citándola, no redecidiéndola.</p>
+<p><strong>Decisión:</strong> se adopta (b) — todo mock de Veredicto de Recovery de este documento (06) usa <code>{procede, subtipo?, razon}</code>, la forma canónica ya adoptada por API Contract Handbook (08, API-ADR-02). AR-025 queda cerrado como consecuencia directa de que su causa raíz (AR-001) ya tiene resolución aceptada — no porque este documento haya resuelto nada nuevo.</p>
+<p><strong>Consecuencias:</strong> ningún test futuro que siga este documento puede "heredar" la ambigüedad original, porque nunca la usa como referencia.</p>
+</div>
+
+<div class="adr" id="test-adr-03">
+<span class="adr__estado">Aceptada</span>
+<span class="adr__id">TEST-ADR-03</span>
+<h3>AR-026 y AR-013 permanecen abiertos — se documenta el requisito de testing, no se inventa el esquema</h3>
+<p><strong>Contexto:</strong> AR-013/AR-026 señalan que <code>contexto</code> (jsonb) no tiene esquema definido por tipo de evento, lo que impide verificar el replay determinista de forma completa.</p>
+<p><strong>Problema:</strong> el encargo de este handbook exige especificar Event Testing — pero sin esquema de <code>contexto</code>, una parte de esa especificación no puede completarse sin inventar información que ningún handbook de dominio ha decidido.</p>
+<p><strong>Alternativas consideradas:</strong> (a) inventar un esquema mínimo de <code>contexto</code> para poder especificar el test completo; (b) especificar exactamente qué se podrá probar el día que el esquema exista, marcando el caso como <span class="level level--bloqueado">bloqueado</span> mientras tanto.</p>
+<p><strong>Decisión:</strong> se adopta (b) — 08 lista tres casos concretos bloqueados por este gap, ninguno inventa la forma de <code>contexto</code>. AR-026/AR-013 quedan exactamente donde estaban: documentados, sin resolver, con su implicación de testing ahora explícita.</p>
+<p><strong>Consecuencias:</strong> el día que Progression Engine Handbook u otro documento de dominio defina el esquema de <code>contexto</code>, los tres casos de 08 pasan de <span class="level level--bloqueado">bloqueado</span> a especificables sin reescribir este documento — solo cambia su estado.</p>
+</div>
+
+<div class="adr" id="test-adr-04">
+<span class="adr__estado">Aceptada — cita Engineering Handbook, 10</span>
+<span class="adr__id">TEST-ADR-04</span>
+<h3>Integration nunca mockea Supabase completo, en ninguna superficie</h3>
+<p><strong>Contexto:</strong> Engineering Handbook (10) ya decidió esta regla para motores; este documento la extiende a Database Testing (09) y API Testing (10 de este documento).</p>
+<p><strong>Problema:</strong> sin extender la regla explícitamente, alguien podría mockear Supabase para probar un endpoint "más rápido", perdiendo exactamente la cobertura de RLS que el nivel Integration existe para dar.</p>
+<p><strong>Alternativas consideradas:</strong> ninguna nueva — se aplica el criterio ya decidido a todas las superficies que lo necesitan.</p>
+<p><strong>Decisión:</strong> todo test <span class="level level--integration">integration</span> de este documento, sin excepción de superficie, corre contra una base de datos Supabase de test real (02).</p>
+<p><strong>Consecuencias:</strong> un mock de Supabase en un PR de test de integración se rechaza en revisión, con la misma severidad que un <code>UPDATE</code> directo sobre historial (12).</p>
+</div>
+
+<div class="adr" id="test-adr-05">
+<span class="adr__estado">Aceptada</span>
+<span class="adr__id">TEST-ADR-05</span>
+<h3>Sin objetivo numérico de cobertura de código — cobertura de especificación en su lugar</h3>
+<p><strong>Contexto:</strong> Engineering Handbook (10) ya rechazó un porcentaje global de cobertura de código a favor de cobertura dirigida a motores de decisión.</p>
+<p><strong>Problema:</strong> "cobertura dirigida" sin una forma de medirla es una intención, no una métrica.</p>
+<p><strong>Alternativas consideradas:</strong> (a) fijar un porcentaje arbitrario igual (ej. 80% en motores); (b) medir cobertura de especificación — cuántas reglas/transiciones/endpoints ya documentados tienen un caso trazado en este handbook.</p>
+<p><strong>Decisión:</strong> se adopta (b) — 13 formaliza la métrica y reporta el estado actual por catálogo fuente.</p>
+<p><strong>Consecuencias:</strong> la métrica de este documento nunca baja por razones de código (no hay código) — solo puede bajar si un handbook de dominio agrega una regla nueva sin su caso correspondiente aquí.</p>
+</div>
+
+<div class="adr" id="test-adr-06">
+<span class="adr__estado">Aceptada</span>
+<span class="adr__id">TEST-ADR-06</span>
+<h3>Un caso bloqueado se documenta explícitamente, nunca se omite ni se simula</h3>
+<p><strong>Contexto:</strong> varios casos de este documento (el CHECK de 11 tipos de evento pendientes, M2; el esquema de <code>contexto</code>) no pueden ejecutarse hoy por brechas en otros handbooks.</p>
+<p><strong>Problema:</strong> omitir estos casos silenciosamente dejaría huecos invisibles en la cobertura de especificación (13); simularlos contra un estado hipotético (ej. asumir que M2 ya se aplicó) produciría un test que no refleja la realidad.</p>
+<p><strong>Alternativas consideradas:</strong> (a) omitir sin mención; (b) simular el estado deseado; (c) marcar explícitamente <span class="level level--bloqueado">bloqueado</span> con la razón exacta.</p>
+<p><strong>Decisión:</strong> se adopta (c), aplicada consistentemente en 08 y 09.</p>
+<p><strong>Consecuencias:</strong> cualquier lector de este documento ve exactamente qué está pendiente de otro handbook, sin necesidad de buscarlo por separado.</p>
+</div>
+
+<div class="adr" id="test-adr-07">
+<span class="adr__estado">Aceptada · resuelta en Sprint 0</span>
+<span class="adr__id">TEST-ADR-07</span>
+<h3>El test de RLS de workouts/workout_logs se especifica contra el estado correcto, no el real</h3>
+<p><strong>Contexto:</strong> AR-018 (Architecture Review) documentaba que la política real de <code>workouts</code>/<code>workout_logs</code> permitía <code>DELETE</code>, contradiciendo la inmutabilidad exigida.</p>
+<p><strong>Problema:</strong> un test que verificara "el <code>DELETE</code> está permitido" describiría fielmente el estado de entonces, pero congelaría una brecha de seguridad conocida como si fuera el comportamiento deseado.</p>
+<p><strong>Alternativas consideradas:</strong> (a) especificar el test contra el estado real (permisivo) para que "pasara" en ese momento; (b) especificarlo contra el estado correcto (sin <code>DELETE</code>) para que fallara visiblemente hasta que la migración M1 se aplicara.</p>
+<p><strong>Decisión:</strong> se adoptó (b) — 09 lo declaraba explícitamente como el único caso de este documento que se esperaba roto hasta que otro artefacto (la migración M1) cambiara.</p>
+<p><strong>Consecuencias:</strong> el test funcionó como recordatorio ejecutable de una deuda de seguridad ya priorizada (IMP-ADR-04). <strong>Actualización Sprint 0:</strong> M1 se aplicó (<code>supabase/schema.sql</code>, <code>supabase/migration_rls_endurecimiento.sql</code>) — el caso de 09 ya no se especifica contra un estado pendiente, sino contra el estado real vigente. Esta decisión se conserva como registro de por qué nunca se escribió el test contra el estado permisivo mientras existió.</p>
+</div>
+
+<div class="adr" id="test-adr-08">
+<span class="adr__estado">Aceptada</span>
+<span class="adr__id">TEST-ADR-08</span>
+<h3>Las 39 reglas de Progression Engine se prueban por categoría, con tres excepciones individuales</h3>
+<p><strong>Contexto:</strong> las 39 reglas ya tienen "ejemplo válido"/"ejemplo inválido" en su propio handbook — transcribirlas una por una aquí sería duplicación, no especificación de testing nueva.</p>
+<p><strong>Problema:</strong> una matriz puramente por categoría (5 filas) podría ocultar que tres reglas (PE-012, PE-016, PE-018) tienen matices ya señalados por la Architecture Review que merecen tratamiento propio.</p>
+<p><strong>Alternativas consideradas:</strong> (a) matriz por categoría únicamente; (b) matriz por categoría más callouts individuales para las tres reglas con hallazgos propios de AR.</p>
+<p><strong>Decisión:</strong> se adopta (b) — 06 tiene la matriz de 5 categorías más un callout dedicado a PE-012 (AR-008, desempate sin operacionalizar).</p>
+<p><strong>Consecuencias:</strong> la cobertura de especificación (13) cuenta las 39 como cubiertas por categoría, sin fingir que las 36 restantes tienen menos detalle del que su propio handbook ya provee.</p>
+</div>
+
+<div class="adr" id="test-adr-09">
+<span class="adr__estado">Aceptada</span>
+<span class="adr__id">TEST-ADR-09</span>
+<h3>Ningún caso de este documento fija una interpretación no decidida por su handbook de origen</h3>
+<p><strong>Contexto:</strong> PE-012 usa "menor magnitud de cambio" como criterio de desempate sin operacionalizar entre unidades heterogéneas (AR-008, no resuelto).</p>
+<p><strong>Problema:</strong> especificar un test de PE-012 exige, en apariencia, decidir cómo se compara "1 repetición" con "2.5 kg" — algo que Progression Engine Handbook mismo no ha decidido.</p>
+<p><strong>Alternativas consideradas:</strong> (a) elegir un criterio de comparación razonable para poder escribir el caso completo; (b) especificar que el test debe declarar explícitamente qué criterio usa la implementación bajo prueba, marcado <span class="level level--bloqueado">bloqueado</span> hasta que el handbook de origen decida.</p>
+<p><strong>Decisión:</strong> se adopta (b), consistente con TEST-ADR-06.</p>
+<p><strong>Consecuencias:</strong> este documento nunca es la fuente de una decisión de negocio disfrazada de "solo es para el test".</p>
+</div>
+
+<div class="adr" id="test-adr-10">
+<span class="adr__estado">Aceptada</span>
+<span class="adr__id">TEST-ADR-10</span>
+<h3>Los endpoints internos (Progression Engine, Recovery Engine) se prueban igual que los públicos</h3>
+<p><strong>Contexto:</strong> API Contract Handbook (07) documenta <code>POST /progression-engine/evaluar</code> y <code>POST /recovery-engine/evaluar</code> como contratos reales, aunque el frontend nunca los invoque directamente.</p>
+<p><strong>Problema:</strong> podría asumirse que un endpoint "interno" necesita menos rigor de prueba que uno público.</p>
+<p><strong>Alternativas consideradas:</strong> (a) tratar los endpoints internos con menor prioridad de test; (b) tratarlos con el mismo rigor, más una prueba adicional de que la ruta de invocación indebida (UI→motor directo) está bloqueada.</p>
+<p><strong>Decisión:</strong> se adopta (b) — 10 de este documento no distingue rigor por visibilidad del endpoint, solo añade el caso de frontera correspondiente (05).</p>
+<p><strong>Consecuencias:</strong> un contrato interno mal probado fallaría exactamente igual de silencioso que uno público — este documento no acepta esa asimetría de riesgo.</p>
+</div>
+
+<div class="adr" id="test-adr-11">
+<span class="adr__estado">Aceptada</span>
+<span class="adr__id">TEST-ADR-11</span>
+<h3>Todo caso de test se nombra por el ID de la regla/transición/constraint que verifica</h3>
+<p><strong>Contexto:</strong> 03 ya establece esta convención de naming.</p>
+<p><strong>Problema:</strong> sin forzar esta trazabilidad por nombre, la matriz de cobertura de especificación (13) requeriría inspeccionar el contenido de cada test para saber qué cubre, no solo su nombre.</p>
+<p><strong>Alternativas consideradas:</strong> (a) nombres descriptivos libres; (b) nombres que citan el ID exacto de la regla de origen.</p>
+<p><strong>Decisión:</strong> se adopta (b), formalizada aquí como decisión de gobernanza, no solo de estilo.</p>
+<p><strong>Consecuencias:</strong> la matriz Regla→Test de 13 puede, en principio, generarse por herramienta a partir de los nombres de archivo/caso reales, el día que existan.</p>
+</div>
+
+<div class="adr" id="test-adr-12">
+<span class="adr__estado">Aceptada</span>
+<span class="adr__id">TEST-ADR-12</span>
+<h3>Recovery Engine se prueba solo en su forma, nunca en su corrección fisiológica</h3>
+<p><strong>Contexto:</strong> Recovery Engine tiene únicamente un contrato mínimo (IMP-ADR-01/02, citado desde API Contract Handbook) — su lógica de decisión real (qué constituye fatiga) no existe (AR-006).</p>
+<p><strong>Problema:</strong> un test que pareciera verificar "la decisión de fatiga es correcta" daría una falsa sensación de cobertura sobre algo que ni siquiera está especificado todavía.</p>
+<p><strong>Alternativas consideradas:</strong> (a) escribir casos que asuman una lógica de fatiga razonable para poder probar "algo"; (b) limitar los casos estrictamente a la forma del contrato (06), declarando explícitamente que la corrección de la decisión queda fuera de alcance hasta que exista un Recovery Engine Handbook.</p>
+<p><strong>Decisión:</strong> se adopta (b).</p>
+<p><strong>Consecuencias:</strong> cuando el Recovery Engine Handbook exista, este documento se extiende con los casos de lógica real — hasta entonces, la cobertura de "Recovery" en 13 se limita honestamente a forma de contrato, nunca a decisión de negocio inexistente.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../13-coverage/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 13 · Coverage</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../15-anti-patterns/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">15 · Anti-patterns →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

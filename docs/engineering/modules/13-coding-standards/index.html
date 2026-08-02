@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>13 · Coding Standards — Engineering Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="coding-standards" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 13 · Estándares y gobernanza</p>
+<h1>Coding Standards</h1>
+<p class="lede">Cada regla de este módulo se extrajo del código real y verificó consistente en múltiples archivos — no es una preferencia de estilo importada de otro proyecto.</p>
+
+<h2 id="naming">Naming</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Elemento</th><th>Convención</th><th>Ejemplo real</th></tr></thead>
+<tbody>
+<tr><td>Componente / archivo de componente</td><td>PascalCase</td><td><code>AppShell.tsx</code>, <code>PerfilForm.tsx</code></td></tr>
+<tr><td>Función / variable</td><td>camelCase</td><td><code>numOrNull</code>, <code>getOrCreateProfile</code></td></tr>
+<tr><td>Función de lectura</td><td><code>get&lt;Entidad&gt;</code></td><td><code>getProfile</code></td></tr>
+<tr><td>Función de escritura</td><td><code>&lt;verbo&gt;&lt;Entidad&gt;</code></td><td><code>updateProfile</code>, <code>signOut</code></td></tr>
+<tr><td>Hook custom</td><td><code>use&lt;Cosa&gt;</code></td><td><code>useSidebarCollapse</code></td></tr>
+<tr><td>Tipo de unión/string-literal</td><td><code>type</code>, PascalCase</td><td><code>type MuscleGroup = ...</code>, <code>type ExerciseLevel = 'principiante' | ...</code></td></tr>
+<tr><td>Tipo de forma de objeto</td><td><code>interface</code>, PascalCase</td><td><code>interface Profile { ... }</code>, <code>interface Sistema { ... }</code></td></tr>
+<tr><td>Props de componente</td><td><code>interface Props</code> (nunca <code>type Props</code>) — confirmado en 9/9 componentes de <code>brand/</code> auditados</td><td><code>interface Props extends React.ComponentProps&lt;...&gt;</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="componentes-hooks">Componentes y Hooks</h2>
+<p>Un componente de <code>brand/</code> envuelve una primitiva de <code>ui/</code> vía <code>React.forwardRef</code> cuando la primitiva original expone un <code>ref</code> (patrón consistente en <code>Card</code>, <code>Progress</code>, <code>CardTitle</code>) — nunca se pierde el <code>ref</code> al envolver. Un hook custom vive junto a su único consumidor mientras sea el único (03, FE-04) — no se extrae preventivamente a una carpeta <code>hooks/</code> antes de tener un segundo caso de uso real.</p>
+
+<h2 id="services-repos-dto">Services, Repositories, DTO</h2>
+<p>Ya cubierto en detalle en 04 y 06 — la regla de naming aplicable aquí es que un repositorio nunca lleva el sufijo <code>Service</code> ni <code>Repository</code> en el nombre del archivo cuando la carpeta ya lo indica (<code>lib/profile/repository.ts</code>, no <code>lib/profile/ProfileRepository.ts</code>) — el path ya es parte del nombre.</p>
+
+<h2 id="enums-interfaces-tipos">Enums, Interfaces, Tipos</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Regla real, sin excepciones encontradas</div>
+  <p>BREY no usa <code>enum</code> de TypeScript en ningún archivo auditado — usa <code>type X = 'a' | 'b' | 'c'</code> (union de string literals). Misma filosofía que la elección de <code>text + CHECK</code> sobre <code>CREATE TYPE ENUM</code> en Postgres (05): una unión de literales se extiende añadiendo un valor a la lista, sin la semántica adicional (y las sorpresas de comparación/serialización) de un <code>enum</code> nativo de TS.</p>
+</div>
+
+<h2 id="imports">Imports</h2>
+<p>Alias <code>@/*</code> → <code>src/*</code> (definido en <code>tsconfig.json</code>) para cualquier import fuera del propio directorio — nunca rutas relativas largas (<code>../../../lib/...</code>). Dentro del mismo directorio o un nivel abajo, ruta relativa simple (<code>./Button</code>) es aceptable y preferida sobre el alias.</p>
+
+<h2 id="comentarios">Comentarios</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">La convención más distintiva del código real de BREY</div>
+  <p>Todo comentario no trivial explica <strong>por qué</strong>, nunca <strong>qué</strong> — el código ya dice qué hace. Ejemplos reales: el comentario de <code>numOrNull()</code> no describe la función, describe la trampa de PostgREST que la motiva; el comentario de <code>cardStyles.interactive</code> en <code>Card.tsx</code> explica por qué la animación es CSS puro y no Motion (evitar convertir cada call site en Client Component). Un comentario que solo repite el nombre de la función en prosa se elimina en revisión.</p>
+</div>
+
+<h2 id="errores-async">Errores, Async, Promises</h2>
+<p>Toda función que accede a Supabase es <code>async</code> con <code>await</code> explícito — sin <code>.then()</code> encadenado en el código de dominio. Un repositorio nunca lanza (<code>throw</code>) ante un error esperado de datos ausentes — devuelve <code>null</code> (FT-05, 06); <code>throw</code> se reserva para errores de programación (parámetro inválido en tiempo de desarrollo), no para condiciones de negocio esperables como "el perfil no existe todavía".</p>
+
+<h2 id="lint-formateo">Lint y Formateo</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Herramienta</th><th>Estado</th><th>Configuración real</th></tr></thead>
+<tbody>
+<tr><td>ESLint</td><td><span class="tag tag--implementado">implementado</span></td><td><code>eslint.config.mjs</code> — flat config, <code>eslint-config-next/core-web-vitals</code> + <code>eslint-config-next/typescript</code></td></tr>
+<tr><td>Prettier</td><td><span class="tag tag--futuro">futuro</span></td><td>No hay <code>.prettierrc</code> ni <code>prettier</code> en <code>package.json</code> — el formato depende del editor de cada desarrollador; riesgo real de diffs de formato mezclados con cambios funcionales en un PR (documentado como deuda, 15)</td></tr>
+<tr><td>TypeScript strict</td><td><span class="tag tag--implementado">implementado</span></td><td><code>tsconfig.json</code>: <code>"strict": true</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="organizacion">Organización</h2>
+<p>Un archivo de dominio (<code>lib/&lt;dominio&gt;/</code>) concentra todo lo relacionado con ese dominio hasta que crece lo suficiente para dividirse (FT-11, umbral ya especificado en 03 para <code>types.ts</code>/<code>utils.ts</code>) — nunca se crea una subcarpeta especulativa para un dominio con un solo archivo pequeño.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../12-deployment-handbook/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 12 · Deployment Handbook</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../14-adr/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">14 · ADR →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

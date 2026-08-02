@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>09 · Compartición — BCS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="comparticion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 09 · Acceso y datos sensibles</p>
+<h1>Compartición</h1>
+<p class="lede">El flujo humano de compartir un reporte: quién lo inicia, cómo, y qué ocurre cuando algo sale mal (se comparte a la persona equivocada, se necesita revocar). El diseño técnico del enlace en sí vive en 10.</p>
+
+<h2 id="quien-comparte">Quién comparte y cómo</h2>
+<p>Únicamente el entrenador puede generar (UC-07, 02) y compartir un enlace. La compartición es manual: el sistema entrega la URL para que el entrenador la copie y la envíe por el canal que prefiera (WhatsApp, email, mensaje de texto) — <strong>BCS no envía el enlace en nombre del entrenador en v1</strong>, no integra ningún proveedor de mensajería. Es una decisión de alcance explícita, no una limitación técnica no considerada.</p>
+
+<h2 id="un-enlace-activo">Un enlace activo por cliente</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Invariante de compartición</div>
+  <p>Un Cliente tiene como máximo un EnlacePúblico en estado <em>activo</em> a la vez. Generar un enlace nuevo para un Cliente que ya tiene uno activo revoca automáticamente el anterior (09-IN-1) — nunca coexisten dos enlaces activos válidos para el mismo Cliente. Esto simplifica el modelo mental del entrenador ("el enlace de Juan" es siempre uno solo) y reduce la superficie de tokens válidos en circulación.</p>
+</div>
+
+<h2 id="flujo">Flujo de compartición y regeneración</h2>
+<div class="diagram">
+<div class="diagram-label">Generar, compartir, y regenerar tras un error de destinatario</div>
+<pre class="mermaid">
+sequenceDiagram
+  participant E as Entrenador
+  participant S as BCS
+  E->>S: genera enlace para Cliente "Ana"
+  S->>S: crea EnlacePúblico A (activo)
+  S-->>E: URL de Ana
+  E-->>E: comparte por WhatsApp (canal externo, fuera del sistema)
+  note over E: se dio cuenta de que compartió a un número equivocado
+  E->>S: revoca enlace de Ana
+  S->>S: EnlacePúblico A → revocado
+  E->>S: genera enlace nuevo para Ana
+  S->>S: crea EnlacePúblico B (activo), distinto token
+  S-->>E: nueva URL de Ana
+</pre>
+</div>
+
+<h2 id="casos-limite">Casos límite</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Comportamiento</th></tr></thead>
+<tbody>
+<tr><td>Entrenador comparte el enlace por error a alguien que no es el cliente</td><td>Única mitigación disponible es revocar y regenerar (09-IN-1) — el sistema no tiene forma de "deshacer" un envío ya hecho por un canal externo, y no pretende tenerla</td></tr>
+<tr><td>Entrenador genera un enlace para un Cliente archivado</td><td>Permitido — archivar no impide compartir (02); si se quiere impedir el acceso, la acción correcta es revocar el enlace, no archivar el cliente</td></tr>
+<tr><td>Entrenador pierde la URL antes de compartirla</td><td>Puede volver a consultarla desde el panel mientras el enlace siga activo — no requiere regenerar</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="contraejemplos">Contraejemplos</h2>
+<ul>
+  <li>El sistema NUNCA envía el enlace por email/SMS automáticamente en v1 — toda compartición pasa por la acción manual del entrenador.</li>
+  <li>El sistema NUNCA permite dos enlaces activos simultáneos para el mismo Cliente.</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../08-seguridad/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 08 · Seguridad</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../10-links-publicos/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">10 · Links Públicos →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

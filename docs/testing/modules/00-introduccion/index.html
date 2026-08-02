@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>00 · Introducción — BREY Testing Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="introduccion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 00 · Empezar</p>
+<h1>Introducción</h1>
+<p class="lede">Cómo se verifica lo que los ocho handbooks existentes ya especifican — nunca qué construir, nunca una regla nueva. La especificación completa que cierra AR-024 (Architecture Review): cobertura de pruebas 0% no por falta de plan, sino por falta de ejecución.</p>
+
+<div class="meta-row">
+  <span class="chip">Especificación de verificación, nunca implementación</span>
+  <span class="chip">Sin Jest · sin Vitest · sin Playwright · sin SQL · sin TypeScript · sin pseudocódigo</span>
+  <span class="chip">Cero reglas, algoritmos, APIs, tablas o DTOs nuevos</span>
+</div>
+
+<h2 id="proposito">Propósito</h2>
+<p>Ocho handbooks ya especifican, con enorme detalle, qué debe pasar: 39 reglas de Progression Engine, 15 transiciones de Motor BPS, 45 endpoints, 42 constraints, 9 tablas con sus políticas de RLS. Ninguno responde, de forma unificada, la pregunta que precede a cualquier test real: <strong>¿cómo se verifica que cada una de esas afirmaciones sigue siendo cierta, en qué nivel, con qué caso exacto, y contra qué matriz de cobertura?</strong> Este documento responde esa pregunta una sola vez, para todo el ecosistema — consolidando, nunca inventando, lo que esos ocho documentos ya implican como comportamiento correcto.</p>
+
+<h2 id="alcance">Alcance</h2>
+<ul>
+  <li>La arquitectura de pruebas completa: niveles, convenciones, factories, fixtures, mocks, determinismo.</li>
+  <li>Una especificación de verificación por cada superficie del ecosistema: dominio, motores, máquinas de estado, eventos, base de datos, API, UI.</li>
+  <li>Las once matrices de trazabilidad exigidas: Regla→Test, Motor→Suite, Evento→Verificación, FSM→Casos, Endpoint→Integración, Tabla→Restricciones, RLS→Verificación, y los casos específicos de Recovery, Progression, Motor BPS y BCS.</li>
+  <li>El cierre documental de AR-024 (cobertura de pruebas 0%) y el tratamiento explícito, sin resolverlas, de AR-025, AR-026 y AR-013.</li>
+  <li>Una autoauditoría que además documenta — sin corregirlas — las contradicciones que esta construcción encontró en otros handbooks.</li>
+</ul>
+
+<h2 id="no-alcance">No alcance</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Fuera de este documento</th><th>Dónde vive / por qué</th></tr></thead>
+<tbody>
+<tr><td>Cualquier línea de código: Jest, Vitest, Playwright, Cypress, Testing Library, SQL, TypeScript, o pseudocódigo de cualquier forma</td><td>No pertenece a ningún handbook de especificación — este documento se detiene en la tabla de casos, nunca en la sintaxis de un framework</td></tr>
+<tr><td>Reglas de negocio nuevas, algoritmos nuevos, umbrales nuevos</td><td>Los handbooks de dominio correspondientes (Motor BPS, Progression Engine, BCS) — este documento cita la regla existente y especifica cómo verificarla, nunca la modifica</td></tr>
+<tr><td>Endpoints, DTOs o tablas nuevas</td><td>API Contract Handbook y Database Handbook — ya cerrados; este documento los usa como superficie a probar, no los extiende</td></tr>
+<tr><td>El esquema de <code>contexto</code> por tipo de evento (AR-013/AR-026)</td><td>Sigue sin definir por ningún handbook — este documento especifica qué se debe verificar el día que exista, nunca lo inventa (08, 14)</td></tr>
+<tr><td>La lógica de decisión real de Recovery Engine (qué constituye fatiga)</td><td>Pendiente de un Recovery Engine Handbook propio (AR-006) — este documento prueba únicamente el contrato mínimo ya aceptado (API Contract Handbook, 08)</td></tr>
+<tr><td>Corregir inconsistencias encontradas en otros handbooks</td><td>Se documentan en 16, nunca se editan aquí ni en su origen</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="jerarquia">Jerarquía documental</h2>
+<p>Este documento se deriva únicamente de nueve fuentes: Architecture Handbook, Engineering Handbook, Database Handbook, API Contract Handbook, Motor BPS Handbook, Progression Engine Handbook, BCS Handbook, BCS Design System Handbook y Architecture Review v1.0. No inventa comportamiento que esas nueve fuentes no impliquen ya. Donde un hecho citado se originó en Domain Model Handbook o Implementation Handbook (ej. la forma canónica del Veredicto de Recovery, o el orden de migraciones), este documento lo cita a través de la fuente que ya lo consolidó dentro de las nueve permitidas — Database Handbook y API Contract Handbook — nunca lo redecide ni lo contradice, respetando la misma jerarquía que ya gobierna el resto del ecosistema:</p>
+
+<div class="diagram">
+<div class="diagram-label">Precedencia documental — de mayor a menor autoridad</div>
+<pre class="mermaid">
+graph TD
+  AR["Architecture Review v1.0<br/>(AR-024/025/026/013 gobiernan el alcance de este documento)"] --> RESTO["Architecture Handbook · Engineering Handbook<br/>Motor BPS · Progression Engine · BCS · BCS Design System<br/>Database Handbook · API Contract Handbook"]
+  RESTO --> ESTE["Este documento — Testing Handbook<br/>especifica cómo se verifica todo lo anterior"]
+</pre>
+</div>
+
+<p>Este handbook expande, sin sustituir, al módulo 10 (Testing Handbook) ya existente dentro del Engineering Handbook — esa pieza especifica la estrategia general (niveles, factories, casos críticos); este documento la formaliza en profundidad, superficie por superficie, con las once matrices de trazabilidad que aquella no tenía espacio para desarrollar.</p>
+
+<h2 id="prioridad-implementacion">Prioridad sobre la implementación</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Regla de prioridad</div>
+  <p>Si una suite de pruebas futura contradice lo que este documento especifica — un caso omitido, un nivel de prueba equivocado para una regla — la suite está incompleta, no este documento. Frente a los ocho handbooks existentes, este documento no tiene autoridad para inventar un caso de prueba que ningún documento anterior ya implique — solo para nombrarlo, nivelarlo y hacerlo verificable.</p>
+</div>
+
+<h2 id="como-leer">Cómo leer este documento</h2>
+<p>Se reutiliza el sistema de etiquetas ya establecido en los handbooks anteriores para el estado de cada pieza:</p>
+<p>
+<span class="tag tag--implementado">implementado</span>
+<span class="tag tag--especificado">especificado</span>
+<span class="tag tag--futuro">futuro</span>
+</p>
+<p>Y se añade el vocabulario propio de este documento — el nivel de prueba que corresponde a cada caso (02):</p>
+<p>
+<span class="level level--unit">unit</span>
+<span class="level level--integration">integration</span>
+<span class="level level--e2e">e2e</span>
+<span class="level level--manual">manual</span>
+<span class="level level--bloqueado">bloqueado</span>
+</p>
+<p><span class="level level--bloqueado">bloqueado</span> marca un caso que no puede ejecutarse hoy porque depende de una brecha real todavía abierta en otro handbook (ej. el esquema de <code>contexto</code>) — se especifica igual, para que la implementación no lo descubra tarde.</p>
+
+<div class="pagenav">
+  <div></div>
+  <a class="pagenav__item pagenav__item--next" href="../01-filosofia-testing/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">01 · Filosofía de Testing →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

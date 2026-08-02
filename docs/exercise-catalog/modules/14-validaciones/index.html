@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>14 · Validaciones — Exercise Catalog</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="validaciones" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 14 · Ciclo de vida</p>
+<h1>Validaciones de publicación</h1>
+<p class="lede">El checklist que decide si una entrada entra al catálogo oficial. Verifica las cuatro condiciones de existencia (CT-01) más las obligaciones de integridad, versionado y autoridad.</p>
+
+<h2 id="alcance">Qué valida este checklist</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Publicación, no etiquetado</div>
+  <p>El proceso de <em>etiquetado</em> y su checklist de 30 ítems viven en el Exercise Tagging Handbook. Este checklist opera <strong>después</strong>: asume el etiquetado completado y verifica que la entrada resultante cumple el contrato del catálogo. Los ítems marcados <span class="tag tag--especificado">delegado</span> se dan por verificados si el proceso de tagging se completó.</p>
+</div>
+
+<h2 id="seccion-a">Sección A — Existencia (CT-01)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>☐</th><th>Ítem</th><th>Verifica</th><th>Capa</th></tr></thead>
+<tbody>
+<tr><td>A-01</td><td>La entrada tiene <code>slug</code></td><td>Condición 1</td><td>Máquina</td></tr>
+<tr><td>A-02</td><td>El <code>slug</code> es único en el catálogo</td><td>Condición 2</td><td>Máquina</td></tr>
+<tr><td>A-03</td><td>El <code>slug</code> no cambió respecto de versiones anteriores</td><td>P15</td><td>Máquina</td></tr>
+<tr><td>A-04</td><td>El proceso de tagging se completó en sus siete pasos</td><td>Condición 3</td><td><span class="tag tag--especificado">delegado</span></td></tr>
+<tr><td>A-05</td><td>Todas las validaciones de tagging pasaron</td><td>Condición 4</td><td><span class="tag tag--especificado">delegado</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="seccion-b">Sección B — Completitud del modelo</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>☐</th><th>Ítem</th><th>Capa</th></tr></thead>
+<tbody>
+<tr><td>B-01</td><td>Los 15 atributos obligatorios están presentes</td><td>Máquina</td></tr>
+<tr><td>B-02</td><td>Todo valor pertenece al vocabulario cerrado de su eje</td><td>Máquina</td></tr>
+<tr><td>B-03</td><td>Existe exactamente un <code>patronPrimario</code></td><td>Máquina</td></tr>
+<tr><td>B-04</td><td><code>rolesPosibles[]</code> no está vacío</td><td>Máquina</td></tr>
+<tr><td>B-05</td><td><code>modalidad</code> declara sus dos sub-ejes</td><td>Máquina</td></tr>
+<tr><td>B-06</td><td><code>zonasRiesgo</code> distingue ausencia de lista vacía</td><td>Máquina</td></tr>
+<tr><td>B-07</td><td>Si <code>zonasRiesgo</code> es lista vacía, es una afirmación verificada</td><td><strong>Humana</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="seccion-c">Sección C — Integridad referencial</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>☐</th><th>Ítem</th><th>Capa</th></tr></thead>
+<tbody>
+<tr><td>C-01</td><td>Los eslabones de <code>cadena</code> existen en el catálogo</td><td>Máquina</td></tr>
+<tr><td>C-02</td><td>La cadena no cruza de patrón</td><td>Máquina</td></tr>
+<tr><td>C-03</td><td>La cadena no contiene ciclos</td><td>Máquina</td></tr>
+<tr><td>C-04</td><td>La cadena es lineal (un anterior, un siguiente)</td><td>Máquina</td></tr>
+<tr><td>C-05</td><td>Las capacidades referenciadas existen</td><td>Máquina</td></tr>
+<tr><td>C-06</td><td>Los Sistemas referenciados existen</td><td>Máquina</td></tr>
+<tr><td>C-07</td><td>Ninguna entrada existente queda con cadena rota por esta publicación</td><td>Máquina</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="seccion-d">Sección D — Autoridad y versionado</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>☐</th><th>Ítem</th><th>Respaldo</th><th>Verificable hoy</th></tr></thead>
+<tbody>
+<tr><td>D-01</td><td>Una persona con criterio de entrenador autorizó la entrada</td><td>P14</td><td><span class="tag tag--futuro">no registrable</span> — sin campo de autoría</td></tr>
+<tr><td>D-02</td><td>La publicación genera una versión de catálogo nueva</td><td>BPS-023 · CT-06</td><td>Sí</td></tr>
+<tr><td>D-03</td><td>Ningún Workout ya generado resulta alterado</td><td>R-2</td><td>Sí</td></tr>
+<tr><td>D-04</td><td>Los conflictos escalados quedaron resueltos y registrados</td><td>Proceso de tagging</td><td><span class="tag tag--especificado">delegado</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">D-01 no es verificable con el modelo actual</div>
+  <p>Es el ítem más importante del checklist — el que P14 convierte en la definición misma del catálogo — y <strong>no hay dónde registrarlo</strong>. Sin atributo de autoría, sin estado y sin versionado por entrada, la autorización existe como acto pero no como dato. Ver módulos <a href="../11-estados/index.html">11</a>, <a href="../12-versionado/index.html">12</a> y <a href="../13-mantenimiento/index.html">13</a>.</p>
+</div>
+
+<h2 id="flujo">Flujo de publicación</h2>
+<div class="diagram">
+<div class="diagram-label">Cuatro secciones, un solo resultado binario</div>
+<pre class="mermaid">
+flowchart TD
+  E["Entrada etiquetada"] --> A["A · Existencia (5)"]
+  A -->|falla| R["NO PUBLICABLE<br/>→ cola editorial"]
+  A --> B["B · Completitud (7)"]
+  B -->|falla| R
+  B --> C["C · Integridad (7)"]
+  C -->|falla| R
+  C --> D["D · Autoridad y versionado (4)"]
+  D -->|falla| R
+  D --> P["PUBLICADA<br/>entrada oficial del catálogo"]
+  P --> EL["Elegible para resolución de slots"]
+</pre>
+</div>
+
+<h2 id="cobertura">Cobertura del checklist</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Sección</th><th>Ítems</th><th>Máquina</th><th>Humana</th><th>Delegados</th><th>No verificables hoy</th></tr></thead>
+<tbody>
+<tr><td>A · Existencia</td><td>5</td><td>3</td><td>0</td><td>2</td><td>0</td></tr>
+<tr><td>B · Completitud</td><td>7</td><td>6</td><td>1</td><td>0</td><td>0</td></tr>
+<tr><td>C · Integridad</td><td>7</td><td>7</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>D · Autoridad</td><td>4</td><td>2</td><td>0</td><td>1</td><td>1</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>23</strong></td><td><strong>18</strong></td><td><strong>1</strong></td><td><strong>3</strong></td><td><strong>1</strong></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Lectura</div>
+  <p><strong>22 de 23 ítems son verificables</strong> con el contrato actual — el checklist de publicación es la parte mejor especificada de todo el catálogo. El único no verificable (D-01) es, paradójicamente, el que define qué es el catálogo. Esa asimetría resume el estado del proyecto: la mecánica está resuelta; el registro de la autoridad, no.</p>
+</div>
+
+<h2 id="catalogo-completo">Validaciones a nivel de catálogo completo</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Validación</th><th>Qué detecta</th></tr></thead>
+<tbody>
+<tr><td>Unicidad global de <code>slug</code></td><td>Colisiones de identidad</td></tr>
+<tr><td>Ausencia de ciclos en todas las cadenas</td><td>Cadenas que se cierran sobre sí mismas</td></tr>
+<tr><td>Todas las referencias resuelven</td><td>Eslabones, capacidades y Sistemas colgantes</td></tr>
+<tr><td>Cobertura por combinación patrón × rol × track × nivel</td><td>Combinaciones sin ningún candidato — anticipa <code>CATALOGO_INSUFICIENTE</code></td></tr>
+<tr><td>Patrones activos vs. reservados</td><td>Un patrón pasa a activo en cuanto una entrada lo declara primario</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../13-mantenimiento/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 13 · Mantenimiento</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../15-adr/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">15 · ADR →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

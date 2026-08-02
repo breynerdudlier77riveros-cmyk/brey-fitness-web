@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>12 · Mantenimiento — Editorial Standards</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="mantenimiento" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 12 · Operación</p>
+<h1>Mantenimiento</h1>
+<p class="lede">Cuatro operaciones: actualizar, corregir, retirar y fusionar. <strong>Dos son posibles hoy y dos no tienen mecanismo alguno</strong> — y las dos imposibles son precisamente las que el catálogo necesitará en cuanto crezca.</p>
+
+<h2 id="cuatro">Las cuatro operaciones</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Operación</th><th>Estado</th><th>Mecanismo</th><th>Restricciones</th></tr></thead>
+<tbody>
+<tr><td><strong>Actualizar</strong></td><td><span class="tag tag--implementado">posible</span></td><td>Modificar atributos + nueva versión de catálogo</td><td>El <code>slug</code> no cambia; no altera lo generado</td></tr>
+<tr><td><strong>Corregir</strong></td><td><span class="tag tag--especificado">posible, indistinguible</span></td><td>Idéntico a actualizar</td><td>No hay forma de marcar que fue corrección y no cambio de criterio</td></tr>
+<tr><td><strong>Retirar</strong></td><td><span class="tag tag--futuro">sin mecanismo</span></td><td>Ninguno</td><td>CT-07 prohíbe borrar; no existe estado alternativo</td></tr>
+<tr><td><strong>Fusionar</strong></td><td><span class="tag tag--futuro">sin mecanismo</span></td><td>Ninguno</td><td>Sin criterio de equivalencia ni forma de redirigir referencias</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="actualizar">Actualizar y corregir</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Las siete restricciones de toda modificación</div>
+  <p>Derivadas de los handbooks previos, todas con respaldo:</p>
+  <ol>
+    <li>El <code>slug</code> nunca cambia — P15</li>
+    <li>Toda modificación genera versión de catálogo nueva — BPS-023</li>
+    <li>Ninguna modificación altera lo ya generado — R-2</li>
+    <li>Un valor fuera de vocabulario no puede introducirse</li>
+    <li>Ningún atributo se rellena por inferencia desde otro</li>
+    <li>Ante duda en un eje de seguridad, no se etiqueta</li>
+    <li>La autorización corresponde a Contenido — P14</li>
+  </ol>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Corregir y actualizar son la misma operación hoy</div>
+  <p>Un error de dato y un cambio de criterio producen exactamente el mismo resultado: atributos distintos y una versión de catálogo nueva. Sin versionado por entrada ni campo de motivo, <strong>nada distingue "esto estaba mal" de "esto lo pensamos de otra forma"</strong> — y son cosas editorialmente muy distintas: la primera sugiere revisar entradas similares, la segunda no.</p>
+</div>
+
+<h2 id="retirar">Retirar — la operación imposible</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Deuda ED-D13 — retirar una entrada no es expresable</div>
+  <p>CT-07 establece que "una entrada nunca se borra", con razón: hay Workouts históricos con su copia desnormalizada, eventos que la referencian y cadenas de otras entradas que la enlazan. Pero <strong>no existe estado de retirada</strong> (ED-D01), de modo que la única forma práctica de dejar de ofrecer un ejercicio es eliminarlo — que es lo que la regla prohíbe.</p>
+  <p>La regla es correcta e inejecutable. Es la contradicción KE-02.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Las dos salidas posibles, ambas bloqueadas</div>
+<pre class="mermaid">
+flowchart TD
+  R["Se decide dejar de<br/>ofrecer un ejercicio"] --> A{"¿Cómo?"}
+  A --> B["Borrar la entrada"]
+  A --> C["Marcarla como retirada"]
+  B --> B1["⛔ Prohibido por CT-07<br/>rompe cadenas e historial"]
+  C --> C1["⛔ Imposible: no existe<br/>estado de retirada"]
+  B1 --> D["Sin salida documentada"]
+  C1 --> D
+</pre>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Qué se rompería al borrar</th><th>Regla violada</th></tr></thead>
+<tbody>
+<tr><td>Cadenas de otras entradas que la referencian</td><td>Integridad referencial</td></tr>
+<tr><td>Workouts históricos con su copia desnormalizada</td><td>P5 · I-G2</td></tr>
+<tr><td>La reconstrucción de la ficha por <code>slug</code></td><td>P3 — el historial permanece</td></tr>
+<tr><td>La reproducibilidad de generaciones pasadas</td><td>BPS-023</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="fusionar">Fusionar — la operación sin definición</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Deuda ED-D14 — fusionar duplicados no tiene criterio ni mecanismo</div>
+  <p>Fusionar exige tres cosas que no existen: <strong>(a)</strong> un criterio de equivalencia que determine que dos entradas son el mismo ejercicio (ED-D11); <strong>(b)</strong> una forma de redirigir las referencias de la entrada absorbida —cadenas, Workouts históricos— hacia la superviviente; <strong>(c)</strong> un estado que marque la absorbida como fusionada sin borrarla.</p>
+  <p>Ninguna fuente aborda ninguna de las tres. Es la operación menos soportada del ecosistema, y la que más se necesitará cuando el catálogo pase de 19 a varios cientos de entradas.</p>
+</div>
+
+<h2 id="disparadores">Disparadores del mantenimiento</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Disparador</th><th>Origen</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td><code>CATALOGO_INSUFICIENTE</code> en la resolución</td><td>Paso 5, con detalle de la combinación fallida</td><td><span class="tag tag--implementado">documentado</span></td></tr>
+<tr><td>Rechazo por validación estructural</td><td>Validación del catálogo</td><td><span class="tag tag--implementado">documentado</span></td></tr>
+<tr><td>Conflicto escalado</td><td>Proceso de etiquetado</td><td><span class="tag tag--especificado">sin registro</span></td></tr>
+<tr><td>Descargas reactivas repetidas</td><td>Recovery — "la plantilla probablemente prescribe de más"</td><td><span class="tag tag--implementado">documentado</span></td></tr>
+<tr><td>Cambio de vocabulario que invalida entradas</td><td>Decisión documental</td><td><span class="tag tag--futuro">sin mecanismo de propagación</span></td></tr>
+<tr><td>Revisión periódica programada</td><td>—</td><td><span class="tag tag--futuro">no existe</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Todos los disparadores existentes son reactivos</div>
+  <p>Los cuatro documentados se activan cuando algo <em>ya falló</em>. No existe ningún disparador preventivo: nada provoca una revisión antes de que el defecto llegue a producción. Es la misma limitación que el módulo <a href="../10-revision/index.html">10</a> identifica desde el lado del proceso.</p>
+</div>
+
+<h2 id="propagacion">Propagación de cambios de vocabulario</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Un cambio de vocabulario no tiene forma de alcanzar a las entradas afectadas</div>
+  <p>Si mañana se añade un patrón o se retira un valor de un vocabulario cerrado, las entradas ya etiquetadas con el valor antiguo quedan inconsistentes. La validación estructural lo detectaría <em>en la siguiente comprobación</em>, pero nada marca esas entradas para re-revisión ni identifica cuáles son. Sin estados no hay "pendiente de revisión", y sin versionado por entrada no se sabe cuáles se etiquetaron bajo el vocabulario anterior.</p>
+</div>
+
+<h2 id="resumen">Resumen</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Operación</th><th>Autoridad</th><th>Mecanismo</th><th>Registro</th></tr></thead>
+<tbody>
+<tr><td>Actualizar</td><td>✅ Contenido</td><td>✅ Versión de catálogo</td><td>❌ Sin autoría ni motivo</td></tr>
+<tr><td>Corregir</td><td>✅ Contenido</td><td>⚠️ Indistinguible de actualizar</td><td>❌</td></tr>
+<tr><td>Retirar</td><td>❌ Sin autoridad</td><td>❌ Sin mecanismo</td><td>❌</td></tr>
+<tr><td>Fusionar</td><td>❌ Sin autoridad</td><td>❌ Sin criterio ni mecanismo</td><td>❌</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../11-conflictos/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 11 · Conflictos</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../13-integracion/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">13 · Integración →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

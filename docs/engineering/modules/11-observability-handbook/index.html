@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>11 · Observability Handbook — Engineering Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="observability-handbook" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 11 · Calidad y operación</p>
+<h1>Observability Handbook</h1>
+<p class="lede">Hoy: <code>console.warn</code>/<code>console.error</code> con prefijo de contexto, más Plausible Analytics para tráfico. Sin tracing, sin alertas, sin health check. Este módulo formaliza el patrón real y especifica lo que falta.</p>
+
+<h2 id="diagrama">Diagrama de observabilidad</h2>
+<div class="diagram">
+<div class="diagram-label">Lo que existe hoy vs. lo que los handbooks de dominio ya exigen</div>
+<pre class="mermaid">
+graph TD
+  RH["Route Handlers"] -->|"console.warn / console.error"| PLAT["Logs de plataforma (12)"]
+  SITE["Sitio completo"] -->|"script condicional"| PLAUSIBLE["Plausible Analytics<br/>(tráfico, no dominio)"]
+  EV["progression_events (07)<br/>especificado, no implementado"] -.->|"futuro"| OBS["Observabilidad de decisiones de motor"]
+  MOTORES["Motor BPS / Progression Engine<br/>(especificados)"] -.->|"eventos anomalia/error_invocacion"| EV
+</pre>
+</div>
+
+<h2 id="logs">Logs</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Convención real ya en uso</div>
+  <p><code>console.warn(`[contexto] mensaje`)</code> para condiciones degradadas pero no fatales (ej. "<code>[lead] BREVO_API_KEY sin configurar</code>"); <code>console.error(`[contexto] mensaje`)</code> para fallos de un servicio externo. El prefijo <code>[contexto]</code> entre corchetes identifica el origen (<code>[lead]</code>, <code>[contacto]</code>) — todo log nuevo sigue este mismo formato para mantenerse buscable.</p>
+</div>
+<p>No hay un logger estructurado (JSON) ni una librería dedicada (Pino, Winston) — <span class="tag tag--futuro">futuro</span>, evaluado cuando el volumen de logs justifique búsqueda estructurada sobre grep manual en la plataforma (12).</p>
+
+<h2 id="tracing">Tracing</h2>
+<p><span class="tag tag--futuro">futuro</span> — sin distributed tracing. A la escala actual (sin microservicios, un único proceso Next.js), un trace ID por request añadiría complejidad sin un problema real que resolver todavía.</p>
+
+<h2 id="errores-warnings">Errores y Warnings</h2>
+<p>Distinción ya real en el código: <code>warn</code> = el sistema se degrada mostrando un comportamiento alternativo conocido (formulario responde "disponible pronto" en vez de fallar); <code>error</code> = un servicio externo respondió con un fallo no anticipado. Ningún <code>catch</code> debe quedar vacío (FT-05, Fail Visible) — si no hay nada útil que loguear, es señal de que el <code>catch</code> no debería existir.</p>
+
+<h2 id="auditoria-observ">Auditoría y Replay</h2>
+<p>El mecanismo completo de auditoría/replay pertenece a <code>progression_events</code> (07) — especificado, no implementado. Cuando exista, el índice <code>(user_id, created_at desc)</code> ya definido por el Architecture Handbook es lo que hace posible reconstruir el timeline completo de decisiones de un usuario sin recorrer toda la tabla.</p>
+
+<h2 id="kpis-metricas">KPIs y Métricas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Métrica</th><th>Estado</th><th>Fuente</th></tr></thead>
+<tbody>
+<tr><td>Tráfico / conversión de marketing</td><td><span class="tag tag--implementado">implementado</span></td><td>Plausible Analytics (opcional, activado solo si <code>NEXT_PUBLIC_PLAUSIBLE_DOMAIN</code> está configurado)</td></tr>
+<tr><td>Leads capturados / perdidos</td><td><span class="tag tag--implementado">implementado</span> (parcial)</td><td>Logs de <code>console.warn</code> en <code>/api/lead</code> — sin dashboard agregado, solo texto de log</td></tr>
+<tr><td>Tasa de avance/sostiene/retroceso del Progression Engine</td><td><span class="tag tag--especificado">especificado</span></td><td>Progression Engine Handbook (14) — depende de <code>progression_events</code> existiendo</td></tr>
+<tr><td>Frecuencia de <code>VENTANA_INSUFICIENTE</code></td><td><span class="tag tag--especificado">especificado</span></td><td>Progression Engine Handbook (14) — mide adherencia real de registro</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="alertas-health">Alertas y Health Checks</h2>
+<p><span class="tag tag--futuro">futuro</span> — no existe ninguna ruta <code>/api/health</code> ni sistema de alertas activo (ni siquiera un webhook a Slack/email ante un <code>console.error</code>). Primer candidato de implementación cuando el volumen de usuarios lo justifique: alerta ante fallo repetido del proveedor de email (Brevo), porque hoy ese fallo solo es visible revisando logs manualmente.</p>
+
+<h2 id="matriz-error-recuperacion">Matriz Error → Recuperación</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Error</th><th>Recuperación</th></tr></thead>
+<tbody>
+<tr><td><code>invalid_body</code> / <code>invalid_email</code> (06)</td><td>El usuario corrige el formulario — sin retry automático, es un error de input</td></tr>
+<tr><td><code>not_configured</code> (falta <code>BREVO_API_KEY</code>)</td><td>Ninguna a nivel de request — requiere intervención de configuración del entorno; se degrada a "disponible pronto" en la UI</td></tr>
+<tr><td><code>provider_error</code> (Brevo caído)</td><td><span class="tag tag--futuro">futuro</span> — sin retry hoy (09); el lead se pierde y solo queda registrado en <code>console.error</code></td></tr>
+<tr><td>RLS bloquea una escritura esperada (bug de policy)</td><td>El repositorio devuelve <code>null</code> (FT-05) — el error se manifiesta en la UI como fallo genérico; requiere revisar el log de Postgres/Supabase Dashboard, no hay traducción automática del motivo RLS</td></tr>
+<tr><td>Evento con <code>tipo</code> fuera del CHECK de <code>progression_events</code> <span class="tag tag--especificado">especificado</span></td><td>INSERT rechazado por Postgres — el motor que lo generó debe tratar esto como <code>error_invocacion</code> (07) y no reintentar con el mismo tipo inválido</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../10-testing-handbook/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 10 · Testing Handbook</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../12-deployment-handbook/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">12 · Deployment Handbook →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

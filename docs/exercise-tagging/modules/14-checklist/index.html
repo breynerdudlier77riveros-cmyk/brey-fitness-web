@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>14 · Checklist Oficial — Exercise Tagging Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="checklist" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 14 · Consistencia</p>
+<h1>Checklist Oficial de Etiquetado</h1>
+<p class="lede">La lista de verificación para aceptar o rechazar el etiquetado de cualquier ejercicio. Cada ítem indica quién puede verificarlo — máquina o persona — y qué regla lo respalda.</p>
+
+<h2 id="uso">Cómo se usa</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Condición de aceptación</div>
+  <p>Un ejercicio se acepta <strong>solo si todos los ítems de la sección A pasan y todos los de la sección B han sido revisados y autorizados</strong>. Un ítem de la sección B no puede darse por bueno "por omisión": TG-04 exige que lo no evaluado permanezca visiblemente sin etiquetar.</p>
+</div>
+
+<h2 id="seccion-a">Sección A — Verificable por máquina</h2>
+<p class="matrix-note">Rechazo automático si cualquiera falla. Referencias a las validaciones del módulo <a href="../13-validaciones/index.html">13</a>.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>☐</th><th>Ítem</th><th>Ref.</th><th>Regla</th></tr></thead>
+<tbody>
+<tr><td>A-01</td><td>El <code>slug</code> existe, es único y no cambió respecto de la versión anterior</td><td>V-14</td><td>P15 · TX-02</td></tr>
+<tr><td>A-02</td><td><code>nombre</code> presente</td><td>V-15</td><td>Atributo obligatorio</td></tr>
+<tr><td>A-03</td><td>Existe exactamente un <code>patronPrimario</code>, dentro de los 9</td><td>V-01, V-02, V-03</td><td>Regla (a) del vocabulario</td></tr>
+<tr><td>A-04</td><td>Los <code>patronesSecundarios</code> pertenecen a los 9</td><td>V-03</td><td>Vocabulario cerrado</td></tr>
+<tr><td>A-05</td><td><code>rolesPosibles[]</code> no vacío y dentro de los 5</td><td>V-04, V-05</td><td>Vocabulario cerrado</td></tr>
+<tr><td>A-06</td><td><code>modalidad</code> declara ambos sub-ejes</td><td>V-06</td><td>Atributo obligatorio</td></tr>
+<tr><td>A-07</td><td><code>equipo[]</code> presente y dentro de los 6</td><td>V-07</td><td>Vocabulario cerrado</td></tr>
+<tr><td>A-08</td><td><code>zonasRiesgo</code> distingue ausencia de lista vacía</td><td>V-08</td><td>Filtro de seguridad no removible</td></tr>
+<tr><td>A-09</td><td>Zonas dentro de las 6; intensidades dentro de los 3 valores</td><td>V-09</td><td>Vocabulario cerrado</td></tr>
+<tr><td>A-10</td><td>La cadena no cruza de patrón</td><td>V-10</td><td>Regla 1 de la cadena</td></tr>
+<tr><td>A-11</td><td>La cadena no contiene ciclos</td><td>V-11</td><td>Caso inválido publicado</td></tr>
+<tr><td>A-12</td><td>La cadena es lineal</td><td>V-12</td><td>Regla 2 de la cadena</td></tr>
+<tr><td>A-13</td><td>Eslabones y capacidades referenciados existen</td><td>V-13</td><td>Integridad referencial</td></tr>
+<tr><td>A-14</td><td><code>nivel</code>, <code>tipo</code> y <code>sistemasVinculados</code> presentes y válidos</td><td>V-15</td><td>Atributos obligatorios</td></tr>
+<tr><td>A-15</td><td>Ficha educativa obligatoria completa</td><td>V-16</td><td>Atributos obligatorios</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="seccion-b">Sección B — Requiere autorización humana</h2>
+<p class="matrix-note">No automatizable. Cada ítem debe quedar explícitamente autorizado, con quién y cuándo (P14 · TG-02).</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>☐</th><th>Ítem</th><th>Ref.</th><th>Por qué es humano</th></tr></thead>
+<tbody>
+<tr><td>B-01</td><td>El patrón primario describe correctamente el movimiento</td><td>H-01</td><td>Juicio biomecánico; no se infiere de ningún campo</td></tr>
+<tr><td>B-02</td><td>Si el ejercicio encaja en varios patrones, la elección fue <strong>escalada y autorizada</strong></td><td>TG-07</td><td>No existe regla de desempate</td></tr>
+<tr><td>B-03</td><td>Los roles declarados son plausibles para el movimiento</td><td>H-02</td><td>"Más pesado/complejo del patrón" es comparativo</td></tr>
+<tr><td>B-04</td><td>La modalidad es coherente con la unidad de prescripción natural</td><td>—</td><td>Señal de verificación, no criterio</td></tr>
+<tr><td>B-05</td><td>El equipamiento refleja lo realmente necesario</td><td>H-07</td><td>Bloqueado por TG-D05 — ver nota</td></tr>
+<tr><td>B-06</td><td><strong>Cada intensidad de zona fue evaluada con criterio biomecánico</strong></td><td>H-03</td><td>Declarado explícitamente por la fuente</td></tr>
+<tr><td>B-07</td><td>Si <code>zonasRiesgo</code> es lista vacía, es una afirmación verificada, no un default</td><td>H-06</td><td>Estructuralmente indistinguible de un error</td></tr>
+<tr><td>B-08</td><td>El orden de la cadena refleja dificultad creciente real</td><td>H-04</td><td>"El orden lo autoriza criterio de entrenador"</td></tr>
+<tr><td>B-09</td><td>El nivel refleja la dificultad real</td><td>H-05</td><td>Sin criterio publicado</td></tr>
+<tr><td>B-10</td><td>La ficha educativa es técnicamente correcta y segura</td><td>H-08</td><td>Contenido humano→humano</td></tr>
+<tr><td>B-11</td><td>Toda etiqueta tiene justificación registrada: regla aplicada o autorización</td><td>TG-02</td><td>Requisito de trazabilidad</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">B-05 no puede completarse hoy</div>
+  <p>No se sabe si <code>equipo[]</code> significa "necesita todo" o "basta uno" (TG-D05). Hasta que se decida, el revisor no puede verificar si la lista es correcta, porque no está definido qué debe contener. Es el único ítem del checklist bloqueado por una ambigüedad, no por falta de criterio.</p>
+</div>
+
+<h2 id="seccion-c">Sección C — Cierre</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>☐</th><th>Ítem</th><th>Regla</th></tr></thead>
+<tbody>
+<tr><td>C-01</td><td>Se generó una versión de catálogo nueva</td><td>BPS-023 · ADR-009 · TG-06</td></tr>
+<tr><td>C-02</td><td>Se verificó que ningún Workout ya generado fue alterado</td><td>R-2 · "el cambio aplica desde la siguiente generación"</td></tr>
+<tr><td>C-03</td><td>Los conflictos escalados quedaron registrados con su decisión</td><td>TG-07</td></tr>
+<tr><td>C-04</td><td>Los ejes que quedaron sin etiquetar están visiblemente vacíos, no con valores por defecto</td><td>TG-04 · P6</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="flujo">Flujo de aplicación</h2>
+<div class="diagram">
+<div class="diagram-label">El checklist completo, en orden</div>
+<pre class="mermaid">
+flowchart TD
+  S["Etiquetado propuesto"] --> A["Sección A<br/>15 ítems automáticos"]
+  A -->|"alguno falla"| RA["RECHAZO estructural<br/>→ cola editorial"]
+  A -->|"todos pasan"| B["Sección B<br/>11 ítems humanos"]
+  B -->|"alguno no autorizado"| RB["NO ACEPTAR<br/>eje queda sin etiquetar (TG-04)"]
+  B -->|"todos autorizados"| C["Sección C<br/>4 ítems de cierre"]
+  C --> OK["ACEPTADO<br/>ejercicio elegible"]
+  RB --> ESC["¿Falta regla?<br/>→ escalar (TG-07)"]
+</pre>
+</div>
+
+<h2 id="cobertura">Cobertura del checklist</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Sección</th><th>Ítems</th><th>Automatizable</th><th>Aplicable hoy</th></tr></thead>
+<tbody>
+<tr><td>A · Estructural</td><td>15</td><td>15 (100 %)</td><td>Sí</td></tr>
+<tr><td>B · Contenido</td><td>11</td><td>0 (0 %)</td><td>10 de 11 — B-05 bloqueado</td></tr>
+<tr><td>C · Cierre</td><td>4</td><td>2 (C-01, C-02)</td><td>Sí</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>30</strong></td><td><strong>17 (56,7 %)</strong></td><td><strong>29 de 30</strong></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Lectura de la cobertura</div>
+  <p>El 56,7 % automatizable no mide la calidad del etiquetado: mide cuánto de la <em>verificación</em> puede delegarse. El 43,3 % restante es, por diseño del ecosistema, trabajo humano irreducible — no una carencia que futuras versiones deban cerrar.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../13-validaciones/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 13 · Validaciones</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../15-anti-patterns/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">15 · Anti-patterns →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

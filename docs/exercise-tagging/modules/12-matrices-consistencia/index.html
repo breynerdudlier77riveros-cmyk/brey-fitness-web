@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>12 · Matrices de Consistencia — Exercise Tagging Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="matrices-consistencia" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 12 · Consistencia</p>
+<h1>Matrices de Consistencia</h1>
+<p class="lede">Qué combinaciones de atributos son coherentes entre sí. La conclusión más importante de este módulo es negativa: los ejes son <strong>ortogonales por diseño</strong>, y casi ninguna combinación está prohibida.</p>
+
+<h2 id="ortogonalidad">Ortogonalidad de los ejes</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Un eje, una pregunta</div>
+  <p>El Rol es "eje independiente del patrón". El equipamiento no condiciona el rol. La modalidad no condiciona el patrón. El barrido no encuentra <strong>ninguna</strong> regla que prohíba una combinación concreta de valores entre dos ejes distintos.</p>
+  <p>Consecuencia para el etiquetado: las matrices de este módulo son casi completas, y eso es correcto. Una matriz llena no significa que falte información — significa que los ejes fueron diseñados para no interferir entre sí.</p>
+</div>
+
+<h2 id="patron-rol">Matriz Patrón × Rol</h2>
+<p class="matrix-note">7 patrones activos × 5 roles = 35 slots posibles. Ninguna fuente prohíbe combinación alguna.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Patrón</th><th>activacion</th><th>principal</th><th>accesorio</th><th>core-final</th><th>metabolico</th></tr></thead>
+<tbody>
+<tr><td><code>empuje-horizontal</code></td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td><code>empuje-vertical</code></td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td><code>traccion-horizontal</code></td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td><code>traccion-vertical</code></td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td><code>dominante-rodilla</code></td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td><code>dominante-cadera</code></td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td><code>core</code></td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td><code>locomocion</code> <span class="tag tag--futuro">reservado</span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td><code>rotacion-potencia</code> <span class="tag tag--futuro">reservado</span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Posible ≠ cubierto</div>
+  <p>La matriz describe lo estructuralmente <strong>posible</strong>. Que un slot <code>core</code> × <code>principal</code> sea resoluble depende de que algún ejercicio de patrón <code>core</code> declare <code>principal</code> entre sus roles — es una cuestión de <em>cobertura de catálogo</em>, no de consistencia. Con 0 de 19 ejercicios etiquetados, la cobertura real de las 35 combinaciones es <strong>cero</strong>.</p>
+</div>
+
+<h2 id="modalidad-consecuencias">Matriz Modalidad × consecuencias</h2>
+<p class="matrix-note">Es la única matriz con implicaciones duras: el eje de ejecución determina tres comportamientos.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Modalidad</th><th>Unidad de prescripción</th><th>Interfaz del Player</th><th>Doble progresión</th><th>Hereda prescripción de…</th></tr></thead>
+<tbody>
+<tr><td><code>dinamico</code> × <code>bilateral</code></td><td>Repeticiones</td><td>Contador</td><td>Aplica</td><td>Otro dinámico</td></tr>
+<tr><td><code>dinamico</code> × <code>unilateral</code></td><td>Repeticiones</td><td>Contador</td><td>Aplica</td><td>Otro dinámico</td></tr>
+<tr><td><code>isometrico</code> × <code>bilateral</code></td><td>Segundos</td><td>Cronómetro</td><td>No aplica (rige PE-009)</td><td>Otro isométrico</td></tr>
+<tr><td><code>isometrico</code> × <code>unilateral</code></td><td>Segundos</td><td>Cronómetro</td><td>No aplica</td><td>Otro isométrico</td></tr>
+</tbody>
+</table>
+</div>
+<p>Las cuatro filas difieren únicamente en el eje de ejecución: el eje de lateralidad no cambia ninguna columna, lo que confirma cuantitativamente la deuda TG-D03 — es un atributo obligatorio sin consecuencia declarada.</p>
+
+<h2 id="patron-cadena">Matriz Patrón × Cadena</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Situación</th><th>¿Válida?</th><th>Regla</th></tr></thead>
+<tbody>
+<tr><td>Cadena entre ejercicios del mismo patrón primario</td><td>✅ Sí</td><td>Regla 1 de la cadena</td></tr>
+<tr><td>Cadena que cruza de patrón</td><td>❌ No</td><td>"Un eslabón nunca cruza de patrón"</td></tr>
+<tr><td>Ejercicio sin cadena</td><td>✅ Sí</td><td>Atributo opcional</td></tr>
+<tr><td>Cadena con ciclo</td><td>❌ No</td><td>Caso inválido publicado</td></tr>
+<tr><td>Cadena en patrón <code>core</code></td><td>✅ Sí</td><td>Sin restricción específica</td></tr>
+<tr><td>Cadena en patrón reservado</td><td>✅ Sí en estructura</td><td>Requeriría ejercicios etiquetados con ese patrón, lo que lo activaría</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="rol-consecuencias">Matriz Rol × consecuencias de prescripción</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Rol</th><th>Orden en sesión (R-4)</th><th>Descanso base</th><th>Volumen productivo</th><th>Recortable por tiempo (R-G2)</th></tr></thead>
+<tbody>
+<tr><td><code>activacion</code></td><td>1</td><td>mínimo <span class="tag tag--futuro">sin cifras</span></td><td>No</td><td><strong>Nunca</strong></td></tr>
+<tr><td><code>principal</code></td><td>2</td><td>120–180 s</td><td>Sí</td><td><strong>Nunca</strong></td></tr>
+<tr><td><code>accesorio</code></td><td>3</td><td>60–120 s</td><td>Sí</td><td>Tercero en recortarse</td></tr>
+<tr><td><code>core-final</code></td><td>4</td><td>45–90 s</td><td>Sí</td><td>Segundo en recortarse</td></tr>
+<tr><td><code>metabolico</code></td><td>5</td><td>30–60 s</td><td>Sí (acondicionamiento)</td><td>Primero en recortarse</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Simetría exacta entre ejecución y recorte</div>
+  <p>El orden de recorte es el inverso del orden de ejecución, y los dos primeros roles nunca se recortan. Es la matriz más completamente especificada del handbook — la única laguna es la cifra de descanso de <code>activacion</code> y la función que elige un valor dentro de cada rango.</p>
+</div>
+
+<h2 id="ejes-independientes">Resumen de independencia entre ejes</h2>
+<div class="diagram">
+<div class="diagram-label">Qué eje condiciona a qué — casi ninguno</div>
+<pre class="mermaid">
+graph TD
+  PAT["Patrón"] -->|"restringe"| CAD["Cadena<br/>(misma familia)"]
+  PAT -->|"define"| DEG["Degradación<br/>(del vocabulario)"]
+  ROL["Rol"] -->|"determina"| ORD["Orden en sesión"]
+  ROL -->|"determina"| DESC["Descanso base"]
+  ROL -->|"determina"| VOL["Volumen productivo"]
+  MOD["Modalidad · ejecución"] -->|"determina"| UNI["Unidad de prescripción"]
+  MOD -->|"determina"| UI["Interfaz del Player"]
+  EQ["Equipamiento"] -.->|"sin relación<br/>declarada"| ROL
+  ZON["Zonas de riesgo"] -.->|"sin relación<br/>declarada"| PAT
+  LAT["Modalidad · lateralidad"] -.->|"sin consecuencia<br/>declarada"| X["—"]
+</pre>
+</div>
+
+<h2 id="compatibilidad-global">Matriz de compatibilidad de etiquetado</h2>
+<p class="matrix-note">Combinaciones entre ejes: ✅ permitida · ❌ prohibida por regla · ⚠️ sin regla declarada.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Combinación</th><th>Estado</th><th>Regla o ausencia</th></tr></thead>
+<tbody>
+<tr><td>Cualquier patrón × cualquier rol</td><td>✅</td><td>Ejes ortogonales</td></tr>
+<tr><td>Cualquier patrón × cualquier modalidad</td><td>✅</td><td>Sin restricción declarada</td></tr>
+<tr><td>Cualquier patrón × cualquier equipamiento</td><td>✅</td><td>Sin restricción declarada</td></tr>
+<tr><td>Cualquier rol × cualquier equipamiento</td><td>✅</td><td>Sin restricción declarada</td></tr>
+<tr><td>Cadena cruzando patrones</td><td>❌</td><td>Regla 1 de la cadena</td></tr>
+<tr><td>Dos patrones primarios</td><td>❌</td><td>Regla (a) del vocabulario</td></tr>
+<tr><td>Valor fuera de vocabulario cerrado</td><td>❌</td><td>Nivel 3 de la jerarquía</td></tr>
+<tr><td><code>isometrico</code> con rango de repeticiones</td><td>⚠️</td><td>Incoherente con la capa 11, pero ninguna fuente lo prohíbe explícitamente</td></tr>
+<tr><td><code>activacion</code> como único rol de un ejercicio</td><td>⚠️</td><td>Sin regla — el ejercicio solo llenaría slots de activación</td></tr>
+<tr><td>Los 5 roles en un mismo ejercicio</td><td>⚠️</td><td>Sin límite de cardinalidad declarado</td></tr>
+<tr><td><code>zonasRiesgo: []</code> en un ejercicio de carga axial pesada</td><td>⚠️</td><td>Estructuralmente válido; solo revisión humana lo detecta</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../11-hibridos-conflictos/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 11 · Híbridos y Conflictos</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../13-validaciones/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">13 · Validaciones →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

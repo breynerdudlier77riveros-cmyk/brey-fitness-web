@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>09 · Control de Calidad — Editorial Standards</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="control-calidad" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 09 · Garantías</p>
+<h1>Control de Calidad</h1>
+<p class="lede">El checklist editorial que verifica el conocimiento antes de que entre al ecosistema. Consolida verificaciones ya definidas en los tres handbooks previos y añade las de consistencia terminológica y duplicados, que ninguno cubría.</p>
+
+<h2 id="dimensiones">Las seis dimensiones de calidad</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Dimensión</th><th>Qué verifica</th><th>Automatizable</th><th>Fuente</th></tr></thead>
+<tbody>
+<tr><td><strong>Consistencia</strong></td><td>Que los atributos no se contradigan entre sí</td><td>Parcial</td><td>Matrices de consistencia · Tagging</td></tr>
+<tr><td><strong>Duplicados</strong></td><td>Que no exista otra entrada equivalente</td><td>Parcial</td><td><span class="tag tag--futuro">sin criterio de equivalencia</span></td></tr>
+<tr><td><strong>Terminología</strong></td><td>Que se use el término canónico del Lenguaje Ubicuo</td><td>Parcial</td><td>Domain Model 01 · P12</td></tr>
+<tr><td><strong>Conflictos</strong></td><td>Que los conflictos escalados estén resueltos y registrados</td><td>No</td><td>TG-07</td></tr>
+<tr><td><strong>Integridad</strong></td><td>Que las referencias resuelvan y no haya ciclos</td><td>Sí</td><td>Catalog 10</td></tr>
+<tr><td><strong>Evidencia</strong></td><td>Que toda regla fisiológica lleve su badge</td><td>Parcial</td><td>Sistema de 4 niveles</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="checklist">Checklist editorial</h2>
+<p class="matrix-note">Aplicable a cualquier pieza de conocimiento antes de incorporarla. Los ítems marcados <span class="tag tag--especificado">delegado</span> los verifican los checklists de Tagging (30 ítems) y Catalog (23 ítems); aquí no se repiten.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>☐</th><th>Ítem</th><th>Dimensión</th><th>Capa</th></tr></thead>
+<tbody>
+<tr><td>Q-01</td><td>El etiquetado completó su proceso y su checklist</td><td>—</td><td><span class="tag tag--especificado">delegado</span></td></tr>
+<tr><td>Q-02</td><td>La publicación superó su checklist de 23 ítems</td><td>—</td><td><span class="tag tag--especificado">delegado</span></td></tr>
+<tr><td>Q-03</td><td>Los atributos son mutuamente coherentes</td><td>Consistencia</td><td>Máquina</td></tr>
+<tr><td>Q-04</td><td>No existe otra entrada que describa el mismo movimiento</td><td>Duplicados</td><td><strong>Humana</strong></td></tr>
+<tr><td>Q-05</td><td>El <code>slug</code> no colisiona con ninguno existente</td><td>Duplicados</td><td>Máquina</td></tr>
+<tr><td>Q-06</td><td>El nombre no coincide con el de otra entrada</td><td>Duplicados</td><td>Máquina — <span class="tag tag--futuro">regla no declarada</span></td></tr>
+<tr><td>Q-07</td><td>Se usa el término canónico del Lenguaje Ubicuo, no un sinónimo prohibido</td><td>Terminología</td><td>Parcial</td></tr>
+<tr><td>Q-08</td><td>No se introduce vocabulario fuera de las listas cerradas</td><td>Terminología</td><td>Máquina</td></tr>
+<tr><td>Q-09</td><td>Todos los conflictos escalados quedaron resueltos y registrados</td><td>Conflictos</td><td><strong>Humana</strong></td></tr>
+<tr><td>Q-10</td><td>Las referencias (cadena, capacidades, sistemas) resuelven</td><td>Integridad</td><td>Máquina</td></tr>
+<tr><td>Q-11</td><td>Ninguna entrada existente queda con referencias rotas</td><td>Integridad</td><td>Máquina</td></tr>
+<tr><td>Q-12</td><td>Toda regla con reclamo fisiológico lleva su badge de evidencia</td><td>Evidencia</td><td><strong>Humana</strong></td></tr>
+<tr><td>Q-13</td><td>Las decisiones de producto están marcadas como calibrables</td><td>Evidencia</td><td><strong>Humana</strong></td></tr>
+<tr><td>Q-14</td><td>Se generó versión de catálogo y no se alteró nada ya generado</td><td>—</td><td>Máquina</td></tr>
+</tbody>
+</table>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Resumen</th><th>Ítems</th></tr></thead>
+<tbody>
+<tr><td>Verificables por máquina</td><td>7</td></tr>
+<tr><td>Requieren revisión humana</td><td>5</td></tr>
+<tr><td>Delegados a otros checklists</td><td>2</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>14</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="duplicados">Duplicados — la dimensión sin criterio</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Deuda ED-D11 — no existe criterio de equivalencia entre entradas</div>
+  <p>El <code>slug</code> garantiza unicidad de <em>identificador</em>, no de <em>contenido</em>: nada impide que dos entradas con slugs distintos describan el mismo movimiento. Y ninguna fuente declara qué hace equivalentes a dos ejercicios — ¿mismo patrón y misma modalidad? ¿mismo movimiento con implemento distinto? ¿una variante de agarre es el mismo ejercicio o uno nuevo?</p>
+  <p>La consecuencia práctica es que <strong>Q-04 no es aplicable con rigor</strong>: el revisor debe juzgar la duplicación sin definición de qué la constituye. Y sin mecanismo de fusión (módulo <a href="../12-mantenimiento/index.html">12</a>), un duplicado detectado tarde no tiene remedio documentado.</p>
+</div>
+
+<h2 id="terminologia">Terminología — la dimensión mejor respaldada</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">El Lenguaje Ubicuo</div>
+  <p>El Domain Model publica un glosario de <strong>21 términos oficiales</strong>, "cada uno con su definición, sus sinónimos permitidos, sus términos prohibidos y el handbook donde se originó". La disciplina es explícita: "cada concepto tiene exactamente un término canónico; los sinónimos se registran como sinónimos; las confusiones frecuentes se marcan".</p>
+</div>
+<p>Es el precedente exacto de lo que el catálogo necesitaría para alias y sinónimos de ejercicio — y la prueba de que el ecosistema sabe gobernar terminología cuando decide hacerlo. La brecha no es de capacidad: es que el glosario cubre términos del dominio, no nombres de entrada de catálogo.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Verificación terminológica</th><th>Aplicable a</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>Uso del término canónico</td><td>Conceptos del dominio</td><td><span class="tag tag--implementado">21 términos con glosario</span></td></tr>
+<tr><td>Sinónimos permitidos declarados</td><td>Conceptos del dominio</td><td><span class="tag tag--implementado">documentado</span></td></tr>
+<tr><td>Términos prohibidos marcados</td><td>Conceptos del dominio</td><td><span class="tag tag--implementado">documentado</span></td></tr>
+<tr><td>Ídem para nombres de ejercicio</td><td>Entradas de catálogo</td><td><span class="tag tag--futuro">no existe</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="consistencia">Consistencia entre atributos</h2>
+<p>Las matrices del Tagging Handbook establecen que los ejes son <strong>ortogonales por diseño</strong>: ninguna combinación de patrón × rol × modalidad × equipamiento está prohibida. Eso reduce la verificación de consistencia a un conjunto pequeño y bien definido:</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Verificación</th><th>Detectable</th></tr></thead>
+<tbody>
+<tr><td>La cadena no cruza de patrón</td><td>Máquina</td></tr>
+<tr><td>Exactamente un patrón primario</td><td>Máquina</td></tr>
+<tr><td>Todo valor pertenece a su vocabulario cerrado</td><td>Máquina</td></tr>
+<tr><td><code>zonasRiesgo</code> distingue ausencia de lista vacía</td><td>Máquina</td></tr>
+<tr><td>Un isométrico no declara rango de repeticiones</td><td>Máquina — <span class="tag tag--futuro">regla no declarada</span></td></tr>
+<tr><td>La clasificación describe correctamente el movimiento</td><td><strong>Humana</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="asimetria">La asimetría del control de calidad</h2>
+<div class="diagram">
+<div class="diagram-label">Lo barato de verificar frente a lo caro de detectar</div>
+<pre class="mermaid">
+graph TD
+  QC["Control de calidad"] --> AUT["7 ítems automáticos<br/>estructura · referencias · vocabulario"]
+  QC --> HUM["5 ítems humanos<br/>duplicación · conflictos · evidencia"]
+  AUT --> R1["Fallan ruidosamente<br/>no llegan a producción"]
+  HUM --> R2["No fallan nunca<br/>producen conocimiento<br/>bien formado y equivocado"]
+  R2 --> P["⚠ La única clase de error<br/>que el sistema no detecta solo"]
+</pre>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Por qué la capa humana no es opcional</div>
+  <p>Los siete ítems automáticos no pueden detectar <strong>ni un solo</strong> error de contenido: una clasificación equivocada con vocabulario válido los pasa todos. Es la misma asimetría que el Tagging Handbook tipifica como su anti-patrón crítico, y la razón por la que la ausencia de un proceso de revisión (módulo <a href="../10-revision/index.html">10</a>) es la deuda más consecuente del flujo editorial.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../08-trazabilidad/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 08 · Trazabilidad</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../10-revision/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">10 · Revisión →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

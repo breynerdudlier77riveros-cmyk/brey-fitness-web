@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>15 · ADR del Modelo de Dominio — Domain Model Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="adr" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 15 · Gobernanza</p>
+<h1>ADR del Modelo de Dominio</h1>
+<p class="lede">Ocho decisiones arquitectónicas de dominio — todas ya aplicadas de forma implícita en los módulos 01–14, formalizadas aquí con su ID definitivo.</p>
+
+<div class="adr">
+<span class="adr__estado">Aceptado</span>
+<span class="adr__id">DM-ADR-01</span>
+<h3>Cliente separado de Usuario</h3>
+<p><strong>Contexto:</strong> Cliente (BCS) y Usuario (Identity) describen personas que a veces coinciden en la vida real (un Entrenador que también se mide a sí mismo), lo que tienta a modelarlos como una sola entidad con dos roles.</p>
+<p><strong>Decisión:</strong> Cliente y Usuario son entidades completamente distintas, sin relación de dominio entre ellas (LU-03, 09-diagrama 13, IN-31) — coincidir en la vida real no implica coincidir en el modelo.</p>
+<p><strong>Consecuencias:</strong> BCS permanece standalone (02); un Entrenador que se mide a sí mismo aparece como un Cliente independiente de su propio Usuario, sin vínculo automático.</p>
+<p><strong>Alternativas descartadas:</strong> unificar Cliente y Usuario en una sola entidad con un campo <code>rol</code> — descartado porque acoplaría permanentemente dos bounded contexts que el Architecture Handbook mantiene independientes (AP-04, 14).</p>
+</div>
+
+<div class="adr">
+<span class="adr__estado">Aceptado</span>
+<span class="adr__id">DM-ADR-02</span>
+<h3>Workout como agregado inmutable</h3>
+<p><strong>Contexto:</strong> Un Workout planificado y su ejecución real podrían modelarse como el mismo objeto editado en sitio, evitando gestionar dos aggregates.</p>
+<p><strong>Decisión:</strong> Workout (planificado) y WorkoutLog (ejecutado) son aggregates separados; ninguno de los dos se edita tras alcanzar un estado final — una corrección siempre crea un WorkoutLog nuevo (CT-05, CT-08, FT-09).</p>
+<p><strong>Consecuencias:</strong> Progression Engine puede comparar planificado vs. ejecutado sin ambigüedad; el replay determinista (FT-03) permanece posible indefinidamente.</p>
+<p><strong>Alternativas descartadas:</strong> Workout mutable con historial de cambios embebido — descartado por las mismas razones que AP-02 (14).</p>
+</div>
+
+<div class="adr">
+<span class="adr__estado">Aceptado</span>
+<span class="adr__id">DM-ADR-03</span>
+<h3>Prescripción persistente</h3>
+<p><strong>Contexto:</strong> La Prescripción podría tratarse como un valor efímero, recalculado en cada generación de Workout a partir del último EventoProgresión.</p>
+<p><strong>Decisión:</strong> La Prescripción es persistente — es la entrada real que el Workout Generator consume, actualizada atómicamente ciclo a ciclo, nunca editada parcialmente (PR-01, IN-M2 del Progression Engine Handbook).</p>
+<p><strong>Consecuencias:</strong> El Workout Generator siempre lee un único valor vigente sin recalcular; la trazabilidad de qué Prescripción produjo qué Workout queda garantizada.</p>
+<p><strong>Alternativas descartadas:</strong> recalcular la Prescripción on-demand desde el último EventoProgresión en cada generación — descartado porque duplicaría la lógica de evaluación fuera de Progression Engine y rompería FT-01 (SSoT).</p>
+</div>
+
+<div class="adr">
+<span class="adr__estado">Aceptado</span>
+<span class="adr__id">DM-ADR-04</span>
+<h3>Recovery derivado</h3>
+<p><strong>Contexto:</strong> El EstadoRecuperación (Veredicto) podría persistirse como una fila propia por ciclo, para consulta histórica directa.</p>
+<p><strong>Decisión:</strong> El EstadoRecuperación es derivado — se recalcula en cada ciclo a partir de SeñalFatiga, y solo su efecto (una Descarga aplicada) se registra indirectamente vía EventoProgresión (PR-04, IMP-ADR-01).</p>
+<p><strong>Consecuencias:</strong> Ningún otro contexto necesita esperar una escritura de Recovery Engine para leer su Veredicto más reciente; el historial de "por qué" queda en el EventoProgresión que originó, sin duplicar el estado en dos lugares.</p>
+<p><strong>Alternativas descartadas:</strong> tabla <code>recovery_states</code> con una fila por ciclo evaluado — descartada por no tener ningún consumidor que necesite ese historial más allá de lo que el EventoProgresión ya provee (AR-006 de la Architecture Review).</p>
+</div>
+
+<div class="adr">
+<span class="adr__estado">Aceptado</span>
+<span class="adr__id">DM-ADR-05</span>
+<h3>Enlace público desacoplado</h3>
+<p><strong>Contexto:</strong> El EnlacePúblico podría modelarse como un atributo del Cliente ("clientes.link_publico") en vez de una entidad propia.</p>
+<p><strong>Decisión:</strong> EnlacePúblico es un aggregate root independiente, referenciando <code>clienteId</code>, nunca contenido por Cliente (BC-05, BCS-ADR-01).</p>
+<p><strong>Consecuencias:</strong> Un Cliente puede tener un historial completo de tokens (activos y revocados) sin que el aggregate Cliente crezca; revocar y crear enlaces no requiere tocar la fila del Cliente.</p>
+<p><strong>Alternativas descartadas:</strong> columna única de token en Cliente — descartada porque impide conservar el historial de tokens revocados y viola BCS-ADR-01.</p>
+</div>
+
+<div class="adr">
+<span class="adr__estado">Aceptado</span>
+<span class="adr__id">DM-ADR-06</span>
+<h3>Eventos append-only</h3>
+<p><strong>Contexto:</strong> Un EventoProgresión mal registrado (por un bug) podría corregirse editando la fila directamente, como cualquier otro dato.</p>
+<p><strong>Decisión:</strong> <code>progression_events</code> es append-only sin excepción — ningún evento se edita ni se borra tras su creación (PR-03, FT-09, IN-20).</p>
+<p><strong>Consecuencias:</strong> El log es siempre confiable como fuente de auditoría; corregir un error requiere insertar un evento compensatorio nuevo, nunca alterar la historia.</p>
+<p><strong>Alternativas descartadas:</strong> permitir <code>UPDATE</code>/<code>DELETE</code> con un campo de auditoría "editado_por" — descartada porque reintroduce exactamente el problema que un log inmutable existe para prevenir (AP-03, 14).</p>
+</div>
+
+<div class="adr">
+<span class="adr__estado">Aceptado</span>
+<span class="adr__id">DM-ADR-07</span>
+<h3>Diagnóstico versionado</h3>
+<p><strong>Contexto:</strong> Cuando un Usuario retoma el cuestionario BPS, podría sobrescribirse su Diagnóstico anterior para mantener "un solo Diagnóstico por Usuario".</p>
+<p><strong>Decisión:</strong> Un Usuario puede tener múltiples Diagnósticos a lo largo del tiempo; retomar siempre crea uno nuevo, ninguno se sobrescribe (DX-01, P3 del Architecture Handbook).</p>
+<p><strong>Consecuencias:</strong> El historial completo de Diagnósticos queda disponible para auditoría y para entender cómo cambió el Nivel de entrada del Usuario en el tiempo; la "vigencia" para efectos de activación se resuelve por fecha, no por unicidad de fila.</p>
+<p><strong>Alternativas descartadas:</strong> un único Diagnóstico por Usuario, sobrescrito en cada retoma — descartada porque destruye la trazabilidad histórica sin ningún beneficio de simplicidad real (el query "el más reciente" es igual de simple con o sin sobrescritura).</p>
+</div>
+
+<div class="adr">
+<span class="adr__estado">Aceptado</span>
+<span class="adr__id">DM-ADR-08</span>
+<h3>Métricas calculadas on-demand</h3>
+<p><strong>Contexto:</strong> El Reporte del BCS podría cachear sus valores calculados (IMC, clasificación, resumen ejecutivo) para evitar recomputar en cada visualización.</p>
+<p><strong>Decisión:</strong> Todo valor derivado del Reporte se calcula on-demand en cada visualización, nunca se persiste independientemente de sus Mediciones fuente (BC-04, BCS-IN-D3).</p>
+<p><strong>Consecuencias:</strong> El Reporte nunca puede quedar desactualizado respecto a una corrección de Medición; el costo de recalcular es aceptable en el volumen esperado (BCS Handbook, 12), y si algún día no lo fuera, cachear sería una optimización de infraestructura, no un cambio de modelo.</p>
+<p><strong>Alternativas descartadas:</strong> snapshot persistido del Reporte en cada generación — descartada por el riesgo de divergencia silenciosa que describe AP-05 (14).</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../14-anti-patrones/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 14 · Anti-Patrones</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../16-preguntas-abiertas/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">16 · Preguntas Abiertas →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

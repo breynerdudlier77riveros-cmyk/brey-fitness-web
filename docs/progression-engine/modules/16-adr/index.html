@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>16 · ADR — Progression Engine Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="adr" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 16 · Gobernanza</p>
+<h1>Decisiones de Arquitectura (ADR)</h1>
+<p class="lede">Las decisiones propias de este handbook (PE-ADR-01…06). Las decisiones heredadas del marco (ADR-003, ADR-005, ADR-010, ADR-012 del Architecture Handbook; BPS-007/019/022 del Motor BPS Handbook) no se re-registran aquí — se citan donde aplican.</p>
+
+<h2 id="lista">Registro propio</h2>
+
+<div class="adr" id="pe-adr-01">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">PE-ADR-01</div>
+  <h3>Precedencia explícita en vez de ponderación numérica</h3>
+  <p><strong>Contexto:</strong> el modelo de decisión (05) necesita un mecanismo para resolver conflictos entre reglas PE-XXX que compiten por la misma variable o el mismo ciclo.</p>
+  <p><strong>Problema:</strong> un sistema de pesos numéricos permite expresar "casi cualquier cosa", pero vuelve el resultado de un conflicto impredecible sin ejecutar el sistema completo, y hace que ajustar un caso rompa silenciosamente otros.</p>
+  <p><strong>Alternativas descartadas:</strong> ponderación por puntaje (indebugueable, no auditable por un humano en segundos); orden de ejecución del código como precedencia implícita (frágil ante refactors, invisible en la documentación).</p>
+  <p><strong>Decisión:</strong> escalera de precedencia explícita de 5 niveles (05), documentada regla por regla en 07. <span class="eb eb--producto">🟠 decisión de producto</span></p>
+  <p><strong>Consecuencias:</strong> cada regla nueva debe declarar su nivel de precedencia antes de entrar al catálogo — no hay forma de añadir una regla "silenciosa" sin decidir dónde vive en la escalera.</p>
+</div>
+
+<div class="adr" id="pe-adr-02">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">PE-ADR-02</div>
+  <h3>Track y Sistema fuera del alcance de macroprogresión</h3>
+  <p><strong>Contexto:</strong> el prompt original que originó este handbook pedía documentar "cuándo cambia... Track, Sistema" dentro de macroprogresión.</p>
+  <p><strong>Problema:</strong> Track y Sistema ya están gobernados por la máquina de activación del Motor BPS Handbook (ADR-002/BPS-012) y por decisiones comerciales (compra) — construir aquí una segunda lógica de cambio duplicaría o contradiría esa autoridad, violando P4.</p>
+  <p><strong>Alternativas descartadas:</strong> definir un umbral de rendimiento que "recomiende" cambio de Sistema (crearía una segunda fuente de verdad sobre activación, inevitablemente divergente de la primera con el tiempo).</p>
+  <p><strong>Decisión:</strong> Track/Sistema quedan explícitamente fuera de este motor (PE-018, 09 "No alcance"); el Nivel máximo alcanzado produce "sostiene, en tope", nunca una recomendación de Sistema.</p>
+  <p><strong>Consecuencias:</strong> resuelve una tensión real entre el prompt original y la arquitectura ya publicada — documentada aquí en vez de aplicada silenciosamente.</p>
+</div>
+
+<div class="adr" id="pe-adr-03">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">PE-ADR-03</div>
+  <h3>Dolor, Fatiga y Sueño nunca se procesan directamente</h3>
+  <p><strong>Contexto:</strong> el prompt original pedía documentar cómo "Dolor, Fatiga, Sueño... intervienen" en la autorregulación de este motor.</p>
+  <p><strong>Problema:</strong> interpretar estas señales exige criterio clínico/fisiológico que ya es responsabilidad exclusiva del Recovery Engine (P8, ADR-010 del marco) — procesarlas aquí también crearía dos intérpretes potencialmente contradictorios de la misma señal de seguridad.</p>
+  <p><strong>Alternativas descartadas:</strong> que este motor las lea "solo como contexto adicional, sin decidir" (en la práctica es imposible trazar la línea entre "leer" y "decidir" una vez que la señal influye en cualquier salida).</p>
+  <p><strong>Decisión:</strong> este motor solo recibe el Veredicto ya resuelto de Recovery (PE-023/024/025); nunca un campo crudo de dolor, fatiga o sueño.</p>
+  <p><strong>Consecuencias:</strong> el Veredicto de Recovery se vuelve una entrada obligatoria y no nulable del contrato (04) — su ausencia es un error de invocación, nunca un caso de negocio de este motor.</p>
+</div>
+
+<div class="adr" id="pe-adr-04">
+  <span class="adr__estado">Aceptada · marcada experimental</span>
+  <div class="adr__id">PE-ADR-04</div>
+  <h3>Deload preventivo como mecanismo propio de este motor</h3>
+  <p><strong>Contexto:</strong> la escalera de acciones ante estancamiento confirmado (PE-031) necesita un segundo escalón antes de llegar al retroceso de eslabón.</p>
+  <p><strong>Problema:</strong> no existe evidencia externa sobre si una descarga temprana ante estancamiento sostenido mejora el resultado más que simplemente seguir variando la prescripción.</p>
+  <p><strong>Alternativas descartadas:</strong> omitir el mecanismo y saltar directo de "variar variable secundaria" a "retroceder eslabón" (intervención demasiado agresiva para una meseta que podría resolverse con descanso); copiar el criterio de deload reactivo de Recovery para este caso (mezclaría la autoridad de dos motores distintos).</p>
+  <p><strong>Decisión:</strong> se introduce el deload preventivo (PE-035) como sugerencia NO vinculante, marcada explícitamente <span class="eb eb--hipotesis">🔴 hipótesis</span> — a diferencia de todo lo demás en autorregulación, que es 🟠 o 🟡.</p>
+  <p><strong>Consecuencias:</strong> requiere instrumentación específica (14) para validar o refutar la hipótesis con datos reales de producción antes de considerarlo para escalarlo a vinculante.</p>
+</div>
+
+<div class="adr" id="pe-adr-05">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">PE-ADR-05</div>
+  <h3>Un único sistema de esfuerzo por Slot — RPE o RIR, nunca ambos</h3>
+  <p><strong>Contexto:</strong> el prompt pedía cubrir tanto "RPE objetivo" como "RIR" como variables independientes de microprogresión.</p>
+  <p><strong>Problema:</strong> permitir que ambos sistemas convivan en el mismo Slot obliga a un árbitro adicional (¿cuál manda si contradicen?) sin ningún beneficio de programación claro.</p>
+  <p><strong>Alternativas descartadas:</strong> permitir combinación libre con un árbitro de prioridad fijo (RPE siempre gana sobre RIR) — descartada por ser una complejidad añadida sin caso de uso real que la exija en v1.</p>
+  <p><strong>Decisión:</strong> mutuamente excluyentes por Slot (PE-007/008, PE-019/020) — el programa elige uno u otro al definir el Slot.</p>
+  <p><strong>Consecuencias:</strong> simplifica el árbitro de conflictos a costa de no soportar programas que mezclen ambos sistemas dentro de una misma sesión (19, pregunta abierta).</p>
+</div>
+
+<div class="adr" id="pe-adr-06">
+  <span class="adr__estado">Aceptada · decisión propia</span>
+  <div class="adr__id">PE-ADR-06</div>
+  <h3>Umbral de estancamiento: 3 apariciones consecutivas</h3>
+  <p><strong>Contexto:</strong> ningún handbook anterior fija un umbral de apariciones consecutivas para considerar confirmada una meseta de estancamiento — el concepto de "estancamiento" es propio de este motor, sin precedente en otro handbook.</p>
+  <p><strong>Problema:</strong> sin una decisión explícita, cualquier valor (2, 3, 4…) parece igualmente arbitrario sin justificación documentada.</p>
+  <p><strong>Alternativas descartadas:</strong> un umbral menor (2 apariciones) — descartado por sobre-reaccionar a variación normal de una sola sesión; un umbral mayor (4 o 5) — descartado por retrasar innecesariamente la detección de una meseta real.</p>
+  <p><strong>Decisión:</strong> se fija en 3 apariciones consecutivas sin avance (PE-027), como decisión propia de este motor <span class="ev ev--producto">🟠 decisión de producto</span>.</p>
+  <p><strong>Consecuencias:</strong> si un futuro handbook de Motor BPS introduce su propio concepto de estancamiento, debe citar este umbral en vez de definir uno independiente — para prevenir la inconsistencia numérica entre documentos que una decisión paralela sin coordinación produciría.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../15-arquitectura-datos/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 15 · Arquitectura de Datos</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../17-riesgos/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">17 · Riesgos →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

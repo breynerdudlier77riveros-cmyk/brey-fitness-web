@@ -5,11 +5,18 @@
 -- Supabase (o corre vía CLI si lo tienes configurado) y ejecútalo una sola
 -- vez sobre un proyecto nuevo.
 --
--- Después de correrlo, verifica en Table Editor que las 5 tablas muestran
+-- Después de correrlo, verifica en Table Editor que las 9 tablas muestran
 -- RLS activo (sin la advertencia amarilla) — sin ENABLE ROW LEVEL SECURITY
 -- las políticas de abajo nunca se evalúan y cualquiera con la anon key
 -- (pública, va en el JS del navegador) puede leer y escribir todo. Es el
 -- error más común y silencioso de Supabase.
+--
+-- Sprint 1 (persistencia) añadió 4 tablas a las 5 originales:
+-- progression_events (M2) y las tres del BCS — bcs_clientes, bcs_mediciones,
+-- bcs_enlaces_publicos (M3) — más 5 índices oficiales (M4). Para un proyecto
+-- YA en producción, esos deltas viven en migration_progression_events.sql,
+-- migration_bcs.sql y migration_indices.sql; este schema.sql los incluye
+-- para que un proyecto nuevo nazca ya con el estado completo.
 --
 -- Alcance deliberado de esta primera versión (ver plan técnico completo):
 --   · systems es un catálogo liviano — no replica cada campo del Sistema
@@ -221,10 +228,26 @@ create table public.workouts (
 
 alter table public.workouts enable row level security;
 
-create policy "workouts: CRUD propio"
-  on public.workouts for all
+-- Endurecido en Sprint 0 (AR-018 de la Architecture Review): la política
+-- original "CRUD propio" (for all) permitía DELETE sobre historial de
+-- entrenamiento, contradiciendo FT-09. Ver migration_rls_endurecimiento.sql
+-- para el mismo cambio aplicado a un proyecto ya en producción.
+
+create policy "workouts: el usuario ve sus propios workouts"
+  on public.workouts for select
+  using (auth.uid() = user_id);
+
+create policy "workouts: el usuario crea sus propios workouts"
+  on public.workouts for insert
+  with check (auth.uid() = user_id);
+
+create policy "workouts: el usuario actualiza sus propios workouts"
+  on public.workouts for update
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
+
+-- Sin política de DELETE, a propósito — el historial de entrenamiento
+-- planificado nunca se borra (FT-09).
 
 
 -- ── workout_logs ─────────────────────────────────────────────────────────
@@ -254,10 +277,272 @@ create table public.workout_logs (
 
 alter table public.workout_logs enable row level security;
 
-create policy "workout_logs: CRUD propio"
-  on public.workout_logs for all
-  using (auth.uid() = user_id)
+-- Endurecido en Sprint 0 (AR-018 de la Architecture Review): la política
+-- original "CRUD propio" (for all) permitía DELETE y UPDATE sobre
+-- historial de ejecución, contradiciendo FT-09/I-W3 (un log cerrado es
+-- inmutable). Ver migration_rls_endurecimiento.sql para el mismo cambio
+-- aplicado a un proyecto ya en producción.
+
+create policy "workout_logs: el usuario ve sus propios workout_logs"
+  on public.workout_logs for select
+  using (auth.uid() = user_id);
+
+create policy "workout_logs: el usuario crea sus propios workout_logs"
+  on public.workout_logs for insert
   with check (auth.uid() = user_id);
+
+-- Sin política de UPDATE ni DELETE, a propósito — un log cerrado es
+-- inmutable (Architecture Handbook, 09, I-W3); una corrección crea un
+-- registro nuevo, nunca edita el existente.
+
+
+-- ── progression_events ─────────────────────────────────────────────────────
+-- Sprint 1 / M2. Tabla única de eventos de TODO el ecosistema (ENG-ADR-03).
+-- Append-only (P3/DM-ADR-06): RLS solo select+insert propios. El CHECK de
+-- `tipo` trae los 25 valores consolidados desde el día uno (DB-ADR-03).
+-- `origen=coach` queda reservado sin ningún tipo asociado (AR-011).
+
+create table public.progression_events (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  tipo text not null check (tipo in (
+    'activacion', 'pausa', 'reanudacion', 'sistema_completado',
+    'gate_fallado', 'transicion_estado', 'anomalia',
+    'avanza', 'sostiene', 'retrocede', 'prescripcion_actualizada',
+    'escalon_avanzado', 'escalon_retrocedido', 'estancamiento_confirmado',
+    'estancamiento_resuelto', 'deload_aplicado', 'deload_cancelado',
+    'conflicto_resuelto', 'error_invocacion',
+    'descarga_reactiva', 'dolor_reportado', 'restriccion_zona',
+    'semana_generada', 'descarga_programada',
+    'override_usuario'
+  )),
+  origen text not null check (origen in (
+    'motor_bps', 'progression_engine', 'recovery_engine',
+    'workout_generator', 'usuario', 'coach'
+  )),
+  razones jsonb not null,
+  contexto jsonb,
+  -- On delete set null: sigue el precedente de workout_logs.workout_id
+  -- (el Database Handbook 05 lo marca "No especificado"); el evento de
+  -- auditoría sobrevive aunque su log fuese removido.
+  workout_log_id uuid references public.workout_logs(id) on delete set null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.progression_events enable row level security;
+
+create policy "progression_events: el usuario ve sus propios eventos"
+  on public.progression_events for select
+  using (auth.uid() = user_id);
+
+create policy "progression_events: el usuario crea sus propios eventos"
+  on public.progression_events for insert
+  with check (auth.uid() = user_id);
+
+-- Sin UPDATE ni DELETE, a propósito — append-only (DM-ADR-06, IN-20).
+
+
+-- ── bcs_clientes ───────────────────────────────────────────────────────────
+-- Sprint 1 / M3. Cliente presencial del Entrenador. Standalone respecto al
+-- Usuario (Domain Model IN-31). On delete de entrenador_id: sin cláusula
+-- (NO ACTION), porque el Database Handbook (05) lo marca "No especificado" y
+-- AP-06 deja abierto el cascade del BCS. Máquina de estados: activo ⇄
+-- archivado → eliminado (terminal, IN-30).
+
+create table public.bcs_clientes (
+  id uuid primary key default gen_random_uuid(),
+  entrenador_id uuid not null references auth.users(id),
+  nombre text not null,
+  estado text not null default 'activo' check (estado in ('activo', 'archivado', 'eliminado')),
+  created_at timestamptz not null default now()
+);
+
+alter table public.bcs_clientes enable row level security;
+
+create policy "bcs_clientes: el entrenador ve sus propios clientes"
+  on public.bcs_clientes for select
+  using (auth.uid() = entrenador_id);
+
+create policy "bcs_clientes: el entrenador crea sus propios clientes"
+  on public.bcs_clientes for insert
+  with check (auth.uid() = entrenador_id);
+
+create policy "bcs_clientes: el entrenador edita sus propios clientes"
+  on public.bcs_clientes for update
+  using (auth.uid() = entrenador_id)
+  with check (auth.uid() = entrenador_id);
+
+-- Sin DELETE: la eliminación permanente (UC-04) pasa por la lógica de
+-- cascada de la capa de aplicación, nunca un DELETE directo.
+
+
+-- ── bcs_mediciones ─────────────────────────────────────────────────────────
+-- Sprint 1 / M3. 3 metadatos de agregado + las 25 variables (IMP-ADR-06).
+-- Historial inmutable (BCS-ADR-03): RLS sin update ni delete. Ownership vía
+-- el Cliente referenciado (EXISTS contra bcs_clientes, que ya está acotada
+-- por su propia RLS). fecha nunca futura; ninguna masa (kg) supera el peso.
+
+create table public.bcs_mediciones (
+  id uuid primary key default gen_random_uuid(),
+  cliente_id uuid not null references public.bcs_clientes(id),
+  estado text not null default 'vigente' check (estado in ('vigente', 'anulada')),
+  altura_cm            numeric,   -- BCS-V01
+  peso_kg              numeric,   -- BCS-V02
+  imc                  numeric,   -- BCS-V03
+  grasa_pct            numeric,   -- BCS-V04
+  masa_grasa_kg        numeric,   -- BCS-V05
+  masa_muscular_kg     numeric,   -- BCS-V06
+  masa_libre_grasa_kg  numeric,   -- BCS-V07
+  agua_total_l         numeric,   -- BCS-V08
+  agua_intracelular_l  numeric,   -- BCS-V09
+  agua_extracelular_l  numeric,   -- BCS-V10
+  proteina_kg          numeric,   -- BCS-V11
+  minerales_kg         numeric,   -- BCS-V12
+  masa_osea_kg         numeric,   -- BCS-V13
+  grasa_visceral_idx   numeric,   -- BCS-V14
+  angulo_fase_deg      numeric,   -- BCS-V15
+  bmr_kcal             numeric,   -- BCS-V16
+  edad_metabolica      int,       -- BCS-V17
+  smi                  numeric,   -- BCS-V18
+  circ_cintura_cm      numeric,   -- BCS-V19
+  circ_cadera_cm       numeric,   -- BCS-V20
+  whr                  numeric,   -- BCS-V21
+  impedancia_ohm       numeric,   -- BCS-V22
+  fecha                date not null,   -- BCS-V23
+  observaciones        text,      -- BCS-V24
+  foto_url             text,      -- BCS-V25
+  constraint bcs_mediciones_fecha_no_futura check (fecha <= current_date),
+  constraint bcs_mediciones_masa_no_supera_peso check (
+    masa_grasa_kg       <= peso_kg and
+    masa_muscular_kg    <= peso_kg and
+    masa_libre_grasa_kg <= peso_kg and
+    proteina_kg         <= peso_kg and
+    minerales_kg        <= peso_kg and
+    masa_osea_kg        <= peso_kg
+  )
+);
+
+alter table public.bcs_mediciones enable row level security;
+
+create policy "bcs_mediciones: el entrenador ve las mediciones de sus clientes"
+  on public.bcs_mediciones for select
+  using (exists (
+    select 1 from public.bcs_clientes c
+    where c.id = cliente_id and c.entrenador_id = auth.uid()
+  ));
+
+create policy "bcs_mediciones: el entrenador registra mediciones de sus clientes"
+  on public.bcs_mediciones for insert
+  with check (exists (
+    select 1 from public.bcs_clientes c
+    where c.id = cliente_id and c.entrenador_id = auth.uid()
+  ));
+
+-- Los VALORES de la Medición son inmutables (BCS-ADR-03, IN-D1): no hay
+-- DELETE, y el UPDATE de abajo está acotado por partida doble — la policy
+-- solo permite la transición vigente→anulada, y el GRANT solo alcanza la
+-- columna `estado`. Corregir una Medición sigue siendo "anular + insertar"
+-- (UC-06), nunca una edición en sitio.
+--
+-- Sin esta policy, anularMedicion queda bloqueada por RLS y corregirMedicion
+-- deja dos mediciones vigentes duplicando el histórico (Sprint BCS-1.1). En
+-- un proyecto YA en producción el delta vive en
+-- migration_bcs_anular_medicion.sql.
+create policy "bcs_mediciones: el entrenador anula mediciones de sus clientes"
+  on public.bcs_mediciones for update
+  using (
+    estado = 'vigente'
+    and exists (
+      select 1 from public.bcs_clientes c
+      where c.id = cliente_id and c.entrenador_id = auth.uid()
+    )
+  )
+  with check (
+    estado = 'anulada'
+    and exists (
+      select 1 from public.bcs_clientes c
+      where c.id = cliente_id and c.entrenador_id = auth.uid()
+    )
+  );
+
+revoke update on public.bcs_mediciones from authenticated;
+grant update (estado) on public.bcs_mediciones to authenticated;
+revoke update on public.bcs_mediciones from anon;
+
+-- El acceso anónimo del Cliente vía token nunca lee esta fila directamente —
+-- la resolución token→Reporte vive en la capa de aplicación (BCS Handbook
+-- IN-A2), fuera del alcance de la capa de persistencia.
+
+
+-- ── bcs_enlaces_publicos ───────────────────────────────────────────────────
+-- Sprint 1 / M3. Token de acceso público de solo lectura. Token único global
+-- (BCS-ADR-02) — la longitud mínima de 21 caracteres es garantía del
+-- generador de la capa de aplicación, no un CHECK de base de datos. Máquina
+-- de estados: activo → revocado (terminal, IN-28).
+
+create table public.bcs_enlaces_publicos (
+  id uuid primary key default gen_random_uuid(),
+  cliente_id uuid not null references public.bcs_clientes(id),
+  token text not null unique,
+  estado text not null default 'activo' check (estado in ('activo', 'revocado')),
+  created_at timestamptz not null default now()
+);
+
+alter table public.bcs_enlaces_publicos enable row level security;
+
+create policy "bcs_enlaces_publicos: el entrenador ve los enlaces de sus clientes"
+  on public.bcs_enlaces_publicos for select
+  using (exists (
+    select 1 from public.bcs_clientes c
+    where c.id = cliente_id and c.entrenador_id = auth.uid()
+  ));
+
+create policy "bcs_enlaces_publicos: el entrenador crea enlaces de sus clientes"
+  on public.bcs_enlaces_publicos for insert
+  with check (exists (
+    select 1 from public.bcs_clientes c
+    where c.id = cliente_id and c.entrenador_id = auth.uid()
+  ));
+
+create policy "bcs_enlaces_publicos: el entrenador revoca enlaces de sus clientes"
+  on public.bcs_enlaces_publicos for update
+  using (exists (
+    select 1 from public.bcs_clientes c
+    where c.id = cliente_id and c.entrenador_id = auth.uid()
+  ))
+  with check (exists (
+    select 1 from public.bcs_clientes c
+    where c.id = cliente_id and c.entrenador_id = auth.uid()
+  ));
+
+-- Sin DELETE: un enlace revocado se conserva como historial (IN-28); la
+-- resolución token→Reporte del portador anónimo vive en la capa de
+-- aplicación, no como política RLS base.
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- Índices oficiales (Sprint 1 / M4)
+-- ═══════════════════════════════════════════════════════════════════════════
+-- Cada uno sirve a una consulta ya especificada (Database Handbook 06), nunca
+-- por anticipación. En este schema.sql (instalación fresca, tablas vacías, un
+-- solo script transaccional) se crean SIN CONCURRENTLY; el archivo
+-- migration_indices.sql sí los crea CONCURRENTLY, para no bloquear escrituras
+-- sobre las tablas ya pobladas de un proyecto en producción.
+
+create index idx_workouts_user_fecha_planificada
+  on public.workouts (user_id, fecha_planificada);
+
+create index idx_workout_logs_user_fecha
+  on public.workout_logs (user_id, fecha desc);
+
+create index idx_progression_events_user_created
+  on public.progression_events (user_id, created_at desc);
+
+create index idx_progression_events_user_tipo_created
+  on public.progression_events (user_id, tipo, created_at desc);
+
+create index idx_bcs_mediciones_cliente_fecha
+  on public.bcs_mediciones (cliente_id, fecha desc);
 
 
 -- ═══════════════════════════════════════════════════════════════════════════

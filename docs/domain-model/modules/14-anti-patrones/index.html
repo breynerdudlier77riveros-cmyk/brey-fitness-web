@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>14 · Anti-Patrones — Domain Model Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="anti-patrones" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 14 · Implementación futura</p>
+<h1>Anti-Patrones</h1>
+<p class="lede">Seis formas concretas de romper este modelo — todas tentadoras en algún momento del desarrollo, todas ya prevenidas por una decisión explícita en este handbook o en uno anterior.</p>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">AP-01</span></div>
+<h3>God Client</h3>
+<dl>
+<dt>Por qué es tentador</dt><dd>Un único objeto "Cliente completo" con sus Mediciones, Historial y Enlaces embebidos simplifica un solo <code>fetch</code> inicial y evita joins/consultas adicionales en la UI.</dd>
+<dt>Por qué es incorrecto</dt><dd>Obliga a cargar el historial completo cada vez que se toca cualquier dato del Cliente, y ese historial crece sin límite con el tiempo — exactamente lo que BCS-ADR-01 ya evaluó y descartó (08).</dd>
+<dt>Consecuencia</dt><dd>Payloads que crecen indefinidamente, tiempos de carga degradados con clientes antiguos, y un acoplamiento que hace imposible paginar el historial sin romper el modelo del Cliente mismo.</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">AP-02</span></div>
+<h3>Workout mutable</h3>
+<dl>
+<dt>Por qué es tentador</dt><dd>Editar el Workout "en sitio" cuando el Usuario corrige una serie parece más simple que crear un registro nuevo — un solo <code>UPDATE</code> en vez de gestionar dos entidades.</dd>
+<dt>Por qué es incorrecto</dt><dd>Rompe FT-09 (Inmutabilidad) y borra la evidencia de qué se planificó realmente contra qué se ejecutó — el Workout planificado y su ejecución son, por diseño, dos aggregates distintos (Workout / WorkoutLog, 08).</dd>
+<dt>Consecuencia</dt><dd>Progression Engine pierde la capacidad de comparar planificado vs. ejecutado, y el replay determinista (FT-03) deja de ser posible porque el estado pasado ya no existe.</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">AP-03</span></div>
+<h3>Evento como estado</h3>
+<dl>
+<dt>Por qué es tentador</dt><dd>Si ya existe un log de eventos completo, parece redundante mantener también un puntero materializado (<code>sistema_actual</code>/<code>nivel_actual</code>) — "el estado actual es solo el último evento".</dd>
+<dt>Por qué es incorrecto</dt><dd>Obliga a recorrer todo el historial de eventos para responder la pregunta más frecuente del sistema ("¿en qué estado está este Usuario ahora?") — el Motor BPS Handbook ya descartó Event Sourcing puro por este costo exacto (MBPS-ADR-01, 11).</dd>
+<dt>Consecuencia</dt><dd>Lecturas simples se vuelven costosas a medida que el historial crece, y cualquier bug en el replay corrompe silenciosamente cada lectura de estado, no solo una.</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">AP-04</span></div>
+<h3>Diagnóstico embebido en Cliente</h3>
+<dl>
+<dt>Por qué es tentador</dt><dd>Si "Cliente" y "Usuario" suenan como el mismo concepto de negocio, parece natural adjuntarle directamente su Diagnóstico y Nivel, como si fueran la misma entidad con dos nombres.</dd>
+<dt>Por qué es incorrecto</dt><dd>Cliente (BCS) y Usuario (Identity) son entidades completamente distintas sin relación de dominio (LU-03, 09-diagrama 13, IN-31) — un Diagnóstico pertenece exclusivamente al Usuario que entrena, nunca a un Cliente que solo es medido.</dd>
+<dt>Consecuencia</dt><dd>Acopla dos bounded contexts que el Architecture Handbook mantiene deliberadamente independientes (02) — un cambio en el modelo de Diagnóstico rompería, sin necesidad, el BCS standalone.</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">AP-05</span></div>
+<h3>Métricas derivadas persistidas</h3>
+<dl>
+<dt>Por qué es tentador</dt><dd>Guardar el IMC, la clasificación de riesgo, o el "resumen ejecutivo" del Reporte junto a la Medición evitaría recalcularlos en cada visualización.</dd>
+<dt>Por qué es incorrecto</dt><dd>Un valor derivado persistido puede quedar desactualizado respecto a la fórmula que lo produjo, o respecto a Mediciones corregidas después (BCS-IN-D3) — el Reporte existe precisamente para nunca tener esa posibilidad (BC-04, 13).</dd>
+<dt>Consecuencia</dt><dd>Dos fuentes de verdad para el mismo hecho (el valor guardado vs. el que la fórmula actual produciría) que divergen silenciosamente sin ningún error visible.</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">AP-06</span></div>
+<h3>Enlace público como permiso</h3>
+<dl>
+<dt>Por qué es tentador</dt><dd>Tratar el EnlacePúblico como un mecanismo de autorización general (por ejemplo, "el que tiene el link puede editar") ahorraría construir un sistema de permisos separado.</dd>
+<dt>Por qué es incorrecto</dt><dd>El EnlacePúblico es, por diseño, de <strong>solo lectura y anónimo</strong> (BC-05, BCS Handbook 08) — el acceso no identifica a quien lo usa. Usarlo como permiso de escritura elimina toda trazabilidad de quién hizo un cambio.</dd>
+<dt>Consecuencia</dt><dd>Cualquier persona con el token podría, sin auditoría posible, alterar datos de un Cliente — una superficie de ataque que el modelo actual (acceso anónimo de solo lectura) no contempla ni mitiga.</dd>
+</dl>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../13-mapeo-persistencia/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 13 · Mapeo a Persistencia</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../15-adr/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">15 · ADR del Modelo de Dominio →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>04 · Entidades de Diagnóstico — Domain Model Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="entidades-diagnostico" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 04 · Entidades</p>
+<h1>Entidades de Diagnóstico</h1>
+<p class="lede">Cuatro entidades — el proceso de determinar el Nivel de entrada de un Usuario en un Sistema.</p>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">DX-01</span><span class="entity__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>Diagnóstico</h3>
+<dl>
+<dt>Descripción</dt><dd>El proceso completo de responder el cuestionario BPS — aggregate root de este contexto.</dd>
+<dt class="half">Identidad</dt><dd class="half">Propia — <code>id</code> uuid, tabla real <code>diagnoses</code></dd>
+<dt class="half">Estados</dt><dd class="half">en curso (efímero, sin persistir hoy) → completado</dd>
+<dt>Ownership</dt><dd>Un Usuario puede tener múltiples Diagnósticos a lo largo del tiempo (retomas) — todos se conservan, ninguno se sobrescribe (P3 del Architecture Handbook)</dd>
+<dt class="half">Reglas de vigencia</dt><dd class="half">Un resultado expira a los 6 meses para efectos de activación de compra (Motor BPS Handbook, BPS-005 / MBPS-ADR-05) — el registro histórico nunca se borra, solo deja de ser "vigente" para ese propósito específico</dd>
+<dt class="half">Relación con Motor BPS</dt><dd class="half">Motor BPS consume el <code>nivelEntrada</code> del Diagnóstico vigente en el momento de activación (T3/T4/T5) — nunca traduce niveles entre Sistemas distintos (MBPS-ADR-06)</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">DX-02</span><span class="entity__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>Respuesta</h3>
+<dl>
+<dt>Descripción</dt><dd>Una respuesta individual a una pregunta del cuestionario — parte del array <code>respuestas</code> (jsonb) de <code>diagnoses</code>.</dd>
+<dt class="half">Identidad</dt><dd class="half">Posicional dentro del Diagnóstico — sin identidad propia fuera de él</dd>
+<dt class="half">Estados</dt><dd class="half">Ninguno — inmutable desde su captura</dd>
+<dt>Ownership</dt><dd>Pertenece exclusivamente a un Diagnóstico — nunca se comparte ni se referencia desde otro contexto</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">DX-03</span><span class="entity__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>ResultadoDiagnóstico</h3>
+<dl>
+<dt>Descripción</dt><dd>El resultado computado — Sistema recomendado, Nivel de entrada, razones — columnas <code>razones</code>/<code>notas</code> (jsonb) de <code>diagnoses</code>.</dd>
+<dt class="half">Identidad</dt><dd class="half">1:1 con el Diagnóstico que lo produce, no una entidad separable</dd>
+<dt class="half">Estados</dt><dd class="half">vigente → expirado (a los 6 meses, para efectos de activación únicamente — DX-01)</dd>
+<dt>Ownership</dt><dd>Producido por el motor de Diagnóstico (función pura, FT-03) — nunca modificado después de su creación (FT-09, Inmutabilidad)</dd>
+<dt class="half">Reglas de vigencia</dt><dd class="half">Ídem DX-01</dd>
+<dt class="half">Relación con Motor BPS</dt><dd class="half">Es la única entrada que Motor BPS necesita del contexto Diagnostics para activar un Sistema</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">DX-04</span><span class="entity__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>PerfilEntrenamiento</h3>
+<dl>
+<dt>Descripción</dt><dd>El subconjunto de <code>profiles</code> relevante para entrenamiento (días por semana, lugar, lesiones, objetivo) — distinto del Perfil completo, que también incluye datos personales (nombre, email, avatar) sin relevancia algorítmica.</dd>
+<dt class="half">Identidad</dt><dd class="half">1:1 con el Usuario — no es una tabla separada, es un subconjunto conceptual de columnas de <code>profiles</code></dd>
+<dt class="half">Estados</dt><dd class="half">Ninguno propio — cambia por edición directa del Usuario</dd>
+<dt>Ownership</dt><dd>El Usuario es dueño y editor exclusivo — ningún motor lo escribe automáticamente</dd>
+<dt class="half">Reglas de vigencia</dt><dd class="half">Sin expiración — a diferencia del ResultadoDiagnóstico, el PerfilEntrenamiento es siempre "el estado actual", no un snapshot histórico</dd>
+<dt class="half">Relación con Motor BPS</dt><dd class="half">Los "campos de gate" (días/semana, lugar, ausencia de lesiones bloqueantes) condicionan la transición <code>pendiente_perfil → activo</code> (Motor BPS Handbook, T6) — su ausencia posterior dispara <code>gate_fallado</code> (T7)</dd>
+</dl>
+</div>
+
+<h2 id="distincion-nivel">La distinción que este módulo protege</h2>
+<div class="callout callout--regla">
+  <div class="callout__label"><code>nivel_actual</code> vs. <code>nivel_experiencia</code> — el error de lenguaje más citado en todo el ecosistema</div>
+  <p><code>nivel_actual</code> vive en el ResultadoDiagnóstico → aplicado por Motor BPS — acoplado a un Sistema específico, con uso algorítmico real. <code>nivel_experiencia</code> vive en el PerfilEntrenamiento — autorreportado, genérico, sin ningún uso algorítmico en ningún motor de BREY (ADR-003 del Architecture Handbook). Confundirlos produce recomendaciones incorrectas de contenido — es la razón por la que este módulo los separa en dos entidades distintas (DX-03 vs. DX-04) en vez de tratarlos como un solo "nivel" ambiguo.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../03-entidades-core-training/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 03 · Entidades del Core Training</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../05-entidades-progresion-recuperacion/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">05 · Entidades de Progresión y Recuperación →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

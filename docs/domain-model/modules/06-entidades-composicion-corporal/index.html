@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>06 · Entidades de Composición Corporal — Domain Model Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="entidades-composicion-corporal" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 06 · Entidades</p>
+<h1>Entidades de Composición Corporal</h1>
+<p class="lede">Cinco entidades, todas ya especificadas en profundidad por el BCS Handbook — este módulo las presenta en el formato uniforme de este documento, citando su fuente en cada campo, sin redefinir ninguna regla.</p>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">BC-01</span><span class="entity__badges"><span class="tag tag--especificado">especificado</span></span></div>
+<h3>Cliente</h3>
+<dl>
+<dt>Descripción</dt><dd>Persona presencial que el Entrenador mide — explícitamente no un Usuario (LU-03).</dd>
+<dt class="half">Identidad</dt><dd class="half">Propia, aggregate root independiente (BCS Handbook, 02; BCS-ADR-01)</dd>
+<dt class="half">Atributos conceptuales</dt><dd class="half">Nombre, contacto opcional, estado (Activo/Archivado/Eliminado)</dd>
+<dt>Relaciones</dt><dd>Referenciado por Mediciones y EnlacesPúblicos vía <code>clienteId</code> — nunca los contiene físicamente (BCS-ADR-01)</dd>
+<dt class="half">Ciclo de vida</dt><dd class="half">Activo → Archivado (reversible) → Eliminado (terminal, irreversible) — BCS Handbook, 02</dd>
+<dt class="half">Qué conoce</dt><dd class="half">Su propio estado y datos identificativos</dd>
+<dt class="half">Qué NO conoce</dt><dd class="half">Nada de Core Training, Progression, ni Diagnostics — standalone por diseño (00 del BCS Handbook)</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">BC-02</span><span class="entity__badges"><span class="tag tag--especificado">especificado</span></span></div>
+<h3>Medición</h3>
+<dl>
+<dt>Descripción</dt><dd>Captura puntual de composición corporal con fecha y hasta 25 variables (BCS Handbook, 03).</dd>
+<dt class="half">Identidad</dt><dd class="half">Propia, aggregate root independiente, referencia <code>clienteId</code> (BCS-ADR-01)</dd>
+<dt class="half">Atributos conceptuales</dt><dd class="half">Las 25 variables (07), fecha, observaciones, fotografía opcional</dd>
+<dt>Relaciones</dt><dd>Referencia un Cliente; nunca referencia otra Medición directamente — el historial se deriva por consulta ordenada, no por encadenamiento</dd>
+<dt class="half">Ciclo de vida</dt><dd class="half">Vigente → Anulada (nunca se edita en sitio — una corrección crea una nueva y anula la anterior, UC-06, FT-09)</dd>
+<dt class="half">Qué conoce</dt><dd class="half">Sus propios valores y su relación con el Cliente</dd>
+<dt class="half">Qué NO conoce</dt><dd class="half">Su propia interpretación clínica — eso se computa en el Reporte, nunca se persiste en la Medición misma</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">BC-03</span><span class="entity__badges"><span class="tag tag--especificado">especificado</span></span></div>
+<h3>HistorialMediciones</h3>
+<dl>
+<dt>Descripción</dt><dd>La colección ordenada de Mediciones vigentes de un Cliente — no es una entidad con identidad propia, es una vista/consulta.</dd>
+<dt class="half">Identidad</dt><dd class="half">Ninguna — es una proyección, no un aggregate (BCS Handbook, 05)</dd>
+<dt>Relaciones</dt><dd>Deriva de todas las Mediciones vigentes de un Cliente, ordenadas por fecha</dd>
+<dt class="half">Qué conoce</dt><dd class="half">Nada por sí misma — su "conocimiento" es la suma de las Mediciones que agrupa</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">BC-04</span><span class="entity__badges"><span class="tag tag--especificado">especificado</span></span></div>
+<h3>Reporte</h3>
+<dl>
+<dt>Descripción</dt><dd>Vista computada a partir de un Cliente y su HistorialMediciones — nunca persistida (LU-20).</dd>
+<dt class="half">Identidad</dt><dd class="half">Ninguna — value object efímero, recalculado en cada visualización (BCS Handbook, IN-D3)</dd>
+<dt>Relaciones</dt><dd>Deriva de un Cliente + su HistorialMediciones — no tiene relaciones propias de escritura</dd>
+<dt class="half">Qué conoce</dt><dd class="half">Todo lo que sus fuentes (Cliente, Mediciones) contienen al momento de calcularse</dd>
+<dt class="half">Qué NO conoce</dt><dd class="half">Ningún dato de otro Cliente ni de ningún otro contexto del ecosistema</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">BC-05</span><span class="entity__badges"><span class="tag tag--especificado">especificado</span></span></div>
+<h3>EnlacePúblico</h3>
+<dl>
+<dt>Descripción</dt><dd>Token de acceso de solo lectura al Reporte de un Cliente (LU-21).</dd>
+<dt class="half">Identidad</dt><dd class="half">Propia, aggregate root independiente, referencia <code>clienteId</code> (BCS-ADR-01)</dd>
+<dt class="half">Atributos conceptuales</dt><dd class="half">Token (21+ caracteres aleatorios, BCS-ADR-02), estado (Activo/Revocado)</dd>
+<dt>Relaciones</dt><dd>Referencia un Cliente; como máximo un EnlacePúblico Activo por Cliente a la vez (09-IN-1 del BCS Handbook)</dd>
+<dt class="half">Ciclo de vida</dt><dd class="half">Activo → Revocado (terminal para ese token específico — compartir de nuevo siempre crea uno nuevo, IN-D4)</dd>
+<dt class="half">Qué conoce</dt><dd class="half">Su propio estado y a qué Cliente resuelve</dd>
+<dt class="half">Qué NO conoce</dt><dd class="half">Quién lo usa — el acceso es anónimo por diseño (BCS Handbook, 08)</dd>
+</dl>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../05-entidades-progresion-recuperacion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 05 · Entidades de Progresión y Recuperación</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../07-objetos-valor/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">07 · Objetos de Valor →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

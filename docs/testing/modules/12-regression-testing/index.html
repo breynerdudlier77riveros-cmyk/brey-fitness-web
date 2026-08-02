@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>12 · Regression Testing — BREY Testing Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="regression-testing" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 12 · Superficies</p>
+<h1>Regression Testing</h1>
+<p class="lede">La lista roja — lo que nunca debe volver a romperse. Expandida desde Engineering Handbook (10), con el bug real que la originó.</p>
+
+<h2 id="lista-roja">La lista roja — con o sin test que la cubra</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Tres invariantes que ningún cambio de código puede violar — Engineering Handbook, 10</div>
+  <p>(1) Ninguna Medición/Log histórico se edita en sitio (FT-09) — cualquier PR con <code>UPDATE</code> directo sobre una fila de historial se rechaza en revisión, con o sin test. (2) RLS activo en toda tabla nueva (08) — verificación manual obligatoria hasta que exista test de integración automatizado. (3) Ningún secreto de servidor con prefijo <code>NEXT_PUBLIC_</code> (08).</p>
+</div>
+
+<h2 id="bug-real">El bug real que define el caso canónico</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Bug</th><th>Causa raíz</th><th>Caso de regresión</th></tr></thead>
+<tbody>
+<tr><td>Sprint 4.1 — suma que concatenaba strings en el agregado de progreso</td><td>PostgREST serializa <code>numeric</code> como string; un <code>+</code> fuera de la capa de mappers concatenó en vez de sumar (Architecture Handbook, ADR-007)</td><td>Sumar dos valores de una columna <code>numeric</code> (<code>peso_kg</code>, <code>volumen_total_kg</code>) fuera de <code>numOrNull()</code> debe producir un error de tipo detectado, no un resultado numéricamente incorrecto silencioso</td></tr>
+</tbody>
+</table>
+</div>
+<p>Este es el ejemplo canónico de por qué la lista roja existe: no es una lista de "buenas prácticas" en abstracto — cada entrada está motivada por algo que ya ocurrió en producción o que un handbook ya identificó como riesgo real, nunca una precaución hipotética.</p>
+
+<h2 id="matriz-regresion">Matriz de regresión ampliada</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Por qué es candidato a regresión</th><th>Origen</th></tr></thead>
+<tbody>
+<tr><td>Coerción de <code>numeric</code> vía <code>numOrNull()</code></td><td>Ya ocurrió una vez; PostgREST no cambia su comportamiento de serialización, el riesgo es permanente mientras la tecnología no cambie</td><td>Architecture Handbook, ADR-007</td></tr>
+<tr><td>Idempotencia de <code>handle_new_user()</code></td><td>Una carrera de triggers en el registro de usuario nunca debe producir un registro fallido — regresión silenciosa y grave si ocurre</td><td>Engineering Handbook, 10</td></tr>
+<tr><td>RLS de <code>workouts</code>/<code>workout_logs</code> — M1 aplicada en Sprint 0</td><td>Una migración futura mal escrita podría reabrir accidentalmente el permiso de <code>DELETE</code> ya cerrado — el test de RLS negativo (09) es, en sí mismo, un test de regresión permanente ahora que M1 está aplicada</td><td>AR-018, Database Handbook 09</td></tr>
+<tr><td>Ownership de <code>sistema_actual</code>/<code>nivel_actual</code></td><td>Un refactor futuro del formulario de Perfil podría reabrir accidentalmente la escritura de estos dos campos por el Usuario directamente</td><td>Database Handbook, 03; 05 de este documento</td></tr>
+<tr><td>Paridad público/privado del Reporte (BCS-ADR-05)</td><td>Un cambio de UI en el panel privado que no se replique en la vista pública rompe silenciosamente el invariante — sin test, solo se detecta por inspección manual casual</td><td>11 de este documento</td></tr>
+<tr><td>Determinismo de motores ante el mismo <code>fecha_ciclo</code></td><td>Introducir accidentalmente un <code>Date.now()</code> implícito en un refactor futuro de Motor BPS/Progression Engine rompería el determinismo sin que ningún test funcional lo note, salvo uno que fije la fecha explícitamente y la compare</td><td>Motor BPS Handbook, BPS-022; 03 de este documento</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="cuando-se-ejecuta">Cuándo se ejecuta la suite de regresión</h2>
+<p>Antes de cualquier release que toque una de las superficies de la matriz de arriba — no en cada commit, dado que el ecosistema no tiene CI activo todavía (13). Cuando exista CI, la suite de regresión es la primera en integrarse, antes que cualquier suite de features nuevas, precisamente porque protege invariantes ya pagados con un incidente real o un hallazgo de la Architecture Review, no comportamiento especulativo.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../11-ui-testing/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 11 · UI Testing</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../13-coverage/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">13 · Coverage →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

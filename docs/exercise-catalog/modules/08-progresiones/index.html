@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>08 · Progresiones — Exercise Catalog</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="progresiones" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 08 · Relaciones</p>
+<h1>Progresiones</h1>
+<p class="lede">La otra dirección de la cadena — y el punto donde el catálogo debe soportar una distinción que el Progression Engine exige pero que <strong>ningún atributo del modelo expresa</strong>.</p>
+
+<h2 id="que-declara">Qué declara el catálogo</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Aspecto</th><th>Contrato</th></tr></thead>
+<tbody>
+<tr><td>Atributo</td><td><code>cadena.siguiente</code> — parte del atributo 20 del modelo</td></tr>
+<tr><td>Cardinalidad</td><td>Exactamente 0 o 1 — lineal en v1</td></tr>
+<tr><td>Ramificaciones</td><td>"Dos cadenas separadas que comparten un eslabón raíz" — nunca listas</td></tr>
+<tr><td>Restricción de patrón</td><td>Comparte <code>patronPrimario</code></td></tr>
+<tr><td>Autoridad sobre el orden</td><td>Criterio de entrenador (P14)</td></tr>
+<tr><td>Estado en el catálogo</td><td><span class="tag tag--futuro">vacío</span> — 0 de 19</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Tope de cadena</div>
+  <p>Un eslabón sin <code>siguiente</code> es el tope de su familia. La fuente contempla el caso al describir PE-003: sin eslabón siguiente, la señal "se degrada a PE-001 dentro del mismo eslabón si el ejercicio admite carga añadida, o a 'sostiene' si no".</p>
+</div>
+
+<h2 id="bifurcacion">La bifurcación que el catálogo debe soportar</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">PE-003 exige dos datos que el modelo no tiene</div>
+  <p>Al alcanzar el techo de repeticiones con RPE bajo objetivo, el Progression Engine bifurca según <strong>si el Slot es "de carga externa" o "de progresión de patrón corporal"</strong>. Y su contraejemplo añade una segunda distinción: si el ejercicio en tope de cadena <strong>"admite carga añadida"</strong>.</p>
+  <p><strong>Ninguno de los dos figura en la tabla de atributos del Exercise.</strong> El candidato más cercano es <code>tipo</code> (<code>compuesto</code>·<code>aislamiento</code>·<code>peso-corporal</code>), pero no es equivalente: <code>peso-corporal</code> describe el implemento, no si el ejercicio progresa por dificultad de patrón — y un ejercicio de peso corporal puede admitir lastre. Deuda <a href="../17-roadmap/index.html">CT-D08</a>.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">La decisión que el catálogo debería poder informar, y no puede</div>
+<pre class="mermaid">
+flowchart TD
+  T["Techo de repeticiones<br/>con RPE bajo objetivo"] --> Q{"¿Slot de carga externa<br/>o de patrón corporal?"}
+  Q -->|"❓ dato no declarado<br/>en el modelo"| CE["carga externa<br/>→ PE-001 sube carga"]
+  Q -->|"❓ dato no declarado"| PC["patrón corporal<br/>→ PE-003 avanza eslabón"]
+  PC --> Q2{"¿Hay cadena.siguiente?"}
+  Q2 -- Sí --> N["Siguiente eslabón"]
+  Q2 -- No --> Q3{"¿Admite carga añadida?"}
+  Q3 -->|"❓ dato no declarado"| D["Degrada a PE-001"]
+  Q3 -->|"❓"| S["Sostiene"]
+</pre>
+</div>
+
+<h2 id="consumidores">Quién consume la progresión</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Consumidor</th><th>Qué lee</th><th>Para qué</th></tr></thead>
+<tbody>
+<tr><td>Progression Engine</td><td>"Cadenas (unidad de avance/retroceso), capacidades, roles"</td><td>Decidir avance de eslabón — PE-003</td></tr>
+<tr><td>Workout Generator</td><td>El eslabón vigente y la cadena completa</td><td>Pasos 1 y 2 de la resolución: preferir el vigente, o el elegible más cercano</td></tr>
+<tr><td>Workout Player</td><td>Sustitución en vivo</td><td>Ofrecer alternativas de la misma familia</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="gates">Progresión por gate, no por cadena</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Las capacidades son un segundo mecanismo de progresión</div>
+  <p>Además de la cadena, el catálogo puede condicionar la elegibilidad con <code>capacidadesRequeridas[]</code>: "el mecanismo formal de los <strong>gates</strong> de calistenia". Es independiente del Nivel nominal y, en v1, "solo el Sistema de Calistenia lo usa — gym progresa por carga, no por gates".</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Mecanismo</th><th>Estructura</th><th>Vocabulario</th><th>Sistemas que lo usan en v1</th></tr></thead>
+<tbody>
+<tr><td>Cadena</td><td><code>{anterior?, siguiente?}</code></td><td>Cerrado — slugs de ejercicio</td><td>Cualquiera con patrón corporal</td></tr>
+<tr><td>Capacidades</td><td><code>capacidadesRequeridas[]</code></td><td><strong>Abierto</strong> — sin proceso de alta declarado</td><td>Solo Calistenia</td></tr>
+<tr><td>Carga externa</td><td>No es atributo del catálogo</td><td>—</td><td>Gym — vía prescripción, no vía catálogo</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="prohibido">Lo que el catálogo no puede hacer</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Declarar el orden ≠ decidir el avance</div>
+  <p>Una entrada del catálogo nunca declara cuándo debe avanzarse a su siguiente eslabón, ni bajo qué condiciones, ni con qué umbral. Esos datos son de las 39 reglas del Progression Engine. El catálogo aporta la topología; el motor, la navegación.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../07-regresiones/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 07 · Regresiones</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../09-relaciones/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">09 · Mapa de Relaciones →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { PreferencesProvider } from "@/components/app/PreferencesProvider";
 
 // ── Contexto de colapso del sidebar ─────────────────────────────────────────
 // AppShell es el único dueño de este estado. sidebar/header llegan como
@@ -62,7 +63,9 @@ export default function AppShell({ sidebar, header, children }: Props) {
         <div className="flex-1 min-w-0 flex flex-col">
           {header}
           <main className="flex-1">
-            <div className="max-w-5xl mx-auto px-4 md:px-8 py-6 md:py-10">{children}</div>
+            <div className="max-w-5xl mx-auto px-4 md:px-8 py-6 md:py-10">
+              <PreferencesProvider>{children}</PreferencesProvider>
+            </div>
           </main>
         </div>
       </div>

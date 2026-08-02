@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>06 · Regla de Activación — Motor BPS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="regla-activacion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 06 · Comportamiento</p>
+<h1>Regla de Activación</h1>
+<p class="lede">Cuándo se activa un Sistema — y con la misma precisión, cuándo NO. Profundiza ADR-002 del marco con lo que aquel no especifica: disparadores exactos, no-disparadores, reintentos, debounce e idempotencia.</p>
+
+<h2 id="regla">La regla</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Enunciado normativo</div>
+  <p>El Diagnóstico <strong>recomienda</strong>; solo el evento <code>compra_confirmada</code> <strong>activa</strong> (BPS-001). El Diagnóstico jamás activa por sí mismo, ni siquiera al re-tomarse (BPS-002). La activación escribe <code>sistema_actual</code> + <code>nivel_actual</code> exactamente una vez por transacción, emite el evento <code>activacion</code>, y transiciona la FSM (T3/T4/T5 del módulo 05). Nunca existe nivel por defecto: sin nivelEntrada del Diagnóstico, la compra queda en <code>pendiente_diagnostico</code> (BPS-003).</p>
+</div>
+
+<h2 id="dispara">Qué dispara la activación — y qué no</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Evento</th><th>¿Dispara?</th><th>Efecto</th></tr></thead>
+<tbody>
+<tr><td><code>compra_confirmada</code> (transacción nueva)</td><td><strong>Sí</strong></td><td>T3 (con Diagnóstico vigente) o T4 (sin él)</td></tr>
+<tr><td>Diagnóstico completado con compra en espera</td><td><strong>Sí</strong> (segunda mitad de la activación diferida)</td><td>T5 — escribe punteros con el nivelEntrada recién emitido</td></tr>
+<tr><td>Diagnóstico completado sin compra</td><td>No</td><td>T1/T2 — solo persiste el resultado</td></tr>
+<tr><td>Re-toma del Diagnóstico con Sistema activo</td><td>No</td><td>BPS-012: informa, jamás re-activa</td></tr>
+<tr><td>Perfil completado</td><td>No (es el gate T6, no activación)</td><td>Transición de gate — los punteros ya existían</td></tr>
+<tr><td>Re-entrega del mismo webhook de compra</td><td>No (absorbida)</td><td>Idempotencia por <code>transaccionId</code> — ver abajo</td></tr>
+<tr><td>Reembolso / cancelación</td><td>No especificado en v1</td><td>Frontera comercial abierta — registrada en el módulo 16; el Motor NO improvisa una desactivación</td></tr>
+<tr><td>Login, visita, navegación, tiempo transcurrido</td><td>No</td><td>La activación jamás es implícita</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="idempotencia">Idempotencia, reintentos y debounce</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Mecanismo</th><th>Especificación</th></tr></thead>
+<tbody>
+<tr><td><strong>Clave de idempotencia</strong></td><td><code>transaccionId</code> del evento de compra. Un id ya procesado → respuesta idéntica a la original (misma activación, mismo evento), cero efectos nuevos. Es lo que hace inofensivas las re-entregas de webhook — comportamiento estándar de cualquier pasarela.</td></tr>
+<tr><td><strong>Reintentos</strong></td><td>Si la activación falla a mitad (escritura de puntero ok, evento fallido — o viceversa), el reintento con el mismo <code>transaccionId</code> completa lo faltante: la operación se especifica como conjunto verificable (¿punteros escritos? ¿evento existe?) y el reintento ejecuta solo lo ausente. El estado parcial nunca queda como final: o se completa, o el replay (IN-5) lo detecta como anomalía.</td></tr>
+<tr><td><strong>Debounce</strong></td><td>Dos compras de Sistemas DISTINTOS en ventana corta (doble clic entre catálogos, carritos duplicados): gana la de <code>timestamp</code> de transacción menor; la segunda queda registrada comercialmente pero NO re-activa — el conflicto se eleva a resolución humana/soporte con evento <code>anomalia</code>. El Motor nunca decide cuál compra "quería" el usuario. <span class="ev ev--producto">decisión de producto</span></td></tr>
+<tr><td><strong>Prioridad entre disparadores simultáneos</strong></td><td>Si compra y Diagnóstico llegan en el mismo instante lógico: se procesa primero la compra (crea la espera), después el Diagnóstico (la resuelve) — el orden inverso produce el mismo estado final por T3. La FSM es conmutativa en este par por diseño; es el único par con esa garantía.</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="secuencia">Diagrama de secuencia</h2>
+<div class="diagram">
+<div class="diagram-label">Los dos órdenes posibles convergen al mismo estado</div>
+<pre class="mermaid">
+sequenceDiagram
+  participant U as Usuario
+  participant DX as Diagnóstico
+  participant CK as Checkout
+  participant MB as Motor BPS
+  rect rgba(249,115,22,0.06)
+    note over U,MB: Camino A — diagnóstico primero
+    U->>DX: completa (T1)
+    U->>CK: compra
+    CK->>MB: compra_confirmada(txId)
+    MB->>MB: T3 — punteros + evento activacion
+  end
+  rect rgba(96,165,250,0.06)
+    note over U,MB: Camino B — compra primero
+    U->>CK: compra
+    CK->>MB: compra_confirmada(txId)
+    MB->>MB: T4 — espera, sin punteros (BPS-003)
+    U->>DX: completa
+    DX->>MB: Resultado
+    MB->>MB: T5 — punteros + evento activacion
+  end
+  CK--)MB: re-entrega webhook(txId)
+  MB--)CK: respuesta idéntica, cero efectos (idempotencia)
+</pre>
+</div>
+
+<h2 id="casos">Casos límite</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Comportamiento</th></tr></thead>
+<tbody>
+<tr><td>Compra de un Sistema distinto al recomendado</td><td>Válido — la recomendación no es vinculante. Se activa el comprado; el nivelEntrada usado es el del Diagnóstico vigente PARA ESE SISTEMA si existe; si el resultado vigente recomendaba otro, el Motor exige re-diagnóstico ligero para obtener nivel de entrada del Sistema comprado (nunca traduce niveles entre Sistemas — "Skills" no existe fuera de Calistenia). <span class="ev ev--producto">decisión de producto</span></td></tr>
+<tr><td>Compra con Sistema ya activo (upgrade/cambio)</td><td>El Sistema anterior transiciona a <code>sistema_completado</code> con motivo <code>reemplazado_por_compra</code> y el nuevo activa normal — el historial del anterior permanece íntegro (P3).</td></tr>
+<tr><td>Compra de Elite</td><td>Activa comercialmente; la FSM registra el estado pero el pipeline de generación queda vedado (<code>SISTEMA_SIN_JERARQUIA</code>) — ADR-012 del marco.</td></tr>
+<tr><td>Diagnóstico expirado (&gt; 6 meses) al momento de la compra</td><td>La compra queda en <code>pendiente_diagnostico</code> con motivo <code>resultado_expirado</code> — un nivel de entrada de hace un año no es un dato de seguridad vigente. Umbral de 6 meses <span class="ev ev--producto">decisión de producto</span>, registrado como calibrable.</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../05-maquina-estados/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 05 · Máquina de Estados</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../07-pipeline/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">07 · Pipeline interno →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03 · Proceso Oficial — Exercise Tagging Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="proceso-oficial" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 03 · El proceso</p>
+<h1>Proceso Oficial de Etiquetado</h1>
+<p class="lede">Siete pasos en orden fijo. Cada uno con su entrada, su salida, su condición de rechazo y la declaración explícita de si su decisión interna está documentada o es criterio humano.</p>
+
+<h2 id="orden">Por qué el orden es fijo</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">El orden no es preferencia — es dependencia</div>
+  <p>Cada paso consume la salida del anterior. El rol solo tiene sentido dentro de un patrón ya fijado ("el movimiento más pesado/complejo <strong>del patrón</strong>"); la cadena solo puede construirse cuando el patrón está decidido, porque "un eslabón nunca cruza de patrón"; y la validación de consistencia necesita todos los ejes ya asignados. Alterar el orden produce etiquetas que deben rehacerse.</p>
+</div>
+
+<h2 id="pipeline">El pipeline completo</h2>
+<div class="diagram">
+<div class="diagram-label">Siete pasos — cualquier rechazo devuelve el ejercicio a la cola editorial, nunca produce una etiqueta parcial aceptada</div>
+<pre class="mermaid">
+flowchart TD
+  P0["Ejercicio candidato<br/>(identidad + ficha educativa)"] --> P1["1 · Identificar PATRÓN<br/>primario + secundarios"]
+  P1 -->|"sin patrón primario"| R["RECHAZO<br/>→ cola editorial"]
+  P1 --> P2["2 · Identificar ROLES<br/>posibles"]
+  P2 --> P3["3 · Identificar MODALIDAD<br/>ejecución × lateralidad"]
+  P3 --> P4["4 · Identificar EQUIPAMIENTO"]
+  P4 --> P5["5 · Identificar RESTRICCIONES<br/>zonas de riesgo + capacidades"]
+  P5 -->|"duda de seguridad"| R
+  P5 --> P6["6 · Situar en CADENA<br/>anterior / siguiente"]
+  P6 --> P7["7 · VALIDAR consistencia"]
+  P7 -->|"falla"| R
+  P7 --> ACC["ACEPTAR<br/>+ registrar justificación<br/>+ nueva versión de catálogo"]
+</pre>
+</div>
+
+<h2 id="pasos">Contrato de cada paso</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Paso</th><th>Produce</th><th>Rechaza si…</th><th>¿Criterio documentado?</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Identificar patrón</td><td><code>patronPrimario</code> + <code>patronesSecundarios[]</code></td><td>No hay primario, o hay más de uno, o el valor no está en los 9</td><td><span class="tag tag--futuro">no</span> — solo la cardinalidad</td></tr>
+<tr><td>2</td><td>Identificar roles</td><td><code>rolesPosibles[]</code></td><td>Lista vacía, o un valor fuera de los 5</td><td><span class="tag tag--especificado">parcial</span> — las definiciones de rol orientan</td></tr>
+<tr><td>3</td><td>Identificar modalidad</td><td><code>modalidad</code> (2 ejes)</td><td>Falta cualquiera de los dos ejes</td><td><span class="tag tag--especificado">parcial</span> — la unidad de medida determina el eje de ejecución</td></tr>
+<tr><td>4</td><td>Identificar equipamiento</td><td><code>equipo[]</code></td><td>Un valor fuera de los 6</td><td><span class="tag tag--especificado">parcial</span> — observable, no enunciado como criterio</td></tr>
+<tr><td>5</td><td>Identificar restricciones</td><td><code>zonasRiesgo[]</code> + <code>capacidadesRequeridas[]</code></td><td>Hay duda sobre una intensidad de zona (TG-08)</td><td><span class="tag tag--futuro">no</span> — declarado criterio biomecánico manual</td></tr>
+<tr><td>6</td><td>Situar en cadena</td><td><code>cadena</code> {anterior, siguiente}</td><td>Cruza de patrón, produce ciclo, o no es lineal</td><td><span class="tag tag--futuro">no</span> — el orden lo autoriza el entrenador</td></tr>
+<tr><td>7</td><td>Validar consistencia</td><td>Aceptación o rechazo</td><td>Cualquier validación del módulo <a href="../13-validaciones/index.html">13</a> falla</td><td><span class="tag tag--implementado">sí</span> — casos inválidos publicados</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="detalle">Detalle normativo de los pasos críticos</h2>
+<ul>
+  <li><strong>Paso 1 antes que todos:</strong> el patrón condiciona el rol (se define "del patrón"), la cadena ("un eslabón nunca cruza de patrón") y la degradación posible. Es el único paso cuyo fallo es <em>terminal por definición</em>: "Ejercicio sin <code>patronPrimario</code> → rechazado al validar el catálogo, nunca llega a ser elegible".</li>
+  <li><strong>Paso 5 puede detener el proceso sin ser un error:</strong> una duda de seguridad no es un fallo del ejercicio ni del etiquetador — es exactamente el comportamiento que TG-08 exige. El ejercicio vuelve a la cola con la duda registrada.</li>
+  <li><strong>Paso 6 es opcional en su contenido, obligatorio en su verificación:</strong> <code>cadena</code> es un atributo opcional ("pero sin cadena no hay progresión de ejercicio"). Si se declara, debe pasar las cuatro reglas estructurales del módulo <a href="../09-cadena/index.html">09</a>.</li>
+  <li><strong>Paso 7 no valida corrección, valida buena formación:</strong> TG-05 — pasar la validación estructural no significa que el patrón elegido sea el correcto. La corrección solo la certifica la autorización humana.</li>
+</ul>
+
+<h2 id="salida">Qué produce una aceptación</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Artefacto</th><th>Obligatorio</th><th>Respaldo</th></tr></thead>
+<tbody>
+<tr><td>La ficha con los ejes asignados</td><td>Sí</td><td>Tabla de atributos, Architecture Handbook 04</td></tr>
+<tr><td>La justificación de cada etiqueta (regla aplicada o autorización)</td><td>Sí</td><td>TG-02, derivado de P2/P3</td></tr>
+<tr><td>Una versión de catálogo nueva</td><td>Sí</td><td>BPS-023 · ADR-009</td></tr>
+<tr><td>Cero efecto sobre lo ya generado</td><td>Sí</td><td>R-2 · "El cambio de catálogo aplica desde la siguiente generación"</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="rechazo">Qué produce un rechazo</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">El rechazo es visible y accionable, nunca silencioso</div>
+  <p>Un ejercicio rechazado no queda "a medio etiquetar" en el catálogo: permanece con sus ejes sin asignar, y por tanto <strong>no elegible</strong> (TG-04). El detalle del rechazo — qué paso falló y por qué — alimenta la cola editorial, que es el circuito que el ecosistema ya define para los vacíos de catálogo: "el error alimenta la cola editorial de contenido".</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">El ciclo de vida completo de un ejercicio candidato</div>
+<pre class="mermaid">
+stateDiagram-v2
+  [*] --> candidato: entra al proceso
+  candidato --> en_etiquetado: pasos 1-6
+  en_etiquetado --> rechazado: falla un paso
+  en_etiquetado --> escalado: sin regla que decida (TG-07)
+  escalado --> en_etiquetado: autoridad de contenido decide
+  en_etiquetado --> validacion: paso 7
+  validacion --> rechazado: falla una validación
+  validacion --> etiquetado: aceptado
+  rechazado --> candidato: cola editorial
+  etiquetado --> [*]: elegible para resolución de slots
+</pre>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Sobre esta máquina de estados</div>
+  <p>Es una <strong>derivación</strong> de este handbook, no una FSM publicada por ninguna fuente. Se construye combinando el circuito de cola editorial (Architecture Handbook 04/08), el rechazo por validación (casos inválidos de 04) y TG-07. Ninguna fuente define estados formales para un ejercicio en proceso de etiquetado — registrado como deuda en el módulo <a href="../17-auditoria/index.html">17</a>.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../02-jerarquia-reglas/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 02 · Jerarquía de Reglas</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../04-patrones/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">04 · Patrones →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

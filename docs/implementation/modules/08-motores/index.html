@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>08 · Motores — Implementation Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="motores" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 08 · Construcción</p>
+<h1>Motores</h1>
+<p class="lede">Recovery Engine (contrato mínimo) → Motor BPS → Progression Engine. Cada uno con su Definition of Ready aplicada al caso concreto, no genérica.</p>
+
+<h2 id="recovery">Recovery Engine — contrato mínimo</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">No es el handbook completo — es lo mínimo para desbloquear a sus dos consumidores</div>
+  <p>Recovery Engine no tiene handbook de dominio propio (Architecture Review, AR-006). Escribirlo completo no es responsabilidad de este documento. Lo que sí resuelve este handbook, vía IMP-ADR-01 (14), es la forma exacta del veredicto que sus dos consumidores (Motor BPS, Progression Engine) necesitan para no bloquearse mutuamente por una ambigüedad de contrato (AR-001). La lógica interna de Recovery Engine (cómo decide) queda fuera de alcance hasta que exista su propio handbook — para la Fase 1 (03), su implementación puede ser deliberadamente simple (ej. siempre <code>procede: true</code>) sin romper el contrato que Motor BPS/Progression Engine consumen.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Definition of Ready</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>IMP-ADR-01 aceptado</td><td>Precondición — ver 14</td></tr>
+<tr><td>Handbook de dominio completo</td><td>No requerido para el contrato mínimo — sí requerido antes de implementar lógica de decisión real</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="motor-bps">Motor BPS</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Definition of Ready</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>Motor BPS Handbook existe y fue auditado</td><td><span class="tag tag--especificado">especificado</span> — sin hallazgos 🔴 propios en la Architecture Review (los hallazgos que lo afectan, AR-001/AR-014, están gated por IMP-ADR-01/03)</td></tr>
+<tr><td>Contrato de Recovery Engine resuelto</td><td>Precondición — IMP-ADR-01</td></tr>
+<tr><td>Repositorio de <code>progression_events</code> existente</td><td>Precondición — 06, Pista B paso 2</td></tr>
+<tr><td>Diagnóstico BPS conectado a persistencia real</td><td>Precondición para las transiciones T3/T4/T5 (activación) — hoy el Diagnóstico es efímero</td></tr>
+</tbody>
+</table>
+</div>
+<p>Orden interno de construcción: las 15 transiciones (T1–T15) se implementan en el orden en que aparecen en la tabla del propio Motor BPS Handbook (05) — no hay un orden alternativo mejor, la tabla ya está en secuencia lógica de complejidad creciente. Nota de implementación: la Architecture Review (AR-014) encontró que no existe una transición formal para "avance de Nivel por recomendación de Progression Engine" — este handbook exige resolver esa brecha (añadir la transición faltante, decisión que le corresponde al propio Motor BPS Handbook, no a este documento) antes de dar por completo el paso 12 de 06.</p>
+
+<h2 id="progression-engine">Progression Engine</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Definition of Ready</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>Progression Engine Handbook existe y fue auditado</td><td><span class="tag tag--especificado">especificado</span></td></tr>
+<tr><td>Contrato de Recovery Engine resuelto</td><td>Precondición — IMP-ADR-01 (comparte la misma resolución que Motor BPS, es el mismo contrato)</td></tr>
+<tr><td>PE-012 (criterio de desempate) operacionalmente definido</td><td>Bloqueante parcial — Architecture Review AR-008; no bloquea las otras 38 reglas, solo el árbitro de conflictos micro. Este handbook exige resolverlo antes de dar por completo el subsistema de microprogresión (07)</td></tr>
+</tbody>
+</table>
+</div>
+<p>Orden interno de construcción: pipeline base (9 pasos) antes que las 39 reglas individuales — el pipeline sin reglas es testeable de inmediato (siempre "sostiene", sin lógica de negocio real), y cada regla se añade incrementalmente sin tocar el esqueleto. Dentro de las reglas, orden sugerido por el propio catálogo: microprogresión (PE-001–012) → macroprogresión (PE-013–018) → autorregulación (PE-019–026) → estancamiento (PE-027–032) → deload (PE-033–039), porque cada grupo posterior depende conceptualmente de que el anterior ya funcione (el deload, por ejemplo, presupone que el estancamiento ya se detecta correctamente).</p>
+
+<h2 id="paralelizacion-motores">Qué se paraleliza dentro de esta pista</h2>
+<p>Una vez el contrato de Recovery está fijo (IMP-ADR-01), Motor BPS (orquestador) y Progression Engine (lógica pura) pueden construirse por personas/equipos distintos en paralelo — se integran recién en el paso 14 de 04 (09, Integración). Esto es una consecuencia directa de la corrección de dependencia de 02: Progression Engine nunca depende de Motor BPS para existir, solo Motor BPS necesita que Progression Engine ya exista quien lo invoque en producción.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../07-frontend/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 07 · Frontend</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../09-integracion/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">09 · Integración →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

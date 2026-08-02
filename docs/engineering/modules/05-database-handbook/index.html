@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>05 · Database Handbook — Engineering Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="database-handbook" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 05 · Capas</p>
+<h1>Database Handbook</h1>
+<p class="lede">Postgres vía Supabase, esquema único <code>public</code>, 5 tablas reales hoy. Todo lo que se especifica aquí ya se sigue en el código real — este módulo lo formaliza, no lo inventa.</p>
+
+<h2 id="diagrama-er">Diagrama ER — estado real hoy</h2>
+<div class="diagram">
+<div class="diagram-label">5 tablas en producción — ninguna tabla de eventos existe todavía (07)</div>
+<pre class="mermaid">
+erDiagram
+  AUTH_USERS ||--|| PROFILES : "1:1, on delete cascade"
+  AUTH_USERS ||--o{ WORKOUTS : "on delete cascade"
+  AUTH_USERS ||--o{ WORKOUT_LOGS : "on delete cascade"
+  AUTH_USERS ||--o{ DIAGNOSES : "on delete cascade"
+  SYSTEMS ||--o{ PROFILES : "sistema_actual (FK opcional)"
+  SYSTEMS ||--o{ WORKOUTS : "system_slug (FK opcional)"
+  WORKOUTS ||--o{ WORKOUT_LOGS : "workout_id (FK opcional, on delete set null)"
+  PROFILES {
+    uuid id PK
+    text sistema_actual FK
+    text nivel_actual
+    numeric peso_kg
+    numeric altura_cm
+  }
+  WORKOUTS {
+    uuid id PK
+    uuid user_id FK
+    text system_slug FK
+    jsonb ejercicios
+    text estado
+  }
+  WORKOUT_LOGS {
+    uuid id PK
+    uuid user_id FK
+    uuid workout_id FK
+    jsonb ejercicios
+    numeric volumen_total_kg
+  }
+</pre>
+</div>
+
+<h2 id="naming">Naming</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Elemento</th><th>Convención</th><th>Ejemplo real</th></tr></thead>
+<tbody>
+<tr><td>Tabla</td><td>snake_case, plural</td><td><code>profiles</code>, <code>workout_logs</code></td></tr>
+<tr><td>Columna</td><td>snake_case, singular</td><td><code>peso_kg</code>, <code>sistema_actual</code></td></tr>
+<tr><td>Columna de unidad</td><td>sufijo de unidad explícito</td><td><code>peso_kg</code>, <code>altura_cm</code>, <code>duracion_real_min</code> — nunca <code>peso</code> a secas</td></tr>
+<tr><td>Policy</td><td><code>"tabla: descripción en español"</code></td><td><code>"profiles: el usuario edita su propio perfil"</code></td></tr>
+<tr><td>Trigger</td><td><code>on_&lt;evento&gt;</code> o <code>&lt;tabla&gt;_&lt;accion&gt;</code></td><td><code>on_auth_user_created</code>, <code>profiles_set_updated_at</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="schema">Schema</h2>
+<p>Un único schema <code>public</code> — sin separación por dominio a nivel de schema de Postgres. La separación de dominio (FT-02) ocurre en el prefijo del nombre de tabla y en la carpeta del repositorio (04), no en el schema.</p>
+
+<h2 id="tablas">Tablas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tabla</th><th>Estado</th><th>Propósito</th></tr></thead>
+<tbody>
+<tr><td><code>systems</code></td><td><span class="tag tag--implementado">implementado</span></td><td>Catálogo liviano de los 5 Sistemas — deliberadamente no replica el contenido rico de <code>data/sistemas.ts</code> (03)</td></tr>
+<tr><td><code>profiles</code></td><td><span class="tag tag--implementado">implementado</span></td><td>Un perfil por usuario, creado automáticamente por trigger</td></tr>
+<tr><td><code>diagnoses</code></td><td><span class="tag tag--implementado">implementado</span> (tabla existe, sin escritor implementado aún)</td><td>Resultado del Diagnóstico BPS — hoy el diagnóstico público corre efímero, sin persistir</td></tr>
+<tr><td><code>workouts</code></td><td><span class="tag tag--implementado">implementado</span></td><td>Entrenamientos planificados</td></tr>
+<tr><td><code>workout_logs</code></td><td><span class="tag tag--implementado">implementado</span></td><td>Entrenamientos realmente ejecutados</td></tr>
+<tr><td><code>progression_events</code>, <code>bps_events</code> (nombres tentativos)</td><td><span class="tag tag--especificado">especificado</span></td><td>Catálogo de eventos del Motor BPS Handbook (13) y Progression Engine Handbook (15) — ver 07</td></tr>
+<tr><td>Tablas del BCS (Cliente, Medición, EnlacePúblico)</td><td><span class="tag tag--especificado">especificado</span></td><td>BCS Handbook (02, 15) — tres agregados independientes por decisión explícita (BCS-ADR-01)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="enums">Enums</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Convención real: text + CHECK, nunca <code>CREATE TYPE ... AS ENUM</code></div>
+  <p>Ninguna tabla de BREY usa un enum nativo de Postgres — todas usan <code>text</code> con una restricción <code>CHECK (columna IN (...))</code>. Ejemplo real: <code>workouts.estado text not null default 'planificado' check (estado in ('planificado', 'completado', 'perdido'))</code>. Se elige así porque añadir un valor nuevo a un <code>CHECK</code> es una migración simple (<code>ALTER TABLE ... DROP CONSTRAINT</code> + <code>ADD CONSTRAINT</code>), mientras que <code>ALTER TYPE ... ADD VALUE</code> tiene restricciones históricas de Postgres (no se puede ejecutar dentro de una transacción en versiones antiguas) — la simplicidad de migración gana sobre la validación nativa del tipo. Decisión formal en ENG-ADR-02 (14).</p>
+</div>
+
+<h2 id="jsonb">JSONB</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Columna</th><th>Contenido</th><th>Trade-off documentado</th></tr></thead>
+<tbody>
+<tr><td><code>workouts.ejercicios</code>, <code>workout_logs.ejercicios</code></td><td>Lista de ejercicios de la sesión</td><td>Se eligió jsonb en vez de una tabla normalizada <code>workout_log_exercises</code> deliberadamente para esta iteración — evita el alcance no solicitado de una tabla relacional adicional; migrar de jsonb a relacional es una operación conocida y aislada si el volumen de consultas lo exige más adelante</td></tr>
+<tr><td><code>diagnoses.razones</code>, <code>.notas</code>, <code>.respuestas</code></td><td>Trazabilidad del resultado del Diagnóstico (FT-06, Explicabilidad)</td><td><code>default '[]'::jsonb</code> — nunca nulo, siempre al menos un array vacío</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Regla:</strong> jsonb se reserva para datos de forma variable o anidada que no se consultan individualmente por campo interno con frecuencia — en el momento en que un campo dentro de un jsonb necesita su propio índice o FK, es la señal de que debe normalizarse a columnas/tabla real.</p>
+
+<h2 id="fk-check">Foreign Keys y CHECK</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Patrón</th><th>Ejemplo real</th><th>Regla</th></tr></thead>
+<tbody>
+<tr><td>FK a <code>auth.users</code></td><td><code>profiles.id references auth.users(id) on delete cascade</code></td><td>Todo dato de usuario se borra en cascada si el usuario se elimina — no hay soft delete de usuario (ver más abajo)</td></tr>
+<tr><td>FK opcional a catálogo</td><td><code>workouts.system_slug references public.systems(slug)</code> (nullable)</td><td>Un Sistema puede no estar asignado aún — la FK no fuerza NOT NULL salvo que el dominio lo exija</td></tr>
+<tr><td>FK con <code>on delete set null</code></td><td><code>workout_logs.workout_id references public.workouts(id) on delete set null</code></td><td>Un log ad-hoc (sin workout planificado) es válido — borrar el <code>workout</code> planificado no debe borrar el log ya ejecutado</td></tr>
+<tr><td>CHECK de rango físico</td><td><code>edad</code>, <code>peso_kg &gt; 20</code>, <code>altura_cm &gt; 80</code></td><td>Todo dato numérico de entrada humana tiene un CHECK de rango físicamente posible — nunca solo validado en TypeScript (defensa en profundidad, 08)</td></tr>
+<tr><td>CHECK de enum textual</td><td><code>sexo in ('Masculino', 'Femenino', 'Prefiero no decirlo')</code></td><td>Ver "Enums" arriba</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="indices">Índices</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Gap real, no ejemplo inventado</div>
+  <p>Hoy no existe ningún <code>CREATE INDEX</code> explícito más allá de las claves primarias (que Postgres indexa automáticamente). Con el volumen actual de datos esto es aceptable — se documenta como deuda técnica a vigilar (15), con la regla ya especificada para cuando se necesite: todo índice nuevo se crea con <code>CONCURRENTLY</code> en producción para no bloquear escrituras, y todo FK usado en un filtro de RLS (<code>user_id</code> en las 4 tablas con "CRUD propio") es el primer candidato cuando el volumen lo justifique.</p>
+</div>
+
+<h2 id="policies">Policies (RLS)</h2>
+<p>Detalle completo en 08 — la convención de nombres y el patrón "CRUD propio" (<code>using (auth.uid() = user_id) with check (auth.uid() = user_id)</code>) se define aquí porque es, ante todo, una decisión de modelado de datos: toda tabla de usuario tiene una columna <code>user_id</code> (o <code>id</code> en <code>profiles</code>) que la política referencia directamente, sin JOIN.</p>
+
+<h2 id="triggers">Triggers</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Trigger</th><th>Función</th><th>Propósito</th></tr></thead>
+<tbody>
+<tr><td><code>on_auth_user_created</code></td><td><code>handle_new_user()</code>, <code>SECURITY DEFINER</code></td><td>Crea el <code>profile</code> automáticamente al registrarse — idempotente vía <code>ON CONFLICT (id) DO NOTHING</code>, para que un reintento no falle con "Database error saving new user"</td></tr>
+<tr><td><code>profiles_set_updated_at</code></td><td><code>set_updated_at()</code>, reutilizable</td><td>Actualiza <code>updated_at</code> en cada <code>UPDATE</code> — patrón listo para reutilizarse en cualquier tabla futura que necesite el mismo comportamiento, sin reescribir la función</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="soft-hard-delete">Soft Delete vs. Hard Delete</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Patrón</th><th>Estado</th><th>Dónde</th></tr></thead>
+<tbody>
+<tr><td>Hard delete</td><td><span class="tag tag--implementado">implementado</span></td><td><code>on delete cascade</code> desde <code>auth.users</code> — eliminar la cuenta de un usuario borra físicamente todos sus datos, sin período de gracia</td></tr>
+<tr><td>Soft delete</td><td><span class="tag tag--especificado">especificado</span></td><td>Ninguna tabla actual lo usa — el BCS Handbook ya especifica el patrón <em>Archivado</em> (reversible) vs. <em>Eliminado</em> (irreversible, UC-04) como convención a seguir cuando un dominio lo necesite; se implementa con una columna <code>estado text check (...)</code>, el mismo patrón ya usado en <code>workouts.estado</code>, nunca con una columna <code>deleted_at</code> nullable como único mecanismo (menos explícito para RLS)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="migraciones">Migraciones y versionado</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Archivo</th><th>Propósito</th></tr></thead>
+<tbody>
+<tr><td><code>supabase/schema.sql</code></td><td>Estado completo para un proyecto nuevo desde cero — se mantiene en paralelo, no es lo que corrió en producción incrementalmente</td></tr>
+<tr><td><code>supabase/migration_perfil_persistente.sql</code></td><td>El script real aplicado sobre el proyecto en producción para Sprint 4</td></tr>
+<tr><td><code>supabase/migration_perfil_integridad.sql</code></td><td>Migración incremental posterior (Sprint 4.1) — archivo nuevo en vez de editar el anterior, precisamente para no asumir si ese script ya corrió en producción (FT-12, Backward Compatibility)</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Sin herramienta formal de migraciones</div>
+  <p>No hay Supabase CLI con migraciones versionadas automáticamente ni ninguna herramienta tipo Prisma Migrate/Drizzle Kit en <code>package.json</code> — las migraciones son archivos <code>.sql</code> pegados manualmente en el SQL Editor del Dashboard de Supabase. Es una limitación real, documentada como deuda técnica (15), no un patrón recomendado para escalar el equipo.</p>
+</div>
+
+<h2 id="idempotencia-rollback">Idempotencia y Rollback</h2>
+<p>Idempotencia: todo trigger de creación usa <code>ON CONFLICT ... DO NOTHING</code> (FT-04). Rollback: <span class="tag tag--futuro">futuro</span> — no existe hoy un mecanismo formal de rollback de migración; revertir un cambio de esquema hoy requiere escribir un nuevo script <code>.sql</code> manualmente, sin automatización ni testing previo (10).</p>
+
+<h2 id="auditoria-historial">Auditoría e Historial</h2>
+<p><span class="tag tag--futuro">futuro</span> — hoy solo existen <code>created_at</code>/<code>updated_at</code>, sin tabla de auditoría genérica que registre quién cambió qué. El patrón de auditoría completo (quién, qué, cuándo, valor anterior) ya está especificado en el BCS Handbook (08) y en el Motor BPS Handbook (13) para sus dominios respectivos — este handbook establece que cualquier tabla de auditoría futura vive en su propio dominio (<code>bcs_audit_log</code>, no una tabla <code>audit_log</code> compartida entre todos los dominios, consistente con FT-02).</p>
+
+<h2 id="matriz-dominio-storage">Matriz Dominio → Storage</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Dominio</th><th>Almacenamiento</th></tr></thead>
+<tbody>
+<tr><td>Core Product (perfil, entrenamientos)</td><td>Postgres — tablas <code>profiles</code>, <code>workouts</code>, <code>workout_logs</code></td></tr>
+<tr><td>Diagnóstico BPS</td><td>Postgres — tabla <code>diagnoses</code> (sin escritor implementado)</td></tr>
+<tr><td>Motor BPS / Progression Engine <span class="tag tag--especificado">especificado</span></td><td>Postgres — tablas de eventos por especificar (07)</td></tr>
+<tr><td>Body Composition System <span class="tag tag--especificado">especificado</span></td><td>Postgres (Cliente, Medición, EnlacePúblico) + Supabase Storage (fotografías, BE-07)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../04-backend-architecture/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 04 · Backend Architecture</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../06-api-handbook/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">06 · API Handbook →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>11 · UI Testing — BREY Testing Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="ui-testing" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 11 · Superficies</p>
+<h1>UI Testing</h1>
+<p class="lede">Componentes, accesibilidad, y la paridad público/privado del Reporte del BCS — derivado del BCS Design System Handbook, la única fuente de este documento con especificación visual real.</p>
+
+<h2 id="componentes">Componentes — qué se prueba</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Superficie</th><th>Qué se verifica</th><th>Nivel</th></tr></thead>
+<tbody>
+<tr><td>Las 18 primitivas de <code>src/components/brand/</code></td><td>Un color = un significado, sin excepción (BCSD-ADR-01, "Ley 2") — un test recorre cada uso de color y verifica que no se reutiliza con un significado distinto</td><td><span class="level level--unit">unit</span> (snapshot de props) + <span class="level level--manual">manual</span> (revisión visual)</td></tr>
+<tr><td>Metric Cards</td><td>Breakpoints de columnas (1/2/3 según viewport, BCS Design System Handbook 03) se aplican en los tres puntos de quiebre exactos</td><td><span class="level level--e2e">e2e</span></td></tr>
+<tr><td>Ningún componente nuevo inventado fuera de las 18 primitivas</td><td>Regla de gobernanza, no de renderizado — se verifica en revisión de PR, no con un test automatizado (BCSD-ADR-01, "Ley 7: primitivas antes que páginas, nunca SVG inline")</td><td><span class="level level--manual">manual</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="accesibilidad">Accesibilidad</h2>
+<p>BCS Design System Handbook (15) especifica los requisitos de accesibilidad del panel y la vista pública. Este documento no repite esa especificación — la convierte en casos: cada regla de contraste/foco/lectura de pantalla de ese módulo es un caso de test de <span class="level level--e2e">e2e</span> con herramienta de auditoría de accesibilidad, ejecutado tanto sobre el panel del Entrenador como sobre la vista pública del Cliente por separado (no basta con probar una y asumir la otra, porque son superficies de renderizado distintas, IN-A1 del BCS Handbook).</p>
+
+<h2 id="paridad-publico-privado">Paridad público/privado — el invariante más probado de esta superficie</h2>
+<div class="diagram">
+<div class="diagram-label">BCS-ADR-05 — mismo contenido informativo, solo difieren los controles de edición</div>
+<pre class="mermaid">
+flowchart LR
+  R["Reporte computado (BCS Handbook, 04)"] --> P["Vista privada<br/>(panel del Entrenador)"]
+  R --> PUB["Vista pública<br/>(BCS Design System, 08)"]
+  P -->|"tiene"| CTRL["Controles de edición/eliminación/enlaces"]
+  PUB -.->|"nunca tiene"| CTRL
+  P -->|"mismo"| CONT["Resumen, ficha, histórico,<br/>gráficos, clasificaciones"]
+  PUB -->|"mismo"| CONT
+</pre>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Resultado esperado</th></tr></thead>
+<tbody>
+<tr><td>Renderizar la misma Medición en ambas vistas</td><td>El contenido informativo (resumen, ficha, histórico, gráficos, clasificaciones) es idéntico — la única diferencia son los controles de edición, ausentes en la vista pública</td></tr>
+<tr><td>Vista pública intenta exponer un control de edición</td><td>No debe existir en el árbol de componentes renderizado — no solo oculto por CSS, ausente (BCS Design System Handbook, 08)</td></tr>
+<tr><td>Cliente con una sola Medición</td><td>Secciones que requieren ≥2 Mediciones (comparación, tendencia) no aparecen — nunca un título vacío (BCS Design System Handbook, 08, casos límite)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="estados-ui">Estados — cada uno con su propio caso</h2>
+<p>BCS Design System Handbook (13) especifica los estados de carga/vacío/error del panel y la vista pública. Cada estado es un caso de <span class="level level--e2e">e2e</span> independiente: Cliente sin Mediciones (estado vacío explícito, nunca una sección en blanco sin explicación), enlace revocado o inexistente (pantalla de estado dedicada, nunca un error genérico de servidor, BCS Design System Handbook 13/BCS Handbook 10), y el estado de carga mientras el Reporte se computa.</p>
+
+<h2 id="visual-regression">Candidatos a regresión visual</h2>
+<p>Los gráficos de tendencia y las comparaciones (BCS Design System Handbook, 11, 12) son la superficie de mayor riesgo de regresión visual silenciosa — un cambio en la librería de gráficos o en el sistema de color puede alterar la interpretación de una tendencia sin que ningún test funcional lo detecte. Se especifican como candidatos a snapshot visual el día que exista la herramienta (12), sin comprometer cuál herramienta se usará (16).</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../10-api-testing/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 10 · API Testing</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../12-regression-testing/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">12 · Regression Testing →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

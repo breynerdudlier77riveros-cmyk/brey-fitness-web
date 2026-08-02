@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>06 · Roles — Exercise Taxonomy Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="roles" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 06 · Ejes de clasificación</p>
+<h1>Roles</h1>
+<p class="lede">El eje que responde "¿qué función cumple este ejercicio dentro de la sesión?". Cinco roles con un orden de fatiga que ningún motor puede alterar, y la distinción entre los que cuentan como volumen productivo y el que no.</p>
+
+<h2 id="definicion">Definición</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Rol</div>
+  <p>La <strong>función del ejercicio dentro de la secuencia de la sesión</strong> — eje completamente independiente del patrón. Un slot es siempre <strong>Patrón × Rol</strong>, nunca patrón solo: "slot sin rol" es una plantilla malformada, sin excepción.</p>
+</div>
+<p>El ejercicio no tiene "un rol": declara <code>rolesPosibles[]</code>, el conjunto de funciones que puede desempeñar. El rol concreto lo fija el slot que lo invoca. Un mismo ejercicio puede ser <code>principal</code> en un contexto y <code>accesorio</code> en otro más exigente.</p>
+
+<h2 id="vocabulario">Vocabulario completo</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Slug</th><th>Significado</th><th>Posición (R-4)</th><th>¿Volumen productivo?</th></tr></thead>
+<tbody>
+<tr><td><code>activacion</code></td><td>Prepara el patrón antes del trabajo pesado, esfuerzo bajo</td><td>1 · Primero</td><td><strong>No</strong></td></tr>
+<tr><td><code>principal</code></td><td>El movimiento más pesado/complejo del patrón</td><td>2 · Tras activación, cuerpo fresco</td><td>Sí</td></tr>
+<tr><td><code>accesorio</code></td><td>Apoya al principal — menor carga, más reps</td><td>3 · Después de principales</td><td>Sí</td></tr>
+<tr><td><code>core-final</code></td><td>Estabilidad/core al cierre, sin fatigar patrones grandes</td><td>4 · Penúltimo</td><td>Sí</td></tr>
+<tr><td><code>metabolico</code></td><td>Finisher de acondicionamiento — opcional, según énfasis del Bloque</td><td>5 · Último</td><td>Sí (acondicionamiento, no fuerza)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="orden">R-4 · El orden es inalterable</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Regla de Orden por Rol</div>
+  <p>Dentro de una Sesión, los slots se ordenan por prioridad de fatiga del Rol: <strong>activación → principal → accesorio → core-final → metabólico</strong>. El Generator <strong>no puede alterar este orden relativo</strong>. No es una preferencia de presentación: es el orden en que el cuerpo tolera el trabajo, y por eso vive como regla del Training Framework y no como decisión del ensamblador.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Orden de fatiga — y el orden inverso en que se recorta por tiempo (R-G2)</div>
+<pre class="mermaid">
+graph LR
+  subgraph EJECUCION["Orden de ejecución — R-4, inalterable"]
+    A["1 · activacion"] --> B["2 · principal"] --> C["3 · accesorio"] --> D["4 · core-final"] --> E["5 · metabolico"]
+  end
+  subgraph RECORTE["Orden de recorte por tiempo — R-G2"]
+    E2["metabolico"] --> D2["core-final"] --> C2["accesorio"] --> X["principal y activacion:<br/>NUNCA se recortan"]
+  end
+</pre>
+</div>
+<p>La simetría no es casual: el Workout Generator recorta en <strong>orden inverso de prioridad</strong> — <code>metabolico</code> → <code>core-final</code> → <code>accesorio</code> — y nunca toca <code>principal</code> ni <code>activacion</code>. Si aun así la sesión no cabe en el tiempo declarado, se genera marcada como excedida: "informar sobre mutilar".</p>
+
+<h2 id="volumen">Volumen productivo</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Rol</th><th>Cuenta en el volumen semanal</th><th>Consecuencia</th></tr></thead>
+<tbody>
+<tr><td><code>activacion</code></td><td><strong>No</strong></td><td>Su presencia no consume presupuesto de volumen del Mesociclo; es preparación, no estímulo</td></tr>
+<tr><td><code>principal</code>, <code>accesorio</code>, <code>core-final</code></td><td>Sí</td><td>Suman al volumen del patrón y por tanto al techo de PE-010</td></tr>
+<tr><td><code>metabolico</code></td><td>Sí, con matiz</td><td>La fuente lo cualifica: "acondicionamiento, no fuerza" — cuenta, pero no como volumen de fuerza</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Matiz no resuelto en la fuente</div>
+  <p><code>metabolico</code> es el único rol cuya contribución al volumen viene con una salvedad cualitativa ("acondicionamiento, no fuerza") sin que exista un mecanismo declarado para contabilizarlo aparte. PE-010 fija un techo de volumen por patrón sin distinguir tipo de volumen. Cómo se concilian ambas cosas no está especificado — registrado en <a href="../16-preguntas-abiertas/index.html">TX-Q15</a>.</p>
+</div>
+
+<h2 id="matriz">Matriz Patrón × Rol</h2>
+<p class="matrix-note">Los slots posibles son el producto cartesiano de ambos ejes: 7 patrones activos × 5 roles = 35 combinaciones de slot. Ninguna fuente restringe combinaciones, salvo el criterio editorial al declarar <code>rolesPosibles</code> por ejercicio.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Patrón activo</th><th>activacion</th><th>principal</th><th>accesorio</th><th>core-final</th><th>metabolico</th></tr></thead>
+<tbody>
+<tr><td><code>empuje-horizontal</code></td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td><code>empuje-vertical</code></td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td><code>traccion-horizontal</code></td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td><code>traccion-vertical</code></td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td><code>dominante-rodilla</code></td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td><code>dominante-cadera</code></td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td><code>core</code></td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Por qué la matriz está completa</div>
+  <p>Ninguna fuente declara combinaciones patrón×rol prohibidas. La restricción real no es estructural sino de catálogo: un slot <code>core</code> × <code>principal</code> es estructuralmente válido, pero solo será resoluble si algún ejercicio de patrón <code>core</code> declara <code>principal</code> entre sus <code>rolesPosibles</code>. La matriz de lo <em>posible</em> está completa; la de lo <em>cubierto</em> depende del etiquetado pendiente.</p>
+</div>
+
+<h2 id="descanso">El Rol determina el descanso base</h2>
+<p>El descanso no es un atributo del ejercicio: se deriva del Rol, modulado por el énfasis del Bloque (capa 13 del Training Framework).</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Rol</th><th>Descanso default</th><th>Estatuto</th></tr></thead>
+<tbody>
+<tr><td><code>activacion</code></td><td>mínimo</td><td>Sin cifras publicadas</td></tr>
+<tr><td><code>principal</code></td><td>120–180 s</td><td>Rango; "calibrable"</td></tr>
+<tr><td><code>accesorio</code></td><td>60–120 s</td><td>Rango; "calibrable"</td></tr>
+<tr><td><code>core-final</code></td><td>45–90 s</td><td>Rango; "calibrable"</td></tr>
+<tr><td><code>metabolico</code></td><td>30–60 s</td><td>Rango; "calibrable"</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Rango, no valor</div>
+  <p>La fuente publica <strong>rangos</strong> y declara "los números concretos son calibrables", modulados por el énfasis del Bloque — pero no publica la función que elige un valor dentro del rango a partir del énfasis. Un valor único por rol sería una invención. Registrado en <a href="../16-preguntas-abiertas/index.html">TX-Q16</a>.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../05-patrones/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 05 · Patrones</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../07-modalidades/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">07 · Modalidades →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

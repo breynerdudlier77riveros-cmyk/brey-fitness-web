@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>00 · Introducción — Motor BPS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="introduccion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 00 · Fundamentos</p>
+<h1>Introducción</h1>
+<p class="lede">El Motor BPS es el orquestador del sistema de entrenamiento de BREY: el componente que mantiene la respuesta única a "¿en qué estado está este usuario y qué corresponde hacer ahora?". Este handbook lo especifica por completo — un ingeniero debe poder implementarlo sin hacer una sola pregunta. Si el código lo contradice, el código está mal.</p>
+
+<div class="meta-row">
+  <span class="chip">Autoridad: handbook &gt; código</span>
+  <span class="chip">Especifica, no implementa</span>
+  <span class="chip">Profundiza el módulo 07 del Architecture Handbook</span>
+</div>
+
+<h2 id="relacion-arch">Relación con el Architecture Handbook v1.0</h2>
+<p>Este documento es la especificación profunda del componente que el <strong>BREY Architecture Handbook v1.0</strong> (documento hermano, <code>docs/handbook/</code>) define a nivel de sistema en su módulo 07. La jerarquía de autoridad es: Architecture Handbook (marco: principios P1–P16, jerarquía de 15 capas, ontología, contratos) → este handbook (el Motor BPS en detalle) → código. Donde este documento va más allá del marco, lo hace como <strong>extensión declarada</strong> — las cuatro extensiones nuevas están listadas en el informe de autoauditoría y en el módulo 15. Ninguna contradice el marco; si alguna vez una lo hiciera, se resuelve por ADR, nunca por deriva.</p>
+
+<h2 id="que-es">Qué es el Motor BPS</h2>
+<p>El Motor BPS es una <strong>máquina de estados determinista con un ciclo de orquestación semanal</strong>. Sus cuatro trabajos, y solo estos:</p>
+<ol>
+  <li><strong>Activar:</strong> traducir el resultado del Diagnóstico en un Sistema/Nivel activos, exactamente una vez, en el momento correcto (compra confirmada — módulo 06).</li>
+  <li><strong>Custodiar el estado:</strong> mantener y transicionar la máquina de estados del usuario (módulo 05), emitiendo un evento con razón por cada transición.</li>
+  <li><strong>Verificar gates:</strong> impedir la generación de entrenamiento cuando faltan datos de seguridad (Diagnóstico, Perfil deportivo) — nombrando exactamente qué falta.</li>
+  <li><strong>Orquestar:</strong> consultar Recovery Engine y Progression Engine en orden fijo e invocar al Workout Generator con el resultado (módulo 07, pipeline; módulo 08, conflictos).</li>
+</ol>
+
+<h2 id="por-que">Por qué existe — los problemas que resuelve</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Problema sin el Motor</th><th>Cómo lo resuelve</th></tr></thead>
+<tbody>
+<tr><td>Dos autoridades decidiendo lo mismo en momentos distintos (Diagnóstico recomienda hoy, algo re-evalúa mañana) → resultados inconsistentes que nadie puede explicar</td><td>Frontera dura: el Diagnóstico recomienda una vez; el Motor activa una vez; nada re-evalúa el Sistema automáticamente (BPS-012)</td></tr>
+<tr><td>Motores especializados (progresión, fatiga) contradiciéndose sin árbitro</td><td>Orden fijo de consulta con precedencia declarada — no ponderación interna (módulo 08)</td></tr>
+<tr><td>Generación de contenido con datos de seguridad ausentes (lesiones sin declarar, días desconocidos)</td><td>Gates explícitos que fallan visiblemente con el detalle exacto (BPS-004, BPS-020)</td></tr>
+<tr><td>Contenido premium generado sin transacción</td><td>Regla de Activación (módulo 06)</td></tr>
+<tr><td>"¿Por qué estoy en esta semana / este nivel?" sin respuesta</td><td>Todo cambio de estado es un evento con razón, recomputable (BPS-010, BPS-011)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="que-no-hace">Qué NO hace — no-responsabilidades</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>NO hace</th><th>Quién lo hace</th><th>Por qué la frontera está ahí</th></tr></thead>
+<tbody>
+<tr><td>Recomendar un Sistema</td><td>Diagnóstico BPS (motor guionado)</td><td>Dos autoridades sobre la misma decisión = inconsistencia garantizada</td></tr>
+<tr><td>Decidir avance/retroceso de nivel o carga</td><td>Progression Engine</td><td>Cadencia y señal propias (ventana móvil sobre historial) — el Motor solo aplica el veredicto</td></tr>
+<tr><td>Decidir descargas o interpretar fatiga/dolor</td><td>Recovery Engine</td><td>La seguridad necesita un dueño único con precedencia, no un orquestador opinando</td></tr>
+<tr><td>Elegir ejercicios, patrones o prescripciones</td><td>Workout Generator + Knowledge Base</td><td>El Motor no conoce la ontología — solo sabe CUÁNDO invocar la generación</td></tr>
+<tr><td>Interpretar el historial crudo (logs, RPE, adherencia)</td><td>Progression/Recovery</td><td>BPS-019 — el Motor consume veredictos, no señales</td></tr>
+<tr><td>Ejecutar o registrar sesiones</td><td>Workout Player</td><td>Separación decisión/ejecución (módulo 01)</td></tr>
+<tr><td>Procesar pagos o gestionar suscripciones</td><td>Checkout (fuera del dominio)</td><td>El Motor solo consume el evento <code>compra_confirmada</code></td></tr>
+<tr><td>Diagnosticar o tratar lesiones</td><td>Nadie en el sistema — profesional de salud humano</td><td>Límite ético y legal del dominio completo</td></tr>
+<tr><td>Programar para Elite</td><td>Coach humano (v2: panel)</td><td>ADR-012 del marco — Elite es 1:1 por diseño</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="relacion-motores">Relación con los demás motores — de un vistazo</h2>
+<div class="diagram">
+<div class="diagram-label">El Motor BPS como árbitro y coordinador — nunca como decisor de contenido</div>
+<pre class="mermaid">
+graph TD
+  DX["Diagnóstico BPS<br/>(recomienda, una vez)"] -->|Resultado| MB["MOTOR BPS<br/>orquestador"]
+  PAY["Checkout<br/>(fuera del dominio)"] -->|compra_confirmada| MB
+  PERFIL["Perfil (vivo)"] -->|"se lee fresco<br/>cada ciclo"| MB
+  MB -->|"1º consulta (terminal si descarga)"| RE["Recovery Engine"]
+  MB -->|"2º consulta"| PE["Progression Engine"]
+  MB -->|"3º invoca"| WG["Workout Generator"]
+  WG --> WP["Workout Player"]
+  WP -->|Historial| PE
+  WP -->|Historial| RE
+  MB -->|"eventos con razón"| EV[("progression_events")]
+</pre>
+</div>
+
+<h2 id="lectura">Cómo leer este handbook</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Si vas a…</th><th>Lee</th></tr></thead>
+<tbody>
+<tr><td>Implementar el Motor completo</td><td>Todo, en orden. Los módulos 03–09 son el contrato duro.</td></tr>
+<tr><td>Entender solo el ciclo de vida del usuario</td><td>05 (FSM) → 06 (Activación) → 07 (Pipeline)</td></tr>
+<tr><td>Resolver una disputa "¿quién gana?"</td><td>08 (Conflictos) → 09 (la regla numerada exacta)</td></tr>
+<tr><td>Auditar una decisión pasada</td><td>13 (Observabilidad) + 04 (eventos de salida)</td></tr>
+<tr><td>Cuestionar una decisión de diseño</td><td>15 (ADRs) — si no está ahí ni en el marco, no está decidida (registrarla en 16)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <div></div>
+  <a class="pagenav__item pagenav__item--next" href="../01-filosofia/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">01 · Filosofía →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

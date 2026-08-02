@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10 · API Testing — BREY Testing Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="api-testing" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 10 · Superficies</p>
+<h1>API Testing</h1>
+<p class="lede">Los 45 endpoints del catálogo (API Contract Handbook, 07), uno por uno, con el foco exacto de su prueba de integración — contrato de entrada/salida, autorización, e idempotencia donde aplique.</p>
+
+<div class="meta-row">
+  <span class="chip">45 endpoints trazados</span>
+  <span class="chip">Nivel <span class="level level--integration">integration</span> por defecto</span>
+</div>
+
+<h2 id="convencion">Qué verifica un test de integración de endpoint, siempre</h2>
+<ul>
+  <li>El request con forma válida produce el status y el envelope exactos especificados (API Contract Handbook, 06, 09).</li>
+  <li>El request con forma inválida produce el error de dominio o infraestructura exacto, nunca un 500 genérico.</li>
+  <li>El actor sin autorización recibe 401/403/404 según corresponda (API Contract Handbook, 09, 13) — nunca una fuga de existencia del recurso.</li>
+</ul>
+
+<h2 id="matriz-endpoint-integracion">Matriz Endpoint → Integración</h2>
+
+<h3 id="sistema-perfil">Sistema y Perfil</h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Endpoint</th><th>Foco del test</th></tr></thead>
+<tbody>
+<tr><td><code>GET /sistemas</code></td><td>Accesible sin sesión (actor Anonymous)</td></tr>
+<tr><td><code>GET /sistemas/{slug}</code></td><td><code>slug</code> inexistente → 404</td></tr>
+<tr><td><code>GET /perfil</code></td><td>Sin sesión → 401; propio perfil → 200</td></tr>
+<tr><td><code>PATCH /perfil</code></td><td>Intento de incluir <code>sistema_actual</code>/<code>nivel_actual</code> en el body → ignorado o rechazado (05, ownership)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3 id="diagnostico-test">Diagnóstico</h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Endpoint</th><th>Foco del test</th></tr></thead>
+<tbody>
+<tr><td><code>POST /diagnosticos</code></td><td>Retoma crea fila nueva, nunca sobrescribe (DM-ADR-07, citado desde Database Handbook)</td></tr>
+<tr><td><code>GET /diagnosticos</code></td><td>Solo devuelve diagnósticos del actor autenticado</td></tr>
+<tr><td><code>GET /diagnosticos/{id}</code></td><td><code>id</code> de otro Usuario → 404, nunca 403 (09, no revelar existencia)</td></tr>
+<tr><td><code>GET /diagnosticos/vigente</code></td><td>Sin diagnóstico previo → <code>200</code> con <code>data: null</code>, nunca 404</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3 id="motor-bps-test">Motor BPS</h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Endpoint</th><th>Foco del test</th></tr></thead>
+<tbody>
+<tr><td><code>POST /motor-bps/activacion</code></td><td>Idempotencia por <code>transaccion_id</code> (11)</td></tr>
+<tr><td><code>POST /motor-bps/ciclo-semanal</code></td><td>Solo invocable por el actor Sistema (interno) — un test verifica que no hay ruta expuesta a Usuario final</td></tr>
+<tr><td><code>GET /motor-bps/estado</code></td><td>Coincide con el estado recomputado por replay (08)</td></tr>
+<tr><td><code>GET /motor-bps/puede-generar</code></td><td>Cada gate roto produce el error exacto (<code>PERFIL_INCOMPLETO</code>, etc.)</td></tr>
+<tr><td><code>GET /motor-bps/eventos</code></td><td>Filtros <code>tipo</code>/<code>origen</code>/rango de fecha aplicados correctamente</td></tr>
+<tr><td><code>GET /motor-bps/eventos/{id}</code></td><td>Evento de otro Usuario → 404</td></tr>
+<tr><td><code>POST /motor-bps/pausa</code></td><td>Sin <code>motivo</code> → 400 (evento requiere razón)</td></tr>
+<tr><td><code>POST /motor-bps/reanudacion</code></td><td>Pausa &gt;30 días produce la propuesta de retroceso (T13)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3 id="motores-internos-test">Progression Engine, Recovery Engine, Workout Generator</h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Endpoint</th><th>Foco del test</th></tr></thead>
+<tbody>
+<tr><td><code>POST /progression-engine/evaluar</code></td><td>Prohibido para el frontend — un test de integración verifica que ningún camino de UI lo invoca directamente (05)</td></tr>
+<tr><td><code>GET /progression-engine/prescripciones</code></td><td>Solo Prescripciones del propio Usuario</td></tr>
+<tr><td><code>GET /progression-engine/prescripciones/{slotId}</code></td><td>Slot sin Prescripción vigente → <code>data: null</code></td></tr>
+<tr><td><code>POST /recovery-engine/evaluar</code></td><td>Forma canónica de salida siempre, incluso cuando <code>procede: false</code> (06)</td></tr>
+<tr><td><code>POST /workouts/generar-semana</code></td><td>Idempotencia — segunda invocación devuelve la semana existente (11)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3 id="workouts-test">Workouts y Workout Logs</h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Endpoint</th><th>Foco del test</th></tr></thead>
+<tbody>
+<tr><td><code>GET /workouts</code></td><td>Filtro <code>fecha_desde</code>/<code>fecha_hasta</code> acota correctamente</td></tr>
+<tr><td><code>GET /workouts/{id}</code></td><td>Workout de otro Usuario → 404</td></tr>
+<tr><td><code>GET /workouts/hoy</code></td><td>Sin sesión planificada hoy → <code>data: null</code></td></tr>
+<tr><td><code>GET /programa-actual</code></td><td>Vista derivada coincide con <code>sistema_actual</code>/<code>nivel_actual</code> + posición real de Workouts</td></tr>
+<tr><td><code>POST /workout-logs/eventos</code></td><td>Idempotencia por <code>device_id</code>+secuencia (11)</td></tr>
+<tr><td><code>POST /workout-logs</code></td><td>Log cerrado nunca acepta una segunda escritura sobre el mismo cierre (I-W3)</td></tr>
+<tr><td><code>GET /workout-logs</code></td><td>Filtro de rango; solo del propio Usuario</td></tr>
+<tr><td><code>GET /workout-logs/{id}</code></td><td>Log de otro Usuario → 404</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3 id="bcs-test">BCS — Clientes, Mediciones, Enlaces, Reportes</h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Endpoint</th><th>Foco del test</th></tr></thead>
+<tbody>
+<tr><td><code>POST /bcs/clientes</code></td><td><code>nombre</code> vacío → <code>NOMBRE_VACIO</code></td></tr>
+<tr><td><code>GET /bcs/clientes</code></td><td>Filtro <code>estado</code>; solo Clientes del Entrenador autenticado</td></tr>
+<tr><td><code>GET /bcs/clientes/{id}</code></td><td>Cliente de otro Entrenador → 404</td></tr>
+<tr><td><code>PATCH /bcs/clientes/{id}</code></td><td>Edición parcial no toca Mediciones/Enlaces</td></tr>
+<tr><td><code>POST /bcs/clientes/{id}/archivar</code></td><td>Archivar dos veces es idempotente (no error)</td></tr>
+<tr><td><code>POST /bcs/clientes/{id}/reactivar</code></td><td>Solo válido desde <code>archivado</code> (07, FSM)</td></tr>
+<tr><td><code>DELETE /bcs/clientes/{id}</code></td><td>Cascada de revocación de EnlacesPúblicos verificada</td></tr>
+<tr><td><code>POST /bcs/clientes/{id}/mediciones</code></td><td>Validación de rango físico (<code>VALOR_FUERA_DE_RANGO_FISICO</code>)</td></tr>
+<tr><td><code>GET /bcs/clientes/{id}/mediciones</code></td><td>Paginación activa sobre &gt;50 registros (06, BCS Handbook 12)</td></tr>
+<tr><td><code>GET /bcs/mediciones/{id}</code></td><td>Medición de Cliente ajeno → 404</td></tr>
+<tr><td><code>PATCH /bcs/mediciones/{id}</code></td><td>La respuesta 200 trae un <code>id</code> distinto del solicitado (API-ADR-09) — el test verifica explícitamente ese comportamiento no estándar</td></tr>
+<tr><td><code>POST /bcs/clientes/{id}/enlaces</code></td><td>Enlace activo previo se revoca automáticamente</td></tr>
+<tr><td><code>GET /bcs/clientes/{id}/enlaces</code></td><td>Incluye históricos revocados, no solo el activo</td></tr>
+<tr><td><code>POST /bcs/enlaces/{id}/revocar</code></td><td>Revocar dos veces es idempotente</td></tr>
+<tr><td><code>GET /bcs/clientes/{id}/reporte</code></td><td>Contenido idéntico al de <code>GET /reportes/{token}</code> salvo controles de edición (BCS-ADR-05)</td></tr>
+<tr><td><code>GET /reportes/{token}</code></td><td>Token inexistente y revocado → mismo error, mismo status (09)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../09-database-testing/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 09 · Database Testing</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../11-ui-testing/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">11 · UI Testing →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

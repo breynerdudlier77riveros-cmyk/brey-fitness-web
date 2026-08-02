@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>04 · Modelo del Reporte — BCS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="modelo-reporte" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 04 · Reporte</p>
+<h1>Modelo del Reporte</h1>
+<p class="lede">El Reporte es el producto visible del sistema — lo único que el cliente llega a ver. Debe leerse como un informe profesional, no como una exportación cruda de una base de datos.</p>
+
+<h2 id="objetivo">Objetivo</h2>
+<p>Que el Reporte tenga una estructura fija y predecible, generada siempre a partir del estado vigente del historial (02, IN-D3) — nunca un documento estático que pueda quedar desactualizado.</p>
+
+<h2 id="estructura">Estructura del Reporte</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Sección</th><th>Contenido</th></tr></thead>
+<tbody>
+<tr><td><strong>Resumen ejecutivo</strong></td><td>3–5 cifras clave de la medición más reciente + su variación respecto a la medición anterior, en lenguaje simple (ej. "Peso: 78.2 kg — bajó 1.1 kg desde la última medición")</td></tr>
+<tr><td><strong>Ficha de la medición actual</strong></td><td>Todas las variables capturadas en la Medición vigente más reciente (03), agrupadas por categoría (antropometría, composición, agua, metabólicos)</td></tr>
+<tr><td><strong>Comparación con la medición anterior</strong></td><td>Tabla de dos columnas por variable + delta absoluto y relativo (05)</td></tr>
+<tr><td><strong>Histórico completo</strong></td><td>Todas las Mediciones vigentes del Cliente en orden cronológico, cada una expandible (05)</td></tr>
+<tr><td><strong>Gráficos de tendencia</strong></td><td>Series temporales por variable numérica con suficientes puntos históricos (07)</td></tr>
+<tr><td><strong>Barras de progreso</strong></td><td>Representación visual de variables con rango de referencia conocido, mostrando la posición actual dentro del rango — siempre junto a su etiqueta de procedencia (03, 06, 07)</td></tr>
+<tr><td><strong>Clasificaciones e interpretaciones</strong></td><td>Texto generado por las reglas de 06 — nunca lenguaje diagnóstico, siempre con su badge de procedencia visible</td></tr>
+<tr><td><strong>Fotografías</strong></td><td>Si existen, mostradas en orden cronológico junto a su fecha — nunca mezcladas fuera de contexto temporal (11)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="diagrama">Diagrama de composición del Reporte</h2>
+<div class="diagram">
+<div class="diagram-label">El Reporte como función pura del historial vigente</div>
+<pre class="mermaid">
+graph TD
+  CLI["Cliente"] --> MEDS["Mediciones vigentes<br/>(ordenadas por fecha)"]
+  MEDS --> RES["Resumen ejecutivo"]
+  MEDS --> FICHA["Ficha de medición actual"]
+  MEDS --> COMP["Comparación con anterior"]
+  MEDS --> HIST["Histórico completo"]
+  MEDS --> GRAF["Gráficos de tendencia"]
+  MEDS --> BARRAS["Barras de progreso"]
+  MEDS --> INTERP["Clasificaciones (06)"]
+  RES --> REPORTE["Reporte"]
+  FICHA --> REPORTE
+  COMP --> REPORTE
+  HIST --> REPORTE
+  GRAF --> REPORTE
+  BARRAS --> REPORTE
+  INTERP --> REPORTE
+</pre>
+</div>
+
+<h2 id="paridad">Reporte privado vs. reporte público — paridad de contenido</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Decisión de diseño</div>
+  <p>El reporte que ve el entrenador en el panel y el reporte que ve el cliente por el enlace público muestran <strong>exactamente el mismo contenido informativo</strong> — la única diferencia es la ausencia total de controles de edición/eliminación/generación de enlaces en la vista pública (10). No existe una versión "resumida" para el cliente: reducir información percibiría el reporte como menos profesional, y el objetivo explícito del sistema es que el reporte luzca como un informe de nivel comercial. Se documenta como BCS-ADR-05 en 16.</p>
+</div>
+
+<h2 id="casos-limite">Casos límite</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Comportamiento</th></tr></thead>
+<tbody>
+<tr><td>Cliente con una sola Medición registrada</td><td>El Reporte omite la sección "Comparación" y los gráficos de tendencia (requieren ≥2 puntos) — muestra solo Resumen ejecutivo y Ficha actual, sin fabricar una comparación inexistente</td></tr>
+<tr><td>Cliente sin ninguna Medición</td><td>El Reporte muestra un estado vacío explícito ("Sin mediciones registradas") — nunca un error ni una página en blanco sin explicación</td></tr>
+<tr><td>Medición con variables incompletas (faltan algunas del catálogo)</td><td>Cada sección muestra solo lo disponible; una variable ausente nunca se sustituye por un valor supuesto (03, "si falta")</td></tr>
+<tr><td>Enlace público apuntando a un Cliente archivado</td><td>El Reporte sigue siendo visible — archivar un Cliente no revoca automáticamente sus enlaces (09, 10); revocar es una acción explícita separada</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="contraejemplos">Contraejemplos</h2>
+<ul>
+  <li>El Reporte NO incluye ningún botón de edición en la vista pública, bajo ninguna circunstancia.</li>
+  <li>El Reporte NO fabrica una tendencia con menos de 2 puntos de datos.</li>
+  <li>El Reporte NO presenta ninguna clasificación de 06 sin su etiqueta de procedencia visible junto al texto.</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../03-modelo-datos/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 03 · Modelo de Datos</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../05-modelo-historial/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">05 · Modelo del Historial →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>04 · Sistema tipográfico — BCS Design System Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="sistema-tipografico" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 04 · Sistema visual</p>
+<h1>Sistema tipográfico</h1>
+<p class="lede">Una sola familia (Inter, ya heredada), una escala fija, y una regla nueva y no negociable para números de composición corporal.</p>
+
+<h2 id="familia">Familia</h2>
+<p>Inter (Google Font), cargada vía <code>next/font</code> en todo el sitio — <span class="tag tag--heredado">heredado</span>. El BCS no introduce una segunda familia tipográfica bajo ninguna circunstancia, ni siquiera para números (ver "Números" abajo, que resuelve esto con <em>tabular numbers</em> de la misma Inter, no con una fuente monoespaciada distinta).</p>
+
+<h2 id="escala">Escala tipográfica</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Token</th><th>Tamaño</th><th>Peso</th><th>Uso en el BCS</th></tr></thead>
+<tbody>
+<tr><td><code>display</code></td><td>36px</td><td>Black (900)</td><td>Cifra hero de una Metric Card destacada (ej. peso actual en el resumen ejecutivo)</td></tr>
+<tr><td><code>h1</code></td><td>30px</td><td>Black (900)</td><td>Título de pantalla (Dashboard, Reporte)</td></tr>
+<tr><td><code>h2</code></td><td>24px</td><td>Black (900)</td><td>Título de sección (Ficha actual, Histórico)</td></tr>
+<tr><td><code>h3</code></td><td>18px</td><td>Bold (700)</td><td>Título de tarjeta individual (Card Title, ya heredado de <code>brand/Card.tsx</code>)</td></tr>
+<tr><td><code>body</code></td><td>16px</td><td>Regular (400)</td><td>Texto de interpretación (BCS Handbook, 06)</td></tr>
+<tr><td><code>small</code></td><td>14px</td><td>Regular (400) / Medium (500) en labels</td><td>Metadatos de tabla, fechas, unidades secundarias</td></tr>
+<tr><td><code>micro</code></td><td>12px</td><td>Bold (700), uppercase, tracking amplio</td><td>Etiquetas de badge (mismo patrón que <code>Badge.tsx</code> heredado)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="jerarquia">Jerarquía</h2>
+<p>En cualquier pantalla, el peso tipográfico más alto (<code>font-black</code>) se reserva exclusivamente para: (a) el título de la pantalla, y (b) el valor numérico principal de la métrica más relevante en su contexto. Nunca hay más de un elemento en peso Black visible simultáneamente en la misma tarjeta — evita competencia visual (01, Jerarquía).</p>
+
+<h2 id="interlineado">Interlineado</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Contexto</th><th>Line-height</th></tr></thead>
+<tbody>
+<tr><td>Títulos (<code>display</code>, <code>h1</code>, <code>h2</code>)</td><td>1.15 — heredado del patrón ya usado en <code>h1</code> del sitio marketing</td></tr>
+<tr><td>Texto de cuerpo</td><td>1.65 — heredado de <code>body { line-height: 1.65 }</code> en <code>globals.css</code></td></tr>
+<tr><td>Tablas y datos densos</td><td>1.4 — más compacto para no desperdiciar espacio vertical en listas de mediciones</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="longitud">Longitud máxima de línea</h2>
+<p>El texto de interpretación (BCS Handbook, 06) nunca excede ~65 caracteres por línea dentro de su tarjeta — el ancho de columna de las tarjetas del Dashboard (03, grid de 3 columnas en desktop) ya produce naturalmente este límite sin necesitar una regla de <code>max-width</code> adicional en texto corrido.</p>
+
+<h2 id="numeros">Números — regla nueva</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Regla no negociable <span class="tag tag--nuevo">nuevo</span></div>
+  <p>Todo valor numérico de composición corporal (peso, %grasa, IMC, etc.) se renderiza con <em>tabular figures</em> de Inter (variante numérica de ancho fijo) — nunca con las cifras proporcionales por defecto. Esto es indispensable para que las columnas de una tabla comparativa (12) y los valores apilados de un Historial (BCS Handbook, 05) se alineen verticalmente sin dientes de sierra. No existía necesidad de esta distinción en el resto del sitio (sin tablas de datos numéricos densos hasta el BCS) — es la primera extensión tipográfica genuina que este módulo introduce.</p>
+</div>
+
+<h2 id="tablas-notas-etiquetas">Tablas, notas y etiquetas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Elemento</th><th>Especificación</th></tr></thead>
+<tbody>
+<tr><td>Encabezado de tabla</td><td>12px, Bold, uppercase, tracking 0.05em — mismo patrón que <code>th</code> de este propio handbook</td></tr>
+<tr><td>Celda de tabla</td><td>14px, Regular, números en tabular figures</td></tr>
+<tr><td>Nota al pie / procedencia (BCS Handbook, 00)</td><td>12px, Regular, color de texto terciario — nunca en el mismo peso que el dato al que acompaña, para no competir con él</td></tr>
+<tr><td>Etiqueta de badge</td><td>10–11px, Bold/Black, uppercase, tracking 0.04–0.07em — heredado exacto de <code>Badge.tsx</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../03-sistema-layout/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 03 · Sistema de Layout</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../05-sistema-color/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">05 · Sistema de color →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

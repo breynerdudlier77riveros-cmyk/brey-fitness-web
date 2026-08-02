@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>17 · Deudas y Roadmap — Content Lifecycle</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="deudas-roadmap" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 17 · Gobernanza</p>
+<h1>Deudas, Métricas y Roadmap</h1>
+<p class="lede">Checklist de verificación del ciclo, doce deudas priorizadas, todas las métricas del handbook y el estado final del ciclo de vida del contenido.</p>
+
+<h2 id="metricas">Métricas obligatorias</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Métrica</th><th>Valor</th></tr></thead>
+<tbody>
+<tr><td><strong>% del lifecycle completamente especificado</strong></td><td><strong>33,3 %</strong> (12/36 celdas)</td></tr>
+<tr><td><strong>% parcialmente especificado</strong></td><td><strong>19,4 %</strong> (7/36)</td></tr>
+<tr><td><strong>% inexistente</strong></td><td><strong>47,2 %</strong> (17/36)</td></tr>
+<tr><td>Pasos del ciclo completos en las 3 dimensiones</td><td><strong>1 de 12</strong> (8,3 %) — versionar</td></tr>
+<tr><td>Procesos analizados</td><td><strong>12</strong> · 6 completos · 2 parciales · 4 inexistentes</td></tr>
+<tr><td>Estados de una entrada</td><td><strong>0</strong> (2 implícitos, no formalizados)</td></tr>
+<tr><td>Transiciones de una entrada</td><td><strong>0</strong></td></tr>
+<tr><td>Roles editoriales</td><td><strong>0</strong></td></tr>
+<tr><td>Autoridades documentadas</td><td><strong>3</strong> — Contenido · Ingeniería · Documentación</td></tr>
+<tr><td>Acciones del ciclo</td><td><strong>12</strong></td></tr>
+<tr><td>Tipos de versionado</td><td><strong>3</strong> — catálogo · contratos · documentos; <strong>0</strong> por entrada</td></tr>
+<tr><td>Contradicciones</td><td><strong>7</strong> (KL-01…07; 3 críticas)</td></tr>
+<tr><td>Deudas documentales</td><td><strong>12</strong> (CL-D01…12)</td></tr>
+<tr><td>ADR</td><td><strong>7</strong> (CL-ADR-01…07)</td></tr>
+<tr><td>Anti-patterns</td><td><strong>12</strong> (CLA-01…12; 5 críticos)</td></tr>
+<tr><td>Checklists</td><td><strong>1</strong> — 14 ítems de verificación del ciclo</td></tr>
+<tr><td>Términos barridos</td><td><strong>48</strong> · 18 con recuento cero · 8 falsos positivos</td></tr>
+<tr><td>Directorios documentales barridos</td><td><strong>15</strong> · 4 fuentes solicitadas no existen como handbook</td></tr>
+<tr><td>Preguntas del encargo respondidas</td><td><strong>14</strong> con evidencia · 9 parciales · 7 sin respaldo</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="checklist">Checklist de verificación del ciclo</h2>
+<p class="matrix-note">Aplicable para comprobar si el ciclo de vida de una entrada está gobernado. Hoy pasan 5 de 14.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>☐</th><th>Ítem</th><th>Hoy</th></tr></thead>
+<tbody>
+<tr><td>L-01</td><td>Existe un proceso para solicitar una entrada nueva</td><td>❌</td></tr>
+<tr><td>L-02</td><td>Existe un proceso definido de creación</td><td>✅</td></tr>
+<tr><td>L-03</td><td>Existe validación estructural automática</td><td>✅</td></tr>
+<tr><td>L-04</td><td>Existe un proceso de revisión de contenido</td><td>❌</td></tr>
+<tr><td>L-05</td><td>Existe un acto formal de aprobación</td><td>❌</td></tr>
+<tr><td>L-06</td><td>La autorización queda registrada</td><td>❌</td></tr>
+<tr><td>L-07</td><td>Existe un vocabulario de estados</td><td>❌</td></tr>
+<tr><td>L-08</td><td>Las transiciones emiten evento con razón</td><td>❌</td></tr>
+<tr><td>L-09</td><td>Existe versionado por entrada</td><td>❌</td></tr>
+<tr><td>L-10</td><td>Existe versionado del catálogo</td><td>✅</td></tr>
+<tr><td>L-11</td><td>Lo generado es inmune a cambios posteriores</td><td>✅</td></tr>
+<tr><td>L-12</td><td>La identidad es estable durante todo el ciclo</td><td>✅</td></tr>
+<tr><td>L-13</td><td>Existe forma de retirar sin borrar</td><td>❌</td></tr>
+<tr><td>L-14</td><td>Existe rollback de una entrada</td><td>❌</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">5 de 14 · 35,7 %</div>
+  <p>Y los cinco que pasan comparten una propiedad: <strong>todos protegen el pasado</strong> (versionado de catálogo, inmutabilidad, identidad estable) o describen el trabajo hacia adelante (creación, validación). Ninguno gobierna el control de calidad ni la salida del ciclo.</p>
+</div>
+
+<h2 id="deudas">Deuda documental</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>ID</th><th>Deuda</th><th>Módulo</th><th>Severidad</th></tr></thead>
+<tbody>
+<tr><td><code>CL-D01</code></td><td>No existe proceso de solicitud de entrada nueva</td><td><a href="../03-nacimiento/index.html">03</a></td><td><span class="severity severity--media">media</span></td></tr>
+<tr><td><code>CL-D02</code></td><td>No existe caducidad ni revisión periódica de una entrada</td><td><a href="../04-validez/index.html">04</a></td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td><code>CL-D03</code></td><td>Cero roles editoriales formales</td><td><a href="../05-autoridad/index.html">05</a></td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td><code>CL-D04</code></td><td>"Despublicar" no existe ni como término ni como operación</td><td><a href="../06-publicacion/index.html">06</a></td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td><code>CL-D05</code></td><td>Cero estados documentados para una entrada</td><td><a href="../07-estados/index.html">07</a></td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td><code>CL-D06</code></td><td>El ciclo carece de todos sus elementos formales: estados, transiciones, guards, eventos</td><td><a href="../08-fsm/index.html">08</a></td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td><code>CL-D07</code></td><td>No existe versionado por entrada</td><td><a href="../09-versionado/index.html">09</a></td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td><code>CL-D08</code></td><td>La compatibilidad histórica no distingue evolución de error</td><td><a href="../10-compatibilidad/index.html">10</a></td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td><code>CL-D09</code></td><td>Las decisiones humanas no se trazan; las automáticas sí</td><td><a href="../11-trazabilidad/index.html">11</a></td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td><code>CL-D10</code></td><td>Corregir y actualizar son indistinguibles</td><td><a href="../12-correccion/index.html">12</a></td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td><code>CL-D11</code></td><td>El catálogo no participa del sistema de niveles de evidencia</td><td><a href="../13-evidencia-cientifica/index.html">13</a></td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td><code>CL-D12</code></td><td>El impacto de un cambio es correcto pero no rastreable</td><td><a href="../14-impacto/index.html">14</a></td><td><span class="severity severity--alta">alta</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Resumen</th><th>N.º</th></tr></thead>
+<tbody>
+<tr><td>Deudas totales</td><td><strong>12</strong></td></tr>
+<tr><td>Críticas</td><td>6</td></tr>
+<tr><td>Altas</td><td>5</td></tr>
+<tr><td>Medias</td><td>1</td></tr>
+<tr><td>Que exigen cambios en el modelo de datos</td><td><strong>3</strong> (CL-D05, CL-D07, CL-D09)</td></tr>
+<tr><td>Que son solo decisión documental</td><td><strong>9</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="raiz">La deuda raíz</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Cinco de las siete contradicciones tienen la misma causa</div>
+  <p>KL-01 a KL-05 se explican todas por <strong>la ausencia de un ciclo de vida formal de la entrada</strong> (CL-D05 · CL-D06). Sin estados no hay transiciones; sin transiciones no hay eventos; sin eventos no hay trazabilidad ni replay; sin trazabilidad, P14 no se puede verificar; sin estado de retirada, la prohibición de borrar es inejecutable.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Una deuda raíz, cinco consecuencias encadenadas</div>
+<pre class="mermaid">
+graph TD
+  R["CL-D05/D06 · Sin estados<br/>ni transiciones"] --> C1["Sin eventos de ciclo<br/>KL-05"]
+  R --> C2["Sin acto de aprobación<br/>KL-01"]
+  R --> C3["Sin retirada posible<br/>KL-03 · CL-D04"]
+  R --> C4["Sin marcar para revisión<br/>CL-D02"]
+  C1 --> C5["Sin trazabilidad editorial<br/>KL-02 · CL-D09"]
+  C5 --> P14["⛔ P14 no verificable"]
+</pre>
+</div>
+
+<h2 id="roadmap">Roadmap</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Fase</th><th>Trabajo</th><th>Cierra</th><th>Dueño</th></tr></thead>
+<tbody>
+<tr><td><strong>1</strong></td><td>Definir el ciclo de vida de una entrada: estados, transiciones y guards — en Domain Model 10, donde viven las otras cinco FSM</td><td>CL-D05 · CL-D06 · CL-D04 · KL-01 · KL-03</td><td>Documentación</td></tr>
+<tr><td><strong>2</strong></td><td>Versionado por entrada y registro de autoría</td><td>CL-D07 · CL-D09 · CL-D10 · CL-D12 · KL-02</td><td>Documentación + modelo de datos</td></tr>
+<tr><td><strong>3</strong></td><td>Roles editoriales y proceso de revisión</td><td>CL-D03 · CL-D01</td><td>Documentación</td></tr>
+<tr><td><strong>4</strong></td><td>Extender el sistema de evidencia al catálogo</td><td>CL-D11 · KL-06</td><td>Documentación</td></tr>
+<tr><td><strong>5</strong></td><td>Caducidad, revisión periódica y detección de deriva</td><td>CL-D02 · CL-D08 · KL-07</td><td>Documentación + Ingeniería</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">El orden viene dado por las dependencias</div>
+  <p>La fase 1 desbloquea cinco elementos a la vez y es requisito de las demás: sin estados no hay a qué asociar una versión, ni qué registrar como autoría, ni qué marcar para revisión. Es también la fase más barata: una decisión documental en el módulo que ya centraliza las máquinas de estado del ecosistema.</p>
+</div>
+
+<h2 id="metricas-handbook">Métricas del handbook</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Métrica</th><th>Valor</th></tr></thead>
+<tbody>
+<tr><td>Módulos</td><td>18 (00–17)</td></tr>
+<tr><td>Pasos del ciclo analizados</td><td>12</td></tr>
+<tr><td>Celdas de la matriz</td><td>36</td></tr>
+<tr><td>Principios (CL-01…08)</td><td>8</td></tr>
+<tr><td>ADR (CL-ADR-01…07)</td><td>7</td></tr>
+<tr><td>Anti-patterns (CLA-01…12)</td><td>12</td></tr>
+<tr><td>Deudas (CL-D01…12)</td><td>12</td></tr>
+<tr><td>Contradicciones (KL-01…07)</td><td>7</td></tr>
+<tr><td>Ítems de checklist (L-01…14)</td><td>14</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="estado">Estado final</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Veredicto</div>
+  <p>El <strong>Content Lifecycle Handbook v1.0 está completo</strong> como reconstrucción: 48 términos barridos con límites de palabra, 8 falsos positivos identificados, 30 preguntas respondidas solo con evidencia y una matriz de 36 celdas que mide el ciclo sin estimarlo.</p>
+  <p>El ciclo de vida del contenido está <strong>especificado al 33,3 %</strong>, parcialmente al 19,4 % e <strong>inexistente al 47,2 %</strong>. Un solo paso de doce está completo en las tres dimensiones — versionar — y ni siquiera versiona la entrada.</p>
+  <p>El hallazgo que resume la reconstrucción: <strong>el ecosistema protege el pasado con rigor y no gobierna el presente</strong>. Tres mecanismos independientes garantizan que lo generado sobreviva intacto a cualquier cambio de catálogo; ninguno registra quién hizo ese cambio, por qué, ni permite deshacerlo. La compatibilidad histórica es impecable sobre un ciclo de vida que no existe.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../16-adr-antipatterns/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 16 · ADR y Anti-patterns</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../../index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">Portada →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

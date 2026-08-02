@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>12 · Deload — Progression Engine Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="deload" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 12 · Reglas</p>
+<h1>Deload</h1>
+<p class="lede">Los tres tipos de descarga que este motor conoce, su prioridad cuando coinciden, cómo se cancelan, cuánto duran y cómo se retoma la prescripción al finalizar — formalizando PE-033–039.</p>
+
+<h2 id="objetivo">Objetivo</h2>
+<p>Que ningún tipo de deload quede subespecificado, y que la relación entre el deload reactivo (ajeno, obedecido) y el preventivo (propio, hipotético) quede inequívocamente separada.</p>
+
+<h2 id="tres-tipos">Los tres tipos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tipo</th><th>Origen</th><th>Vinculante</th><th>Evidencia</th><th>Regla</th></tr></thead>
+<tbody>
+<tr><td><strong>Programado</strong></td><td>Training Framework (parte del diseño del Bloque)</td><td>Sí</td><td><span class="eb eb--producto">🟠 producto</span></td><td>PE-033</td></tr>
+<tr><td><strong>Reactivo</strong></td><td>Recovery Engine (veredicto de descarga)</td><td>Sí, terminal</td><td><span class="eb eb--fuerte">🟢 fuerte</span> (el principio de precedencia de seguridad)</td><td>PE-034</td></tr>
+<tr><td><strong>Preventivo</strong></td><td>Este motor (escalera de estancamiento, segundo escalón)</td><td>No — requiere confirmación</td><td><span class="eb eb--hipotesis">🔴 hipótesis</span></td><td>PE-035</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="diagrama">Diagrama de prioridad y ciclo de vida</h2>
+<div class="diagram">
+<div class="diagram-label">Cuando coinciden, gana el de mayor precedencia (PE-037); todos convergen en reincorporación (PE-039)</div>
+<pre class="mermaid">
+flowchart TD
+  R["Reactivo (PE-034)"] -->|"precedencia 1"| G["Gana si coincide con cualquier otro"]
+  P["Programado (PE-033)"] -->|"precedencia 4"| G2["Gana sobre preventivo si coinciden"]
+  V["Preventivo (PE-035)"] -->|"precedencia 3"| G3["Cede ante reactivo y programado"]
+  G --> D["Se aplica — duración PE-038"]
+  G2 --> D
+  G3 --> D
+  D --> C{"¿Condición que lo motivó sigue vigente?"}
+  C -- No, y no es reactivo --> X["Cancelación (PE-036)"]
+  C -- Sí --> F["Se completa el Microciclo de deload"]
+  F --> N["Reincorporación (PE-039) — vuelve a Prescripción previa exacta"]
+</pre>
+</div>
+
+<h2 id="casos-limite">Casos límite</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Comportamiento</th></tr></thead>
+<tbody>
+<tr><td>Deload programado y preventivo coinciden en el mismo Microciclo</td><td>Se aplica el programado (precedencia 4 &gt; 3 según PE-037 solo aplica entre reactivo/programado/preventivo — el programado no es "más urgente" pero sí más específico del plan; el preventivo queda absorbido, no se suma)</td></tr>
+<tr><td>Deload reactivo se extiende más de 1 Microciclo por indicación explícita de Recovery</td><td>PE-038 lo permite — este motor sigue la duración indicada, no la fuerza a 1 Microciclo</td></tr>
+<tr><td>Cancelación solicitada durante un deload reactivo</td><td>No permitido — PE-036 excluye explícitamente al reactivo de cancelación por este motor</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="contraejemplos">Contraejemplos</h2>
+<ul>
+  <li>El motor NO suma la magnitud de dos deloads que coinciden — aplica exactamente uno (PE-037).</li>
+  <li>El motor NO sobrecompensa al reincorporar — vuelve a la Prescripción previa exacta, nunca por encima (PE-039).</li>
+  <li>El motor NO aplica un deload preventivo automáticamente sin paso de confirmación — es sugerencia, no ejecución directa.</li>
+</ul>
+
+<h2 id="errores">Errores posibles</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Error</th><th>Tratamiento</th></tr></thead>
+<tbody>
+<tr><td><code>PRESCRIPCION_PREVIA_AUSENTE</code></td><td>No hay Prescripción guardada en contexto para reincorporar tras el deload — error de integridad de datos; se usa el default de cadena como fallback y se registra la anomalía (14)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="consecuencias">Consecuencias, trade-offs y deuda</h2>
+<p>El deload preventivo es, por diseño, el mecanismo más experimental de todo el catálogo — su clasificación 🔴 significa que su eficacia real está pendiente de validación con datos de uso una vez el sistema opere en producción. Se documenta como riesgo de producto (17) y pregunta abierta prioritaria (19), no como regla lista para escalar sin supervisión.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../11-estancamiento/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 11 · Estancamiento</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../13-integracion/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">13 · Integración →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

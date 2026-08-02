@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>06 · API Handbook — Engineering Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="api-handbook" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 06 · Contratos</p>
+<h1>API Handbook</h1>
+<p class="lede">BREY no expone una API pública versionada — sus contratos internos son las firmas de los repositorios (Queries), las Server Actions (Commands) y los 2 Route Handlers reales. Este módulo formaliza esos contratos.</p>
+
+<h2 id="dto">DTO</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>DTO</th><th>Estado</th><th>Origen</th></tr></thead>
+<tbody>
+<tr><td><code>Profile</code></td><td><span class="tag tag--implementado">implementado</span></td><td><code>lib/types.ts</code>, producido por <code>mapProfile()</code> (<code>lib/database/mappers.ts</code>)</td></tr>
+<tr><td><code>ProfileUpdateInput</code></td><td><span class="tag tag--implementado">implementado</span></td><td><code>lib/perfil/perfil.ts</code> — shape que <code>PerfilForm</code> envía a <code>updateProfile()</code>, distinto del DTO de lectura</td></tr>
+<tr><td><code>Workout</code>, <code>WorkoutLog</code></td><td><span class="tag tag--implementado">implementado</span></td><td><code>lib/types.ts</code>, mapeados por <code>lib/database/mappers.ts</code></td></tr>
+<tr><td>DTOs del BCS (Cliente, Medición, Reporte)</td><td><span class="tag tag--especificado">especificado</span></td><td>BCS Handbook (02, 13) — Reporte explícitamente <em>no persistido</em>, siempre computado</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Regla: DTO de lectura ≠ DTO de escritura</div>
+  <p>Un DTO que sale de un repositorio (<code>Profile</code>) nunca es el mismo tipo que entra a una actualización (<code>ProfileUpdateInput</code>) — el de escritura es siempre un subconjunto parcial, sin campos gestionados por el sistema (<code>id</code>, <code>created_at</code>). Confirmado por el código real: <code>ProfileUpdateInput</code> es un tipo separado, no <code>Partial&lt;Profile&gt;</code> genérico.</p>
+</div>
+
+<h2 id="commands-queries">Commands y Queries</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tipo</th><th>Forma real</th><th>Ejemplo</th></tr></thead>
+<tbody>
+<tr><td>Query</td><td>Función <code>async</code> de un repositorio que solo lee, nombrada <code>get&lt;Entidad&gt;</code></td><td><code>getProfile(supabase, userId)</code></td></tr>
+<tr><td>Command</td><td>Server Action o función de repositorio que muta, nombrada <code>&lt;verbo&gt;&lt;Entidad&gt;</code></td><td><code>updateProfile(supabase, userId, patch)</code>, <code>signOut()</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>Ninguna función mezcla ambas responsabilidades — una Query nunca tiene efectos secundarios, salvo el caso explícito de <code>getOrCreateProfile</code> (documentado en su propio nombre: "Get-or-Create" declara la escritura condicional desde la firma, no la esconde).</p>
+
+<h2 id="responses">Responses</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Convención real de los Route Handlers</div>
+  <p>Los 2 Route Handlers existentes (<code>app/api/lead</code>, <code>app/api/contacto</code>) devuelven siempre <code>{ ok: boolean, error?: string }</code> — nunca solo un código HTTP sin cuerpo. <code>error</code> es un código corto en snake_case (<code>invalid_email</code>, <code>not_configured</code>, <code>provider_error</code>), no un mensaje de usuario final ni un stack trace. El código HTTP sí es significativo (400 input inválido, 503 configuración faltante, 502 proveedor externo falló) — ambos (código HTTP + <code>error</code>) se especifican siempre juntos, nunca uno sin el otro.</p>
+</div>
+<p>Los repositorios (fuera de Route Handlers) siguen una convención distinta pero igualmente consistente: <code>null</code> en caso de error o ausencia (FT-05, Fail Visible — nunca lanzan una excepción no capturada hacia el Server Component que los invoca).</p>
+
+<h2 id="errores">Catálogo de errores reales</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Código</th><th>HTTP</th><th>Origen</th></tr></thead>
+<tbody>
+<tr><td><code>invalid_body</code></td><td>400</td><td><code>app/api/lead</code> — JSON malformado</td></tr>
+<tr><td><code>invalid_email</code></td><td>400</td><td><code>app/api/lead</code> — no pasa el regex de validación</td></tr>
+<tr><td><code>not_configured</code></td><td>503</td><td><code>app/api/lead</code> — falta <code>BREVO_API_KEY</code> en el entorno</td></tr>
+<tr><td><code>provider_error</code></td><td>502</td><td><code>app/api/lead</code> — Brevo respondió con error no reconocido como éxito</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="versionado">Versionado</h2>
+<p><span class="tag tag--futuro">futuro</span> — no existe hoy ningún esquema de versión en las rutas internas (no hay <code>/api/v1/</code>). Es aceptable porque estos endpoints son consumidos exclusivamente por el propio frontend de BREY, desplegado atómicamente junto al backend (12) — no hay un tercero consumiendo esta API que requiera coexistencia de versiones. Si BREY expone una API pública en el futuro (Coach IA con integraciones externas, por ejemplo), este documento exige introducir versionado desde el primer endpoint público, no retroactivamente.</p>
+
+<h2 id="paginacion-filtros-sorting">Paginación, Filtros, Sorting</h2>
+<p><span class="tag tag--futuro">futuro</span> — ningún repositorio actual pagina (el volumen de datos por usuario hoy no lo requiere: un usuario tiene, como máximo, cientos de <code>workout_logs</code>). El BCS Handbook (12) ya especifica el patrón para cuando se implemente: paginación por rango de fechas antes que <code>OFFSET/LIMIT</code> genérico, porque el caso de uso real siempre es "ver el historial reciente", no "saltar a la página 7".</p>
+
+<h2 id="idempotencia-api">Idempotencia</h2>
+<p>Ejemplo real: <code>app/api/lead</code> trata una respuesta <code>duplicate_parameter</code> de Brevo como éxito (<code>{ ok: true }</code>), no como error — registrar el mismo email dos veces no debe fallar visiblemente para el usuario que reenvía un formulario (FT-04).</p>
+
+<h2 id="timeouts-retry">Timeouts y Retry</h2>
+<p><span class="tag tag--futuro">futuro</span> — el <code>fetch()</code> a Brevo en <code>app/api/lead</code> no tiene timeout explícito ni política de reintento; depende del timeout por defecto de la plataforma de despliegue (12). Se documenta como deuda técnica (15): cualquier integración externa nueva debe declarar su propio timeout explícito desde el diseño, no heredar el default silenciosamente.</p>
+
+<h2 id="eventos-api">Eventos</h2>
+<p>Ningún Command actual emite un evento de dominio persistido — ver 07 para el contrato completo ya especificado por los handbooks de motor, pendiente de implementación.</p>
+
+<h2 id="matriz-dto-caso-uso">Matriz DTO → Caso de uso</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>DTO</th><th>Caso de uso</th></tr></thead>
+<tbody>
+<tr><td><code>Profile</code></td><td>Mostrar perfil (lectura), precondición de gates del App Shell</td></tr>
+<tr><td><code>ProfileUpdateInput</code></td><td>Guardar formulario de edición de perfil</td></tr>
+<tr><td><code>Workout</code></td><td>Renderizar calendario de entrenamientos</td></tr>
+<tr><td><code>WorkoutLog</code></td><td>Renderizar historial y calcular progreso (<code>volumen_total_kg</code>)</td></tr>
+<tr><td>DTOs del BCS (Cliente, Medición, Reporte) <span class="tag tag--especificado">especificado</span></td><td>Los 9 casos de uso del BCS Handbook (13)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../05-database-handbook/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 05 · Database Handbook</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../07-domain-events/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">07 · Domain Events →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

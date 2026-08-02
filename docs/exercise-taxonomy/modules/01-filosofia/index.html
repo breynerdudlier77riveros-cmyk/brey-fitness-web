@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>01 · Filosofía — Exercise Taxonomy Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="filosofia" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 01 · Empezar</p>
+<h1>Filosofía</h1>
+<p class="lede">Ocho principios que gobiernan toda clasificación de ejercicios en BREY. Ninguno es original de este handbook: cada uno deriva de un principio o regla ya vigente en el ecosistema, y aquí se enuncia en su forma aplicada a la taxonomía.</p>
+
+<h2 id="principios">Los ocho principios</h2>
+
+<div class="callout callout--regla">
+  <div class="callout__label">TX-01 · El vocabulario es cerrado</div>
+  <p>Patrón, rol, equipamiento, zona de riesgo y modalidad son <strong>listas cerradas</strong>, no campos de texto. Un ejercicio no "tiene un patrón": tiene uno de los nueve patrones publicados. Ampliar un vocabulario es una decisión documental explícita, nunca el efecto colateral de etiquetar un ejercicio nuevo.<br><strong>Deriva de:</strong> Architecture Handbook 04 — "es el vocabulario cerrado que Diagnóstico, motores, Generator y Player consultan en vez de inventar cada uno su noción de ejercicio válido".</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">TX-02 · El slug es identidad permanente</div>
+  <p>El <code>slug</code> nace con el ejercicio y no cambia nunca, ni cuando cambia el nombre, ni cuando cambia la clasificación, ni cuando el ejercicio deja de estar disponible. Todo lo demás es descripción; el slug es identidad.<br><strong>Deriva de:</strong> P15 (slug estable) — el Architecture Handbook 04 lo aplica explícitamente: "Slug estable desde el nacimiento (P15) — los reservados existen para fijar identidad antes de tener contenido".</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">TX-03 · La taxonomía describe; no prescribe</div>
+  <p>Ningún atributo de un ejercicio dice cuántas series, cuántas repeticiones ni con qué intensidad se ejecuta. El ejercicio declara <em>qué es y qué admite</em>; la prescripción declara <em>qué se hace hoy con él</em>. Confundirlas convierte al catálogo en un programa de entrenamiento encubierto.<br><strong>Deriva de:</strong> Architecture Handbook 03, capa 9 — "Nunca decide: su propia prescripción — series/reps/intensidad/descanso/tempo vienen de Bloque/Nivel + ajuste vigente del Progression Engine".</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">TX-04 · Nada se infiere del nombre</div>
+  <p>Ni el patrón, ni la zona de riesgo, ni la modalidad, ni el rol se deducen del nombre del ejercicio, del músculo declarado ni del texto de su descripción. Cada uno es una afirmación etiquetada con criterio, o es <code>null</code>.<br><strong>Deriva de:</strong> Architecture Handbook 04 — "La intensidad relativa por zona no se infiere del nombre — exige etiquetado con criterio biomecánico. Más lento, pero es la única versión honesta del filtro de seguridad".</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">TX-05 · Lo decidible se estructura; lo humano queda humano</div>
+  <p>Si un motor necesita un dato para decidir, ese dato es un campo estructurado del ejercicio. El texto libre — descripción, instrucciones, errores comunes, notas — es canal humano→humano y <strong>ningún motor lo parsea jamás</strong>. Un dato decidible escondido en prosa es un vacío del modelo, no una fuente alternativa.<br><strong>Deriva de:</strong> Architecture Handbook 03, capa 15, invariante duro — "ningún motor parsea Notas jamás… si una nota contiene información que un motor necesitaría, el modelo de datos tiene un vacío que se resuelve con un campo nuevo, no leyendo texto libre".</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">TX-06 · El etiquetado es criterio humano, no código</div>
+  <p>Clasificar un ejercicio es trabajo editorial autorizado por una persona con criterio técnico. Ningún algoritmo, heurística ni modelo puede generar la clasificación y considerarla oficial. El código valida la <em>estructura</em> (que no haya ciclos, que no falten campos); la persona valida el <em>contenido</em>.<br><strong>Deriva de:</strong> P14 (catálogo autorizado por humanos) y Architecture Handbook 04 — "Patrón, roles, modalidad, zonas, cadena, capacidades: bloqueante #2 del Roadmap. Es etiquetado con criterio, no código".</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">TX-07 · Un eje, una pregunta</div>
+  <p>Cada eje de clasificación responde exactamente una pregunta y es independiente de los demás. Patrón responde "¿qué movimiento es?"; Rol, "¿qué función cumple en la sesión?"; Modalidad, "¿cómo se ejecuta y se mide?"; Equipamiento, "¿qué hace falta?"; Zona de riesgo, "¿qué articula carga?". Mezclar dos ejes en un campo destruye la capacidad de filtrar por uno sin el otro.<br><strong>Deriva de:</strong> Architecture Handbook 04 — "El Rol es la función del ejercicio dentro de la secuencia de la sesión — <strong>eje independiente del patrón</strong>"; y del descarte explícito de "Rol como clasificación muscular".</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">TX-08 · Una ausencia declarada vale más que una ausencia rellenada</div>
+  <p>Un atributo sin etiquetar debe ser visiblemente <code>null</code> y hacer fallar la elegibilidad, no adoptar un valor por defecto que lo haga pasar. El fallo visible alimenta la cola editorial; el default silencioso produce un ejercicio mal clasificado que nadie detecta hasta que alguien se lesiona.<br><strong>Deriva de:</strong> P6 (sin defaults silenciosos) y P11 (no presentar decisiones de producto como ciencia); el Architecture Handbook 04 lo ejemplifica: "Con 19 ejercicios, combinaciones legítimas caerán en <code>CATALOGO_INSUFICIENTE</code>. Correcto por diseño".</p>
+</div>
+
+<h2 id="mapa">Mapa de derivación</h2>
+<div class="diagram">
+<div class="diagram-label">Cada principio de taxonomía cuelga de un principio ya vigente — ninguno es nuevo</div>
+<pre class="mermaid">
+graph LR
+  P15["P15 · Slug estable"] --> TX02["TX-02 Identidad permanente"]
+  P14["P14 · Catálogo autorizado<br/>por humanos"] --> TX06["TX-06 Etiquetado humano"]
+  P14 --> TX04["TX-04 Nada se infiere"]
+  P6["P6 · Sin defaults<br/>silenciosos"] --> TX08["TX-08 Ausencia declarada"]
+  P11["P11 · Honestidad<br/>de evidencia"] --> TX08
+  P7["P7 · Patrón como unidad<br/>de programación"] --> TX01["TX-01 Vocabulario cerrado"]
+  P4["P4 · Una capa,<br/>una decisión"] --> TX03["TX-03 Describe, no prescribe"]
+  P4 --> TX07["TX-07 Un eje, una pregunta"]
+  C15["Capa 15 · Invariante<br/>de Notas"] --> TX05["TX-05 Lo decidible se estructura"]
+</pre>
+</div>
+
+<h2 id="tensiones">Tensiones aceptadas</h2>
+<div class="callout callout--tradeoff">
+  <div class="callout__label">Vocabulario cerrado vs. cobertura del catálogo</div>
+  <p>Un vocabulario cerrado de 9 patrones no describe todo movimiento humano concebible. Se acepta: el Architecture Handbook 04 ya reservó <code>locomocion</code> y <code>rotacion-potencia</code> precisamente para poder crecer sin romper nada. La alternativa — patrón como texto libre — haría imposible que el Generator resuelva un slot de forma determinista.</p>
+</div>
+<div class="callout callout--tradeoff">
+  <div class="callout__label">Etiquetado humano vs. velocidad de catálogo</div>
+  <p>Exigir criterio humano para cada atributo hace el catálogo lento de crecer, y es la causa directa de que hoy haya 19 ejercicios y 0 elegibles. Se acepta explícitamente: la clasificación biomecánica automática sería fisiología fabricada, y el eje de seguridad (zonas de riesgo) no admite conjeturas.</p>
+</div>
+<div class="callout callout--descartado">
+  <div class="callout__label">Descartado — inferir clasificación desde el catálogo actual</div>
+  <p>Los 19 ejercicios existentes ya declaran <code>musculoPrincipal</code>, <code>tipo</code> y <code>equipo</code>. Sería técnicamente trivial derivar de ahí un patrón probable. Descartado por TX-04: <code>musculoPrincipal: "pecho"</code> no distingue empuje horizontal de vertical, y una zona de riesgo mal inferida es un fallo de seguridad, no un dato aproximado.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../00-introduccion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 00 · Introducción</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../02-ontologia-ejercicio/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">02 · Ontología del Ejercicio →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

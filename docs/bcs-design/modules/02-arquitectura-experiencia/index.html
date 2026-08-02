@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>02 · Arquitectura de experiencia — BCS Design System Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="arquitectura-experiencia" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 02 · Fundamentos</p>
+<h1>Arquitectura de experiencia</h1>
+<p class="lede">El recorrido completo, de principio a fin: desde que el entrenador abre el panel hasta que el cliente ve su progreso en el teléfono.</p>
+
+<h2 id="mapa">Mapa completo del recorrido</h2>
+<div class="diagram">
+<div class="diagram-label">Entrenador → Cliente → Compartir → Historial → Comparación → Nueva medición</div>
+<pre class="mermaid">
+flowchart TD
+  A["Entrenador abre el Dashboard (07)"] --> B["Selecciona o crea un Cliente"]
+  B --> C["Registra Nueva medición"]
+  C --> D["Ve el Reporte actualizado en el panel"]
+  D --> E{"¿Primera vez que comparte con este Cliente?"}
+  E -->|"Sí"| F["Genera EnlacePúblico"]
+  E -->|"No"| G["Reutiliza el enlace existente"]
+  F --> H["Comparte manualmente (WhatsApp, etc.)"]
+  G --> H
+  H --> I["Cliente abre el enlace"]
+  I --> J["Vista pública (08): Historial + Comparación"]
+  D --> K["Entrenador revisa Historial de este Cliente"]
+  K --> L["Entrenador abre Comparación entre dos fechas (12)"]
+  L --> C
+</pre>
+</div>
+
+<h2 id="matriz-pantallas">Matriz de pantallas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Pantalla</th><th>Objetivo principal</th><th>Acción primaria</th><th>Quién la ve</th></tr></thead>
+<tbody>
+<tr><td>Dashboard (07)</td><td>Panorama de todos los clientes activos</td><td>Seleccionar cliente / crear cliente</td><td>Entrenador</td></tr>
+<tr><td>Ficha de Cliente</td><td>Ver estado actual de un cliente específico</td><td>Registrar nueva medición</td><td>Entrenador</td></tr>
+<tr><td>Historial (parte de 07)</td><td>Ver todas las mediciones pasadas</td><td>Abrir una medición / iniciar comparación</td><td>Entrenador, Cliente (vista pública)</td></tr>
+<tr><td>Comparación (12)</td><td>Contrastar dos mediciones cualesquiera</td><td>Elegir el segundo punto de comparación</td><td>Entrenador, Cliente (vista pública)</td></tr>
+<tr><td>Vista pública del cliente (08)</td><td>Reporte de solo lectura, nivel profesional</td><td>Ninguna — solo lectura</td><td>Cliente</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="prioridad-flujo">Qué gobierna la prioridad del flujo</h2>
+<ul>
+  <li>El camino "registrar medición" nunca está a más de 2 clics de distancia desde el Dashboard — es la acción más frecuente del entrenador.</li>
+  <li>Compartir un enlace nunca requiere salir del contexto del Cliente actual.</li>
+  <li>La vista pública del cliente no tiene navegación hacia ninguna otra pantalla del sistema — es un destino final, no un punto de tránsito (08, IN-A1 del BCS Handbook).</li>
+</ul>
+
+<h2 id="contraejemplos">Contraejemplos</h2>
+<ul>
+  <li>El flujo NUNCA obliga al entrenador a pasar por una pantalla de "confirmación" intermedia para acciones de lectura (ver historial, ver comparación).</li>
+  <li>El flujo NUNCA expone al cliente un botón o enlace de regreso al panel del entrenador.</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../01-filosofia-visual/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 01 · Filosofía visual</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../03-sistema-layout/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">03 · Sistema de Layout →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

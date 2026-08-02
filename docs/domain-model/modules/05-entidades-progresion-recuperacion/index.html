@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>05 · Entidades de Progresión y Recuperación — Domain Model Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="entidades-progresion-recuperacion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 05 · Entidades</p>
+<h1>Entidades de Progresión y Recuperación</h1>
+<p class="lede">Seis entidades — tres de Progression (persistentes/derivadas) y tres de Recovery (mayormente efímeras, salvo su resultado).</p>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">PR-01</span><span class="entity__badges"><span class="tag tag--especificado">especificado</span></span></div>
+<h3>Prescripción</h3>
+<dl>
+<dt>Descripción</dt><dd>El conjunto de valores asignado a un Slot para el próximo ciclo (LU-16).</dd>
+<dt class="half">Identidad</dt><dd class="half">1:1 con el Slot que la recibe — se reemplaza atómicamente, nunca se edita parcialmente (Progression Engine Handbook, IN-M2)</dd>
+<dt class="half">Naturaleza</dt><dd class="half">Persistente — es la entrada real que el Workout Generator consume</dd>
+<dt>Relaciones</dt><dd>Producida por una Decisión micro de Progression Engine; consumida por el Slot correspondiente en el siguiente Workout</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">PR-02</span><span class="entity__badges"><span class="tag tag--especificado">especificado</span></span></div>
+<h3>EvaluaciónProgresión</h3>
+<dl>
+<dt>Descripción</dt><dd>El resultado del pipeline de 9 pasos de Progression Engine para un ciclo dado — Decisión micro y/o macro, con razón y contexto.</dd>
+<dt class="half">Identidad</dt><dd class="half">Efímera en sí misma — su forma persistida es el EventoProgresión (PR-03)</dd>
+<dt class="half">Naturaleza</dt><dd class="half">Derivada — se recalcula determinísticamente a partir de la Ventana de historial, nunca se persiste como entidad separada del evento que produce</dd>
+<dt>Relaciones</dt><dd>Consume Ventana de historial + Prescripción vigente + EstadoRecuperación (Veredicto); produce una Prescripción nueva y/o un evento</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">PR-03</span><span class="entity__badges"><span class="tag tag--especificado">especificado</span></span></div>
+<h3>EventoProgresión</h3>
+<dl>
+<dt>Descripción</dt><dd>El registro persistido de una EvaluaciónProgresión — la forma real que sobrevive en <code>progression_events</code> (Engineering Handbook, 07).</dd>
+<dt class="half">Identidad</dt><dd class="half">Propia — <code>id</code> uuid, append-only</dd>
+<dt class="half">Naturaleza</dt><dd class="half">Persistente — nunca editado ni borrado tras su creación (FT-09)</dd>
+<dt>Relaciones</dt><dd>Referencia un Usuario, opcionalmente un WorkoutLog origen; su <code>tipo</code> lo clasifica entre 25 valores consolidados (Domain Events, 11)</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">PR-04</span><span class="entity__badges"><span class="tag tag--especificado">especificado</span></span></div>
+<h3>EstadoRecuperación</h3>
+<dl>
+<dt>Descripción</dt><dd>El Veredicto ya resuelto que Recovery Engine entrega a Motor BPS/Progression Engine — forma canónica reconciliada por el Implementation Handbook (IMP-ADR-01): <code>{procede: boolean, subtipo?: "programada"|"reactiva", razon: string}</code>.</dd>
+<dt class="half">Identidad</dt><dd class="half">Efímero — no tiene identidad propia persistida; su efecto se registra indirectamente vía EventoProgresión cuando dispara una Descarga</dd>
+<dt class="half">Naturaleza</dt><dd class="half">Derivado — se recalcula en cada ciclo a partir de SeñalFatiga</dd>
+<dt>Relaciones</dt><dd>Consumido por Motor BPS y Progression Engine como entrada obligatoria, nunca calculado por ninguno de los dos</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">PR-05</span><span class="entity__badges"><span class="tag tag--especificado">especificado</span></span></div>
+<h3>SeñalFatiga</h3>
+<dl>
+<dt>Descripción</dt><dd>Dato crudo de fatiga/dolor/sueño — propiedad exclusiva de Recovery Engine.</dd>
+<dt class="half">Identidad</dt><dd class="half">Fuera de alcance de este handbook — Recovery Engine no tiene handbook de dominio propio (00, Architecture Review AR-006)</dd>
+<dt class="half">Naturaleza</dt><dd class="half">Efímera para el resto del ecosistema — ningún otro contexto la persiste ni la observa directamente (P8, LU-18)</dd>
+<dt>Relaciones</dt><dd>Consumida exclusivamente por Recovery Engine para producir EstadoRecuperación</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">PR-06</span><span class="entity__badges"><span class="tag tag--especificado">especificado</span></span></div>
+<h3>Descarga</h3>
+<dl>
+<dt>Descripción</dt><dd>Reducción de volumen/intensidad aplicada a una Prescripción — tres tipos: programada (Training Framework), reactiva (Recovery, terminal), preventiva (Progression Engine, no vinculante, PE-035, 🔴 hipótesis).</dd>
+<dt class="half">Identidad</dt><dd class="half">Efímera como decisión, persistente como efecto (la Prescripción resultante y el EventoProgresión que la originó)</dd>
+<dt class="half">Naturaleza</dt><dd class="half">Derivada — nunca es una entidad con tabla propia, es una clasificación de por qué una Prescripción cambió</dd>
+<dt>Relaciones</dt><dd>Prioridad entre tipos cuando coinciden: reactiva &gt; programada &gt; preventiva (Progression Engine Handbook, PE-037)</dd>
+</dl>
+</div>
+
+<h2 id="clasificacion">Persistente, derivado o efímero — resumen</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Entidad</th><th>Naturaleza</th></tr></thead>
+<tbody>
+<tr><td>Prescripción</td><td>Persistente</td></tr>
+<tr><td>EvaluaciónProgresión</td><td>Derivada (no persiste como entidad separada)</td></tr>
+<tr><td>EventoProgresión</td><td>Persistente (append-only)</td></tr>
+<tr><td>EstadoRecuperación</td><td>Derivado (recalculado cada ciclo)</td></tr>
+<tr><td>SeñalFatiga</td><td>Efímera para todo el ecosistema salvo Recovery Engine mismo</td></tr>
+<tr><td>Descarga</td><td>Derivada — su efecto persiste, la decisión en sí no tiene tabla propia</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../04-entidades-diagnostico/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 04 · Entidades de Diagnóstico</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../06-entidades-composicion-corporal/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">06 · Entidades de Composición Corporal →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

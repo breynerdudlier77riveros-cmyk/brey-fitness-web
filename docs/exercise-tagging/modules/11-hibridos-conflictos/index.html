@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>11 · Híbridos y Conflictos — Exercise Tagging Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="hibridos-conflictos" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 11 · Consistencia</p>
+<h1>Ejercicios Híbridos y Conflictos</h1>
+<p class="lede">El caso que la fuente nombra explícitamente, reconoce como real y deliberadamente no resuelve. Este módulo documenta esa ausencia con precisión y define el único protocolo que sí puede derivarse: el escalado.</p>
+
+<h2 id="barrido">Resultado del barrido</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">"Híbrido" nunca se refiere a un ejercicio en toda la documentación</div>
+  <p>El término aparece en 10 archivos. En todos los casos designa una de tres cosas: el <strong>Sistema Híbrido</strong> (producto comercial), un <strong>patrón de arquitectura</strong> ("puntero materializado + eventos", MBPS-ADR-01), o una <strong>estrategia descartada</strong> ("IA sugiere, regla filtra"). <strong>Cero apariciones</strong> sobre ejercicios que pertenecen a varias categorías.</p>
+</div>
+<p>El único reconocimiento del problema está en el trade-off de patrones del Architecture Handbook 04, y es un reconocimiento sin solución:</p>
+<div class="callout callout--nota">
+  <div class="callout__label">Trade-off "Un solo patrón primario" — texto íntegro</div>
+  <p>"Un burpee <em>es</em> varios patrones a la vez; se fuerza uno primario + secundarios porque el Generator necesita respuesta inequívoca de qué slot llena. La ambigüedad multi-primaria no paga su costo en v1."</p>
+</div>
+<p>La fuente, por tanto: (a) confirma que existen ejercicios multi-patrón, (b) explica por qué hay que elegir uno solo, y (c) <strong>no dice cuál elegir</strong>. Es exactamente la forma de una decisión de contenido que P14 reserva a autoridad humana.</p>
+
+<h2 id="tipos">Tipos de conflicto al etiquetar</h2>
+<p class="matrix-note">Cada tipo indica si existe resolución documentada o si activa escalado.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tipo</th><th>Ejemplo de situación</th><th>¿Regla documentada?</th><th>Tratamiento</th></tr></thead>
+<tbody>
+<tr><td><strong>Multi-patrón</strong></td><td>Un movimiento encaja en dos de los 9 patrones</td><td><span class="tag tag--futuro">no</span></td><td>Escalado · TG-07</td></tr>
+<tr><td><strong>Multi-rol saturado</strong></td><td>Un ejercicio parece admitir los 5 roles</td><td><span class="tag tag--futuro">no</span> — sin límite de cardinalidad</td><td>Escalado</td></tr>
+<tr><td><strong>Modalidad ambigua</strong></td><td>Un movimiento con fase dinámica y sostén isométrico</td><td><span class="tag tag--futuro">no</span></td><td>Escalado</td></tr>
+<tr><td><strong>Intensidad de zona dudosa</strong></td><td>No hay certeza de si carga <code>alto</code> o <code>medio</code></td><td><span class="tag tag--especificado">derivada</span> — TG-08</td><td><strong>No etiquetar</strong> · el ejercicio queda no elegible</td></tr>
+<tr><td><strong>Cardinalidad violada</strong></td><td>Alguien propone dos patrones primarios</td><td><span class="tag tag--implementado">sí</span></td><td>Rechazo estructural · nivel 2</td></tr>
+<tr><td><strong>Vocabulario violado</strong></td><td>Se propone un patrón fuera de los 9</td><td><span class="tag tag--implementado">sí</span></td><td>Rechazo · nivel 3</td></tr>
+<tr><td><strong>Consistencia violada</strong></td><td>La cadena propuesta cruza de patrón</td><td><span class="tag tag--implementado">sí</span></td><td>Rechazo · nivel 4</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Los conflictos resolubles son todos estructurales</div>
+  <p>Los cuatro tipos con regla documentada son violaciones de forma: cardinalidad, vocabulario, consistencia. Los tres sin regla son todos <strong>juicios biomecánicos</strong>. Es la misma frontera de TG-05, vista desde el lado del conflicto.</p>
+</div>
+
+<h2 id="protocolo">Protocolo de escalado</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">TG-07 · Ante ausencia de regla, se escala; no se improvisa</div>
+  <p>Quien etiqueta <strong>no resuelve</strong> un conflicto sin regla en el momento. El caso se registra y se eleva a la autoridad de contenido. Improvisar un criterio lo convierte en precedente sin que nadie lo haya aprobado — y el siguiente etiquetador lo copiará creyendo que es norma.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">El escalado, derivado del circuito de cola editorial ya existente</div>
+<pre class="mermaid">
+flowchart TD
+  A["Conflicto detectado<br/>al etiquetar"] --> B{"¿Es violación<br/>estructural?"}
+  B -- Sí --> R["RECHAZO inmediato<br/>niveles 2-4 de la jerarquía"]
+  B -- No --> C{"¿Compromete el filtro<br/>de seguridad?"}
+  C -- Sí --> N["NO ETIQUETAR · TG-08<br/>ejercicio no elegible"]
+  C -- No --> D["REGISTRAR el conflicto:<br/>ejercicio · eje · opciones consideradas"]
+  D --> E["ELEVAR a autoridad<br/>de contenido (P14)"]
+  E --> F["Decisión autorizada<br/>+ justificación registrada"]
+  F --> G{"¿La decisión es<br/>generalizable?"}
+  G -- Sí --> H["Proponer regla nueva<br/>→ decisión documental"]
+  G -- No --> I["Caso cerrado<br/>solo para este ejercicio"]
+  N --> D
+</pre>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Sobre el origen de este protocolo</div>
+  <p>Ninguna fuente publica un "protocolo de escalado" con ese nombre. Se deriva combinando tres elementos que sí existen: el circuito de <strong>cola editorial</strong> que el ecosistema define para los vacíos de catálogo, el principio <strong>P14</strong> de autorización humana, y el patrón documental establecido de registrar lo no decidido como pregunta abierta en lugar de resolverlo por defecto. Es una derivación de proceso, no una regla biomecánica.</p>
+</div>
+
+<h2 id="registro">Qué debe registrarse en un escalado</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Campo</th><th>Por qué</th><th>Deriva de</th></tr></thead>
+<tbody>
+<tr><td>Ejercicio (slug)</td><td>Identidad estable del caso</td><td>TX-02 / P15</td></tr>
+<tr><td>Eje en conflicto</td><td>Permite agrupar casos y detectar reglas faltantes recurrentes</td><td>TG-07</td></tr>
+<tr><td>Opciones consideradas</td><td>Sin ellas la decisión posterior no es auditable</td><td>TG-02</td></tr>
+<tr><td>Quién autorizó y cuándo</td><td>"La responsabilidad debe poder rastrearse a una decisión humana"</td><td>P14</td></tr>
+<tr><td>Si la decisión es generalizable</td><td>Distingue un caso puntual de una regla faltante</td><td>Derivado</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="prohibido">Lo que este handbook no hace con los híbridos</h2>
+<div class="callout callout--descartado">
+  <div class="callout__label">Descartado — proponer un criterio de desempate</div>
+  <p>Habría sido tentador proponer algo como "gana el patrón que soporta la mayor carga" o "gana el patrón del segmento corporal dominante". Cualquiera de esas frases sería <strong>biomecánica inventada</strong> escrita en el documento canónico del etiquetado — precisamente lo que el brief prohíbe y lo que P14 reserva a autoridad humana. La ausencia queda registrada como deuda <a href="../17-auditoria/index.html">TG-D01</a>.</p>
+</div>
+<div class="callout callout--descartado">
+  <div class="callout__label">Descartado — resolver el caso del burpee como ejemplo</div>
+  <p>La fuente usa el burpee para ilustrar el problema. Resolverlo aquí convertiría un ejemplo ilustrativo en un precedente oficial, y los siguientes etiquetados lo citarían como norma.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../10-capacidades-nivel/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 10 · Capacidades y Nivel</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../12-matrices-consistencia/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">12 · Matrices de Consistencia →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

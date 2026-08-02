@@ -4,6 +4,15 @@
 
 import type { ComponentType } from 'react';
 
+// ── Envelope oficial de respuesta de una Server Action ─────────────────────
+// Es el `Resultado<T>` del Architecture Handbook (11) / la forma { ok, data,
+// error } del API Contract Handbook (06): éxito con DTO oficial, o error con
+// un código oficial del catálogo (API Contract Handbook 09). No es un DTO de
+// dominio nuevo — es el sobre de transporte que ya especifican esos handbooks.
+export type ActionResult<T> =
+  | { ok: true; data: T }
+  | { ok: false; error: string; detalle?: unknown };
+
 export type SistemaSlug =
   | 'fuerza'
   | 'hipertrofia'
@@ -186,4 +195,54 @@ export interface Profile {
   observaciones: string | null;
   created_at: string;
   updated_at: string;
+}
+
+// ── systems (catálogo-espejo — supabase/schema.sql) ────────────────────────
+// La fila de la tabla `systems` (Database Handbook 04). Distinta del `Sistema`
+// RICO de arriba, que vive en código versionado (src/data/sistemas.ts,
+// ADR-009): esta es solo el espejo liviano en base de datos, destino de FKs
+// y flags de disponibilidad/precio. `precio` es numeric → string en PostgREST.
+export interface SistemaCatalogo {
+  slug: SistemaSlug;
+  nombre: string;
+  objetivo: string | null;
+  tagline: string | null;
+  descripcion: string | null;
+  duracion_semanas: number | null;
+  disponible: boolean;
+  precio: number | null;
+  modelo_precio: 'unico' | 'membresia' | null;
+  created_at: string;
+}
+
+// ── progression_events (backend real — supabase/schema.sql) ────────────────
+// Espeja la tabla `progression_events`. Los 25 `tipo` y 6 `origen` mirroran el
+// CHECK exacto (Database Handbook 08). `razones`/`contexto` son jsonb sin
+// esquema fijo por tipo todavía (AR-013/AR-026) — se tipan `unknown` para no
+// fingir una forma que ningún handbook ha definido.
+
+export type TipoEvento =
+  | 'activacion' | 'pausa' | 'reanudacion' | 'sistema_completado'
+  | 'gate_fallado' | 'transicion_estado' | 'anomalia'
+  | 'avanza' | 'sostiene' | 'retrocede' | 'prescripcion_actualizada'
+  | 'escalon_avanzado' | 'escalon_retrocedido' | 'estancamiento_confirmado'
+  | 'estancamiento_resuelto' | 'deload_aplicado' | 'deload_cancelado'
+  | 'conflicto_resuelto' | 'error_invocacion'
+  | 'descarga_reactiva' | 'dolor_reportado' | 'restriccion_zona'
+  | 'semana_generada' | 'descarga_programada'
+  | 'override_usuario';
+
+export type OrigenEvento =
+  | 'motor_bps' | 'progression_engine' | 'recovery_engine'
+  | 'workout_generator' | 'usuario' | 'coach';
+
+export interface EventoProgresion {
+  id: string;
+  user_id: string;
+  tipo: TipoEvento;
+  origen: OrigenEvento;
+  razones: unknown;
+  contexto: unknown | null;
+  workout_log_id: string | null;
+  created_at: string;
 }

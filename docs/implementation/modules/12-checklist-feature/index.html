@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>12 · Checklist por Feature — Implementation Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="checklist-feature" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 12 · Checklists y gobernanza</p>
+<h1>Checklist por Feature</h1>
+<p class="lede">El estado real de cada pieza del sistema en el momento de publicar este handbook, y la matriz completa de qué necesita cada feature de principio a fin.</p>
+
+<h2 id="tabla-estado">Estado por módulo del sistema</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Pieza</th><th>Estado</th><th>Nota</th></tr></thead>
+<tbody>
+<tr><td>Core Product — Perfil</td><td><span class="status status--verificado">verificado</span></td><td>En producción</td></tr>
+<tr><td>Core Product — Entrenamientos (calendario/historial)</td><td><span class="status status--verificado">verificado</span></td><td>En producción</td></tr>
+<tr><td>Diagnóstico BPS (motor)</td><td><span class="status status--en-progreso">en progreso</span></td><td>Motor puro implementado; sin persistencia de resultado todavía</td></tr>
+<tr><td>IMP-ADR-01 (contrato Recovery)</td><td><span class="status status--implementado">implementado</span></td><td>Aceptado en este mismo handbook (14)</td></tr>
+<tr><td>IMP-ADR-06 (mapeo columnas BCS)</td><td><span class="status status--implementado">implementado</span></td><td>Aceptado en este mismo handbook (05, 14)</td></tr>
+<tr><td>Migración M1 — endurecimiento RLS</td><td><span class="status status--no-iniciado">no iniciado</span></td><td>Lista para ejecutar — sin precondición pendiente</td></tr>
+<tr><td>Migración M2 — progression_events</td><td><span class="status status--no-iniciado">no iniciado</span></td><td>Lista para ejecutar</td></tr>
+<tr><td>Migración M3 — tablas BCS</td><td><span class="status status--no-iniciado">no iniciado</span></td><td>Lista para ejecutar</td></tr>
+<tr><td>Migración M4 — índices</td><td><span class="status status--bloqueado">bloqueado</span></td><td>Depende de M1–M3</td></tr>
+<tr><td>Repositorios y casos de uso del BCS</td><td><span class="status status--bloqueado">bloqueado</span></td><td>Depende de M3</td></tr>
+<tr><td>Componentes y pantallas del BCS Design System</td><td><span class="status status--bloqueado">bloqueado</span></td><td>Depende del backend del BCS</td></tr>
+<tr><td>Recovery Engine (contrato mínimo)</td><td><span class="status status--no-iniciado">no iniciado</span></td><td>Lista para ejecutar</td></tr>
+<tr><td>Motor BPS</td><td><span class="status status--bloqueado">bloqueado</span></td><td>Depende de Recovery Engine + M2 + transición de Nivel pendiente de resolver (08)</td></tr>
+<tr><td>Progression Engine</td><td><span class="status status--bloqueado">bloqueado</span></td><td>Depende de Recovery Engine; PE-012 pendiente de operacionalizar (08)</td></tr>
+<tr><td>Integración de motores</td><td><span class="status status--bloqueado">bloqueado</span></td><td>Depende de Motor BPS + Progression Engine completos</td></tr>
+<tr><td>Testing de motores</td><td><span class="status status--bloqueado">bloqueado</span></td><td>Depende de la integración</td></tr>
+<tr><td>Observabilidad completa</td><td><span class="status status--bloqueado">bloqueado</span></td><td>Depende de eventos reales fluyendo (11)</td></tr>
+<tr><td>Workout Generator / Player / Nutrición / Programas / Coach IA / Hábitos / Lesiones</td><td><span class="status status--no-iniciado">no iniciado</span></td><td>Sin handbook de dominio — fuera del roadmap operativo (03, Fase 4)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="matriz-feature">Matriz Feature → Handbooks → Migraciones → Backend → Frontend → Testing → Release</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Feature</th><th>Handbooks necesarios</th><th>Migraciones</th><th>Backend</th><th>Frontend</th><th>Testing</th><th>Release</th></tr></thead>
+<tbody>
+<tr><td>Diagnóstico BPS con persistencia</td><td>Architecture Handbook</td><td>Ninguna nueva (<code>diagnoses</code> ya existe)</td><td>Repositorio de <code>diagnoses</code> (nuevo)</td><td>Ya existe (formulario del Diagnóstico)</td><td>Unit sobre el motor puro</td><td>Checklist estándar (13)</td></tr>
+<tr><td>Activación y ciclo semanal (Motor BPS)</td><td>Architecture, Motor BPS, Engineering</td><td>M1, M2</td><td>06, Pista B pasos 1–3</td><td>Ninguno nuevo (07, gap declarado)</td><td>Unit + Integration (10)</td><td>Checklist + Security + Performance (13)</td></tr>
+<tr><td>Progresión automática (Progression Engine)</td><td>Architecture, Motor BPS, Progression Engine, Engineering</td><td>M2</td><td>06, Pista B pasos 1, 4–5</td><td>Ninguno nuevo (07, gap declarado)</td><td>Unit (catálogo de 39 reglas) + Integration (09)</td><td>Checklist + Security + Performance (13)</td></tr>
+<tr><td>Gestión de clientes del BCS</td><td>BCS Handbook, BCS Design System, Engineering</td><td>M3</td><td>06, Pista A pasos 1, 4 (UC-01–04)</td><td>07, pasos 1, 3</td><td>Unit + Integration</td><td>Checklist + Accesibilidad (13)</td></tr>
+<tr><td>Registro de mediciones del BCS</td><td>BCS Handbook, BCS Design System, Engineering</td><td>M3</td><td>06, Pista A pasos 2, 4 (UC-05–06)</td><td>07, pasos 1–3</td><td>Unit (25 variables + validaciones)</td><td>Checklist + Accesibilidad (13)</td></tr>
+<tr><td>Reporte y comparación del BCS</td><td>BCS Handbook, BCS Design System, Engineering</td><td>M3</td><td>06, Pista A paso 5</td><td>07, pasos 1–2</td><td>Unit (cálculo on-demand) + Integration</td><td>Checklist + Performance (13, sin cache aún — Architecture Review AR-021)</td></tr>
+<tr><td>Enlace público del BCS</td><td>BCS Handbook, BCS Design System, Engineering</td><td>M3</td><td>06, Pista A pasos 3–4 (UC-07–09)</td><td>07, paso 4</td><td>Unit (token) + Security (13)</td><td>Checklist + Security + Accesibilidad (13)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../11-observabilidad/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 11 · Observabilidad</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../13-release-checklist/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">13 · Release Checklist →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

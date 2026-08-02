@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>01 · Filosofía del Etiquetado — Exercise Tagging Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="filosofia" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 01 · Empezar</p>
+<h1>Filosofía del Etiquetado</h1>
+<p class="lede">Ocho principios que gobiernan cómo se asigna un atributo a un ejercicio. Todos derivan de un principio ya vigente; ninguno es original. Prefijo <code>TG-</code>, sin colisión con los <code>TX-</code> del Exercise Taxonomy Handbook.</p>
+
+<h2 id="principios">Los ocho principios</h2>
+
+<div class="callout callout--regla">
+  <div class="callout__label">TG-01 · La decisión es humana; el proceso es documentado</div>
+  <p>Etiquetar un ejercicio es una decisión de contenido que autoriza una persona con criterio de entrenador. Lo que este handbook fija no es la decisión, sino <strong>todo lo que la rodea</strong>: el orden, las restricciones, las validaciones y el rechazo. Un proceso documentado sobre una decisión humana no es un proceso incompleto — es la única forma honesta de este proceso.<br><strong>Deriva de:</strong> P14 — "El catálogo es la frontera de autoridad humana".</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">TG-02 · Toda etiqueta debe poder justificarse</div>
+  <p>Ante la pregunta "¿por qué este ejercicio tiene este patrón?", la respuesta admisible es una de dos: (a) una regla documentada que lo obliga, o (b) una autorización humana registrada. <strong>"Porque sí" y "porque siempre fue así" no son respuestas admisibles.</strong> Un etiquetado cuya justificación no puede reconstruirse es un etiquetado que debe revisarse.<br><strong>Deriva de:</strong> P2/P3 — trazabilidad y explicabilidad como propiedades del sistema, no como extras.</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">TG-03 · Ningún atributo se deduce de otro atributo</div>
+  <p>El patrón no se deduce del músculo. La zona de riesgo no se deduce del equipo. El rol no se deduce del tipo. Cada eje se etiqueta por separado porque cada uno responde una pregunta distinta; derivar uno de otro produce correlaciones plausibles y falsas.<br><strong>Deriva de:</strong> Architecture Handbook 04 — "La intensidad relativa por zona <strong>no se infiere del nombre</strong> — exige etiquetado con criterio biomecánico"; y del descarte de "Rol como clasificación muscular".</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">TG-04 · Sin etiquetar es un estado válido y visible</div>
+  <p>Un atributo que nadie ha evaluado debe quedar explícitamente vacío y hacer fallar la elegibilidad — nunca adoptar un valor por defecto que lo haga pasar. El fallo alimenta la cola editorial; el default silencioso produce un ejercicio mal clasificado que nadie detecta.<br><strong>Deriva de:</strong> P6 (sin defaults silenciosos) y del comportamiento declarado: "Con 19 ejercicios, combinaciones legítimas caerán en <code>CATALOGO_INSUFICIENTE</code>. <strong>Correcto por diseño</strong>".</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">TG-05 · El etiquetado se valida en dos capas independientes</div>
+  <p>La <strong>estructura</strong> la valida ingeniería de forma automática (vocabulario cerrado, cardinalidades, ausencia de ciclos). El <strong>contenido</strong> lo valida una persona (¿es correcto ese patrón? ¿es correcta esa intensidad de zona?). Pasar la validación estructural no implica que el etiquetado sea correcto — solo que es bien formado.<br><strong>Deriva de:</strong> Architecture Handbook 04, regla de cadena: "El orden lo autoriza criterio de entrenador (P14) — <strong>la estructura la valida ingeniería</strong> (sin ciclos, sin huecos de nivel)".</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">TG-06 · Etiquetar es una operación versionada</div>
+  <p>Cambiar la etiqueta de un ejercicio produce una versión nueva de catálogo y <strong>no altera nada ya generado</strong>. El etiquetado es historia: lo que se generó con la clasificación anterior sigue siendo correcto respecto de la versión con que se produjo.<br><strong>Deriva de:</strong> R-2 (Regla de Inmutabilidad) y BPS-023 — "Toda generación registra la versión de catálogo… sin versión, una generación pasada es irrecuperable tras cambios de contenido".</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">TG-07 · Ante ausencia de regla, se escala; no se improvisa</div>
+  <p>Cuando dos etiquetas parecen igualmente defendibles y ninguna regla documentada decide, el caso <strong>no se resuelve en el momento</strong> por quien esté etiquetando: se registra como decisión pendiente y se eleva a la autoridad de contenido. Improvisar un criterio en el momento lo convierte en precedente sin que nadie lo haya aprobado.<br><strong>Deriva de:</strong> P14 + el patrón ya establecido en el ecosistema de registrar lo no decidido como pregunta abierta en lugar de resolverlo por defecto.</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">TG-08 · La seguridad no admite etiquetado aproximado</div>
+  <p>Los ejes que alimentan el filtro de seguridad — zonas de riesgo y su intensidad — no toleran una etiqueta "razonable pero no verificada". Ante duda, la etiqueta correcta es <em>ninguna</em> (que excluye al ejercicio), nunca una conservadora inventada.<br><strong>Deriva de:</strong> Architecture Handbook 04 — "la existencia del filtro es de seguridad y <strong>no removible</strong>"; y del trade-off aceptado: "Más lento, pero es la única versión honesta del filtro de seguridad".</p>
+</div>
+
+<h2 id="derivacion">Mapa de derivación</h2>
+<div class="diagram">
+<div class="diagram-label">Cada principio de etiquetado cuelga de uno ya vigente</div>
+<pre class="mermaid">
+graph LR
+  P14["P14 · El humano autoriza"] --> TG01["TG-01 Decisión humana"]
+  P14 --> TG07["TG-07 Escalar, no improvisar"]
+  P2["P2/P3 · Trazabilidad"] --> TG02["TG-02 Todo justificable"]
+  AH04["AH04 · No se infiere<br/>del nombre"] --> TG03["TG-03 Ningún atributo<br/>se deduce de otro"]
+  P6["P6 · Sin defaults<br/>silenciosos"] --> TG04["TG-04 Sin etiquetar<br/>es visible"]
+  CAD["Regla de cadena ·<br/>estructura vs. criterio"] --> TG05["TG-05 Dos capas<br/>de validación"]
+  R2["R-2 · Inmutabilidad"] --> TG06["TG-06 Versionado"]
+  BPS023["BPS-023 · Versión<br/>de catálogo"] --> TG06
+  SEG["Filtro no removible"] --> TG08["TG-08 Seguridad sin<br/>aproximación"]
+</pre>
+</div>
+
+<h2 id="tensiones">Tensiones aceptadas</h2>
+<div class="callout callout--tradeoff">
+  <div class="callout__label">Velocidad de catálogo vs. autoridad humana</div>
+  <p>Exigir autorización humana por atributo y por ejercicio hace el catálogo lento de crecer — es la causa directa de que hoy haya 19 ejercicios sin etiquetar. La fuente acepta el coste explícitamente: "Más lento, pero es la única versión honesta del filtro de seguridad". La alternativa —etiquetado asistido o inferido— produciría un catálogo grande y no auditable.</p>
+</div>
+<div class="callout callout--tradeoff">
+  <div class="callout__label">Proceso especificado sobre decisión no especificada</div>
+  <p>Este handbook define siete pasos con precisión sobre decisiones cuyo criterio interno no puede definir. Puede parecer un contrasentido; no lo es: el proceso garantiza que la decisión se tome <em>en el orden correcto, con las restricciones correctas y con rechazo visible</em>, que es todo lo que la documentación puede aportar sin invadir la autoridad de contenido.</p>
+</div>
+<div class="callout callout--descartado">
+  <div class="callout__label">Descartado — proponer criterios biomecánicos "provisionales"</div>
+  <p>Sería la forma más rápida de cerrar los huecos de este handbook. Descartado por TG-01 y por la experiencia documental del ecosistema: un criterio provisional escrito en el documento canónico se cita como definitivo en cuanto pasa el tiempo suficiente, y nadie recuerda que nunca fue autorizado.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../00-introduccion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 00 · Introducción</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../02-jerarquia-reglas/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">02 · Jerarquía de Reglas →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

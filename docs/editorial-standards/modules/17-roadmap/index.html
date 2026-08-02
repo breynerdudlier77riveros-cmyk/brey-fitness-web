@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>17 · Roadmap y Auditoría — Editorial Standards</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="roadmap" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 17 · Gobernanza</p>
+<h1>Roadmap y Auditoría Final</h1>
+<p class="lede">Medición del aparato editorial sobre una matriz de 36 celdas, y qué gobernanza hace falta para sostener 100, 500 y 1000 entradas. Todas las cifras son recuentos, no estimaciones.</p>
+
+<h2 id="matriz">Matriz de 36 celdas</h2>
+<p class="matrix-note">Doce decisiones editoriales × tres dimensiones: <strong>¿quién tiene autoridad?</strong> · <strong>¿hay proceso definido?</strong> · <strong>¿queda registrado?</strong></p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Decisión editorial</th><th>Autoridad</th><th>Proceso</th><th>Registro</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Decidir el valor de un atributo biomecánico</td><td>✅</td><td>✅</td><td>❌</td></tr>
+<tr><td>2</td><td>Validar la estructura de una entrada</td><td>✅</td><td>✅</td><td>⚠️</td></tr>
+<tr><td>3</td><td>Ampliar un vocabulario cerrado</td><td>✅</td><td>⚠️</td><td>✅</td></tr>
+<tr><td>4</td><td>Generar la versión de catálogo</td><td>✅</td><td>✅</td><td>✅</td></tr>
+<tr><td>5</td><td>Aprobar la publicación de una entrada</td><td>❌</td><td>✅</td><td>❌</td></tr>
+<tr><td>6</td><td>Retirar una entrada</td><td>❌</td><td>❌</td><td>❌</td></tr>
+<tr><td>7</td><td>Resolver un conflicto de etiquetado</td><td>⚠️</td><td>✅</td><td>⚠️</td></tr>
+<tr><td>8</td><td>Decidir cuándo re-revisar una entrada</td><td>❌</td><td>❌</td><td>❌</td></tr>
+<tr><td>9</td><td>Fusionar entradas duplicadas</td><td>❌</td><td>❌</td><td>❌</td></tr>
+<tr><td>10</td><td>Corregir un error detectado</td><td>⚠️</td><td>⚠️</td><td>❌</td></tr>
+<tr><td>11</td><td>Actualizar el handbook ante deriva</td><td>✅</td><td>✅</td><td>✅</td></tr>
+<tr><td>12</td><td>Asignar el nivel de evidencia de una regla</td><td>✅</td><td>✅</td><td>✅</td></tr>
+</tbody>
+</table>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Dimensión</th><th>✅</th><th>⚠️</th><th>❌</th><th>% completa</th></tr></thead>
+<tbody>
+<tr><td>Autoridad</td><td>6</td><td>2</td><td>4</td><td>50,0 %</td></tr>
+<tr><td>Proceso</td><td>7</td><td>2</td><td>3</td><td>58,3 %</td></tr>
+<tr><td>Registro</td><td>4</td><td>2</td><td>6</td><td>33,3 %</td></tr>
+<tr><td><strong>Total (36 celdas)</strong></td><td><strong>17</strong></td><td><strong>6</strong></td><td><strong>13</strong></td><td><strong>47,2 %</strong></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">El resultado central</div>
+  <p><strong>El 47,2 % del proceso editorial está completamente especificado.</strong> Y solo <strong>3 de 12 decisiones (25,0 %)</strong> están completamente gobernadas en las tres dimensiones: generar la versión de catálogo, actualizar el handbook ante deriva y asignar el nivel de evidencia.</p>
+  <p><strong>Las tres son sobre documentación, ninguna sobre contenido.</strong> El ecosistema gobierna sus propios documentos con rigor y su catálogo sin aparato.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Dónde está el gobierno y dónde falta</div>
+<pre class="mermaid">
+graph TD
+  T["36 celdas"] --> A["Autoridad<br/>6 ✅ · 2 ⚠️ · 4 ❌"]
+  T --> P["Proceso<br/>7 ✅ · 2 ⚠️ · 3 ❌"]
+  T --> R["Registro<br/>4 ✅ · 2 ⚠️ · 6 ❌"]
+  R --> H["El registro es la dimensión<br/>más débil — 33,3 %"]
+  H --> P14["⛔ Por eso P14 no<br/>es verificable"]
+</pre>
+</div>
+
+<h2 id="metricas">Auditoría cuantitativa</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Métrica solicitada</th><th>Valor</th></tr></thead>
+<tbody>
+<tr><td>Principios editoriales</td><td><strong>8</strong> (ED-01…08)</td></tr>
+<tr><td>Roles respaldados</td><td><strong>0</strong> de 5 solicitados</td></tr>
+<tr><td>Actores documentados</td><td><strong>2</strong> (Contenido, Ingeniería) + 1 autoridad (persona con criterio de entrenador)</td></tr>
+<tr><td>Responsabilidades claramente asignadas</td><td><strong>6</strong> de 12</td></tr>
+<tr><td>Responsabilidades ambiguas</td><td><strong>2</strong> de 12</td></tr>
+<tr><td>Responsabilidades sin autoridad</td><td><strong>4</strong> de 12</td></tr>
+<tr><td>Estados documentados</td><td><strong>0</strong></td></tr>
+<tr><td>Estados inexistentes</td><td><strong>4</strong> (Draft, Approved, Deprecated, Archived)</td></tr>
+<tr><td>Procesos completos</td><td><strong>1</strong> de 7 pasos del flujo (Publicación)</td></tr>
+<tr><td>Procesos incompletos</td><td><strong>6</strong> de 7 (3 parciales, 3 inexistentes)</td></tr>
+<tr><td>Deudas editoriales</td><td><strong>14</strong> (6 críticas, 6 altas, 2 medias)</td></tr>
+<tr><td>Contradicciones</td><td><strong>6</strong> (KE-01…06; 2 críticas)</td></tr>
+<tr><td>ADR editoriales</td><td><strong>7</strong> (ED-ADR-01…07)</td></tr>
+<tr><td>Anti-patterns</td><td><strong>12</strong> (EDA-01…12; 4 críticos)</td></tr>
+<tr><td><strong>% del proceso editorial completamente especificado</strong></td><td><strong>47,2 %</strong> (17/36 celdas) · <strong>14,3 %</strong> del flujo de 7 pasos</td></tr>
+<tr><td><strong>% que depende de criterio humano</strong></td><td><strong>58,3 %</strong> (7 de 12 decisiones); <strong>4</strong> son irreducibles por diseño</td></tr>
+<tr><td>Decisiones sin autoridad documental</td><td><strong>4</strong> (aprobar, retirar, re-revisar, fusionar)</td></tr>
+<tr><td>Deudas que exigen cambios en el modelo de datos</td><td><strong>3</strong> (ED-D08, ED-D10, ED-D12)</td></tr>
+<tr><td>Deudas que son solo decisión documental</td><td><strong>9</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="bloqueante">Qué bloquea la publicación del primer Exercise oficial</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Nada editorial</div>
+  <p>Lo que bloquea la primera entrada es el <strong>etiquetado de los 7 atributos que requieren criterio editorial</strong> — patrón primario, patrones secundarios, roles, modalidad, zonas de riesgo, cadena y capacidades. Es el bloqueante #2 del Roadmap del Architecture Handbook, con dueño declarado <strong>Contenido</strong>, y su naturaleza está establecida: "es etiquetado con criterio, <strong>no código</strong>".</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Objetivo</th><th>¿Bloqueado por el estándar editorial?</th><th>Bloqueante real</th></tr></thead>
+<tbody>
+<tr><td>Publicar la primera entrada</td><td><strong>No</strong></td><td>Etiquetado de 7 atributos (Contenido)</td></tr>
+<tr><td>Publicarla cumpliendo P14</td><td><strong>Sí</strong></td><td>Bloque de trazabilidad (ED-D01 + D08 + D10)</td></tr>
+<tr><td>Aprobarla formalmente</td><td><strong>Sí</strong></td><td>ED-D01 · ED-D02 · ED-D05</td></tr>
+<tr><td>Revisarla antes de publicar</td><td><strong>Sí</strong></td><td>ED-D04</td></tr>
+<tr><td>Retirarla más adelante</td><td><strong>Sí</strong></td><td>ED-D13 (depende de ED-D01)</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">La distinción operativa</div>
+  <p>Se puede publicar la primera entrada hoy — pero no de forma <strong>gobernada</strong>. Existirá y cumplirá el contrato del catálogo; nadie podrá demostrar quién la autorizó, ni revisarla antes, ni retirarla después. Es la diferencia entre tener catálogo y tener catálogo auditable, y decidir si esa diferencia importa antes de la entrada número uno es más barato que descubrirlo en la número cien.</p>
+</div>
+
+<h2 id="escala">Roadmap por escala</h2>
+<p class="matrix-note">Qué gobernanza exige cada tamaño de catálogo. Las cifras de escala son umbrales de razonamiento, no valores documentados por ninguna fuente.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Escala</th><th>Qué se vuelve necesario</th><th>Deudas que hay que cerrar</th></tr></thead>
+<tbody>
+<tr><td><strong>1 entrada</strong></td><td>Nada nuevo — el contrato y el proceso de etiquetado bastan</td><td>Ninguna, para existir</td></tr>
+<tr><td><strong>~20 entradas</strong><br><span class="tag tag--especificado">las 19 actuales</span></td><td>Registro de autoría y estados: sin ellos ya no se sabe qué está en curso ni quién aprobó qué</td><td>Bloque de trazabilidad (D01 + D08 + D10)</td></tr>
+<tr><td><strong>100 entradas</strong></td><td>Revisión sistemática y roles: nadie recuerda 100 decisiones ni puede revisarlas de memoria. Aparecen los primeros duplicados</td><td>+ D02 (roles) · D04 (revisión) · D11 (equivalencia)</td></tr>
+<tr><td><strong>500 entradas</strong></td><td>Mantenimiento a escala: fusión de duplicados, retirada de entradas obsoletas, propagación de cambios de vocabulario, cola editorial con destinatario y plazos</td><td>+ D13 (retirar) · D14 (fusionar) · D06 (cola) · D09 (evidencia)</td></tr>
+<tr><td><strong>1000 entradas</strong></td><td>Auditoría automatizada y detección de deriva. El ADR deja de escalar como registro individual: se necesita registro estructurado por entrada</td><td>+ D07 (deriva) · D12 (escalados) · D03 (solicitud) · D08 con soporte estructurado</td></tr>
+</tbody>
+</table>
+</div>
+<div class="diagram">
+<div class="diagram-label">Cada escala añade exigencias; ninguna sustituye a las anteriores</div>
+<pre class="mermaid">
+graph LR
+  E1["1 entrada<br/>contrato + etiquetado"] --> E20["~20<br/>+ trazabilidad"]
+  E20 --> E100["100<br/>+ roles + revisión<br/>+ equivalencia"]
+  E100 --> E500["500<br/>+ fusión + retirada<br/>+ cola con dueño"]
+  E500 --> E1000["1000<br/>+ auditoría automatizada<br/>+ registro estructurado"]
+</pre>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">El catálogo actual ya está en el segundo umbral</div>
+  <p>Con 19 ejercicios documentados y cero etiquetados, el ecosistema ya está en la escala donde el bloque de trazabilidad deja de ser opcional. La deuda no aparece al crecer: <strong>ya venció</strong>.</p>
+</div>
+
+<h2 id="limite-adr">El límite del ADR como registro</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">El mecanismo que funciona no escala</div>
+  <p>ED-ADR-03 adopta el ADR como forma canónica de registro editorial, porque es el único mecanismo probado del ecosistema. Pero un ADR por cada asignación de patrón de cada ejercicio es inviable más allá de unas decenas de entradas: los ADR sirven para decisiones <strong>generalizables</strong>, no para el etiquetado entrada a entrada.</p>
+  <p>A partir de ~100 entradas, la trazabilidad exige <strong>registro estructurado en el propio dato</strong> — campos de autoría, fecha, motivo y estado — que es exactamente lo que ED-D08 y ED-D10 reclaman. El ADR seguirá siendo el registro de las decisiones de gobernanza; no puede serlo de las de contenido.</p>
+</div>
+
+<h2 id="orden">Orden de resolución sugerido</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Fase</th><th>Trabajo</th><th>Dueño</th><th>Desbloquea</th></tr></thead>
+<tbody>
+<tr><td><strong>1</strong></td><td>Bloque de trazabilidad: estados + versionado por entrada + registro de autoría</td><td>Documentación + modelo de datos</td><td>P14 verificable · aprobación · retirada · revisión</td></tr>
+<tr><td><strong>2</strong></td><td>Roles editoriales y proceso de revisión</td><td>Documentación</td><td>Control de calidad de contenido</td></tr>
+<tr><td><strong>3</strong></td><td>Etiquetado de los 7 atributos × 19 ejercicios</td><td>Contenido</td><td>Las primeras entradas oficiales</td></tr>
+<tr><td><strong>4</strong></td><td>Criterio de equivalencia, fusión y retirada</td><td>Documentación</td><td>Operar por encima de ~50 entradas</td></tr>
+<tr><td><strong>5</strong></td><td>Detección de deriva y auditoría automatizada</td><td>Ingeniería</td><td>Escala de 1000</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Por qué la fase 1 va antes que el etiquetado</div>
+  <p>Etiquetar 19 ejercicios sin registro de autoría produce 19 entradas correctas cuya autorización no puede rastrearse — exactamente lo que P14 existe para evitar. Y re-etiquetarlas después para añadir la trazabilidad cuesta más que hacerlo con el aparato ya en su sitio. <strong>El orden no es preferencia: es economía.</strong></p>
+</div>
+
+<h2 id="metricas-handbook">Métricas del handbook</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Métrica</th><th>Valor</th></tr></thead>
+<tbody>
+<tr><td>Módulos</td><td>18 (00–17)</td></tr>
+<tr><td>Decisiones editoriales analizadas</td><td>12</td></tr>
+<tr><td>Celdas de la matriz de auditoría</td><td>36</td></tr>
+<tr><td>Principios (ED-01…08)</td><td>8</td></tr>
+<tr><td>ADR (ED-ADR-01…07)</td><td>7</td></tr>
+<tr><td>Anti-patterns (EDA-01…12)</td><td>12</td></tr>
+<tr><td>Deudas (ED-D01…14)</td><td>14</td></tr>
+<tr><td>Contradicciones (KE-01…06)</td><td>6</td></tr>
+<tr><td>Ítems del checklist editorial</td><td>14</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="estado">Estado final</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Veredicto</div>
+  <p>El <strong>Editorial Standards Handbook v1.0 está completo</strong> como Source of Truth editorial: define 8 principios, el reparto de autoridad, el sistema de evidencia, el control de calidad, el gobierno de conflictos y la deuda priorizada — todo derivado, nada inventado.</p>
+  <p>El aparato editorial del ecosistema está especificado al <strong>47,2 %</strong>, con la <strong>autoridad al 50,0 %</strong>, el <strong>proceso al 58,3 %</strong> y el <strong>registro al 33,3 %</strong>. Solo 3 de 12 decisiones están completamente gobernadas, y las tres son sobre documentación.</p>
+  <p>El hallazgo que resume los cuatro handbooks de la serie: <strong>el ecosistema sabe con precisión quién debe autorizar su conocimiento, y no tiene dónde anotar que lo autorizó.</strong> P14 está enunciado con rigor y es hoy indemostrable. Cerrar el bloque de trazabilidad —una decisión documental y un cambio de modelo— convierte ese principio de aspiración en garantía, y desbloquea cuatro deudas más por el camino.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../16-deuda-editorial/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 16 · Deuda Editorial</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../../index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">Portada →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -14,6 +14,7 @@ const LABELS: Record<string, string> = {
   calendario: "Calendario",
   historial: "Historial",
   progreso: "Progreso",
+  "composicion-corporal": "Composición Corporal",
   perfil: "Perfil",
   biblioteca: "Biblioteca",
   configuracion: "Configuración",

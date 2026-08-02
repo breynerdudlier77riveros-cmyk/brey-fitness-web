@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>15 · Matriz del Ciclo — Content Lifecycle</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="matriz" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 15 · Gobernanza</p>
+<h1>Matriz del Ciclo de Vida</h1>
+<p class="lede">Los 12 pasos del ciclo × tres dimensiones: <strong>Proceso</strong> (¿está definido cómo se hace?), <strong>Autoridad</strong> (¿quién puede hacerlo?) y <strong>Registro</strong> (¿queda constancia?). 36 celdas, cada una respaldada por su módulo.</p>
+
+<h2 id="criterio">Criterio de evaluación</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Dimensión</th><th>✅ Completa</th><th>⚠️ Parcial</th><th>❌ Inexistente</th></tr></thead>
+<tbody>
+<tr><td><strong>Proceso</strong></td><td>Pasos definidos y verificables</td><td>Existe algo aplicable, sin proceso propio</td><td>Nada</td></tr>
+<tr><td><strong>Autoridad</strong></td><td>Quién decide, documentado</td><td>Nombrada sin proceso que la ejerza</td><td>Nadie</td></tr>
+<tr><td><strong>Registro</strong></td><td>Queda constancia recuperable</td><td>Constancia indirecta o de grano grueso</td><td>Ninguna</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="matriz">La matriz</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Paso del ciclo</th><th>Proceso</th><th>Autoridad</th><th>Registro</th><th>Módulo</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Solicitar una entrada</td><td>❌</td><td>❌</td><td>❌</td><td><a href="../03-nacimiento/index.html">03</a></td></tr>
+<tr><td>2</td><td>Crear (etiquetar)</td><td>✅</td><td>✅</td><td>❌</td><td><a href="../03-nacimiento/index.html">03</a></td></tr>
+<tr><td>3</td><td>Validar</td><td>✅</td><td>✅</td><td>⚠️</td><td><a href="../03-nacimiento/index.html">03</a></td></tr>
+<tr><td>4</td><td>Revisar</td><td>❌</td><td>⚠️</td><td>❌</td><td><a href="../11-trazabilidad/index.html">11</a></td></tr>
+<tr><td>5</td><td>Aprobar</td><td>⚠️</td><td>❌</td><td>❌</td><td><a href="../05-autoridad/index.html">05</a></td></tr>
+<tr><td>6</td><td>Rechazar</td><td>✅</td><td>⚠️</td><td>⚠️</td><td><a href="../05-autoridad/index.html">05</a></td></tr>
+<tr><td>7</td><td>Publicar</td><td>✅</td><td>❌</td><td>⚠️</td><td><a href="../06-publicacion/index.html">06</a></td></tr>
+<tr><td>8</td><td>Modificar</td><td>✅</td><td>✅</td><td>❌</td><td><a href="../05-autoridad/index.html">05</a></td></tr>
+<tr><td>9</td><td>Corregir</td><td>⚠️</td><td>✅</td><td>❌</td><td><a href="../12-correccion/index.html">12</a></td></tr>
+<tr><td>10</td><td>Versionar</td><td>✅</td><td>✅</td><td>✅</td><td><a href="../09-versionado/index.html">09</a></td></tr>
+<tr><td>11</td><td>Revertir (rollback)</td><td>❌</td><td>❌</td><td>❌</td><td><a href="../12-correccion/index.html">12</a></td></tr>
+<tr><td>12</td><td>Retirar / despublicar</td><td>❌</td><td>❌</td><td>❌</td><td><a href="../06-publicacion/index.html">06</a></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="totales">Totales</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Dimensión</th><th>✅</th><th>⚠️</th><th>❌</th><th>% completa</th></tr></thead>
+<tbody>
+<tr><td>Proceso</td><td>6</td><td>2</td><td>4</td><td>50,0 %</td></tr>
+<tr><td>Autoridad</td><td>5</td><td>2</td><td>5</td><td>41,7 %</td></tr>
+<tr><td>Registro</td><td>1</td><td>3</td><td>8</td><td>8,3 %</td></tr>
+<tr><td><strong>Total (36 celdas)</strong></td><td><strong>12</strong></td><td><strong>7</strong></td><td><strong>17</strong></td><td><strong>33,3 %</strong></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Los tres porcentajes del ciclo de vida</div>
+  <p><strong>Completamente especificado: 33,3 %</strong> (12/36) · <strong>Parcialmente especificado: 19,4 %</strong> (7/36) · <strong>Inexistente: 47,2 %</strong> (17/36).</p>
+  <p>Y un solo paso de los doce está completo en las tres dimensiones: <strong>versionar</strong> — <strong>8,3 %</strong> del ciclo. Es, además, el único paso que no versiona la entrada sino el catálogo entero.</p>
+</div>
+
+<h2 id="lectura">Lectura de la matriz</h2>
+<div class="diagram">
+<div class="diagram-label">El registro es la dimensión que colapsa</div>
+<pre class="mermaid">
+graph TD
+  T["36 celdas"] --> P["Proceso · 50,0 %<br/>6 ✅ · 2 ⚠️ · 4 ❌"]
+  T --> A["Autoridad · 41,7 %<br/>5 ✅ · 3 ⚠️ · 4 ❌"]
+  T --> R["Registro · 8,3 %<br/>1 ✅ · 3 ⚠️ · 8 ❌"]
+  R --> C["⛔ Solo 1 de 12 pasos<br/>deja constancia recuperable"]
+  C --> P14["P14 no verificable"]
+</pre>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Observación</th><th>Evidencia en la matriz</th></tr></thead>
+<tbody>
+<tr><td>El ciclo <strong>funciona hacia adelante</strong></td><td>Crear, validar, rechazar, publicar, modificar y versionar tienen proceso definido</td></tr>
+<tr><td>El ciclo <strong>no tiene salida</strong></td><td>Revertir y retirar: ❌ en las tres dimensiones</td></tr>
+<tr><td>El ciclo <strong>no tiene control de calidad</strong></td><td>Revisar y aprobar: sin proceso o sin autoridad</td></tr>
+<tr><td>El ciclo <strong>casi no deja rastro</strong></td><td>8 de 12 pasos no registran nada</td></tr>
+<tr><td>La autoridad existe donde no hay proceso</td><td>Revisar (⚠️ autoridad, ❌ proceso); rechazar por contenido igual</td></tr>
+<tr><td>El proceso existe donde no hay autoridad</td><td>Publicar (✅ proceso — checklist de 23 ítems, ❌ autoridad)</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Los dos desajustes que explican el ciclo</div>
+  <p><strong>Publicar</strong> tiene un checklist de 23 ítems y nadie que lo ejecute como acto. <strong>Revisar</strong> tiene autoridad nombrada (P14 exige criterio humano) y ningún proceso que la ejerza. El ecosistema sabe <em>qué comprobar</em> sin saber <em>quién lo hace</em>, y sabe <em>quién debe decidir</em> sin saber <em>cuándo ni cómo</em>.</p>
+</div>
+
+<h2 id="anomalias">Anomalías estructurales</h2>
+<p class="matrix-note">Lo que el encargo pide identificar: acciones sin proceso, procesos sin estado, estados sin transición y responsabilidades sin dueño.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Anomalía</th><th>N.º</th><th>Casos</th></tr></thead>
+<tbody>
+<tr><td><strong>Acciones sin proceso</strong></td><td>4</td><td>Solicitar · Revisar · Revertir · Retirar</td></tr>
+<tr><td><strong>Responsabilidades sin dueño</strong></td><td>4</td><td>Aprobar · Publicar · Revertir · Retirar</td></tr>
+<tr><td><strong>Procesos sin estado</strong></td><td>3</td><td>Etiquetado (7 pasos, ningún estado los refleja) · Cola editorial (recibe defectos, la entrada no cambia de estado) · Validación (su resultado no se persiste)</td></tr>
+<tr><td><strong>Estados sin transición</strong></td><td>2</td><td>Candidato y Oficial: no hay transición declarada entre ellos — el umbral se cruza por completitud</td></tr>
+<tr><td><strong>Transiciones sin evento</strong></td><td>1</td><td>El paso de candidato a oficial no emite evento, violando el patrón de BPS-010 aplicado en todo el resto del ecosistema</td></tr>
+<tr><td><strong>Pasos sin registro</strong></td><td>8</td><td>Solicitar · Crear · Revisar · Aprobar · Modificar · Corregir · Revertir · Retirar</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="diagrama">El ciclo reconstruido</h2>
+<div class="diagram">
+<div class="diagram-label">Verde: completo · Ámbar: parcial · Rojo: inexistente</div>
+<pre class="mermaid">
+flowchart TD
+  S["1 · Solicitar ❌"] -.-> C["2 · Crear ✅⁄✅⁄❌"]
+  C --> V["3 · Validar ✅⁄✅⁄⚠️"]
+  V -->|falla| RJ["6 · Rechazar ✅⁄⚠️⁄⚠️"]
+  V --> RV["4 · Revisar ❌⁄⚠️⁄❌"]
+  RV -.-> AP["5 · Aprobar ⚠️⁄❌⁄❌"]
+  AP -.-> PU["7 · Publicar ✅⁄❌⁄⚠️"]
+  PU --> VE["10 · Versionar ✅⁄✅⁄✅"]
+  PU --> MO["8 · Modificar ✅⁄✅⁄❌"]
+  MO --> CO["9 · Corregir ⚠️⁄✅⁄❌"]
+  CO --> VE
+  PU -.-> RB["11 · Revertir ❌"]
+  PU -.-> RE["12 · Retirar ❌"]
+  RJ --> C
+</pre>
+</div>
+
+<h2 id="recuento">Recuento de elementos del ciclo</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Elemento</th><th>Documentado</th><th>Nota</th></tr></thead>
+<tbody>
+<tr><td>Procesos analizados</td><td><strong>12</strong></td><td>6 completos · 2 parciales · 4 inexistentes</td></tr>
+<tr><td>Estados de una entrada</td><td><strong>0</strong></td><td>2 implícitos, derivados de completitud</td></tr>
+<tr><td>Transiciones de una entrada</td><td><strong>0</strong></td><td>—</td></tr>
+<tr><td>Roles editoriales</td><td><strong>0</strong></td><td>Barrido con límites de palabra</td></tr>
+<tr><td>Autoridades documentadas</td><td><strong>3</strong></td><td>Contenido · Ingeniería · Documentación</td></tr>
+<tr><td>Acciones del ciclo</td><td><strong>12</strong></td><td>—</td></tr>
+<tr><td>Tipos de versionado</td><td><strong>3</strong></td><td>Catálogo · contratos · documentos — ninguno por entrada</td></tr>
+<tr><td>FSM del ecosistema</td><td><strong>6</strong></td><td>Ninguna de Exercise</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../14-impacto/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 14 · Impacto Aguas Abajo</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../16-adr-antipatterns/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">16 · ADR y Anti-patterns →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

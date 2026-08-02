@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03 · Modelo Conceptual — Progression Engine Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="modelo-conceptual" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 03 · Modelo</p>
+<h1>Modelo Conceptual</h1>
+<p class="lede">Las entidades que el Progression Engine reconoce, sus campos, sus relaciones, y — con la misma importancia — qué entidades del sistema BREY este motor deliberadamente NO conoce.</p>
+
+<h2 id="objetivo">Objetivo</h2>
+<p>Fijar el vocabulario exacto del dominio antes de especificar ninguna regla. Toda regla PE-XXX del módulo 07 en adelante usa exclusivamente los términos definidos aquí — ninguna introduce un concepto nuevo sin actualizar primero este módulo.</p>
+
+<h2 id="entidades">Entidades reconocidas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Entidad</th><th>Definición</th></tr></thead>
+<tbody>
+<tr><td><strong>Slot</strong></td><td>Una posición dentro de una sesión prescrita, identificada por Patrón×Rol (P7) — no por ejercicio con nombre. Es la unidad mínima que el motor progresa.</td></tr>
+<tr><td><strong>Cadena de progresión</strong></td><td>Secuencia ordenada de eslabones para un Slot, propiedad de la Knowledge Base. El motor solo conoce la posición del usuario en la cadena (el eslabón actual), nunca el contenido de los eslabones.</td></tr>
+<tr><td><strong>Prescripción vigente</strong></td><td>El conjunto {peso, repeticiones, series, tempo, descanso, RPE objetivo, RIR, duración, volumen, densidad} asignado a un Slot para el próximo ciclo — la salida principal de la microprogresión (08).</td></tr>
+<tr><td><strong>Ventana de historial</strong></td><td>Secuencia ordenada de apariciones pasadas registradas de un mismo Slot (workout_logs reales, nunca prescripciones no ejecutadas). Tamaño mínimo exigido por IN-P3 (02) para cualquier decisión macro.</td></tr>
+<tr><td><strong>Aparición</strong></td><td>Un registro puntual: el Slot se ejecutó una vez, con sus valores reales logueados (peso real, reps reales, RPE reportado, cumplimiento). Es el átomo de la ventana.</td></tr>
+<tr><td><strong>Veredicto de Recovery</strong></td><td>DTO de entrada, ya resuelto por el Recovery Engine: <code>{procede: boolean, tipo: "normal"|"descarga", razon: string}</code>. El motor lo consume, nunca lo calcula (10).</td></tr>
+<tr><td><strong>Decisión micro</strong></td><td>Salida del motor a nivel de Slot: nueva Prescripción vigente + razón + contexto.</td></tr>
+<tr><td><strong>Decisión macro</strong></td><td>Salida del motor a nivel de jerarquía: avanza / sostiene / retrocede un escalón entre {Microciclo, Mesociclo, Bloque, Nivel} + razón + contexto (09).</td></tr>
+<tr><td><strong>Señal de estancamiento</strong></td><td>Marca no vinculante, adjunta a una Decisión, indicando que un Slot cumple el patrón de estancamiento del módulo 11 — no es una Decisión por sí sola, es metadata de una.</td></tr>
+<tr><td><strong>Evento</strong></td><td>Registro inmutable de que el motor tomó una Decisión — persistido por el Motor BPS, nunca por este motor (14).</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="no-reconocidas">Entidades explícitamente NO reconocidas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Entidad de BREY</th><th>Por qué este motor no la conoce</th></tr></thead>
+<tbody>
+<tr><td>Ejercicio (nombre, video, equipamiento)</td><td>Pertenece a la Knowledge Base — el motor solo ve Patrón×Rol y posición en cadena (P7)</td></tr>
+<tr><td>Track, Sistema</td><td>Fuera de la autoridad de este motor — ver 09 "No alcance"</td></tr>
+<tr><td>Dolor, Fatiga percibida cruda, Horas de sueño</td><td>Señales crudas de Recovery — el motor solo ve el Veredicto ya resuelto (10)</td></tr>
+<tr><td>Usuario (perfil, objetivo, lesiones)</td><td>El motor opera sobre un Slot ya resuelto para ese usuario — no personaliza dos veces lo que el Diagnóstico y el Generador ya resolvieron</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="diagrama">Diagrama de entidades y relaciones</h2>
+<div class="diagram">
+<div class="diagram-label">Modelo conceptual</div>
+<pre class="mermaid">
+classDiagram
+  class Slot { Patron Rol posicionEnCadena }
+  class CadenaProgresion { eslabones }
+  class PrescripcionVigente { peso repeticiones series tempo descanso rpeObjetivo rir duracion volumen densidad }
+  class Aparicion { fecha valoresReales rpeReportado cumplimiento }
+  class VentanaHistorial { apariciones }
+  class VeredictoRecovery { procede tipo razon }
+  class DecisionMicro { prescripcionNueva razon contexto }
+  class DecisionMacro { direccion escalon razon contexto }
+  class SenalEstancamiento { slotId patron confirmado }
+
+  Slot "1" --> "1" CadenaProgresion : progresa sobre
+  Slot "1" --> "1" PrescripcionVigente : tiene
+  Slot "1" --> "*" Aparicion : acumula
+  VentanaHistorial "1" o-- "*" Aparicion : contiene
+  DecisionMicro --> PrescripcionVigente : produce nueva
+  DecisionMicro ..> VeredictoRecovery : obedece
+  DecisionMacro ..> VentanaHistorial : evalúa
+  DecisionMicro --> SenalEstancamiento : puede adjuntar
+</pre>
+</div>
+
+<h2 id="invariantes">Invariantes del modelo</h2>
+<ul>
+  <li><strong>IN-M1:</strong> una Aparición es inmutable una vez registrada — el motor nunca reescribe historial, solo lo lee.</li>
+  <li><strong>IN-M2:</strong> una Prescripción vigente pertenece exactamente a un Slot y es reemplazada atómicamente, nunca editada parcialmente.</li>
+  <li><strong>IN-M3:</strong> una Señal de estancamiento no existe sin una Decisión que la contenga — no es una entidad de primera clase persistible por separado.</li>
+  <li><strong>IN-M4:</strong> el Veredicto de Recovery es de solo lectura para este motor — ninguna regla PE-XXX puede producir un Veredicto, solo consumirlo.</li>
+</ul>
+
+<h2 id="preguntas">Preguntas abiertas de este módulo</h2>
+<p>Ninguna a nivel de modelo — las preguntas abiertas específicas de mecánica (frecuencia de recálculo de cadena, representación de eslabones parciales) se documentan en el módulo 19, donde se agregan todas las del handbook.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../02-arquitectura/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 02 · Arquitectura</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../04-contrato-entradas/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">04 · Contrato de Entradas →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

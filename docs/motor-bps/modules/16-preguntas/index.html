@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>16 · Preguntas abiertas — Motor BPS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="preguntas" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 16 · Gobernanza</p>
+<h1>Preguntas abiertas</h1>
+<p class="lede">Todo lo pendiente, solo registrado — nada se resuelve aquí. Regla: un caso sin regla que aparezca en producción se registra en esta lista y se decide por ADR; la improvisación en código está prohibida por adelantado (meta-regla del módulo 08).</p>
+
+<h2 id="lista">Registro</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Pregunta</th><th>Origen</th><th>Tipo</th><th>Urgencia</th></tr></thead>
+<tbody>
+<tr><td>Q-01</td><td><strong>Pérdida de acceso comercial (reembolso, vencimiento, disputa):</strong> ¿qué evento desactiva, hacia qué estado, y qué pasa con las semanas generadas? Regla provisional vigente: el Motor no desactiva sin evento explícito</td><td>C-09</td><td>Negocio</td><td><strong>Alta — antes del primer reembolso real</strong></td></tr>
+<tr><td>Q-02</td><td><strong>Renovación al completar un Sistema:</strong> ¿re-entra al último Nivel alcanzado, re-diagnostica completo, o re-diagnóstico ligero (solo experiencia/situación)?</td><td>T15 / BPS-018</td><td>Producto</td><td>Media — antes del primer usuario que complete 16 semanas</td></tr>
+<tr><td>Q-03</td><td><strong>¿La pausa voluntaria congela la vigencia comercial del Sistema?</strong> El dominio necesita la respuesta para el estado <code>en_pausa</code>; la decisión es de negocio</td><td>T10</td><td>Negocio</td><td>Media</td></tr>
+<tr><td>Q-04</td><td><strong>Calibración de umbrales de producto:</strong> 21 días (auto-pausa), 30 días (retroceso propuesto), 6 meses (vigencia del Diagnóstico) — proceso de revisión con los primeros cohortes sin definir</td><td>BPS-016/025, MBPS-ADR-05</td><td>Proceso</td><td>Media — tras primeros datos reales</td></tr>
+<tr><td>Q-05</td><td><strong>Doble compra casi simultánea de Sistemas distintos:</strong> hoy se eleva a resolución humana (06/debounce) — ¿debería existir un flujo de autoservicio ("elige cuál querías")?</td><td>06</td><td>Producto</td><td>Baja</td></tr>
+<tr><td>Q-06</td><td><strong>¿"Regenerar mi semana" como acción del usuario</strong> (además de la invalidación por eventos del sistema)? Hereda la pregunta del marco (Generator)</td><td>BPS-015</td><td>Producto</td><td>Baja</td></tr>
+<tr><td>Q-07</td><td><strong>Preferencias de ejercicios (favoritos/vetados):</strong> reservadas en Entradas (03) para v2 — ¿entran como filtro blando del Generator, y el Motor las ignora por completo?</td><td>03/G2</td><td>Producto</td><td>Baja</td></tr>
+<tr><td>Q-08</td><td><strong>Overrides repetidos de descarga:</strong> ¿escalan a intervención humana además de ser señal futura del Recovery? Hereda la pregunta del marco (P10)</td><td>10 / marco</td><td>Producto</td><td>Baja</td></tr>
+<tr><td>Q-09</td><td><strong>¿Existe un sexto Sistema?</strong> La discrepancia más antigua del proyecto (brief decía 6; el catálogo tiene 5) — este Motor asume 5; si aparece el sexto, revisar Diagnóstico + activación + catálogo</td><td>Marco, módulo 13</td><td>Producto</td><td>Alta como aclaración (bajo costo)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="callout callout--nota">
+  <div class="callout__label">Cómo se cierra una pregunta</div>
+  <p>Con un ADR (aquí o en el marco, según alcance) que la cite por número, y la actualización de los módulos afectados en el mismo cambio. Una pregunta cerrada "solo en código" no está cerrada.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../15-adr/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 15 · Decisiones (ADR)</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../00-introduccion/index.html">
+    <div class="pagenav__dir">Volver al inicio</div>
+    <div class="pagenav__title">00 · Introducción →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

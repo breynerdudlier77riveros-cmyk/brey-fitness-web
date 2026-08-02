@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>05 · Modelo del Historial — BCS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="modelo-historial" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 05 · Reporte</p>
+<h1>Modelo del Historial</h1>
+<p class="lede">Cómo se acumula, ordena, corrige y compara el historial ilimitado de Mediciones de un Cliente — sin borrar nunca un dato ya registrado.</p>
+
+<h2 id="objetivo">Objetivo</h2>
+<p>Que el historial sea append-only en la práctica: toda corrección añade, nunca sobrescribe, preservando trazabilidad completa de qué se registró y cuándo se corrigió.</p>
+
+<h2 id="ordenamiento">Ordenamiento y consulta</h2>
+<p>Las Mediciones se listan siempre por <code>fecha</code> ascendente para gráficos de tendencia (07) y descendente para el listado del panel (la más reciente primero). Solo las Mediciones en estado <em>vigente</em> (02) participan del historial visible — las <em>anuladas</em> existen en la base de datos por trazabilidad pero nunca aparecen en el Reporte ni en los gráficos.</p>
+
+<h2 id="correccion">Corrección de una Medición pasada</h2>
+<div class="diagram">
+<div class="diagram-label">UC-06 CorregirMedición — nunca edición en sitio</div>
+<pre class="mermaid">
+sequenceDiagram
+  participant E as Entrenador
+  participant S as BCS
+  E->>S: corrige Medición del 10-mar (peso mal digitado)
+  S->>S: marca la Medición del 10-mar como anulada
+  S->>S: crea una Medición nueva, fecha=10-mar, vigente
+  S-->>E: historial actualizado — ambas existen, solo una es visible
+</pre>
+</div>
+<p>La fecha de la Medición corregida se conserva igual a la original — lo que cambia es el estado (vigente/anulada), nunca la fecha que el corrector quiso corregir salvo que la fecha misma fuera el error a corregir, en cuyo caso la nueva Medición lleva la fecha correcta.</p>
+
+<h2 id="comparacion">Comparación entre dos mediciones cualesquiera</h2>
+<p>El entrenador puede comparar cualquier par de Mediciones vigentes del historial, no solo consecutivas — útil para comparar "inicio de programa" contra "hoy" saltándose mediciones intermedias. La comparación calcula delta absoluto y relativo por variable presente en ambas; una variable ausente en cualquiera de las dos se omite de esa comparación específica, nunca se interpola.</p>
+
+<h2 id="mejoras-retrocesos">Mejoras y retrocesos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Variable</th><th>Dirección de "mejora"</th></tr></thead>
+<tbody>
+<tr><td>% grasa corporal, masa grasa, grasa visceral</td><td>Disminuir — <span class="prov prov--producto">🟠 producto</span>, asume objetivo de reducción de grasa por defecto</td></tr>
+<tr><td>Masa muscular, masa libre de grasa</td><td>Aumentar — <span class="prov prov--producto">🟠 producto</span></td></tr>
+<tr><td>Peso, IMC</td><td>Sin dirección de mejora asignada por defecto — depende enteramente del objetivo individual del cliente, que el sistema no conoce (02, "no alcance")</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Límite explícito</div>
+  <p>BCS no conoce el objetivo del cliente (perder grasa, ganar músculo, mantenimiento) — las direcciones de "mejora" de la tabla son un default de producto para variables donde la dirección es razonablemente universal (menos grasa visceral es preferible en casi cualquier objetivo), nunca aplicadas a Peso o IMC, donde la dirección "correcta" depende del caso. El entrenador puede anotar el objetivo en Observaciones (03), pero el sistema no lo procesa algorítmicamente en v1 (17).</p>
+</div>
+
+<h2 id="casos-limite">Casos límite</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Comportamiento</th></tr></thead>
+<tbody>
+<tr><td>Dos Mediciones con la misma fecha (registro duplicado accidental)</td><td>Válido a nivel de dato — el sistema no lo bloquea, pero lo marca como valor sospechoso (03) para revisión del entrenador</td></tr>
+<tr><td>Corrección de una corrección</td><td>Aplica el mismo mecanismo: la Medición "corregida" anterior se anula, se crea una tercera — la cadena de anulaciones queda completa en la base de datos aunque el Reporte solo muestre la última vigente</td></tr>
+<tr><td>Comparación entre una Medición con 15 variables y otra con solo 5</td><td>Solo se comparan las variables presentes en ambas — nunca se asume 0 ni se omite la comparación entera</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../04-modelo-reporte/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 04 · Modelo del Reporte</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../06-modelo-interpretacion/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">06 · Modelo de Interpretación →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BREY Database Handbook v1.0</title>
+<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+
+<div class="landing-topbar">
+  <span class="topbar__brand">
+    <span class="topbar__brand-dot"></span>
+    BREY <span class="topbar__brand-sub">Database Handbook</span>
+  </span>
+  <span class="topbar__version">v1.0</span>
+</div>
+
+<div class="landing-wrap">
+
+  <div class="hero">
+    <p class="eyebrow">La especificación oficial de persistencia del ecosistema</p>
+    <h1>BREY Database Handbook</h1>
+    <p>Qué tabla existe, quién es su dueño, qué columna tiene, qué la restringe y qué índice la sirve — para todo el ecosistema BREY. Sin SQL, sin migraciones, sin tablas nuevas: solo el modelo persistente ya definido por los ocho handbooks existentes, formalizado como fuente única de verdad.</p>
+    <a class="hero-cta" href="modules/00-introduccion/index.html">Empezar por la Introducción →</a>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Empezar</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/00-introduccion/index.html">
+        <div class="module-card__num">00</div>
+        <div class="module-card__title">Introducción</div>
+        <div class="module-card__desc">Propósito, alcance, no-alcance, jerarquía documental y prioridad sobre la implementación.</div>
+      </a>
+      <a class="module-card" href="modules/01-filosofia-persistencia/index.html">
+        <div class="module-card__num">01</div>
+        <div class="module-card__title">Filosofía de Persistencia</div>
+        <div class="module-card__desc">SSoT, normalización, integridad — y las cuatro fronteras: persistencia vs. derivación, cache, evento y estado.</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Modelo</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/02-modelo-global/index.html">
+        <div class="module-card__num">02</div>
+        <div class="module-card__title">Modelo Global</div>
+        <div class="module-card__desc">El mapa completo de tablas — bounded context dueño, aggregate root, y qué nunca debe conocer a qué.</div>
+      </a>
+      <a class="module-card" href="modules/03-tablas-oficiales/index.html">
+        <div class="module-card__num">03</div>
+        <div class="module-card__title">Tablas Oficiales</div>
+        <div class="module-card__desc">Una ficha por tabla — owner, aggregate, naturaleza, quién escribe y quién nunca debe hacerlo.</div>
+      </a>
+      <a class="module-card" href="modules/04-columnas/index.html">
+        <div class="module-card__num">04</div>
+        <div class="module-card__title">Columnas</div>
+        <div class="module-card__desc">Cada columna existente — tipo, nullable, unidad, default, origen y consumidores.</div>
+      </a>
+      <a class="module-card" href="modules/05-relaciones/index.html">
+        <div class="module-card__num">05</div>
+        <div class="module-card__title">Relaciones</div>
+        <div class="module-card__desc">FK lógicas, cardinalidad, ownership — y las relaciones que deliberadamente no existen.</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Esquema físico</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/06-indices/index.html">
+        <div class="module-card__num">06</div>
+        <div class="module-card__title">Índices</div>
+        <div class="module-card__desc">Existentes, obligatorios, futuros y prohibidos — cada uno con su justificación.</div>
+      </a>
+      <a class="module-card" href="modules/07-constraints/index.html">
+        <div class="module-card__num">07</div>
+        <div class="module-card__title">Constraints</div>
+        <div class="module-card__desc">PK, FK, CHECK, UNIQUE, NOT NULL — y qué regla de negocio protege cada uno.</div>
+      </a>
+      <a class="module-card" href="modules/08-eventos-persistidos/index.html">
+        <div class="module-card__num">08</div>
+        <div class="module-card__title">Eventos Persistidos</div>
+        <div class="module-card__desc"><code>progression_events</code> — ownership, replay, contexto, versionado.</div>
+      </a>
+      <a class="module-card" href="modules/09-rls/index.html">
+        <div class="module-card__num">09</div>
+        <div class="module-card__title">RLS</div>
+        <div class="module-card__desc">Ownership, policies reales, y qué operación está prohibida en cada tabla.</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Operación</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/10-consistencia/index.html">
+        <div class="module-card__num">10</div>
+        <div class="module-card__title">Consistencia</div>
+        <div class="module-card__desc">Transacciones, atomicidad, idempotencia, concurrencia — lo real y lo pendiente.</div>
+      </a>
+      <a class="module-card" href="modules/11-evolucion/index.html">
+        <div class="module-card__num">11</div>
+        <div class="module-card__title">Evolución</div>
+        <div class="module-card__desc">Migraciones, backfill, compatibilidad y versionado de esquema.</div>
+      </a>
+      <a class="module-card" href="modules/12-performance/index.html">
+        <div class="module-card__num">12</div>
+        <div class="module-card__title">Performance</div>
+        <div class="module-card__desc">Cardinalidad esperada, volumen, hot paths y cold paths.</div>
+      </a>
+      <a class="module-card" href="modules/13-seguridad/index.html">
+        <div class="module-card__num">13</div>
+        <div class="module-card__title">Seguridad</div>
+        <div class="module-card__desc">PII, anonimización, retención, soft delete, hard delete, backup y restore.</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Gobernanza</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/14-antipatrones/index.html">
+        <div class="module-card__num">14</div>
+        <div class="module-card__title">Anti-patrones</div>
+        <div class="module-card__desc">Quince formas reales de romper este modelo, y por qué no hacerlo.</div>
+      </a>
+      <a class="module-card" href="modules/15-db-adr/index.html">
+        <div class="module-card__num">15</div>
+        <div class="module-card__title">DB-ADR</div>
+        <div class="module-card__desc">Doce decisiones de arquitectura de datos — ninguna inventada, todas derivadas.</div>
+      </a>
+      <a class="module-card" href="modules/16-preguntas-abiertas/index.html">
+        <div class="module-card__num">16</div>
+        <div class="module-card__title">Preguntas Abiertas</div>
+        <div class="module-card__desc">Toda deuda y contradicción heredada — y la autoauditoría cuantitativa de este handbook.</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="landing-footer">BREY Database Handbook v1.0 — el modelo persistente, sin una línea de SQL. El handbook tiene prioridad sobre el esquema físico.</div>
+
+</div>
+</body>
+</html>

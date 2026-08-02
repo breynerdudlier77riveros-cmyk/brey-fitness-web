@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>18 · Roadmap — Progression Engine Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="roadmap" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 18 · Gobernanza</p>
+<h1>Roadmap</h1>
+<p class="lede">Qué debe pasar antes de implementar, qué queda deliberadamente fuera de v1, y qué depende de trabajo externo a este documento.</p>
+
+<h2 id="prerequisitos">Prerequisitos de implementación (bloqueantes)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Prerequisito</th><th>Por qué bloquea</th></tr></thead>
+<tbody>
+<tr><td>Extender el CHECK de <code>progression_events</code> (Architecture Handbook, 10) con los 9 tipos de evento de este documento</td><td>Sin esto, el Motor BPS no puede persistir legalmente las salidas de este motor (15, 17)</td></tr>
+<tr><td>Confirmar el contrato mínimo del Veredicto de Recovery con el futuro Recovery Engine Handbook</td><td>Es una entrada obligatoria no nulable (04) — cualquier cambio de forma rompe este documento</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="v1">Alcance de v1.0 (este handbook)</h2>
+<p>Las 39 reglas del catálogo (07), el pipeline de 9 pasos (06), micro/macro/autorregulación/estancamiento/deload completos según lo especificado en 08–12. Nada de esto es candidato a recorte — es el mínimo funcional coherente.</p>
+
+<h2 id="v1-1">Candidatos para v1.1 (post-calibración)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Candidato</th><th>Condición para promoverlo</th></tr></thead>
+<tbody>
+<tr><td>Progresión combinada (subir carga y repeticiones el mismo ciclo)</td><td>Evidencia de que la restricción actual (PE-012) genera fricción real medible en datos de producción</td></tr>
+<tr><td>Sistemas de esfuerzo mixtos (RPE y RIR en el mismo Slot)</td><td>Un caso de programa real de Training Framework que lo requiera — no especulativo (19)</td></tr>
+<tr><td>Deload preventivo (PE-035) pasa de sugerencia a vinculante</td><td>Datos de al menos un ciclo de producción mostrando tasa de confirmación y resultado positivo medible (14)</td></tr>
+<tr><td>Recalibración de umbrales de tolerancia macro (PE-014, PE-017)</td><td>Volumen suficiente de ciclos completados para un análisis estadístico serio, no ajuste anecdótico</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="fuera">Explícitamente fuera de cualquier versión de este motor</h2>
+<ul>
+  <li>Decisión de Track/Sistema (PE-018) — pertenece permanentemente al Motor BPS.</li>
+  <li>Interpretación directa de dolor/fatiga/sueño (PE-023–025) — pertenece permanentemente a Recovery.</li>
+  <li>Selección de ejercicios por nombre — pertenece permanentemente a la Knowledge Base.</li>
+</ul>
+
+<h2 id="dependencias-externas">Dependencias de trabajo externo a este handbook</h2>
+<p>El Recovery Engine Handbook (aún no escrito) es la única dependencia externa activa — mientras no exista, este documento opera con el contrato mínimo ya usado por el Motor BPS Handbook, que es estable pero no exhaustivo. Ningún otro handbook pendiente bloquea este documento.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../17-riesgos/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 17 · Riesgos</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../19-preguntas/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">19 · Preguntas abiertas →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

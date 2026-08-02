@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>05 · Autoridad — Content Lifecycle</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="autoridad" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 05 · El ciclo</p>
+<h1>Autoridad</h1>
+<p class="lede">Preguntas 3 a 7: quién puede crear, modificar, aprobar, rechazar y retirar. <strong>Dos de las cinco tienen autoridad documentada, una es parcial y dos no tienen ninguna.</strong></p>
+
+<h2 id="principio">El principio rector</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">P14 · El motor ensambla; el humano autoriza</div>
+  <p>"Ningún motor crea contenido de entrenamiento. Los motores seleccionan, combinan y ajustan piezas que <strong>una persona con criterio de entrenador autorizó</strong> (Bloques, prescripciones, cadenas, ejercicios). <strong>El catálogo es la frontera de autoridad humana.</strong>"</p>
+</div>
+
+<h2 id="cinco">Las cinco autoridades</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Acción</th><th>Autoridad</th><th>Fuente</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>3</td><td><strong>Crear</strong> una entrada</td><td>Contenido · persona con criterio de entrenador</td><td>P14 · Roadmap #2 (dueño "Contenido")</td><td><span class="tag tag--implementado">documentada</span></td></tr>
+<tr><td>4</td><td><strong>Modificar</strong> una entrada</td><td>Contenido, para valores biomecánicos<br>Documentación, para vocabularios y reglas</td><td>P14 · los vocabularios se publican en handbooks</td><td><span class="tag tag--implementado">documentada</span></td></tr>
+<tr><td>5</td><td><strong>Aprobar</strong> una entrada</td><td>—</td><td>Barrido: <code>aprobación</code> 0 · <code>aprobar</code> 0 · <code>approval</code> 0</td><td><span class="tag tag--futuro">sin autoridad</span></td></tr>
+<tr><td>6</td><td><strong>Rechazar</strong> una entrada</td><td>Ingeniería, para la estructura<br>Contenido, para el contenido</td><td>Regla 4 de la cadena — "la estructura la valida ingeniería"</td><td><span class="tag tag--especificado">parcial</span></td></tr>
+<tr><td>7</td><td><strong>Retirar</strong> una entrada</td><td>—</td><td>Barrido: <code>retirar</code> 0 · <code>archive</code> 0 · sin estado de retirada</td><td><span class="tag tag--futuro">sin autoridad</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="diagram">
+<div class="diagram-label">Las cinco acciones del ciclo y su autoridad real</div>
+<pre class="mermaid">
+graph TD
+  CREAR["3 · CREAR"] -->|"✅ Contenido · P14"| OK1["autoridad clara"]
+  MOD["4 · MODIFICAR"] -->|"✅ Contenido / Documentación"| OK2["autoridad clara"]
+  RECH["6 · RECHAZAR"] -->|"⚠️ Ingeniería (forma)<br/>Contenido (fondo)"| PAR["parcial: el rechazo por<br/>contenido no tiene proceso"]
+  APR["5 · APROBAR"] -->|"❌"| NO1["sin autoridad"]
+  RET["7 · RETIRAR"] -->|"❌"| NO2["sin autoridad<br/>ni mecanismo"]
+</pre>
+</div>
+
+<h2 id="rechazar">Rechazar — la autoridad parcial</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tipo de rechazo</th><th>Quién</th><th>Proceso</th><th>Registro</th></tr></thead>
+<tbody>
+<tr><td>Estructural (vocabulario, cardinalidad, ciclos, referencias)</td><td><strong>Ingeniería</strong></td><td>✅ Validación automática</td><td>⚠️ Cola editorial con detalle</td></tr>
+<tr><td>De contenido (la clasificación es incorrecta)</td><td><strong>Contenido</strong></td><td>❌ Sin proceso de revisión</td><td>❌</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Por qué es parcial</div>
+  <p>El rechazo estructural funciona: es automático, objetivo y su resultado alimenta la cola editorial con el detalle exacto del defecto. El rechazo por contenido tiene autoridad asignada (P14) y <strong>ningún proceso que la ejerza</strong> — no hay revisión, no hay momento en que ocurra, no hay forma de registrar el rechazo.</p>
+</div>
+
+<h2 id="quien-no">Quién NO puede</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Actor</th><th>Prohibición</th><th>Fuente</th></tr></thead>
+<tbody>
+<tr><td>Cualquier motor</td><td>No crea ni modifica contenido de entrenamiento</td><td>P14 · BPS-021 — "el Motor nunca decide contenido"</td></tr>
+<tr><td>Un proceso automático</td><td>No etiqueta atributos biomecánicos</td><td>"No se infiere del nombre — exige etiquetado con criterio biomecánico"</td></tr>
+<tr><td>Ingeniería</td><td>No decide valores de contenido; su ámbito es la estructura</td><td>Regla 4 de la cadena</td></tr>
+<tr><td>Contenido</td><td>No amplía vocabularios cerrados por su cuenta</td><td>Los vocabularios se publican en handbooks</td></tr>
+<tr><td>El usuario final</td><td>No participa en el catálogo</td><td>La Knowledge Base no conoce usuarios</td></tr>
+<tr><td>El código</td><td>Ante divergencia con el handbook, "el código está mal"</td><td>"El handbook manda… nunca por deriva silenciosa"</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="roles">Los roles que no existen</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Deuda CL-D03 — cero roles editoriales formales</div>
+  <p>Barrido con límites de palabra: <code>autor</code> <strong>0</strong> · <code>revisor</code> <strong>0</strong> · <code>aprobador</code> <strong>0</strong> · <code>reviewer</code> <strong>0</strong> · <code>author</code> <strong>0</strong>. Y Engineering 08 lo declara explícitamente para el caso del administrador: <em>"no existe un rol 'administrador global' distinto del propio entrenador"</em>.</p>
+  <p>Lo que sí existe son <strong>dos actores nominales</strong> (Contenido, Ingeniería, ambos del Roadmap) y <strong>una autoridad</strong> (persona con criterio de entrenador, P14). Un actor no es un rol: no tiene responsabilidades enumeradas, ni permisos, ni límites, ni forma de constatar quién lo ocupa.</p>
+</div>
+
+<h2 id="brecha">La brecha entre autoridad y su ejercicio</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">P14 se cumple en su mitad prescriptiva</div>
+  <p>El principio tiene dos partes: <em>quién debe autorizar</em> —definido con precisión, el término <code>autoriza</code>/<code>autoridad</code> aparece en 44 archivos— y <em>que la responsabilidad pueda rastrearse</em>, para lo que no existe ningún mecanismo. Ninguna entrada tiene campo de autoría, no hay estados que registren aprobación y no hay versionado por entrada.</p>
+  <p>Es posible hoy cumplir P14 en el acto y ser incapaz de demostrarlo después. Ver módulo <a href="../11-trazabilidad/index.html">11</a>.</p>
+</div>
+
+<h2 id="resumen">Resumen</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Pregunta</th><th>Respuesta</th></tr></thead>
+<tbody>
+<tr><td>¿Quién tiene autoridad para crearla?</td><td>Una persona con criterio de entrenador; el trabajo lo asigna el Roadmap a <strong>Contenido</strong></td></tr>
+<tr><td>¿Quién puede modificarla?</td><td>La misma autoridad para valores biomecánicos; <strong>Documentación</strong> para vocabularios y reglas</td></tr>
+<tr><td>¿Quién puede aprobarla?</td><td><strong>Nadie documentado.</strong> El acto de aprobación no existe</td></tr>
+<tr><td>¿Quién puede rechazarla?</td><td><strong>Ingeniería</strong> por estructura (con proceso); <strong>Contenido</strong> por contenido (sin proceso)</td></tr>
+<tr><td>¿Quién puede retirarla?</td><td><strong>Nadie documentado.</strong> Ni autoridad ni mecanismo</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../04-validez/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 04 · Validez y Vigencia</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../06-publicacion/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">06 · Publicación →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

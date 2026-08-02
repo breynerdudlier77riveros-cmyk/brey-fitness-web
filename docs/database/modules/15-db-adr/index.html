@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>15 · DB-ADR — BREY Database Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="db-adr" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 15 · Gobernanza</p>
+<h1>DB-ADR</h1>
+<p class="lede">Doce decisiones de arquitectura de datos — ninguna inventada. Ocho formalizan, a nivel de persistencia, una decisión que un handbook superior ya tomó (citada, nunca redecidida); cuatro son decisiones propias de alcance y metodología de este documento.</p>
+
+<div class="adr" id="db-adr-01">
+<span class="adr__estado">Aceptada</span>
+<span class="adr__id">DB-ADR-01</span>
+<h3>Los campos internos de un jsonb se documentan como "columnas" en 04, con su propia sección</h3>
+<p><strong>Contexto:</strong> <code>workouts.ejercicios</code> y <code>workout_logs.ejercicios</code> son <code>jsonb</code>, no columnas normalizadas — pero ambos tienen una forma interna ya especificada por el Architecture Handbook (10), con 13 y 12 campos respectivamente.</p>
+<p><strong>Problema:</strong> el encargo de este documento exige documentar "todas las columnas existentes" — un jsonb es técnicamente una columna, no trece.</p>
+<p><strong>Alternativas consideradas:</strong> (a) documentar <code>ejercicios</code> como una sola columna sin desglosar su interior; (b) desglosar sus campos internos ya especificados en una sección propia, distinguida claramente de las columnas reales con constraint propio.</p>
+<p><strong>Decisión:</strong> se adopta (b) — 04 tiene una sección "Campos internos ya especificados dentro de columnas jsonb", separada de las tablas de columnas reales, para no confundir un campo interno de jsonb (sin CHECK/NOT NULL propio a nivel de Postgres) con una columna real.</p>
+<p><strong>Consecuencias:</strong> el conteo total de "columnas" de este documento (130) es honesto sobre la distinción — 105 columnas reales + 25 campos internos ya especificados, nunca presentados como si Postgres los validara individualmente.</p>
+</div>
+
+<div class="adr" id="db-adr-02">
+<span class="adr__estado">Aceptada</span>
+<span class="adr__id">DB-ADR-02</span>
+<h3>Las 25 variables del BCS + 3 metadatos componen <code>bcs_mediciones</code> — se adopta IMP-ADR-06 sin modificarlo</h3>
+<p><strong>Contexto:</strong> el BCS Handbook (03) especifica cada variable en prosa; el Implementation Handbook (05, IMP-ADR-06) ya la tradujo a una lista de columnas concreta, resolviendo AR-017.</p>
+<p><strong>Problema:</strong> este documento necesita una lista de columnas para <code>bcs_mediciones</code> sin re-derivar nombres que ya fueron decididos por un documento de mayor autoridad.</p>
+<p><strong>Alternativas consideradas:</strong> (a) re-derivar los nombres de columna directamente de las 25 fichas en prosa del BCS Handbook; (b) adoptar literalmente la tabla de mapeo ya resuelta por IMP-ADR-06.</p>
+<p><strong>Decisión:</strong> se adopta (b) — 04 usa exactamente los 28 nombres de columna del Implementation Handbook, sin variación.</p>
+<p><strong>Consecuencias:</strong> cualquier variable nueva que el BCS Handbook añada en el futuro requiere una entrada nueva en la tabla de mapeo del Implementation Handbook antes de aparecer en este documento — nunca se traduce dos veces de forma independiente.</p>
+</div>
+
+<div class="adr" id="db-adr-03">
+<span class="adr__estado">Aceptada</span>
+<span class="adr__id">DB-ADR-03</span>
+<h3>El CHECK de <code>progression_events.tipo</code> se documenta con 25 valores, pendiente de migración M2</h3>
+<p><strong>Contexto:</strong> el CHECK real hoy tiene 14 valores; el Engineering Handbook (07) y el Domain Model Handbook (11) ya consolidaron 25 entre los cuatro motores.</p>
+<p><strong>Problema:</strong> documentar solo 14 dejaría fuera funcionalidad ya especificada por Motor BPS/Progression Engine; documentar 25 sin aclarar el estado real induciría a pensar que ya son insertables hoy.</p>
+<p><strong>Alternativas consideradas:</strong> (a) documentar solo los 14 reales; (b) documentar los 25 consolidados, marcando explícitamente que 11 dependen de M2 (Implementation Handbook, 05), todavía no aplicada.</p>
+<p><strong>Decisión:</strong> se adopta (b) — 04 y 08 listan los 25, este ADR es la referencia única de que 11 no son insertables hasta que M2 se aplique.</p>
+<p><strong>Consecuencias:</strong> un motor que intente insertar uno de los 11 tipos nuevos hoy recibe un rechazo real de Postgres — comportamiento esperado, no un bug, hasta que M2 se aplique (11).</p>
+</div>
+
+<div class="adr" id="db-adr-04">
+<span class="adr__estado">Aceptada</span>
+<span class="adr__id">DB-ADR-04</span>
+<h3><code>origen = 'coach'</code> permanece reservado en el CHECK, sin tipo de evento asignado</h3>
+<p><strong>Contexto:</strong> el CHECK de <code>origen</code> incluye <code>coach</code> sin que ningún tipo de <code>tipo</code> lo use como productor (AR-011) — extensión especulativa para un futuro Coach IA sin handbook de dominio.</p>
+<p><strong>Problema:</strong> 04 y 08 necesitan listar el CHECK completo de <code>origen</code>, lo que expone este valor sin contenido.</p>
+<p><strong>Alternativas consideradas:</strong> (a) omitir <code>coach</code> para no exponer un vacío; (b) listarlo explícitamente marcado como reservado.</p>
+<p><strong>Decisión:</strong> se adopta (b) — ocultar el valor sería menos honesto que documentar la reserva tal como es.</p>
+<p><strong>Consecuencias:</strong> ninguna tabla ni columna de este documento asume la existencia de Coach IA. Si su handbook llega a existir, este documento se extiende entonces, no antes.</p>
+</div>
+
+<div class="adr" id="db-adr-05">
+<span class="adr__estado">Aceptada</span>
+<span class="adr__id">DB-ADR-05</span>
+<h3>Ownership como frontera de consistencia — se generaliza BCS-ADR-01 a todo el ecosistema</h3>
+<p><strong>Contexto:</strong> BCS-ADR-01 estableció, solo para el contexto de composición corporal, que Cliente/Medición/EnlacePúblico son tres agregados independientes por referencia — nunca consistencia fuerte entre ellos.</p>
+<p><strong>Problema:</strong> el mismo principio aplica a la frontera Usuario/Cliente y a la frontera intra-Usuario (Workout/WorkoutLog/EventoProgresión) — pero ningún documento lo había expresado como regla general de arquitectura de datos.</p>
+<p><strong>Alternativas consideradas:</strong> (a) tratar cada frontera de ownership como un caso aislado, documentado solo donde ya existe; (b) elevar el patrón a principio general de este documento, aplicable a cualquier par de aggregate roots futuro.</p>
+<p><strong>Decisión:</strong> se adopta (b) — 10 clasifica explícitamente cada invariante como intra-agregado (garantizada) o inter-agregado (eventual), como regla general, citando BCS-ADR-01 como el precedente que la originó.</p>
+<p><strong>Consecuencias:</strong> ninguna tabla futura debe asumir una transacción cruzando dos aggregate roots sin justificarlo explícitamente contra este principio.</p>
+</div>
+
+<div class="adr" id="db-adr-06">
+<span class="adr__estado">Aceptada — cita ENG-ADR-03</span>
+<span class="adr__id">DB-ADR-06</span>
+<h3>Una única tabla de eventos para todo el ecosistema, sin excepción futura</h3>
+<p><strong>Contexto:</strong> el Engineering Handbook ya decidió (ENG-ADR-03) que <code>progression_events</code> es la única tabla de eventos, incluso para motores que no existían cuando se especificó.</p>
+<p><strong>Problema:</strong> este documento necesita comprometerse con esa decisión a nivel de esquema físico, no solo citarla en prosa.</p>
+<p><strong>Alternativas consideradas:</strong> ninguna nueva — este documento no reabre la decisión, solo la aplica.</p>
+<p><strong>Decisión:</strong> 02 y 08 tratan <code>progression_events</code> como la única tabla de eventos posible para cualquier motor futuro del ecosistema — un motor nuevo extiende el CHECK de <code>origen</code>/<code>tipo</code>, nunca crea tabla propia.</p>
+<p><strong>Consecuencias:</strong> ANP-08 (14) cataloga la alternativa rechazada como anti-patrón explícito, para que ningún diseño futuro la reconsidere sin pasar por aquí primero.</p>
+</div>
+
+<div class="adr" id="db-adr-07">
+<span class="adr__estado">Aceptada — cita MBPS-ADR-01</span>
+<span class="adr__id">DB-ADR-07</span>
+<h3>Estado como puntero materializado + eventos como verdad, generalizado más allá de Motor BPS</h3>
+<p><strong>Contexto:</strong> MBPS-ADR-01 decidió este patrón específicamente para la máquina de estados de Motor BPS.</p>
+<p><strong>Problema:</strong> el mismo patrón gobierna, de hecho, cada tabla con historial de este ecosistema (Cliente, Medición, EnlacePúblico también tienen <code>estado</code> como puntero) — sin que ningún documento lo generalizara.</p>
+<p><strong>Alternativas consideradas:</strong> (a) dejar el patrón como específico de Motor BPS; (b) declararlo el patrón general de persistencia de estado de todo el ecosistema.</p>
+<p><strong>Decisión:</strong> se adopta (b) — 01 y 12 lo presentan como principio general, citando MBPS-ADR-01 como su origen verificado en producción de dominio.</p>
+<p><strong>Consecuencias:</strong> cualquier tabla nueva con una columna <code>estado</code> debe poder justificar su valor actual señalando el evento/operación que lo causó — nunca un <code>estado</code> sin historia reconstruible.</p>
+</div>
+
+<div class="adr" id="db-adr-08">
+<span class="adr__estado">Aceptada — cita ENG-ADR-05</span>
+<span class="adr__id">DB-ADR-08</span>
+<h3>jsonb para forma variable, nunca para lo que se filtra por campo interno</h3>
+<p><strong>Contexto:</strong> ENG-ADR-05 ya decidió el criterio para cuándo usar jsonb vs. tabla normalizada.</p>
+<p><strong>Problema:</strong> este documento debe aplicar ese criterio de forma consistente a cada columna jsonb existente y futura, no solo citarlo una vez.</p>
+<p><strong>Alternativas consideradas:</strong> ninguna nueva — se aplica el criterio ya decidido.</p>
+<p><strong>Decisión:</strong> 01 y 04 aplican el criterio exacto de ENG-ADR-05 a <code>workouts.ejercicios</code> y <code>workout_logs.ejercicios</code> — ninguna otra tabla del ecosistema tiene hoy una columna jsonb candidata a normalización.</p>
+<p><strong>Consecuencias:</strong> el día que una consulta real necesite filtrar dentro de <code>ejercicios</code>, ese es el trigger de normalizar — no antes, y no como anticipación de este documento (06, ANP-15).</p>
+</div>
+
+<div class="adr" id="db-adr-09">
+<span class="adr__estado">Aceptada — cita ADR-009 del Architecture Handbook</span>
+<span class="adr__id">DB-ADR-09</span>
+<h3>El catálogo rico vive en código versionado, nunca en la base transaccional</h3>
+<p><strong>Contexto:</strong> ADR-009 del Architecture Handbook ya decidió que Sistemas ricos, Ejercicios y plantillas viven en código, no en tablas.</p>
+<p><strong>Problema:</strong> este documento debe declarar explícitamente qué tablas SÍ existen como catálogo-espejo (<code>systems</code>) y confirmar que ninguna tabla del catálogo rico se documenta aquí como pendiente de crear.</p>
+<p><strong>Alternativas consideradas:</strong> ninguna nueva — este documento no reabre la decisión.</p>
+<p><strong>Decisión:</strong> 02 y 03 documentan <code>systems</code> como el único catálogo-espejo real; Ejercicios, ontología y plantillas de Bloques/Mesociclos/Microciclos se citan como existentes en código, explícitamente fuera del alcance de este documento (00).</p>
+<p><strong>Consecuencias:</strong> este documento nunca lista "Ejercicio" ni "Plantilla de Bloque" como una tabla pendiente de crear en 02/03 — sería contradecir una decisión ya tomada.</p>
+</div>
+
+<div class="adr" id="db-adr-10">
+<span class="adr__estado">Aceptada — cita ENG-ADR-04</span>
+<span class="adr__id">DB-ADR-10</span>
+<h3>RLS es la única barrera de seguridad de la que este documento depende formalmente</h3>
+<p><strong>Contexto:</strong> ENG-ADR-04 ya decidió que RLS, no el proxy de Next.js, es la barrera real.</p>
+<p><strong>Problema:</strong> el módulo de RLS (09) de este documento necesita un principio rector explícito para juzgar cada política real frente a lo que "debería" ser.</p>
+<p><strong>Alternativas consideradas:</strong> ninguna nueva.</p>
+<p><strong>Decisión:</strong> 09 y 13 tratan toda ausencia o exceso de permiso en una policy real (AR-018, la brecha de <code>profiles</code>) como una desviación de este principio, nunca como aceptable porque "la ruta ya está protegida".</p>
+<p><strong>Consecuencias:</strong> ninguna tabla nueva se considera lista para producción sin RLS verificado activo, independientemente de cualquier protección de ruta.</p>
+</div>
+
+<div class="adr" id="db-adr-11">
+<span class="adr__estado">Aceptada</span>
+<span class="adr__id">DB-ADR-11</span>
+<h3><code>auth.users</code> se documenta como raíz externa, sin ficha propia en 03</h3>
+<p><strong>Contexto:</strong> <code>auth.users</code> es la raíz de identidad de todo el ecosistema, pero su esquema lo define Supabase Auth, no ningún handbook de BREY.</p>
+<p><strong>Problema:</strong> omitirla del todo dejaría el mapa de tablas (02) incompleto; darle una ficha completa en 03 implicaría que este documento especifica su forma, cuando no lo hace.</p>
+<p><strong>Alternativas consideradas:</strong> (a) ignorarla completamente; (b) incluirla en el mapa global (02) y en las relaciones (05) como raíz externa, sin ficha de columnas propia en 03/04.</p>
+<p><strong>Decisión:</strong> se adopta (b).</p>
+<p><strong>Consecuencias:</strong> el conteo de "9 tablas propias" de este documento nunca incluye a <code>auth.users</code> — se cuenta y se cita aparte, siempre como excepción explícita.</p>
+</div>
+
+<div class="adr" id="db-adr-12">
+<span class="adr__estado">Aceptada — cita DM-ADR-04</span>
+<span class="adr__id">DB-ADR-12</span>
+<h3>Recovery Engine no tiene tabla propia — es 100% derivado/efímero</h3>
+<p><strong>Contexto:</strong> DM-ADR-04 ya decidió que EstadoRecuperación se recalcula cada ciclo, sin persistirse como tal — solo su efecto (una Descarga aplicada) se registra indirectamente vía <code>progression_events</code>.</p>
+<p><strong>Problema:</strong> este documento necesita confirmar explícitamente que ninguna tabla nueva debe crearse para Recovery Engine, incluso cuando su propio handbook de dominio (todavía inexistente, AR-006) llegue a especificarse.</p>
+<p><strong>Alternativas consideradas:</strong> (a) dejar una tabla de Recovery como pregunta abierta hasta que su handbook exista; (b) confirmar ahora, con este ADR, que la ausencia de tabla es una decisión ya tomada (DM-ADR-04), no una omisión pendiente.</p>
+<p><strong>Decisión:</strong> se adopta (b) — 02 y 03 documentan explícitamente "Recovery: ninguna tabla propia" como hecho ya decidido, no como vacío a llenar.</p>
+<p><strong>Consecuencias:</strong> el futuro Recovery Engine Handbook, si llega a escribirse, puede especificar reglas de negocio nuevas — pero no puede pedir una tabla propia sin contradecir DM-ADR-04, salvo que ese mismo handbook lo revierta explícitamente.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../14-antipatrones/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 14 · Anti-patrones</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../16-preguntas-abiertas/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">16 · Preguntas Abiertas →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>11 · Trazabilidad y Auditoría — Content Lifecycle</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="trazabilidad" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 11 · Garantías</p>
+<h1>Trazabilidad y Auditoría</h1>
+<p class="lede">Preguntas 9, 12, 21, 22 y 23. El ecosistema tiene un sistema de trazabilidad completo, riguroso y en funcionamiento — <strong>para las decisiones automáticas</strong>. Las decisiones humanas, que P14 declara más importantes, son las únicas sin registro.</p>
+
+<h2 id="exigencia">La exigencia</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">P14 · Motivación</div>
+  <p>"La responsabilidad sobre lo que un cuerpo humano ejecuta debe poder <strong>rastrearse a una decisión humana</strong>."</p>
+</div>
+
+<h2 id="automaticas">Lo que sí está trazado: las decisiones de motor</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Garantía</th><th>Mecanismo</th><th>Fuente</th></tr></thead>
+<tbody>
+<tr><td>Toda transición emite exactamente un evento</td><td>Transición y evento son atómicos: "o ambos, o ninguno"</td><td>BPS-010</td></tr>
+<tr><td>Todo evento lleva razón</td><td><code>razones</code> es NOT NULL — "un evento sin razones no existe"</td><td>P2 · BPS-010</td></tr>
+<tr><td>Todo evento lleva contexto</td><td>Métricas y umbrales vigentes en el momento de decidir</td><td>BPS-010</td></tr>
+<tr><td>Se identifica al decisor</td><td>Campo <code>origen</code> con 6 valores: <code>motor_bps</code>, <code>progression_engine</code>, <code>recovery_engine</code>, <code>workout_generator</code>, <code>usuario</code>, <code>coach</code></td><td>Catálogo de eventos</td></tr>
+<tr><td>El estado es reconstruible</td><td>Replay determinista: "cualquier secuencia de eventos produce exactamente un estado, siempre el mismo"</td><td>BPS-011 · IN-5</td></tr>
+<tr><td>El historial no se borra</td><td>Los eventos inválidos se marcan "ignorado_en_replay", jamás se eliminan</td><td>P3</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Es un sistema de auditoría completo</div>
+  <p>Seis garantías encadenadas: evento obligatorio, razón obligatoria, contexto, identificación del decisor, reconstrucción determinista y conservación. Cualquier decisión de motor puede auditarse hasta su causa. La capacidad existe y está implementada.</p>
+</div>
+
+<h2 id="humanas">Lo que no está trazado: las decisiones editoriales</h2>
+<p class="matrix-note">Pregunta 9 — cómo debería registrarse una modificación. Los seis datos que P14 implica, contrastados con el modelo real.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Dato</th><th>¿Dónde se registraría?</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td><strong>Autor</strong> — quién decidió</td><td>Ningún atributo del modelo de Exercise lo contempla</td><td><span class="tag tag--futuro">sin campo</span></td></tr>
+<tr><td><strong>Fecha</strong> — cuándo</td><td>Ídem</td><td><span class="tag tag--futuro">sin campo</span></td></tr>
+<tr><td><strong>Motivo</strong> — por qué</td><td>Ídem</td><td><span class="tag tag--futuro">sin campo</span></td></tr>
+<tr><td><strong>Justificación</strong> — en qué se basó</td><td>El sistema de badges cubre reglas de handbook, no datos de catálogo</td><td><span class="tag tag--futuro">sin campo</span></td></tr>
+<tr><td><strong>Estado resultante</strong></td><td>No existen estados</td><td><span class="tag tag--futuro">sin campo</span></td></tr>
+<tr><td><strong>Versión</strong></td><td>Solo a nivel de catálogo completo</td><td><span class="tag tag--especificado">granularidad insuficiente</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="diagram">
+<div class="diagram-label">Dos clases de decisión, dos niveles de trazabilidad</div>
+<pre class="mermaid">
+graph TD
+  subgraph AUTO["Decisiones AUTOMÁTICAS · trazadas"]
+    M["Motor decide"] --> EV["Evento: tipo · origen<br/>razones · contexto"]
+    EV --> RE["Replay determinista"]
+    RE --> AUD["✅ auditable hasta la causa"]
+  end
+  subgraph HUM["Decisiones HUMANAS · no trazadas"]
+    P["Persona autoriza<br/>una clasificación"] --> N["❌ ningún registro"]
+    N --> X["⛔ no reconstruible"]
+  end
+  P14["P14: la responsabilidad<br/>debe rastrearse"] -.->|"exige precisamente<br/>esto"| HUM
+</pre>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">CL-D09 · La inversión de prioridades</div>
+  <p>El ecosistema traza con seis garantías las decisiones que un algoritmo toma de forma determinista y reproducible, y con ninguna las que una persona toma con criterio propio. La ironía es exacta: <strong>lo reproducible está registrado y lo irreproducible no</strong>.</p>
+</div>
+
+<h2 id="evidencia">Preguntas 21, 22 y 23 · Qué evidencia existe</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Pregunta</th><th>Evidencia encontrada</th></tr></thead>
+<tbody>
+<tr><td>21</td><td>¿Evidencia de <strong>revisiones</strong>?</td><td><strong>Ninguna.</strong> <code>revisión</code> (22 archivos) es "Architecture Review" y revisiones de tokens de diseño. <code>reviewer</code> 0 · <code>revisión técnica</code> 0 · <code>revisión científica</code> 0</td></tr>
+<tr><td>22</td><td>¿Evidencia de <strong>aprobaciones</strong>?</td><td><strong>Ninguna.</strong> <code>approval</code> 0 · <code>aprobación</code> 0 · <code>aprobar</code> 0 · <code>aprobador</code> 0</td></tr>
+<tr><td>23</td><td>¿Evidencia de <strong>auditoría</strong>?</td><td><strong>Parcial.</strong> <code>audit</code> 0 en inglés; <code>auditoría</code> 46 archivos, todos referidos a la Architecture Review y a las autoauditorías de handbooks — <strong>auditoría de documentos, no de entradas</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="adr">El único registro editorial que funciona</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">El ADR</div>
+  <p>Todas las trazabilidades que hoy existen para decisiones humanas pasan por un ADR: registra la razón, las alternativas consideradas y las consecuencias. Y su modificación está gobernada: "revertir una requiere un ADR nuevo que la <strong>supersede</strong>, nunca edición silenciosa".</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Objeto</th><th>Trazabilidad disponible</th><th>Mecanismo</th></tr></thead>
+<tbody>
+<tr><td>Un cambio de regla en un handbook</td><td>Razón, alternativas, consecuencias</td><td>ADR</td></tr>
+<tr><td>Un cambio de contrato</td><td>Razón, fecha de deprecación, migración</td><td>ADR</td></tr>
+<tr><td>Una generación de semana</td><td>Versión de catálogo utilizada</td><td>Evento obligatorio</td></tr>
+<tr><td>Un defecto de catálogo detectado</td><td>La combinación exacta que falló</td><td>Cola editorial vía <code>CATALOGO_INSUFICIENTE</code></td></tr>
+<tr><td><strong>Una decisión de etiquetado</strong></td><td><strong>Ninguna</strong></td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">El límite del ADR</div>
+  <p>El ADR es el mecanismo probado del ecosistema, pero <strong>un ADR por cada asignación de atributo de cada ejercicio no escala</strong>. Sirve para decisiones generalizables, no para el etiquetado entrada a entrada. La trazabilidad del catálogo exigiría registro estructurado en el propio dato — que es lo que falta.</p>
+</div>
+
+<h2 id="resumen">Resumen</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Pregunta</th><th>Respuesta</th></tr></thead>
+<tbody>
+<tr><td><strong>9 ·</strong> ¿Cómo debería registrarse una modificación?</td><td>Con versión de catálogo nueva — es lo único obligatorio hoy. Autor, fecha y motivo no tienen dónde registrarse</td></tr>
+<tr><td><strong>12 ·</strong> ¿Cómo se garantiza la trazabilidad?</td><td>Completamente para decisiones de motor (6 garantías); nada para decisiones editoriales</td></tr>
+<tr><td><strong>21 ·</strong> Evidencia de revisiones</td><td>Ninguna</td></tr>
+<tr><td><strong>22 ·</strong> Evidencia de aprobaciones</td><td>Ninguna</td></tr>
+<tr><td><strong>23 ·</strong> Evidencia de auditoría</td><td>Parcial — de documentos, no de entradas</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../10-compatibilidad/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 10 · Compatibilidad Histórica</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../12-correccion/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">12 · Corrección y Rollback →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

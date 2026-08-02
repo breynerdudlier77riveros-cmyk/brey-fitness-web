@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>00 · Introducción — BREY API Contract Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="introduccion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 00 · Empezar</p>
+<h1>Introducción</h1>
+<p class="lede">El contrato oficial de todas las APIs del ecosistema BREY — qué endpoints existen, quién puede llamarlos, qué reciben, qué devuelven, qué eventos disparan. La única fuente de verdad para cualquier implementación futura de transporte (Server Action, Route Handler o API pública). No es un documento para programar.</p>
+
+<div class="meta-row">
+  <span class="chip">Contrato, nunca implementación</span>
+  <span class="chip">Sin código · sin SQL · sin TypeScript · sin Next.js</span>
+  <span class="chip">Cero funcionalidad nueva</span>
+</div>
+
+<h2 id="proposito">Propósito</h2>
+<p>Nueve documentos ya especifican, cada uno desde su propio ángulo, comportamientos que alguien tendrá que exponer como una operación invocable: crear un Cliente, registrar una Medición, evaluar una Progresión, cerrar una sesión de entrenamiento. Ninguno de los nueve responde, de forma unificada y transversal, la pregunta que cualquier implementador necesita antes de escribir la primera línea: <strong>¿cómo se invoca esto, quién puede invocarlo, qué forma exacta tiene la entrada, qué forma exacta tiene la salida, y qué pasa si falla?</strong> Este documento responde esa pregunta una sola vez, para todo el ecosistema, consolidando — nunca inventando — lo que los nueve documentos ya implican.</p>
+
+<h2 id="alcance">Alcance</h2>
+<ul>
+  <li>El catálogo completo de endpoints ya implícitos en los handbooks de dominio y motor — ruta, actor, entrada, salida, ownership, efectos secundarios y eventos.</li>
+  <li>Los DTO oficiales de entrada, salida, error, paginación y evento, en tablas — nunca en tipos de un lenguaje concreto.</li>
+  <li>Las convenciones globales de autenticación, autorización, HTTP, requests, responses, errores, versionado, idempotencia y rate limiting.</li>
+  <li>La documentación explícita de toda discrepancia entre handbooks que afecte a un contrato de API, vía API-ADR (15) — sin resolverla inventando una forma nueva no autorizada por ningún documento superior.</li>
+  <li>Las preguntas que este documento no puede cerrar porque dependen de un handbook que todavía no existe (Recovery Engine completo) o de una decisión de producto no tomada.</li>
+</ul>
+
+<h2 id="no-alcance">No alcance</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Fuera de este documento</th><th>Dónde vive / por qué</th></tr></thead>
+<tbody>
+<tr><td>Cualquier línea de código, tipo TypeScript, esquema SQL, componente React</td><td>No pertenece a ningún handbook de contrato — este documento se detiene en la tabla, nunca en la firma de una función</td></tr>
+<tr><td>Reglas de negocio de un motor (cómo decide Progression Engine, qué constituye fatiga para Recovery Engine)</td><td>El handbook de dominio correspondiente (Motor BPS, Progression Engine, Domain Model) — este documento cita la decisión, no la re-especifica</td></tr>
+<tr><td>Orden de construcción, migraciones, checklists de release</td><td>Implementation Handbook</td></tr>
+<tr><td>Lógica de decisión completa de Recovery Engine (qué umbral de fatiga exige descarga)</td><td>Pendiente de un Recovery Engine Handbook propio (AR-006) — este documento formaliza únicamente el contrato mínimo ya aceptado por IMP-ADR-01/02</td></tr>
+<tr><td>Endpoints de captación de leads del sitio de marketing (<code>/api/lead</code>, <code>/api/contacto</code>)</td><td>Infraestructura de marketing, no dominio de negocio de BREY — se citan solo como precedente real de convención de respuesta (06, 09)</td></tr>
+<tr><td>Un rol "Admin" con permisos transversales sobre todos los Entrenadores</td><td>Ningún handbook existente lo especifica — ver API-ADR-05 y AP-01 (16), no se inventa aquí</td></tr>
+<tr><td>Valores numéricos concretos de rate limiting (requests/minuto, ventanas de bloqueo)</td><td>Ningún handbook existente los define — ver API-ADR-06 y 12</td></tr>
+<tr><td>Un esquema de Coach IA, o cualquier evento/endpoint para el productor <code>origen=coach</code></td><td>No tiene handbook de dominio — el placeholder existe en el CHECK de <code>progression_events</code> sin contenido (AR-011) y se documenta como tal, no se completa por inferencia</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="jerarquia">Jerarquía documental</h2>
+<p>Este documento respeta, sin excepción, los nueve handbooks ya existentes de BREY: Architecture Handbook, Motor BPS Handbook, Progression Engine Handbook, BCS Handbook, BCS Design System Handbook, Engineering Handbook, Architecture Review, Implementation Handbook y Domain Model Handbook. Donde dos de ellos entran en conflicto sobre un mismo contrato, la precedencia es:</p>
+
+<div class="diagram">
+<div class="diagram-label">Precedencia documental — de mayor a menor autoridad</div>
+<pre class="mermaid">
+graph TD
+  AR["Architecture Review v1.0<br/>(revisión crítica, no especifica — pero sus hallazgos gobiernan)"] --> IMP["Implementation Handbook<br/>(arbitra vía IMP-ADR, no redefine dominio)"]
+  IMP --> DM["Domain Model Handbook<br/>(lenguaje, entidades, ownership, eventos)"]
+  DM --> RESTO["Resto de handbooks<br/>Motor BPS · Progression Engine · BCS · BCS Design System · Engineering · Architecture Handbook"]
+  RESTO --> ESTE["Este documento — API Contract Handbook<br/>consolida el contrato de API de todos los anteriores"]
+</pre>
+</div>
+
+<p>Este handbook nunca contradice a ninguno de los cuatro niveles superiores. Donde el Engineering Handbook (resto) y este documento describen la misma pieza — por ejemplo, el catálogo de errores de <code>app/api/lead</code>, o la forma de <code>progression_events</code> — este documento la expande con el detalle que su propio encargo exige (más de un endpoint, más de un actor, más de una convención transversal), sin sustituir lo que el Engineering Handbook ya afirma. Donde una discrepancia real existe entre dos documentos de igual o distinto nivel (el caso más grave: la forma del Veredicto de Recovery, AR-001), este documento no la resuelve inventando una tercera forma — cita la resolución ya tomada por el nivel más alto que decidió algo al respecto (Implementation Handbook, IMP-ADR-01) y lo declara vía su propio API-ADR (15).</p>
+
+<h2 id="prioridad-implementacion">Prioridad sobre la implementación</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Regla de prioridad</div>
+  <p>Si una implementación futura (Server Action, Route Handler, endpoint de una API pública) contradice lo que este documento especifica, la implementación está equivocada, no este documento. Frente a los nueve handbooks existentes, este documento no tiene autoridad para inventar un endpoint, un DTO o un evento que ningún documento anterior ya implique — solo para nombrar, tipar y hacer invocable lo que esos documentos ya establecieron como comportamiento necesario.</p>
+</div>
+<p>Toda tabla de este documento cita su origen exacto (handbook y módulo). Ningún endpoint, campo o error aparece sin una razón de negocio ya escrita en otro lugar. Donde esa razón no existe todavía, el endpoint no se documenta como contrato cerrado — se documenta como pregunta abierta (16).</p>
+
+<h2 id="como-leer">Cómo leer este documento</h2>
+<p>Se reutiliza el sistema de etiquetas ya establecido por el Domain Model Handbook para el estado de cada pieza del contrato:</p>
+<p>
+<span class="tag tag--implementado">implementado</span>
+<span class="tag tag--especificado">especificado</span>
+<span class="tag tag--futuro">futuro</span>
+</p>
+<p>Y se añade el vocabulario propio de este documento — el badge de método HTTP, que identifica de un vistazo el verbo semántico de cada operación del catálogo (07), independientemente del transporte real que la implemente (02, API-ADR-01):</p>
+<p>
+<span class="method method--get">GET</span>
+<span class="method method--post">POST</span>
+<span class="method method--patch">PATCH</span>
+<span class="method method--put">PUT</span>
+<span class="method method--delete">DELETE</span>
+</p>
+
+<div class="pagenav">
+  <div></div>
+  <a class="pagenav__item pagenav__item--next" href="../01-filosofia-api/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">01 · Filosofía de API →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

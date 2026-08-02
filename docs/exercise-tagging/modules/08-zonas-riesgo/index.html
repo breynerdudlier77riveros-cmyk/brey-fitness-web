@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>08 · Zonas de Riesgo — Exercise Tagging Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="zonas-riesgo" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 08 · Reglas por atributo</p>
+<h1>Reglas de Etiquetado — Zonas de Riesgo</h1>
+<p class="lede">El eje de seguridad. El único donde la documentación no solo omite el criterio, sino que <strong>declara explícitamente que omitirlo es la decisión correcta</strong> — y explica por qué.</p>
+
+<h2 id="declaracion">La declaración explícita</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Zona de riesgo con criterio experto manual — decisión registrada en la fuente</div>
+  <p>"La intensidad relativa por zona <strong>no se infiere del nombre</strong> — exige etiquetado con criterio biomecánico. <strong>Más lento, pero es la única versión honesta del filtro de seguridad.</strong>"</p>
+</div>
+<p>Es la única vez en todo el repositorio documental en que una ausencia de criterio se presenta como <em>trade-off aceptado y razonado</em> en lugar de como deuda. Eso cambia su tratamiento: no es un hueco que alguien deba rellenar con una regla, es una frontera que el sistema decidió no cruzar.</p>
+
+<h2 id="estructura">Estructura del atributo</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Componente</th><th>Vocabulario</th><th>Criterio de decisión</th></tr></thead>
+<tbody>
+<tr><td>Zona</td><td>6 valores cerrados</td><td><span class="tag tag--especificado">parcial</span> — cada zona publica "qué carga"</td></tr>
+<tr><td>Intensidad</td><td><code>alto</code> · <code>medio</code> · <code>bajo</code></td><td><span class="tag tag--futuro">ninguno</span> — criterio biomecánico manual por declaración</td></tr>
+</tbody>
+</table>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Zona</th><th>Qué carga (definición publicada)</th></tr></thead>
+<tbody>
+<tr><td><code>rodilla</code></td><td>Flexión profunda o carga axial en flexión</td></tr>
+<tr><td><code>cadera</code></td><td>Rango de flexión/rotación bajo carga</td></tr>
+<tr><td><code>lumbar</code></td><td>Carga axial o flexión de columna bajo carga</td></tr>
+<tr><td><code>hombro</code></td><td>Rango overhead o rotación externa cargada</td></tr>
+<tr><td><code>codo-muneca</code></td><td>Carga en extensión o hiperextensión</td></tr>
+<tr><td><code>tobillo</code></td><td>Dorsiflexión o impacto</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Las definiciones orientan la ZONA, no la INTENSIDAD</div>
+  <p>"Flexión profunda o carga axial en flexión" permite decidir razonablemente <em>si</em> un ejercicio carga la rodilla. No permite decidir si la carga en <code>alto</code>, <code>medio</code> o <code>bajo</code> — que es precisamente el valor que el filtro de seguridad usa. La fuente lo ilustra con su propio ejemplo: "sentadilla con barra y extensión en máquina cargan <code>rodilla</code> de formas muy distintas".</p>
+</div>
+
+<h2 id="por-que-no-binario">Por qué no es un flag binario</h2>
+<p>El diseño de tres niveles existe para que el filtro pueda excluir solo lo peligroso sin vaciar el catálogo: "Usuario con zona declarada → se excluyen los ejercicios que cargan esa zona en <code>alto</code>. <code>medio</code>/<code>bajo</code> <strong>permanecen elegibles</strong>". Un etiquetado que colapsara todo a "carga / no carga" haría el filtro inutilizable en cualquier dirección: o excluiría demasiado, o no protegería.</p>
+
+<h2 id="regla-tg08">La regla de etiquetado que sí se puede fijar</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">TG-08 aplicado — ante duda, ninguna etiqueta</div>
+  <p>Como "la existencia del filtro es de seguridad y <strong>no removible</strong>", una intensidad etiquetada sin certeza biomecánica es peor que la ausencia: la ausencia excluye al ejercicio (comportamiento seguro), la etiqueta errónea lo hace pasar. Por eso, en este eje y solo en este, <strong>el estado por defecto ante duda es no etiquetar</strong>, y el ejercicio permanece no elegible hasta que exista autorización.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Los tres estados posibles y su efecto en elegibilidad</div>
+<pre class="mermaid">
+flowchart TD
+  A["Etiquetar zonas de riesgo"] --> B{"¿Se evaluó el ejercicio<br/>con criterio biomecánico?"}
+  B -- No --> N["SIN ETIQUETAR<br/>→ no elegible (seguro)"]
+  B -- "Sí, no carga ninguna zona" --> V["LISTA VACÍA<br/>→ elegible · afirmación positiva"]
+  B -- "Sí, carga zonas" --> L["LISTA con {zona, intensidad}"]
+  L --> C{"¿Certeza sobre la<br/>intensidad de cada zona?"}
+  C -- No --> N
+  C -- Sí --> OK["Etiquetado aceptado"]
+</pre>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Lista vacía y ausencia son afirmaciones distintas</div>
+  <p><code>[]</code> significa "evaluado: no carga ninguna zona en riesgo" — es una afirmación positiva de seguridad. La ausencia significa "sin evaluar". Colapsarlas haría que los 19 ejercicios no etiquetados de hoy pasaran el filtro de <em>cualquier</em> usuario con lesión declarada. Ver <a href="../15-anti-patterns/index.html">TGA-04</a>.</p>
+</div>
+
+<h2 id="doble-brecha">La brecha es doble</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">El otro extremo del filtro tampoco existe</div>
+  <p>La fuente lo declara: la regla de exclusión "requiere que el Perfil capture lesiones como zonas de esta lista (<strong>hoy es texto libre</strong> — bloqueante registrado en el Roadmap; el texto libre actual se conserva como Notas del usuario, <strong>nunca parseado</strong>)".</p>
+  <p>Consecuencia para este handbook: incluso un etiquetado perfecto de los 19 ejercicios <strong>no activaría el filtro</strong>, porque el lado del usuario es prosa que nadie puede leer sin violar el invariante de la capa 15. Deuda <a href="../17-auditoria/index.html">TG-D07</a>.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Ambos extremos del eje de seguridad están pendientes</div>
+<pre class="mermaid">
+graph LR
+  E["Ejercicio<br/>zonasRiesgo[]<br/>❌ 0 de 19 etiquetados"] --> F["Filtro de exclusión<br/>excluir zona:alto"]
+  U["Usuario<br/>lesiones<br/>❌ texto libre, no parseable"] --> F
+  F --> R["Candidatos seguros<br/>⛔ inalcanzable hoy"]
+</pre>
+</div>
+
+<h2 id="validaciones">Validaciones aplicables</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Validación</th><th>Capa</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>Las zonas pertenecen a las 6 publicadas</td><td>Estructural</td><td><span class="tag tag--implementado">verificable</span></td></tr>
+<tr><td>Las intensidades pertenecen a los 3 valores</td><td>Estructural</td><td><span class="tag tag--implementado">verificable</span></td></tr>
+<tr><td>Se distingue lista vacía de ausencia</td><td>Estructural</td><td><span class="tag tag--implementado">verificable</span></td></tr>
+<tr><td>No se repite la misma zona con intensidades distintas</td><td>Estructural</td><td><span class="tag tag--futuro">no declarada</span></td></tr>
+<tr><td>La intensidad asignada es biomecánicamente correcta</td><td><strong>Contenido</strong></td><td>Criterio experto — por declaración de la fuente</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../07-equipamiento/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 07 · Equipamiento</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../09-cadena/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">09 · Cadena →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

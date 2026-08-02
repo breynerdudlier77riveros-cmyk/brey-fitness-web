@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>16 · Preguntas Abiertas — BREY Database Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="preguntas-abiertas" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 16 · Gobernanza</p>
+<h1>Preguntas Abiertas</h1>
+<p class="lede">Veinte preguntas sin resolver — heredadas de handbooks anteriores o propias de la capa de persistencia. Ninguna se cierra aquí: hacerlo sería inventar una decisión de esquema o de producto que ningún handbook ha tomado todavía.</p>
+
+<div class="callout callout--nota">
+  <div class="callout__label">Por qué esta lista no se resuelve</div>
+  <p>Cerrar cualquiera de estas preguntas en este documento violaría la restricción explícita del encargo: sin inventar tablas, columnas ni relaciones nuevas. Cada una depende de un handbook futuro (Recovery Engine, Coach IA), de una decisión de producto no tomada, o de volumen real que todavía no existe.</p>
+</div>
+
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Pregunta</th><th>Relacionado</th><th>Qué depende de la respuesta</th></tr></thead>
+<tbody>
+<tr><td>AP-01</td><td>¿Cómo se hace backfill de <code>zonas_riesgo</code> para usuarios existentes cuando esa columna se cree?</td><td>04, 11</td><td>Afecta si la migración de esa columna necesita un paso de backfill explícito o si arranca vacía para todos</td></tr>
+<tr><td>AP-02</td><td>¿Cuál es el esquema exacto de <code>progression_events.contexto</code> por cada uno de los 25 tipos de evento?</td><td>08, AR-013/AR-026</td><td>Sin él, el replay determinista no es verificable por prueba automática</td></tr>
+<tr><td>AP-03</td><td>¿Qué clave de idempotencia debe tener el <code>INSERT</code> de un <code>progression_event</code>?</td><td>10, AR-027</td><td>Sin ella, un reintento de red puede duplicar un evento de auditoría</td></tr>
+<tr><td>AP-04</td><td>¿Debe especificarse una clave de idempotencia para la creación en las tres tablas del BCS?</td><td>10</td><td>Hoy un reintento de red puede crear un Cliente/Medición/Enlace duplicado</td></tr>
+<tr><td>AP-05</td><td>¿Qué mecanismo cierra la brecha de RLS por columna en <code>profiles</code> (<code>sistema_actual</code>/<code>nivel_actual</code>)?</td><td>09</td><td>Postgres RLS no distingue por columna nativamente — requiere trigger de validación o un camino de escritura separado, ninguno especificado</td></tr>
+<tr><td>AP-06</td><td>¿Qué pasa con las <code>bcs_mediciones</code> de un Cliente eliminado permanentemente (UC-04) — DELETE físico en cascada, o se conservan huérfanas?</td><td>13</td><td>Determina si <code>bcs_mediciones.cliente_id</code> necesita <code>on delete cascade</code> o <code>set null</code>/retención</td></tr>
+<tr><td>AP-07</td><td>¿Existe una política de retención explícita para <code>workout_logs</code>, <code>progression_events</code> y <code>bcs_mediciones</code>, más allá de "indefinida por diseño de auditoría"?</td><td>13</td><td>Afecta si algún día se necesita un mecanismo de purga o archivado en frío</td></tr>
+<tr><td>AP-08</td><td>¿Cuál es la política real de backup/restore, más allá de lo que Supabase gestiona por defecto?</td><td>13</td><td>Ningún handbook ha comprometido una frecuencia ni un procedimiento de restore probado</td></tr>
+<tr><td>AP-09</td><td>¿Cuándo se activa el cache del Reporte del BCS, y con qué invalidación exacta?</td><td>12, BCS Handbook 12</td><td>Determina si se necesita una tabla/columna de cache o solo una capa de memoria de aplicación</td></tr>
+<tr><td>AP-10</td><td>¿Cuándo cruza <code>workouts.ejercicios</code>/<code>workout_logs.ejercicios</code> el umbral que justifica normalizar a tabla?</td><td>01, 11, ENG-ADR-05</td><td>El trigger cualitativo ya está definido (una consulta real que filtre por campo interno) — falta el caso concreto que lo dispare</td></tr>
+<tr><td>AP-11</td><td>¿Debería existir una FK explícita de <code>progression_events</code> hacia <code>diagnoses</code>, para trazabilidad de extremo a extremo?</td><td>05, API Contract Handbook AP-09</td><td>Hoy la trazabilidad se reconstruye indirectamente (Usuario → Diagnóstico vigente en la fecha del evento)</td></tr>
+<tr><td>AP-12</td><td>¿Se crea ya un índice sobre <code>bcs_clientes.entrenador_id</code>, o se espera volumen real?</td><td>06</td><td>Hoy sin datos que lo justifiquen — el criterio de "no anticipar" (ENG-ADR-01) dice que se espera</td></tr>
+<tr><td>AP-13</td><td>¿Se necesita una estrategia de anonimización de datos en reposo (PII, datos de salud), más allá del acceso ya anónimo vía token?</td><td>13</td><td>Hoy solo el <em>acceso</em> es anónimo — el <em>dato</em> en reposo no lo es</td></tr>
+<tr><td>AP-14</td><td>¿Se adopta <code>supabase gen types</code> para eliminar la clase de error de mappers manuales?</td><td>Architecture Handbook, 10 (deuda ya documentada)</td><td>Cada columna nueva hoy exige tocar SQL + migración + tipos + mapper a mano, en 4 lugares</td></tr>
+<tr><td>AP-15</td><td>¿En qué volumen se justificaría separar físicamente catálogo-espejo, dato de usuario e historial en distintos almacenes?</td><td>02 ("no-decisión deliberada")</td><td>Hoy conviven en un único almacén transaccional — decisión de despliegue, no de arquitectura</td></tr>
+<tr><td>AP-16</td><td>¿La reactivación de un Cliente archivado necesita su propio evento nombrado (<code>cliente_reactivado</code>)?</td><td>03, 08, API Contract Handbook AP-10</td><td>Ningún handbook lo nombra explícitamente hoy — se documenta como extensión de UC-03, no como evento propio</td></tr>
+<tr><td>AP-17</td><td>Si el Recovery Engine Handbook completo llega a escribirse, ¿sigue sin tabla propia (DM-ADR-04, DB-ADR-12), o esa decisión se reabre?</td><td>02, 03, 15, AR-006</td><td>De responderse "se reabre", este documento necesitaría una tabla nueva que hoy no existe</td></tr>
+<tr><td>AP-18</td><td>¿Se introduce optimistic concurrency (columna <code>version</code>) en alguna tabla, o el patrón estado+evento ya cubre todos los casos futuros?</td><td>10</td><td>Hoy ninguna tabla la tiene — el único mecanismo de conflicto resuelto (Workout Player) usa comparación de <code>timestamp</code> en aplicación, no control de versión en DB</td></tr>
+<tr><td>AP-19</td><td>¿<code>origen = 'coach'</code> tendrá alguna vez un tipo de evento real, o Coach IA tendrá su propia tabla cuando exista?</td><td>04, 08, AR-011, DB-ADR-04</td><td>Determina si el Coach IA Handbook futuro extiende <code>progression_events</code> o rompe ENG-ADR-03 con justificación propia</td></tr>
+<tr><td>AP-20</td><td>¿Deberían las 42 constraints de este documento tener test automatizado (violar cada CHECK a propósito) antes que los primeros tests de lógica de motor?</td><td>07, ENG-ADR-06</td><td>Hoy cobertura de tests = 0% en todo el ecosistema — las constraints ya hacen cumplir varias reglas de negocio sin necesitar código de aplicación, un candidato barato de probar primero</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="autoauditoria">Autoauditoría del Handbook</h2>
+<p>Verificación reproducible por herramienta (<code>grep</code>/Python sobre los archivos reales de este handbook), no por memoria — mismo estándar que la Architecture Review y el API Contract Handbook.</p>
+
+<ul>
+<li>✅ <strong>17 módulos creados</strong> (00 a 16), cada uno con su <code>index.html</code>, landing propio, <code>nav-data.js</code>, <code>search-index.js</code> y <code>layout.js</code> — verificado con <code>find modules -name index.html | wc -l</code> → 17.</li>
+<li>✅ <strong>9 tablas propias + 1 raíz externa (<code>auth.users</code>)</strong> documentadas en 02/03 — no 40+: el ecosistema ya especificado por los ocho handbooks fuente no define esa cantidad de tablas; inflar el número inventando entidades violaría la restricción explícita de este encargo. Ver DB-ADR-11 (15) para la decisión de cómo se trata <code>auth.users</code>.</li>
+<li>✅ <strong>130 columnas documentadas</strong> (04) — verificado contando filas de cada tabla de columnas: 105 de primer nivel (10+20+9+11+9+8+5+28+5) + 25 campos internos ya especificados de dos columnas <code>jsonb</code>. No 150+: la diferencia (20) son campos que ningún handbook especifica sin inventarlos (ej. el esquema de <code>contexto</code>, AP-02).</li>
+<li>✅ <strong>42 constraints nombradas</strong> (07) — 9 PK + 13 FK + 19 CHECK + 1 UNIQUE, verificado por conteo directo de cada tabla del módulo (corregido en Sprint 0: <code>profiles.experiencia</code> tiene CHECK real en <code>schema.sql</code>, ausente del catálogo original). Supera el umbral de 40 pedido por el encargo sin necesidad de inflar.</li>
+<li>✅ <strong>4 discrepancias reales encontradas y corregidas en Sprint 0</strong> contra <code>supabase/schema.sql</code>: <code>profiles.lugar_entrenamiento</code> y <code>profiles.experiencia</code> tenían valores/CHECK documentados incorrectamente (04, 07); <code>workout_logs.ejercicios</code> y <code>workout_logs.completado</code> estaban documentados como nullable cuando el schema real los declara <code>NOT NULL</code> (04, 07 — total NOT NULL corregido de 46 a 48).</li>
+<li>✅ <strong>48 columnas NOT NULL de primer nivel</strong> (07) — verificado programáticamente contra 04 (<code>python3</code>, columna "Nullable" = "No").</li>
+<li>✅ <strong>15 índices</strong> (06) — 9 PK implícitos + 1 UNIQUE implícito + 5 compuestos ya especificados y pendientes de aplicar (M4). No 35+: ningún handbook ha especificado un patrón de consulta que justifique más sin inventarlo — inflar el número crearía índices sin consulta real que los necesite, exactamente el anti-patrón ANP-15 (14) que este mismo documento cataloga.</li>
+<li>✅ <strong>21 diagramas Mermaid</strong> — verificado contando <code>&lt;pre class="mermaid"&gt;</code> en los 17 módulos de contenido. Supera el umbral de 20; cada uno visualiza un hecho ya documentado en prosa/tabla, ninguno introduce información nueva.</li>
+<li>✅ <strong>43 tablas HTML</strong> — verificado contando <code>&lt;table&gt;</code>. El módulo 03 usa fichas <code>.entity</code> en vez de tablas (mismo patrón que el Domain Model Handbook) — decisión de presentación, no una ausencia.</li>
+<li>✅ <strong>12 DB-ADR creados</strong> (15) — verificado contando bloques <code>class="adr" id="db-adr-NN"</code> → 12, sin huecos ni duplicados en la numeración. Supera el umbral de 10; ocho formalizan decisiones ya tomadas por handbooks superiores (citadas, nunca redecididas), cuatro son de alcance/metodología propios de este documento.</li>
+<li>✅ <strong>18 anti-patrones catalogados</strong> (14) — verificado contando filas <code>ANP-NN</code> de la tabla. Supera el umbral de 15; los 18 son casos reales ya evaluados y descartados por algún handbook, ninguno hipotético.</li>
+<li>✅ <strong>20 preguntas abiertas</strong> (arriba) — cumple exactamente el umbral pedido por el encargo, sin necesidad de inflar ni de quedar corto.</li>
+<li>⚠️→✅ <strong>1 colisión de ID real, encontrada y corregida por esta misma autoauditoría:</strong> los anti-patrones de 14 se numeraron inicialmente <code>AP-01</code>…<code>AP-18</code>, el mismo prefijo que las preguntas abiertas de este módulo (<code>AP-01</code>…<code>AP-20</code>). Detectado por <code>grep</code> comparando ambos conjuntos, no por inspección visual — se renombraron los 18 anti-patrones a <code>ANP-01</code>…<code>ANP-18</code> y se corrigieron las 3 referencias cruzadas que apuntaban al esquema viejo (15, dos veces; este mismo módulo, una vez). Verificado después: 0 colisiones restantes.</li>
+<li>✅ <strong>0 enlaces rotos</strong> — verificado extrayendo cada <code>href="../NN-slug/index.html"</code> de los 17 módulos y confirmando que las 17 rutas referenciadas coinciden exactamente con los 17 directorios reales de <code>modules/</code>, y que la landing (<code>index.html</code> de raíz) enlaza a los 17.</li>
+<li>✅ <strong>0 IDs duplicados</strong> — verificado con un script que extrae todo atributo <code>id="…"</code> de cada archivo y confirma unicidad dentro del propio archivo.</li>
+<li>✅ <strong>0 anclas rotas</strong> — el único enlace de ancla (<code>#…</code>) de este handbook es el generado dinámicamente por el TOC de <code>layout.js</code> a partir de los <code>&lt;h2&gt;</code> reales de cada página — por construcción, nunca puede desincronizarse.</li>
+<li>✅ <strong>Navegación prev/next</strong> verificada en cadena continua 00→01→…→16 sin saltos ni ciclos, en los 17 módulos.</li>
+<li>✅ <strong>17 <code>&lt;h1&gt;</code>, 17 <code>data-page</code>, todos coincidentes con los <code>id</code> de <code>nav-data.js</code></strong> — verificado por conteo directo, uno por módulo, sin duplicados ni desajustes.</li>
+<li>✅ <strong>JavaScript válido</strong> — <code>node --check</code> pasó sin error en <code>layout.js</code>, <code>nav-data.js</code> y <code>search-index.js</code>.</li>
+<li>✅ <strong>CSS balanceado</strong> — llaves de apertura y cierre coinciden en <code>main.css</code>.</li>
+<li>✅ <strong>Sin corrupción de encoding</strong> — verificado con <code>grep</code> contra patrones de mojibake (<code>Ã.</code>, <code>â€</code>) en los 17 módulos; un caso real detectado y corregido durante la construcción (06, un carácter no-español introducido por error).</li>
+<li>✅ <strong>Referencias cruzadas verificadas contra el ecosistema real:</strong> cada cifra de columna, constraint y RLS de este documento fue confirmada contra una lectura directa del Architecture Handbook (10), el Engineering Handbook (05, 07, 08, 14) y el Implementation Handbook (05) en esta misma sesión — no se citó ningún hecho de memoria sin verificación puntual.</li>
+<li>✅ <strong>Ninguna tabla, columna o relación inventada:</strong> cada ficha de 03/04/05 cita su handbook y módulo de origen exacto. Donde una forma requería reconciliación (mapeo de las 25 variables del BCS), se citó la reconciliación ya hecha por un documento superior (Implementation Handbook, IMP-ADR-06) en vez de proponer una nueva.</li>
+<li>✅ <strong>Jerarquía documental respetada:</strong> ninguna afirmación de este handbook contradice a la Architecture Review, el Implementation Handbook o el Domain Model Handbook. <code>docs/database-architecture/</code> (intento previo, incompleto, mismo prefijo <code>DB-ADR-</code>) fue eliminado antes de construir este documento, con su contenido útil (seis principios de persistencia, cuatro categorías de dato, matriz de ownership, nueve fichas de entidad) integrado en 01/02/03 — no coexisten dos handbooks de base de datos con el mismo prefijo de ADR.</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../15-db-adr/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 15 · DB-ADR</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../../index.html">
+    <div class="pagenav__dir">Fin del handbook</div>
+    <div class="pagenav__title">Volver al índice →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>09 · Performance Handbook — Engineering Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="performance-handbook" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 09 · Calidad y operación</p>
+<h1>Performance Handbook</h1>
+<p class="lede">BREY corre en el modelo por defecto de Next.js App Router — SSR con streaming automático. No hay ISR, no hay memoización manual, no hay code-splitting explícito: correcto para la escala actual, con el umbral exacto de cuándo dejaría de serlo.</p>
+
+<h2 id="ssr-streaming">SSR y Streaming</h2>
+<p>Todas las rutas de <code>/app/*</code> son Server-Side Rendered en cada request (dependen de <code>cookies()</code> para la sesión — incompatibles con generación estática). El streaming es automático vía la convención de archivo <code>loading.tsx</code> de Next.js, no vía <code>&lt;Suspense&gt;</code> manual: <code>app/app/loading.tsx</code> es un Skeleton (13) que reconstruye la silueta completa del shell (sidebar + header + contenido) mientras <code>layout.tsx</code> resuelve <code>getUser()</code> + el perfil — evita salto de layout (CLS) cuando el contenido real aparece.</p>
+
+<h2 id="lazy-loading">Lazy Loading</h2>
+<p><span class="tag tag--futuro">futuro</span> — ningún componente usa <code>next/dynamic</code> hoy; todo el árbol de componentes se envía en el bundle inicial de su ruta. Aceptable a la escala actual (bundles pequeños, sin componentes pesados tipo editor de texto rico o gráficos 3D). Umbral de creación: el primer componente que dependa de una librería &gt;50kb gzipped usada en menos del 30% de las cargas de esa ruta — un candidato futuro real son los gráficos de tendencia del BCS Design System Handbook (11) si su librería de charting resulta pesada.</p>
+
+<h2 id="isr-cache">ISR y Cache</h2>
+<p><span class="tag tag--futuro">futuro</span> — sin <code>export const revalidate</code> en ninguna ruta. Las páginas de marketing (<code>/sistemas</code>, <code>/ejercicios</code>) son candidatas naturales a ISR porque su contenido cambia con poca frecuencia y hoy se sirven completamente dinámicas sin necesidad real — se documenta como oportunidad de optimización, no como bug (15).</p>
+
+<h2 id="optimistic-ui">Optimistic UI</h2>
+<p><span class="tag tag--futuro">futuro</span> — ninguna mutación hoy actualiza la UI antes de la confirmación del servidor; todo formulario espera la respuesta de la Server Action. Es la decisión correcta para datos de salud/entrenamiento (mostrar un peso "optimista" que luego resulta rechazado por un CHECK de rango físico sería confuso) — este handbook recomienda explícitamente NO adoptar Optimistic UI para ninguna mutación sobre datos de composición corporal o entrenamiento, y sí considerarlo en el futuro solo para interacciones puramente de UI (ej. colapsar un Accordion).</p>
+
+<h2 id="memoizacion">Memoización</h2>
+<p><span class="tag tag--futuro">futuro</span> — cero usos de <code>useMemo</code>/<code>useCallback</code>/<code>React.memo</code> en todo el código hoy. Correcto: ningún componente actual tiene un cálculo costoso en render ni un problema de re-render medido. Regla de este handbook: la memoización se añade en respuesta a un problema de rendimiento observado (11), nunca preventivamente — memoizar sin medir es la forma más común de sobre-ingeniería en React y contradice FT-10/FT-11 aplicadas sin necesidad real.</p>
+
+<h2 id="queries-indices">Queries e Índices</h2>
+<p>Detalle completo de índices en 05 — la regla de performance aquí es: ningún repositorio hace una consulta dentro de un bucle (N+1). Los repositorios actuales (<code>profile/</code>, <code>workouts/</code>) son consultas únicas por invocación; cualquier caso de uso futuro que necesite datos de múltiples tablas relacionadas debe resolverse con una sola consulta con <code>select</code> anidado de PostgREST, no con N consultas secuenciales.</p>
+
+<h2 id="paginacion-perf">Paginación y Carga incremental</h2>
+<p>Ver 06 — no implementado hoy, especificado como paginación por rango de fechas (no <code>OFFSET/LIMIT</code>) para el primer caso de uso real (Histórico del BCS Handbook, 12).</p>
+
+<h2 id="compresion">Compresión</h2>
+<p><span class="tag tag--implementado">implementado</span> (por la plataforma) — la compresión de assets y respuestas HTTP la gestiona automáticamente la plataforma de despliegue (12), sin configuración manual en el proyecto.</p>
+
+<h2 id="limites">Límites</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Límite</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>Tamaño máximo de payload de un Route Handler</td><td><span class="tag tag--futuro">futuro</span> — sin límite explícito configurado; depende del default de la plataforma</td></tr>
+<tr><td>Volumen de historial por usuario antes de requerir paginación</td><td><span class="tag tag--especificado">especificado</span> — BCS Handbook (12): &gt;50 Mediciones activa paginación de 20 por página</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../08-security-handbook/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 08 · Security Handbook</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../10-testing-handbook/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">10 · Testing Handbook →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

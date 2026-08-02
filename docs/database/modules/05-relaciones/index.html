@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>05 · Relaciones — BREY Database Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="relaciones" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 05 · Modelo</p>
+<h1>Relaciones</h1>
+<p class="lede">13 relaciones FK reales o especificadas, su cardinalidad y ownership — y, con el mismo peso, las relaciones que deliberadamente no existen.</p>
+
+<div class="meta-row">
+  <span class="chip">13 FK lógicas</span>
+  <span class="chip">4 relaciones prohibidas documentadas</span>
+</div>
+
+<h2 id="fk-tabla">FK lógicas — tabla completa</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Origen</th><th>Destino</th><th>Cardinalidad</th><th>On delete</th><th>Nullable</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>profiles.id</code></td><td><code>auth.users.id</code></td><td>1:1</td><td>cascade</td><td>No</td></tr>
+<tr><td>2</td><td><code>diagnoses.user_id</code></td><td><code>auth.users.id</code></td><td>N:1</td><td>cascade</td><td>No</td></tr>
+<tr><td>3</td><td><code>diagnoses.sistema_recomendado</code></td><td><code>systems.slug</code></td><td>N:1</td><td>—</td><td>No</td></tr>
+<tr><td>4</td><td><code>workouts.user_id</code></td><td><code>auth.users.id</code></td><td>N:1</td><td>cascade</td><td>No</td></tr>
+<tr><td>5</td><td><code>workouts.system_slug</code></td><td><code>systems.slug</code></td><td>N:1</td><td>—</td><td>Sí</td></tr>
+<tr><td>6</td><td><code>workout_logs.user_id</code></td><td><code>auth.users.id</code></td><td>N:1</td><td>cascade</td><td>No</td></tr>
+<tr><td>7</td><td><code>workout_logs.workout_id</code></td><td><code>workouts.id</code></td><td>N:0..1</td><td><strong>set null</strong></td><td>Sí (sesión ad-hoc)</td></tr>
+<tr><td>8</td><td><code>progression_events.user_id</code></td><td><code>auth.users.id</code></td><td>N:1</td><td>cascade</td><td>No</td></tr>
+<tr><td>9</td><td><code>progression_events.workout_log_id</code></td><td><code>workout_logs.id</code></td><td>N:0..1</td><td>No especificado</td><td>Sí</td></tr>
+<tr><td>10</td><td><code>profiles.sistema_actual</code></td><td><code>systems.slug</code></td><td>N:1</td><td>—</td><td>Sí</td></tr>
+<tr><td>11</td><td><code>bcs_clientes.entrenador_id</code></td><td><code>auth.users.id</code></td><td>N:1</td><td>No especificado</td><td>No</td></tr>
+<tr><td>12</td><td><code>bcs_mediciones.cliente_id</code></td><td><code>bcs_clientes.id</code></td><td>N:1</td><td>No especificado — ver casos límite (07)</td><td>No (IN-D5)</td></tr>
+<tr><td>13</td><td><code>bcs_enlaces_publicos.cliente_id</code></td><td><code>bcs_clientes.id</code></td><td>N:1</td><td>No especificado</td><td>No</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="cardinalidad-conceptual">Cardinalidad a nivel de dominio</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Relación</th><th>Cardinalidad</th><th>Ownership</th></tr></thead>
+<tbody>
+<tr><td>Usuario — Diagnóstico</td><td>1:N</td><td>Usuario posee; Diagnóstico nunca sobrevive sin su Usuario</td></tr>
+<tr><td>Usuario — Workout</td><td>1:N</td><td>Usuario posee — cascade real</td></tr>
+<tr><td>Usuario — WorkoutLog</td><td>1:N</td><td>Usuario posee — cascade real</td></tr>
+<tr><td>Usuario — EventoProgresión</td><td>1:N</td><td>Usuario posee; append-only</td></tr>
+<tr><td>Workout — WorkoutLog</td><td>1:0..N (por referencia opcional)</td><td>WorkoutLog no depende de Workout — puede ser ad-hoc</td></tr>
+<tr><td>WorkoutLog — EventoProgresión</td><td>1:0..N (por referencia opcional)</td><td>Trazabilidad, no containment</td></tr>
+<tr><td>Cliente — Medición</td><td>1:N (por referencia, nunca containment)</td><td>Cliente NO es dueño físico — Medición es su propio aggregate root (BCS-ADR-01)</td></tr>
+<tr><td>Cliente — EnlacePúblico</td><td>1:N histórico, 1:0..1 activo</td><td>Igual que Medición — por referencia</td></tr>
+<tr><td>Usuario — Cliente</td><td><strong>Ninguna</strong></td><td>No existe relación de dominio — solo comparten el rol "Entrenador" (Domain Model Handbook, IN-31)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="diagrama-cardinalidad">Diagrama — cardinalidad y ownership</h2>
+<div class="diagram">
+<div class="diagram-label">Cada frontera de ownership es también una frontera de aislamiento transaccional (10)</div>
+<pre class="mermaid">
+graph LR
+  subgraph U["Frontera: Usuario"]
+    U1["profiles (1:1)"] --- U2["diagnoses (1:N)"] --- U3["workouts (1:N)"] --- U4["workout_logs (1:N)"] --- U5["progression_events (1:N)"]
+  end
+  subgraph C["Frontera: Cliente"]
+    C1["bcs_clientes"] --- C2["bcs_mediciones (1:N)"] --- C3["bcs_enlaces_publicos (1:N)"]
+  end
+  U -.->|"sin transacción compartida — 10"| C
+</pre>
+</div>
+
+<h2 id="restricciones">Restricciones de las relaciones</h2>
+<ul>
+  <li><strong>Cascade en cascada de identidad:</strong> eliminar un Usuario (<code>auth.users</code>) arrastra en cascada real <code>profiles</code>, <code>diagnoses</code>, <code>workouts</code>, <code>workout_logs</code> y <code>progression_events</code> — el único caso donde el derecho de borrado (13) gana sobre la inmutabilidad de historial (P3), por ser la única excepción legal reconocida (Architecture Handbook, 10).</li>
+  <li><strong><code>workout_id</code> con <code>on delete set null</code>, nunca cascade:</strong> un Workout eliminado no destruye su WorkoutLog — el log sobrevive huérfano de plan, decisión deliberada (P3: el historial no depende de que su plan siga existiendo).</li>
+  <li><strong>Eliminar un Cliente cascada la revocación de sus EnlacesPúblicos</strong> — no una eliminación física de la fila (que también ocurre en la eliminación permanente, UC-04), sino primero un cambio de estado a <code>revocado</code> antes de que el Cliente mismo se elimine (Domain Model Handbook, IN-29; BCS Handbook, 10).</li>
+  <li><strong>Ninguna FK cruza la frontera Core Training ↔ Body Composition</strong> — ni <code>bcs_clientes.entrenador_id</code> ni ninguna otra columna de las tres tablas del BCS referencia <code>profiles</code>, <code>workouts</code>, <code>workout_logs</code> ni <code>progression_events</code> — solo <code>auth.users</code>, para identidad (02).</li>
+</ul>
+
+<h2 id="diagrama-no-existen">Diagrama — relaciones ausentes por diseño</h2>
+<div class="diagram">
+<div class="diagram-label">Cuatro líneas que ningún handbook traza — su ausencia es una regla (02)</div>
+<pre class="mermaid">
+flowchart LR
+  U["auth.users"] -.->|"AUSENTE — IN-31"| BC["bcs_clientes"]
+  BCX["bcs_* (BCS)"] -.->|"AUSENTE — standalone v1"| CTX["profiles / workouts / workout_logs"]
+  PEV["progression_events"] -.->|"AUSENTE — PA-09"| DX["diagnoses"]
+  ANY["Cualquier tabla"] -.->|"AUSENTE — sin fila propia"| POS["Programa / Bloque / Mesociclo / Microciclo"]
+</pre>
+</div>
+
+<h2 id="no-existen">Relaciones que deliberadamente NO existen</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Relación ausente</th><th>Por qué</th></tr></thead>
+<tbody>
+<tr><td>Usuario ↔ Cliente</td><td>Personas que coinciden en la vida real no coinciden en el modelo — un Entrenador que se mide a sí mismo aparece como un Cliente completamente independiente de su propio Usuario (Domain Model Handbook, DM-ADR-01, IN-31)</td></tr>
+<tr><td><code>bcs_clientes</code>/<code>bcs_mediciones</code>/<code>bcs_enlaces_publicos</code> → <code>workouts</code>/<code>profiles</code>/cualquier tabla de Core Training</td><td>BCS es standalone en v1 — su única dependencia es la identidad de Entrenador, nunca dato de dominio de Core Training (BCS Handbook, 00; 02)</td></tr>
+<tr><td><code>progression_events</code> → <code>diagnoses</code></td><td>No existe una relación explícita entre un EventoProgresión y el Diagnóstico que originó el Programa en el que ocurrió — la trazabilidad se reconstruye indirectamente hoy (Usuario → Diagnóstico vigente en la fecha del evento). Pregunta abierta, no resuelta (API Contract Handbook, AP-09; 16)</td></tr>
+<tr><td>Cualquier tabla → una fila de "Programa", "Bloque", "Mesociclo" o "Microciclo"</td><td>Ninguno de los cuatro tiene fila propia — son posicionales/derivados, nunca identidad direccionable (Domain Model Handbook, 13; ver 03)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../04-columnas/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 04 · Columnas</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../06-indices/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">06 · Índices →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

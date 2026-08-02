@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03 · Convenciones Globales — BREY Testing Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="convenciones-globales" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 03 · Fundamentos</p>
+<h1>Convenciones Globales</h1>
+<p class="lede">Naming, organización, factories, fixtures, mocks y determinismo — las mismas reglas para cualquier suite futura, sin excepción por motor o superficie.</p>
+
+<h2 id="naming">Naming</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Unidad</th><th>Convención</th></tr></thead>
+<tbody>
+<tr><td>Archivo de test</td><td>Uno por unidad de dominio bajo prueba, nombrado igual que la unidad + sufijo de test — nunca un archivo de test que cubra dos motores distintos</td></tr>
+<tr><td>Caso de test</td><td>Un caso por fila de la tabla de casos límite del handbook de origen (ej. una fila de "Ejemplo inválido" de una regla PE-XXX = un caso) — el nombre del caso cita el ID de la regla/transición/constraint que verifica, nunca una descripción libre sin ese ID</td></tr>
+<tr><td>Fixture</td><td>Nombrada por el escenario de dominio que representa (ej. "usuario en ventana insuficiente"), nunca por datos genéricos ("test1", "datosA")</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="organizacion">Organización</h2>
+<p>La estructura de tests refleja la estructura de dominio, nunca la estructura técnica de carpetas de implementación — un test de Motor BPS vive junto al concepto "Motor BPS", no junto a "servicios" o "controladores" genéricos. Esto permite que cualquier regla nueva de un handbook de dominio tenga una ubicación de test obvia sin discusión de dónde colocarla.</p>
+
+<h2 id="factories">Factories</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Regla ya establecida — Engineering Handbook, 10</div>
+  <p>Una factory por DTO oficial (API Contract Handbook, 08) — nunca un objeto literal repetido en cada caso de test. Una factory produce un DTO válido por defecto, con la posibilidad de sobreescribir campos puntuales para el caso bajo prueba (ej. una factory de Prescripción que por defecto es válida, pero permite forzar un campo fuera de rango para probar el CHECK correspondiente).</p>
+</div>
+
+<h2 id="fixtures">Fixtures</h2>
+<p>Datos de referencia estables y versionados junto al test — nunca generados aleatoriamente en cada ejecución (Engineering Handbook, 10). Una fixture representa un escenario de dominio completo y conocido: por ejemplo, las respuestas completas de un Diagnóstico que produce un resultado ya documentado, o una ventana de historial de exactamente 4 apariciones (el mínimo de Progression Engine Handbook, IN-P3) para probar el límite exacto de <code>VENTANA_INSUFICIENTE</code>.</p>
+
+<h2 id="mocks">Mocks — qué se mockea y qué nunca</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Situación</th><th>Regla</th></tr></thead>
+<tbody>
+<tr><td>Test <span class="level level--unit">unit</span> de un motor puro (Progression Engine, Recovery Engine)</td><td>Sin mocks — el motor recibe sus argumentos ya construidos por una factory, nunca necesita mockear nada porque no hace I/O (IN-P1)</td></tr>
+<tr><td>Test <span class="level level--unit">unit</span> de una Server Action aislada</td><td>Se mockea el <code>SupabaseClient</code> inyectado como parámetro — patrón ya permitido sin trabajo adicional porque el cliente ya viaja como argumento explícito (Architecture Handbook, 11)</td></tr>
+<tr><td>Cualquier test <span class="level level--integration">integration</span></td><td>Nunca se mockea Supabase completo — divergería de RLS real, exactamente el riesgo que este nivel existe para prevenir (02)</td></tr>
+<tr><td>El Veredicto de Recovery como entrada de un test de Progression Engine</td><td>Se construye con la factory del DTO canónico (<code>{procede, subtipo?, razon}</code>, API Contract Handbook 08) — nunca con una forma ad-hoc inventada por el test (06, TEST-ADR-02 en 14)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="determinismo-convencion">Determinismo — sin excepción de convención</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Parámetro</th><th>Regla en el test</th></tr></thead>
+<tbody>
+<tr><td>Fecha del ciclo</td><td>Siempre un valor fijo explícito en la factory de entrada — nunca <code>Date.now()</code> ni una fecha relativa a "hoy" dentro de un test (Motor BPS Handbook, BPS-022)</td></tr>
+<tr><td>Versión de catálogo</td><td>Siempre fijada explícitamente — un test nunca depende de "la versión más reciente" del catálogo en código (Architecture Handbook, ADR-009)</td></tr>
+<tr><td>Generación de IDs</td><td>Cuando el caso de prueba lo requiere (ej. verificar unicidad), el ID se fija explícitamente; cuando no importa, se acepta cualquier valor generado, pero nunca se asigna significado accidental a un ID aleatorio</td></tr>
+</tbody>
+</table>
+</div>
+<p>Un test que no fija estos tres parámetros no es un test determinista — es una ejecución que casualmente pasó una vez. Ningún caso de las matrices de 04-12 se considera completo sin sus parámetros deterministas explícitos.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../02-arquitectura-pruebas/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 02 · Arquitectura de Pruebas</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../04-unit-testing/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">04 · Unit Testing →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

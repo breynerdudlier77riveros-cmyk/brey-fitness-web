@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>14 · Exportación — BCS Design System Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="exportacion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 14 · Comportamiento</p>
+<h1>Exportación</h1>
+<p class="lede">Cómo el Reporte sale del navegador — a PDF, a imagen, o al papel — sin perder fidelidad respecto a lo que se ve en pantalla.</p>
+
+<h2 id="formatos">Formatos soportados en v1</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Formato</th><th>Uso</th></tr></thead>
+<tbody>
+<tr><td>PDF</td><td>Formato principal de exportación — el entrenador o el cliente lo descargan desde el botón "Descargar / Imprimir" (08)</td></tr>
+<tr><td>Impresión directa del navegador</td><td>Usa la misma hoja de estilos de impresión que el PDF — nunca una ruta separada</td></tr>
+<tr><td>PNG</td><td><span class="tag tag--v2">v2</span> — exportar una sola Metric Card o gráfico individual como imagen para compartir en redes/chat; no es prioridad de v1</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="papel">Tamaño de papel</h2>
+<p>A4 como formato por defecto (mercado principal de BREY es hispanohablante) — Carta (Letter) como alternativa seleccionable antes de exportar. El layout se adapta automáticamente al ancho disponible de cada formato, nunca se recorta contenido.</p>
+
+<h2 id="responsive-impresion">Comportamiento responsive de impresión</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Elemento de pantalla</th><th>En impresión/PDF</th></tr></thead>
+<tbody>
+<tr><td>Sidebar, header, botones de acción</td><td>Ocultos por completo — solo el contenido del Reporte</td></tr>
+<tr><td>Grid de 3 columnas de Metric Cards</td><td>2 columnas en A4/Carta vertical, para evitar texto demasiado angosto</td></tr>
+<tr><td>Gráficos de tendencia</td><td>Se renderizan como imagen estática de alta resolución en el momento de exportar — nunca interactivos en PDF</td></tr>
+<tr><td>Colores semánticos (05)</td><td>Se preservan — el PDF no se degrada a escala de grises; el significado del color (Ley 2) debe sobrevivir a la impresión</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="margenes-numeracion">Márgenes, numeración y pie de página</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Elemento</th><th>Especificación</th></tr></thead>
+<tbody>
+<tr><td>Márgenes</td><td>2cm en los 4 lados — estándar de documento profesional, ni comprimido ni excesivo</td></tr>
+<tr><td>Numeración de página</td><td>"Página X de Y" en la esquina inferior derecha de cada hoja, desde la segunda página en adelante (la portada/resumen ejecutivo no numera)</td></tr>
+<tr><td>Pie de página</td><td>Nombre del cliente + fecha de generación del documento + "Generado con BREY" — nunca datos de contacto de otros clientes ni información interna</td></tr>
+<tr><td>Encabezado de páginas internas</td><td>Nombre del cliente repetido en la parte superior de cada página (adicional a la portada), para que una página suelta impresa siga siendo identificable</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="contraejemplos">Contraejemplos</h2>
+<ul>
+  <li>El PDF NUNCA incluye controles de edición ni botones interactivos — es un documento estático, coherente con la vista pública (08).</li>
+  <li>La exportación NUNCA recorta una sección a la mitad entre dos páginas sin control de salto de página — cada Section Card (06) se mantiene íntegra en una sola página cuando es razonablemente posible.</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../13-estados/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 13 · Estados</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../15-accesibilidad/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">15 · Accesibilidad →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

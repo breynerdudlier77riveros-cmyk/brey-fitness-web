@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>13 · Mantenimiento — Exercise Catalog</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="mantenimiento" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 13 · Ciclo de vida</p>
+<h1>Mantenimiento</h1>
+<p class="lede">El único módulo de este handbook con respaldo documental pleno y explícito. Quién puede modificar el catálogo no es una pregunta abierta: el ecosistema la respondió con un principio, un dueño nominal en el Roadmap y un circuito de corrección.</p>
+
+<h2 id="autoridad">La autoridad</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">P14 · El motor ensambla; el humano autoriza</div>
+  <p>"Ningún motor crea contenido de entrenamiento. Los motores seleccionan, combinan y ajustan piezas que <strong>una persona con criterio de entrenador autorizó</strong> (Bloques, prescripciones, cadenas, ejercicios). <strong>El catálogo es la frontera de autoridad humana.</strong> <em>Motivación:</em> la responsabilidad sobre lo que un cuerpo humano ejecuta debe poder rastrearse a una decisión humana."</p>
+</div>
+<p>Es la respuesta directa a "quién puede modificarlo", y es inequívoca: una persona con criterio de entrenador. No un algoritmo, no un proceso automático, no un desarrollador por conveniencia técnica.</p>
+
+<h2 id="dueno">El dueño nominal</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">El Roadmap asigna el trabajo explícitamente</div>
+  <p>El bloqueante #2 del Roadmap del Architecture Handbook es: "<strong>Ontología del catálogo: patrón, roles, modalidad, zonas de riesgo, cadenas, equivalencias — etiquetado con criterio de entrenador</strong>", con dueño declarado <strong>Contenido</strong> — no Ingeniería.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Responsabilidad</th><th>Dueño</th><th>Respaldo</th></tr></thead>
+<tbody>
+<tr><td>Decidir el valor de un atributo biomecánico</td><td><strong>Contenido</strong> (criterio de entrenador)</td><td>P14 · Roadmap #2</td></tr>
+<tr><td>Validar la estructura de una entrada</td><td><strong>Ingeniería</strong></td><td>Regla 4 de la cadena — "la estructura la valida ingeniería"</td></tr>
+<tr><td>Ampliar un vocabulario cerrado</td><td><strong>Decisión documental</strong></td><td>Los vocabularios se publican en handbooks, no en el catálogo</td></tr>
+<tr><td>Generar la versión de catálogo</td><td>Consecuencia obligatoria de cualquier cambio</td><td>BPS-023 · ADR-009</td></tr>
+</tbody>
+</table>
+</div>
+<div class="diagram">
+<div class="diagram-label">Dos dueños, dos capas, una sola frontera</div>
+<pre class="mermaid">
+graph TD
+  CAM["Propuesta de cambio<br/>en una entrada"] --> V1["INGENIERÍA<br/>valida la estructura"]
+  V1 -->|falla| R["Rechazo objetivo"]
+  V1 -->|pasa| V2["CONTENIDO<br/>autoriza el valor"]
+  V2 -->|no autoriza| R2["Entrada no cumple CT-01"]
+  V2 -->|autoriza| OK["Cambio aplicado<br/>+ nueva versión de catálogo"]
+  OK --> INM["Workouts ya generados<br/>NO se alteran (R-2)"]
+</pre>
+</div>
+
+<h2 id="circuito">El circuito de corrección</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">La cola editorial</div>
+  <p>El ecosistema define el circuito por el que los defectos de catálogo llegan a quien puede corregirlos: cuando la resolución de un slot falla, "<strong>el error alimenta la cola editorial de contenido</strong>", con el detalle exacto del vacío (patrón, rol, track, nivel, exclusiones). Y refuerza el principio: "Un vacío de catálogo es <strong>trabajo editorial</strong>, no un problema a maquillar en runtime".</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Entrada a la cola</th><th>Origen</th><th>Qué aporta</th></tr></thead>
+<tbody>
+<tr><td><code>CATALOGO_INSUFICIENTE</code></td><td>Paso 5 de la resolución de slots</td><td>La combinación exacta que no tiene candidatos</td></tr>
+<tr><td>Rechazo por validación estructural</td><td>Validación del catálogo</td><td>Qué regla se violó</td></tr>
+<tr><td>Conflicto escalado</td><td>Proceso de etiquetado, ante ausencia de regla</td><td>El caso y las opciones consideradas</td></tr>
+<tr><td>Descargas reactivas repetidas</td><td>Recovery Engine</td><td>"La plantilla probablemente prescribe de más" — señal indirecta de contenido</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="restricciones">Restricciones sobre cualquier modificación</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Restricción</th><th>Respaldo</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>El <code>slug</code> nunca cambia</td><td>P15 · CT-01</td></tr>
+<tr><td>2</td><td>Toda modificación genera versión de catálogo nueva</td><td>BPS-023 · CT-06</td></tr>
+<tr><td>3</td><td>Ninguna modificación altera lo ya generado</td><td>R-2 · P5</td></tr>
+<tr><td>4</td><td>Una entrada no se borra</td><td>CT-07 · P3 — <span class="tag tag--futuro">sin mecanismo declarado</span></td></tr>
+<tr><td>5</td><td>Un valor fuera de vocabulario no puede introducirse</td><td>Vocabularios cerrados</td></tr>
+<tr><td>6</td><td>Ningún atributo se rellena por inferencia desde otro</td><td>"No se infiere del nombre"</td></tr>
+<tr><td>7</td><td>Ante duda en un eje de seguridad, no se etiqueta</td><td>"El filtro es de seguridad y no removible"</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="brecha">La brecha de trazabilidad</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">La autoridad está definida; el registro de su ejercicio, no</div>
+  <p>P14 exige que la responsabilidad "pueda rastrearse a una decisión humana", pero el modelo de Exercise <strong>no tiene ningún atributo</strong> donde conste quién autorizó una entrada ni cuándo. Sin estado (módulo <a href="../11-estados/index.html">11</a>) y sin versionado por entrada (módulo <a href="../12-versionado/index.html">12</a>), la trazabilidad llega hasta "el catálogo cambió", no hasta la persona.</p>
+  <p>Es la deuda que atraviesa los tres módulos del ciclo de vida — y la más consecuente de todo el handbook, porque afecta al principio que define qué es el catálogo. Deuda <a href="../17-roadmap/index.html">CT-D10</a>.</p>
+</div>
+
+<h2 id="quien-no">Quién NO puede modificar el catálogo</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Actor</th><th>Por qué no</th></tr></thead>
+<tbody>
+<tr><td>Cualquier motor</td><td>"Ningún motor crea contenido de entrenamiento" — BPS-021 lo repite: "el Motor nunca decide contenido"</td></tr>
+<tr><td>Un proceso automático de inferencia</td><td>"No se infiere del nombre — exige etiquetado con criterio biomecánico"</td></tr>
+<tr><td>El usuario final</td><td>El catálogo no conoce usuarios (CT-05); su Perfil no participa en él</td></tr>
+<tr><td>Ingeniería, sobre valores de contenido</td><td>Su ámbito es la validación estructural; el valor lo autoriza Contenido</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../12-versionado/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 12 · Versionado</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../14-validaciones/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">14 · Validaciones →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

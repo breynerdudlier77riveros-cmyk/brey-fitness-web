@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>11 · Algoritmo conceptual — Motor BPS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="algoritmo" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 11 · Reglas</p>
+<h1>Algoritmo conceptual</h1>
+<p class="lede">Los cuatro procedimientos del Motor en pseudocódigo de alto nivel — decisiones, subprocesos, bucles y condiciones, sin ningún detalle de implementación. Cada línea referencia la regla que la gobierna: el pseudocódigo es un índice ejecutable del handbook, no una fuente nueva de verdad.</p>
+
+<h2 id="activar">Procedimiento 1 — activarSistema</h2>
+<pre class="codeblock">
+<span class="kw">PROCEDIMIENTO</span> activarSistema(evento_compra):
+  <span class="cm">// Idempotencia (BPS-014 análoga / 06)</span>
+  <span class="kw">SI</span> yaProcesada(evento_compra.transaccionId) <span class="kw">ENTONCES RETORNAR</span> respuestaOriginal()
+
+  validar(evento_compra)                                  <span class="cm">// 03/V-1 — sistema disponible, forma correcta</span>
+  resultado <span class="kw">←</span> diagnosisVigente(usuario, evento_compra.sistemaSlug)   <span class="cm">// vigencia 6 meses (06)</span>
+
+  <span class="kw">SI</span> resultado <span class="kw">no existe O</span> expirado <span class="kw">ENTONCES</span>
+    registrarCompraEnEspera(evento_compra)
+    transicionar(T4, razon)                               <span class="cm">// pendiente_diagnostico — BPS-003: sin nivel por defecto</span>
+  <span class="kw">SI NO</span>
+    escribirPunteros(sistema, resultado.nivelEntrada)     <span class="cm">// atómico con el evento — BPS-010</span>
+    emitirEvento(activacion, razones: resultado.razones, contexto: {transaccionId, version})
+    transicionar(T3, razon)                               <span class="cm">// pendiente_perfil</span>
+</pre>
+
+<h2 id="ciclo">Procedimiento 2 — cicloSemanal</h2>
+<pre class="codeblock">
+<span class="kw">PROCEDIMIENTO</span> cicloSemanal(usuario, fechaCiclo, versionCatalogo):   <span class="cm">// ambos parámetros obligatorios — BPS-022/023</span>
+  <span class="kw">SI</span> estado(usuario) <span class="kw">∉</span> {activo, en_descarga} <span class="kw">ENTONCES RETORNAR</span> sinEfectos   <span class="cm">// BPS-013</span>
+
+  perfil <span class="kw">←</span> leerPerfilFresco(usuario)                     <span class="cm">// BPS-005 / IN-6</span>
+  <span class="kw">SI</span> gatesIncompletos(perfil) <span class="kw">ENTONCES RETORNAR</span> transicionar(T7, faltantes)   <span class="cm">// BPS-004/020</span>
+  <span class="kw">SI</span> diasSinLog(usuario, fechaCiclo) <span class="kw">>=</span> 21 <span class="kw">ENTONCES RETORNAR</span> transicionar(T11)  <span class="cm">// BPS-025 — antes de consultar motores</span>
+
+  ventana <span class="kw">←</span> leerVentanaHistorial(usuario)                <span class="cm">// lectura, no interpretación — BPS-019</span>
+  veredicto <span class="kw">←</span> RecoveryEngine.evaluar(ventana, mesocicloActual)     <span class="cm">// SIEMPRE primero — BPS-007</span>
+
+  <span class="kw">SI</span> veredicto.exigeDescarga <span class="kw">ENTONCES</span>
+    transicionar(T8, veredicto.razon)                     <span class="cm">// Progression NO se calcula este ciclo</span>
+  <span class="kw">SI NO</span>
+    decision <span class="kw">←</span> ProgressionEngine.evaluar(ventana, prescripcionVigente, veredicto)
+    aplicarTransicion(decision)                           <span class="cm">// avanza/sostiene/retrocede + evento con contexto</span>
+    <span class="kw">SI</span> estado <span class="kw">era</span> en_descarga <span class="kw">ENTONCES</span> transicionar(T9)
+
+  <span class="kw">SI</span> finDelUltimoBloque(estructuraCatalogo, posicionUsuario) <span class="kw">ENTONCES RETORNAR</span> transicionar(T14)  <span class="cm">// BPS-018</span>
+
+  <span class="kw">SI</span> semanaYaGenerada(usuario, microcicloSiguiente) <span class="kw">ENTONCES RETORNAR</span> laExistente   <span class="cm">// BPS-014</span>
+  plan <span class="kw">←</span> WorkoutGenerator.generarSemana(microciclo, perfil, prescripcion, veredicto, versionCatalogo)
+  <span class="kw">SI</span> plan <span class="kw">es</span> error <span class="kw">ENTONCES RETORNAR</span> propagar(plan)      <span class="cm">// CATALOGO_INSUFICIENTE — BPS-021: jamás parchear</span>
+  emitirEvento(semana_generada, contexto: {versionCatalogo, tipoSemana})
+  <span class="kw">RETORNAR</span> plan
+</pre>
+
+<h2 id="transicion">Subproceso — transicionar (usado por todo lo anterior)</h2>
+<pre class="codeblock">
+<span class="kw">SUBPROCESO</span> transicionar(T, razon):
+  <span class="kw">SI NO</span> guardValido(estadoActual, T) <span class="kw">ENTONCES RETORNAR</span> anomalia(estadoActual, T)   <span class="cm">// tabla del módulo 05</span>
+  <span class="cm">// Atómico: puntero + evento juntos, o nada — BPS-010</span>
+  atomicamente:
+    estadoActual <span class="kw">←</span> destino(T)
+    emitirEvento(transicion_estado, razones: razon, contexto: {origen, destino, disparador, guard})
+</pre>
+
+<h2 id="replay">Procedimiento 3 — recomputarEstado (recuperación)</h2>
+<p>Especificado en el módulo <a href="../05-maquina-estados/index.html#recuperacion">05</a> — replay determinista y total sobre la secuencia de eventos, con la propiedad IN-5. No se duplica aquí (una sola fuente por tema).</p>
+
+<h2 id="onboarding-proc">Procedimiento 4 — flujo de onboarding</h2>
+<p>Es la composición secuencial de los pasos 1–8 del módulo <a href="../07-pipeline/index.html#onboarding">07</a>: no tiene lógica propia más allá de encadenar activarSistema → gates → primer cicloSemanal. Se declara para completitud: <strong>no existe un quinto procedimiento</strong> — todo comportamiento del Motor es alcanzable desde estos cuatro.</p>
+
+<h2 id="propiedades">Propiedades exigibles a cualquier implementación</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Propiedad</th><th>Test conceptual</th></tr></thead>
+<tbody>
+<tr><td>Determinismo</td><td>Ejecutar cicloSemanal dos veces con las mismas entradas (incluida fecha) produce decisiones idénticas</td></tr>
+<tr><td>Idempotencia</td><td>Ejecutarlo dos veces seguidas: la segunda es no-op (<code>SEMANA_YA_GENERADA</code> / guards)</td></tr>
+<tr><td>Atomicidad de transición</td><td>No existe ejecución que deje puntero sin evento o viceversa</td></tr>
+<tr><td>Replay total</td><td>recomputarEstado(eventos) == estado materializado, para todo usuario, siempre</td></tr>
+<tr><td>Pureza de frontera</td><td>El Motor no contiene umbrales fisiológicos ni referencias a ejercicios (grep auditable)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../10-casos-limite/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 10 · Casos límite</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../12-integracion/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">12 · Integración →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

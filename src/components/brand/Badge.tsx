@@ -19,12 +19,23 @@ import { cn } from "@/lib/utils";
 // sin unificarlas de paso. Foco: ring-ring heredado, sin overrides
 // (aunque un badge normal no es focuseable, se hereda por si se usa
 // asChild sobre un elemento interactivo).
+//
+// Variantes de procedencia (BCS Design Handbook 06, componentes heredados):
+// las 5 etiquetas obligatorias del BCS Handbook (00) — crudo/derivado/
+// fabricante/validación/producto — nunca semánticas (no significan mejora
+// ni error, solo el origen del dato). Colores informativos, no los
+// success/neutral existentes.
 
-type Variant = "success" | "neutral";
+type Variant = "success" | "neutral" | "crudo" | "derivado" | "fabricante" | "validacion" | "producto";
 
 const variants: Record<Variant, string> = {
   success: "border-emerald-500/25 bg-emerald-500/10 text-emerald-400",
   neutral: "border-white/15 bg-white/[0.04] text-white/60",
+  crudo: "border-sky-500/25 bg-sky-500/10 text-sky-400",
+  derivado: "border-violet-500/25 bg-violet-500/10 text-violet-400",
+  fabricante: "border-amber-500/25 bg-amber-500/10 text-amber-400",
+  validacion: "border-fuchsia-500/25 bg-fuchsia-500/10 text-fuchsia-400",
+  producto: "border-orange-500/25 bg-orange-500/10 text-orange-400",
 };
 
 interface Props extends Omit<React.ComponentProps<typeof ShadcnBadge>, "variant"> {

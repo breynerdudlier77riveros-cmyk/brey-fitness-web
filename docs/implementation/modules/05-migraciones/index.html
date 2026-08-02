@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>05 · Migraciones — Implementation Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="migraciones" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 05 · Construcción</p>
+<h1>Migraciones</h1>
+<p class="lede">Cuatro migraciones, en este orden exacto y no en otro. Cada una es la aplicación de algo ya especificado — ninguna introduce una decisión de esquema nueva.</p>
+
+<h2 id="orden">Orden exacto</h2>
+<div class="diagram">
+<div class="diagram-label">M1 nunca se salta — es la única que corrige una brecha de seguridad ya identificada</div>
+<pre class="mermaid">
+flowchart LR
+  M1["M1 — Endurecimiento RLS<br/>workouts/workout_logs"] --> M2["M2 — progression_events<br/>(25 valores de tipo)"]
+  M2 --> M3["M3 — Tablas BCS<br/>Cliente, Medición, EnlacePúblico"]
+  M3 --> M4["M4 — Índices pendientes"]
+</pre>
+</div>
+
+<h2 id="m1">M1 — Endurecimiento RLS de workouts/workout_logs</h2>
+<p><span class="tag tag--implementado">implementado — Sprint 0</span></p>
+<div class="table-wrap">
+<table>
+<thead><tr><th></th><th></th></tr></thead>
+<tbody>
+<tr><td>Origen</td><td>Architecture Handbook (10), reafirmado por Architecture Review (AR-018)</td></tr>
+<tr><td>Precondición</td><td>Ninguna — es la primera migración, corrige una brecha ya identificada, no depende de nada nuevo</td></tr>
+<tr><td>Cambio</td><td><code>workout_logs</code> → solo <code>select</code>+<code>insert</code> propios; <code>workouts</code> → <code>select</code>+<code>insert</code>+<code>update</code> propio; <code>delete</code> desaparece de ambas — aplicado en <code>supabase/schema.sql</code> y <code>supabase/migration_rls_endurecimiento.sql</code></td></tr>
+<tr><td>Postcondición</td><td>Ningún usuario puede borrar su propio historial de entrenamientos — verificado contra el archivo real (Sprint 0)</td></tr>
+<tr><td>Rollback</td><td>Revertir a las políticas "CRUD propio" originales — documentado como posible pero desaconsejado, ya que reintroduce la brecha de seguridad que esta migración corrige</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="m2">M2 — Tabla progression_events</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th></th><th></th></tr></thead>
+<tbody>
+<tr><td>Origen</td><td>Architecture Handbook (10, tabla REQUERIDA) + Engineering Handbook (07, consolidación de 25 valores de <code>tipo</code>)</td></tr>
+<tr><td>Precondición</td><td>M1 aplicada (no depende de M1 técnicamente, pero el orden de esta lista es también el orden de prioridad de riesgo — seguridad antes que funcionalidad nueva, Regla 5 de 01)</td></tr>
+<tr><td>Cambio</td><td>Crea la tabla con columnas <code>id, user_id, tipo, origen, razones, contexto, workout_log_id, created_at</code> — el CHECK de <code>tipo</code> incluye los 25 valores consolidados desde el primer <code>CREATE TABLE</code>, no solo los 14 originales</td></tr>
+<tr><td>Postcondición</td><td>Motor BPS y Progression Engine pueden persistir decisiones; RLS: select+insert propios, sin update/delete (append-only, FT-09)</td></tr>
+<tr><td>Rollback</td><td><code>DROP TABLE</code> — segura mientras no tenga datos reales; una vez en producción, requiere migración de exportación previa</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="m3">M3 — Tablas del BCS</h2>
+<p>Origen: BCS Handbook (02, tres agregados independientes por BCS-ADR-01). Precondición: IMP-ADR-06 aceptado (mapeo de columnas, tabla completa abajo).</p>
+
+<h3 id="mapeo-bcs">Mapeo canónico — las 25 variables del BCS Handbook a nombre de columna</h3>
+<p>Resuelve AR-017 de la Architecture Review: el BCS Handbook (03) especifica cada variable en prosa, sin ensamblarlas en una lista de columnas. Esta tabla es esa lista, aplicando la convención de naming del Engineering Handbook (05) — snake_case, sufijo de unidad explícito.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Variable (BCS Handbook)</th><th>Columna</th><th>Tipo</th></tr></thead>
+<tbody>
+<tr><td>BCS-V01 Altura</td><td><code>altura_cm</code></td><td>numeric</td></tr>
+<tr><td>BCS-V02 Peso</td><td><code>peso_kg</code></td><td>numeric</td></tr>
+<tr><td>BCS-V03 IMC</td><td><code>imc</code></td><td>numeric</td></tr>
+<tr><td>BCS-V04 % grasa corporal</td><td><code>grasa_pct</code></td><td>numeric</td></tr>
+<tr><td>BCS-V05 Masa grasa</td><td><code>masa_grasa_kg</code></td><td>numeric</td></tr>
+<tr><td>BCS-V06 Masa muscular</td><td><code>masa_muscular_kg</code></td><td>numeric</td></tr>
+<tr><td>BCS-V07 Masa libre de grasa</td><td><code>masa_libre_grasa_kg</code></td><td>numeric</td></tr>
+<tr><td>BCS-V08 Agua corporal total</td><td><code>agua_total_l</code></td><td>numeric</td></tr>
+<tr><td>BCS-V09 Agua intracelular</td><td><code>agua_intracelular_l</code></td><td>numeric</td></tr>
+<tr><td>BCS-V10 Agua extracelular</td><td><code>agua_extracelular_l</code></td><td>numeric</td></tr>
+<tr><td>BCS-V11 Proteína</td><td><code>proteina_kg</code></td><td>numeric</td></tr>
+<tr><td>BCS-V12 Minerales</td><td><code>minerales_kg</code></td><td>numeric</td></tr>
+<tr><td>BCS-V13 Masa ósea</td><td><code>masa_osea_kg</code></td><td>numeric</td></tr>
+<tr><td>BCS-V14 Grasa visceral</td><td><code>grasa_visceral_idx</code></td><td>numeric</td></tr>
+<tr><td>BCS-V15 Ángulo de fase</td><td><code>angulo_fase_deg</code></td><td>numeric</td></tr>
+<tr><td>BCS-V16 BMR</td><td><code>bmr_kcal</code></td><td>numeric</td></tr>
+<tr><td>BCS-V17 Edad metabólica</td><td><code>edad_metabolica</code></td><td>int</td></tr>
+<tr><td>BCS-V18 SMI</td><td><code>smi</code></td><td>numeric</td></tr>
+<tr><td>BCS-V19 Circunferencia de cintura</td><td><code>circ_cintura_cm</code></td><td>numeric</td></tr>
+<tr><td>BCS-V20 Circunferencia de cadera</td><td><code>circ_cadera_cm</code></td><td>numeric</td></tr>
+<tr><td>BCS-V21 WHR</td><td><code>whr</code></td><td>numeric</td></tr>
+<tr><td>BCS-V22 Impedancia</td><td><code>impedancia_ohm</code></td><td>numeric</td></tr>
+<tr><td>BCS-V23 Fecha</td><td><code>fecha</code></td><td>date</td></tr>
+<tr><td>BCS-V24 Observaciones</td><td><code>observaciones</code></td><td>text</td></tr>
+<tr><td>BCS-V25 Fotografía</td><td><code>foto_url</code></td><td>text (referencia a Storage, BCS Handbook 11 — nunca la imagen en la fila)</td></tr>
+</tbody>
+</table>
+</div>
+<p>Estas 25 columnas más metadatos de agregado (<code>id</code>, <code>cliente_id</code>, <code>estado</code>) componen la tabla <code>bcs_mediciones</code>. Las tablas <code>bcs_clientes</code> y <code>bcs_enlaces_publicos</code> se derivan directamente de las entidades del BCS Handbook (02) sin ambigüedad adicional — no requieren mapeo, ya tienen pocos campos y nombres directos.</p>
+
+<h3 id="m3-resto">Resto de M3</h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th></th><th></th></tr></thead>
+<tbody>
+<tr><td>Postcondición</td><td>Backend del BCS puede empezar (06) — bloquea el paso 6 de 04 hasta estar aplicada</td></tr>
+<tr><td>Rollback</td><td><code>DROP TABLE</code> en orden inverso de FK (<code>bcs_mediciones</code> y <code>bcs_enlaces_publicos</code> antes que <code>bcs_clientes</code>) — segura mientras no haya datos reales</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="m4">M4 — Índices pendientes</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th></th><th></th></tr></thead>
+<tbody>
+<tr><td>Origen</td><td>Architecture Handbook (10) — ya especificados, nunca aplicados</td></tr>
+<tr><td>Precondición</td><td>M1–M3 aplicadas — los índices cubren tablas de las tres migraciones anteriores</td></tr>
+<tr><td>Cambio</td><td><code>(user_id, fecha_planificada)</code> en <code>workouts</code>; <code>(user_id, fecha desc)</code> en <code>workout_logs</code>; <code>(user_id, created_at desc)</code> y <code>(user_id, tipo, created_at desc)</code> en <code>progression_events</code>; <code>(cliente_id, fecha desc)</code> en <code>bcs_mediciones</code> (por analogía directa con <code>workout_logs</code>) — todos creados con <code>CONCURRENTLY</code> para no bloquear escrituras en producción</td></tr>
+<tr><td>Postcondición</td><td>Sin degradación de performance al crecer el volumen de historial (Engineering Handbook, 09)</td></tr>
+<tr><td>Rollback</td><td><code>DROP INDEX</code> — siempre segura, un índice nunca cambia el resultado de una consulta, solo su costo</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../04-orden-construccion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 04 · Orden de construcción</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../06-backend/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">06 · Backend →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

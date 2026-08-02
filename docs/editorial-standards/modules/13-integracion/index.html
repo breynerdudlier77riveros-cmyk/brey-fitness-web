@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>13 · Integración — Editorial Standards</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="integracion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 13 · Operación</p>
+<h1>Integración con el ecosistema</h1>
+<p class="lede">Dónde entra la gobernanza editorial en la cadena que va de la ontología a la sesión que ejecuta un usuario — y qué se rompe aguas abajo cuando falla aguas arriba.</p>
+
+<h2 id="cadena">La cadena completa</h2>
+<div class="diagram">
+<div class="diagram-label">Seis eslabones — la gobernanza actúa sobre el tercero y el cuarto</div>
+<pre class="mermaid">
+graph TD
+  TX["Exercise Taxonomy<br/><i>qué atributos existen</i>"] --> TG["Exercise Tagging<br/><i>cómo se asignan</i>"]
+  TG --> CT["Exercise Catalog<br/><i>qué es una entrada oficial</i>"]
+  CT --> LIB["Exercise Library<br/><i>las entradas concretas</i>"]
+  LIB --> GEN["Workout Generator<br/><i>resuelve slots</i>"]
+  GEN --> MOT["Motores<br/><i>progresión · recuperación · BPS</i>"]
+  ED["Editorial Standards<br/><b>gobierna quién decide<br/>y cómo se registra</b>"] -.->|"gobierna"| TG
+  ED -.->|"gobierna"| CT
+  ED -.->|"gobierna"| LIB
+</pre>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Eslabón</th><th>Qué aporta</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td><strong>Taxonomy</strong></td><td>Los 21 atributos y sus estatutos</td><td><span class="tag tag--implementado">completo</span></td></tr>
+<tr><td><strong>Tagging</strong></td><td>El proceso de asignación y sus validaciones</td><td><span class="tag tag--implementado">completo</span> — 22,8 % del criterio especificado</td></tr>
+<tr><td><strong>Catalog</strong></td><td>El contrato de entrada oficial</td><td><span class="tag tag--implementado">completo</span> — 60 % del modelo especificado</td></tr>
+<tr><td><strong>Editorial Standards</strong></td><td>Quién decide, cómo se registra, cómo se gobierna</td><td>Este documento</td></tr>
+<tr><td><strong>Exercise Library</strong></td><td>Las entradas concretas</td><td><span class="tag tag--futuro">cero entradas</span></td></tr>
+<tr><td><strong>Generator y motores</strong></td><td>Consumen el catálogo</td><td><span class="tag tag--implementado">implementados</span>, sin catálogo que consumir</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="donde-actua">Dónde actúa la gobernanza</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Sobre</th><th>Qué gobierna</th><th>Módulo</th></tr></thead>
+<tbody>
+<tr><td><strong>Tagging</strong></td><td>Quién puede etiquetar; a quién se escala un conflicto; qué evidencia requiere cada asignación</td><td><a href="../05-autoridad/index.html">05</a> · <a href="../06-evidencia/index.html">06</a> · <a href="../11-conflictos/index.html">11</a></td></tr>
+<tr><td><strong>Catalog</strong></td><td>Quién aprueba la publicación; cómo se versiona; cómo se retira</td><td><a href="../04-flujo/index.html">04</a> · <a href="../07-versionado/index.html">07</a> · <a href="../12-mantenimiento/index.html">12</a></td></tr>
+<tr><td><strong>Library</strong></td><td>Control de calidad, duplicados, consistencia terminológica</td><td><a href="../09-control-calidad/index.html">09</a></td></tr>
+<tr><td><strong>Handbooks</strong></td><td>"El handbook manda"; ampliación de vocabularios vía ADR</td><td><a href="../05-autoridad/index.html">05</a></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">La gobernanza no toca los motores</div>
+  <p>Generator, Progression, Recovery y BPS <strong>consumen</strong> el catálogo; no participan en su producción. P14 y BPS-021 lo declaran sin ambigüedad: "el Motor nunca decide contenido". Por eso este handbook no define ninguna regla que los afecte — su única relación es que heredan la calidad de lo que se les entrega.</p>
+</div>
+
+<h2 id="propagacion">Propagación de un fallo editorial</h2>
+<div class="diagram">
+<div class="diagram-label">Un error de gobernanza no se detiene: se propaga hasta el usuario</div>
+<pre class="mermaid">
+flowchart LR
+  F["Fallo editorial:<br/>zona de riesgo mal etiquetada"] --> C["Catalog: entrada<br/>estructuralmente válida"]
+  C --> G["Generator: la resuelve<br/>en un slot legítimamente"]
+  G --> W["Workout: copia<br/>desnormalizada e inmutable"]
+  W --> U["Usuario ejecuta"]
+  F -.->|"⛔ ninguna capa<br/>lo detecta"| U
+</pre>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Ninguna capa aguas abajo puede corregir un fallo editorial</div>
+  <p>Un error de contenido bien formado atraviesa todas las validaciones: el Catalog lo acepta porque cumple el contrato, el Generator lo resuelve porque es un candidato válido, y el Workout lo congela por diseño (R-2). <strong>La gobernanza editorial es el único punto donde ese error puede detenerse</strong> — y es exactamente el punto donde no hay proceso de revisión.</p>
+</div>
+
+<h2 id="dependencias">Dependencias de este handbook</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Hacia</th><th>Qué toma</th><th>Tipo</th></tr></thead>
+<tbody>
+<tr><td>Architecture Handbook 00–01</td><td>P14, P2/P3, P6, P11, P12, los 4 niveles de evidencia, "el handbook manda"</td><td>Dura — sin ellos no hay principios</td></tr>
+<tr><td>Architecture Handbook 04 · 13</td><td>Cola editorial; Roadmap con dueños nominales</td><td>Dura</td></tr>
+<tr><td>Exercise Catalog</td><td>Contrato de entrada, CT-01, CT-07, checklist de publicación, ausencia de estados</td><td>Dura</td></tr>
+<tr><td>Exercise Tagging</td><td>Proceso de 7 pasos, escalado, dos capas de validación</td><td>Dura</td></tr>
+<tr><td>Exercise Taxonomy</td><td>Inventario de atributos</td><td>De conveniencia</td></tr>
+<tr><td>Domain Model</td><td>Máquinas de estado (verificación), Lenguaje Ubicuo</td><td>Dura</td></tr>
+<tr><td>Engineering Handbook</td><td>Modelo de roles del sistema, disciplina de versionado de contratos</td><td>De conveniencia</td></tr>
+<tr><td>Implementation Handbook · Roadmap</td><td>Orden de construcción, bloqueantes, dueños</td><td>Dura</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="quien-consume">Quién consumirá este handbook</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Consumidor</th><th>Qué necesita de aquí</th></tr></thead>
+<tbody>
+<tr><td>Quien etiquete la primera entrada</td><td>Saber a quién escalar y qué registrar</td></tr>
+<tr><td>Quien apruebe una publicación</td><td>El checklist y los límites de su autoridad</td></tr>
+<tr><td>Quien audite el catálogo</td><td>Qué debería estar registrado y qué no lo está</td></tr>
+<tr><td>Quien decida cerrar una deuda documental</td><td>La lista priorizada y sus dependencias — módulo <a href="../16-deuda-editorial/index.html">16</a></td></tr>
+<tr><td>Quien planifique el crecimiento del catálogo</td><td>Qué gobernanza hace falta a cada escala — módulo <a href="../17-roadmap/index.html">17</a></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../12-mantenimiento/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 12 · Mantenimiento</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../14-adr/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">14 · ADR Editoriales →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

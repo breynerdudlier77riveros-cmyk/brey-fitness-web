@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>16 · ADR — BCS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="adr" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 16 · Sistema y gobernanza</p>
+<h1>Decisiones de Arquitectura (ADR)</h1>
+<p class="lede">Las decisiones propias de este handbook, con su contexto, alternativas descartadas y consecuencias.</p>
+
+<div class="adr" id="bcs-adr-01">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">BCS-ADR-01</div>
+  <h3>Tres agregados independientes en vez de un Cliente que contiene todo</h3>
+  <p><strong>Contexto:</strong> el dominio necesita modelar Cliente, su historial ilimitado de Mediciones, y sus EnlacesPúblicos.</p>
+  <p><strong>Problema:</strong> anidar Mediciones y EnlacesPúblicos dentro del agregado Cliente obliga a cargar potencialmente cientos de registros cada vez que se toca cualquier dato del cliente, y el agregado crecería sin límite superior (12).</p>
+  <p><strong>Alternativas descartadas:</strong> un único agregado Cliente con listas internas (simple al principio, pero no escala con "historial ilimitado" como requisito explícito, 00).</p>
+  <p><strong>Decisión:</strong> Cliente, Medición y EnlacePúblico son tres agregados raíz independientes, cada uno referenciando <code>clienteId</code> (02).</p>
+  <p><strong>Consecuencias:</strong> las consultas que combinan datos de más de un agregado (el Reporte, 04) son responsabilidad explícita de la capa de aplicación, nunca de un repositorio individual (13).</p>
+</div>
+
+<div class="adr" id="bcs-adr-02">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">BCS-ADR-02</div>
+  <h3>Token público aleatorio de 21+ caracteres, nunca derivado del cliente</h3>
+  <p><strong>Contexto:</strong> el enlace público (10) es la única credencial de acceso del cliente — no hay login.</p>
+  <p><strong>Problema:</strong> sin contraseña ni garantía de rate-limiting especificada en este dominio, un token corto o predecible sería vulnerable a enumeración por fuerza bruta.</p>
+  <p><strong>Alternativas descartadas:</strong> slug legible basado en el nombre del cliente (predecible, filtra información, colisiona entre clientes con nombres similares); token corto de 8 caracteres como el ejemplo ilustrativo del encargo original (entropía insuficiente para un modelo de seguridad basado enteramente en "difícil de adivinar").</p>
+  <p><strong>Decisión:</strong> token alfanumérico aleatorio criptográficamente seguro, mínimo 21 caracteres, sin relación derivable con ningún dato del Cliente (10).</p>
+  <p><strong>Consecuencias:</strong> URLs más largas que el ejemplo original del encargo, a cambio de una superficie de ataque práctica mucho menor.</p>
+</div>
+
+<div class="adr" id="bcs-adr-03">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">BCS-ADR-03</div>
+  <h3>Mediciones nunca se editan en sitio</h3>
+  <p><strong>Contexto:</strong> el entrenador necesita poder corregir una Medición mal capturada (UC-06, 02).</p>
+  <p><strong>Problema:</strong> editar en sitio pierde el valor original — sin forma de auditar qué se corrigió ni cuándo, y rompe la trazabilidad que un sistema de datos de salud debería tener.</p>
+  <p><strong>Alternativas descartadas:</strong> edición directa con historial de cambios en una tabla separada (funciona, pero introduce dos fuentes de verdad para el mismo hecho en vez de una sola cadena de Mediciones vigente/anulada).</p>
+  <p><strong>Decisión:</strong> toda corrección crea una Medición nueva y anula la anterior — la misma filosofía de inmutabilidad usada en el resto de los sistemas de BREY (05, IN-D1).</p>
+  <p><strong>Consecuencias:</strong> el historial crece más rápido de lo estrictamente necesario (una corrección son dos registros), aceptado por la garantía de auditoría completa que produce.</p>
+</div>
+
+<div class="adr" id="bcs-adr-04">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">BCS-ADR-04</div>
+  <h3>Single-tenant en v1, arquitectura multi-tenant-ready</h3>
+  <p><strong>Contexto:</strong> el encargo original especifica un único entrenador administrador.</p>
+  <p><strong>Problema:</strong> diseñar como si nunca fuera a existir más de un entrenador arriesgaría un rediseño completo si BREY decide en el futuro ofrecer BCS a otros entrenadores.</p>
+  <p><strong>Alternativas descartadas:</strong> modelar multi-tenant completo desde v1 (sobre-ingeniería para un requisito no pedido — violaría la disciplina de alcance del resto de handbooks de BREY).</p>
+  <p><strong>Decisión:</strong> las políticas de RLS y el modelo de permisos ya se especifican pensando en múltiples entrenadores (08), aunque v1 no expone ninguna forma de crear un segundo entrenador (12).</p>
+  <p><strong>Consecuencias:</strong> activar multi-tenant en el futuro es trabajo de superficie (UI, gestión de cuentas), no de rediseño del dominio.</p>
+</div>
+
+<div class="adr" id="bcs-adr-05">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">BCS-ADR-05</div>
+  <h3>Paridad total entre reporte privado y reporte público</h3>
+  <p><strong>Contexto:</strong> el sistema tiene dos superficies de visualización del mismo Reporte (04).</p>
+  <p><strong>Problema:</strong> una versión "resumida" para el cliente sería más simple de construir, pero contradice el objetivo explícito de que el reporte luzca como un informe profesional de nivel comercial.</p>
+  <p><strong>Alternativas descartadas:</strong> reporte público reducido sin gráficos ni histórico completo (más simple, pero percibido como de menor calidad — exactamente lo opuesto al objetivo del encargo).</p>
+  <p><strong>Decisión:</strong> ambas superficies muestran el mismo contenido informativo; la única diferencia es la ausencia de controles de edición en la vista pública (04, 07).</p>
+  <p><strong>Consecuencias:</strong> cualquier mejora al Reporte beneficia ambas superficies automáticamente — no hay dos implementaciones que mantener sincronizadas.</p>
+</div>
+
+<div class="adr" id="bcs-adr-06">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">BCS-ADR-06</div>
+  <h3>No se inventan rangos clínicos — sistema de 5 etiquetas de procedencia</h3>
+  <p><strong>Contexto:</strong> el catálogo de variables (03) requiere mostrar rangos de referencia para ser útil, pero el encargo prohíbe explícitamente inventar criterios médicos.</p>
+  <p><strong>Problema:</strong> presentar cifras de composición corporal sin ningún marco de referencia sería menos útil; presentarlas con rangos inventados o mal atribuidos sería directamente dañino.</p>
+  <p><strong>Alternativas descartadas:</strong> omitir toda clasificación (más seguro, pero contradice el requisito explícito de "clasificaciones e interpretaciones" en el reporte); usar un único badge genérico de "referencial" sin distinguir por qué (pierde la distinción real entre "varía por fabricante" y "sin consenso científico", que requieren comunicación distinta al usuario).</p>
+  <p><strong>Decisión:</strong> sistema de 5 etiquetas de procedencia (00) aplicado sin excepción en 03 y 06, con el aviso poblacional específico para clientes de alta masa muscular declarado una sola vez y referenciado desde cada variable afectada.</p>
+  <p><strong>Consecuencias:</strong> el Reporte es más verboso (cada clasificación lleva su badge) a cambio de nunca presentar una afirmación de salud como si fuera más certera de lo que realmente es.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../15-glosario/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 15 · Glosario</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../17-preguntas/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">17 · Preguntas abiertas →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

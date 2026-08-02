@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BREY API Contract Handbook v1.0</title>
+<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+
+<div class="landing-topbar">
+  <span class="topbar__brand">
+    <span class="topbar__brand-dot"></span>
+    BREY <span class="topbar__brand-sub">API Contract Handbook</span>
+  </span>
+  <span class="topbar__version">v1.0</span>
+</div>
+
+<div class="landing-wrap">
+
+  <div class="hero">
+    <p class="eyebrow">El contrato oficial de todas las APIs del ecosistema</p>
+    <h1>BREY API Contract Handbook</h1>
+    <p>Qué endpoints existen, quién puede llamarlos, qué reciben, qué devuelven y qué eventos disparan — para Motor BPS, Progression Engine, Recovery Engine, Workout, BCS y el resto del ecosistema. Sin código, sin SQL, sin funcionalidad nueva: solo el contrato ya implícito en los nueve handbooks existentes, formalizado.</p>
+    <a class="hero-cta" href="modules/00-introduccion/index.html">Empezar por la Introducción →</a>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Empezar</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/00-introduccion/index.html">
+        <div class="module-card__num">00</div>
+        <div class="module-card__title">Introducción</div>
+        <div class="module-card__desc">Propósito, alcance, no-alcance, jerarquía documental y prioridad sobre la implementación.</div>
+      </a>
+      <a class="module-card" href="modules/01-filosofia-api/index.html">
+        <div class="module-card__num">01</div>
+        <div class="module-card__title">Filosofía de API</div>
+        <div class="module-card__desc">REST, stateless, determinismo, idempotencia, versionado, JSON, UTC, snake_case y las convenciones globales.</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Acceso</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/02-arquitectura-general/index.html">
+        <div class="module-card__num">02</div>
+        <div class="module-card__title">Arquitectura General</div>
+        <div class="module-card__desc">Frontend, backend, motores, repositorios, Supabase — qué habla con qué y qué nunca habla directamente.</div>
+      </a>
+      <a class="module-card" href="modules/03-autenticacion/index.html">
+        <div class="module-card__num">03</div>
+        <div class="module-card__title">Autenticación</div>
+        <div class="module-card__desc">JWT, cookies, roles reales (Usuario, Entrenador, Cliente, Anonymous), autorización y ownership.</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Convenciones</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/04-convenciones-http/index.html">
+        <div class="module-card__num">04</div>
+        <div class="module-card__title">Convenciones HTTP</div>
+        <div class="module-card__desc">GET, POST, PATCH, PUT, DELETE — cuándo usar cada uno, status codes, headers.</div>
+      </a>
+      <a class="module-card" href="modules/05-convenciones-requests/index.html">
+        <div class="module-card__num">05</div>
+        <div class="module-card__title">Convenciones de Requests</div>
+        <div class="module-card__desc">Query params, path params, body, validación, campos opcionales y obligatorios, naming.</div>
+      </a>
+      <a class="module-card" href="modules/06-convenciones-responses/index.html">
+        <div class="module-card__num">06</div>
+        <div class="module-card__title">Convenciones de Responses</div>
+        <div class="module-card__desc">La estructura única de respuesta — éxito, error, metadata, paginación, timestamps.</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Contrato</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/07-catalogo-endpoints/index.html">
+        <div class="module-card__num">07</div>
+        <div class="module-card__title">Catálogo de Endpoints</div>
+        <div class="module-card__desc">Todos los endpoints del ecosistema, por subsistema — ruta, actor, entrada, salida, ownership, eventos.</div>
+      </a>
+      <a class="module-card" href="modules/08-dto-oficiales/index.html">
+        <div class="module-card__num">08</div>
+        <div class="module-card__title">DTO Oficiales</div>
+        <div class="module-card__desc">Input, Output, Error, Pagination, Event y Recovery DTO — en tablas, sin una línea de código.</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Operación</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/09-errores/index.html">
+        <div class="module-card__num">09</div>
+        <div class="module-card__title">Errores</div>
+        <div class="module-card__desc">Catálogo de códigos, status HTTP y mensaje — dominio, infraestructura, auth y validación.</div>
+      </a>
+      <a class="module-card" href="modules/10-versionado/index.html">
+        <div class="module-card__num">10</div>
+        <div class="module-card__title">Versionado</div>
+        <div class="module-card__desc">v1, compatibilidad, breaking changes, deprecación y sunset.</div>
+      </a>
+      <a class="module-card" href="modules/11-idempotencia/index.html">
+        <div class="module-card__num">11</div>
+        <div class="module-card__title">Idempotencia</div>
+        <div class="module-card__desc">Qué endpoints son idempotentes, cómo se garantiza y los casos límite.</div>
+      </a>
+      <a class="module-card" href="modules/12-rate-limiting/index.html">
+        <div class="module-card__num">12</div>
+        <div class="module-card__title">Rate Limiting</div>
+        <div class="module-card__desc">Límites, políticas, 429 y reintentos — y lo que hoy sigue sin definirse.</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Gobernanza</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/13-seguridad/index.html">
+        <div class="module-card__num">13</div>
+        <div class="module-card__title">Seguridad</div>
+        <div class="module-card__desc">Ownership, RLS, JWT, validación de input/output y manejo de secretos.</div>
+      </a>
+      <a class="module-card" href="modules/14-observabilidad/index.html">
+        <div class="module-card__num">14</div>
+        <div class="module-card__title">Observabilidad</div>
+        <div class="module-card__desc">Request ID, trace ID, correlation ID, logs, eventos y auditoría.</div>
+      </a>
+      <a class="module-card" href="modules/15-api-adr/index.html">
+        <div class="module-card__num">15</div>
+        <div class="module-card__title">API-ADR</div>
+        <div class="module-card__desc">Diez decisiones de arquitectura de API — cada discrepancia entre handbooks, documentada, nunca inventada.</div>
+      </a>
+      <a class="module-card" href="modules/16-preguntas-abiertas/index.html">
+        <div class="module-card__num">16</div>
+        <div class="module-card__title">Preguntas Abiertas</div>
+        <div class="module-card__desc">Lo que depende de futuros handbooks — y la autoauditoría verificable de este documento.</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="landing-footer">BREY API Contract Handbook v1.0 — el contrato, no la implementación. Arquitectura Review &gt; Implementation Handbook &gt; Domain Model Handbook &gt; resto de handbooks.</div>
+
+</div>
+</body>
+</html>

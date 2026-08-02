@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>12 · Variantes — Master Exercise Dataset</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="variantes" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Sección 12 · Relaciones</p>
+<h1>Variantes</h1>
+<p class="lede">Una variante es un ejercicio <strong>distinto</strong> que resuelve la misma necesidad de entrenamiento por otro medio. No es más difícil ni más fácil: es lateral. Es la relación que hace que un catálogo de 220 entradas cubra a alguien con barra y a alguien con nada.</p>
+
+<h2 id="definicion">Definición</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Criterio de variante</div>
+  <p>Dos entradas son <strong>variantes entre sí</strong> si comparten <code>pattern_primary</code>, <code>modality</code> y el rol que pueden desempeñar, y difieren en <strong>equipo, agarre, apoyo o ángulo</strong> sin que esa diferencia altere significativamente la exigencia.</p>
+  <p>Si la diferencia <em>sí</em> altera la exigencia, no es una variante: es un paso de <a href="../13-progresiones/index.html">cadena</a>.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Difieren en</th><th>¿Variante?</th><th>Razón</th></tr></thead>
+<tbody>
+<tr><td>Implemento (barra ↔ mancuernas ↔ máquina)</td><td><strong>Sí</strong></td><td>Misma exigencia, distinta disponibilidad</td></tr>
+<tr><td>Agarre (prono ↔ supino ↔ neutro)</td><td><strong>Sí</strong></td><td>Cambia el énfasis, no el nivel</td></tr>
+<tr><td>Apoyo o superficie</td><td><strong>Sí</strong></td><td>Adaptación de contexto</td></tr>
+<tr><td>Ángulo (plano ↔ inclinado ↔ declinado)</td><td><strong>Sí</strong></td><td>Cambia el énfasis, no el nivel</td></tr>
+<tr><td>Asistencia o lastre</td><td>No — cadena</td><td>Cambia directamente la exigencia</td></tr>
+<tr><td>Rango de recorrido</td><td>No — cadena</td><td>Cambia directamente la exigencia</td></tr>
+<tr><td>Lateralidad (bilateral ↔ unilateral)</td><td>No — cadena</td><td>Cambia la exigencia y además la <code>modality</code></td></tr>
+<tr><td>Patrón primario</td><td>No — sin relación</td><td>Son ejercicios de familias distintas</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">La lateralidad nunca es una variante</div>
+  <p>Podría parecerlo —«el mismo remo, pero a un brazo»—, pero difiere en <code>modality</code>, que forma parte del <a href="../03-identidad/index.html">criterio de identidad</a>, y la versión unilateral es sistemáticamente más exigente en estabilidad. Cumple los dos motivos para no ser variante a la vez. Va en la cadena.</p>
+</div>
+
+<h2 id="estructura">Estructura: raíz y hoja</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th></th><th>Entrada raíz</th><th>Entrada variante</th></tr></thead>
+<tbody>
+<tr><td><code>variant_of</code></td><td><code>null</code></td><td><code>EX-NNNN</code> de la raíz</td></tr>
+<tr><td><code>variants</code></td><td>Lista de sus variantes</td><td><code>[]</code> siempre — RL-7</td></tr>
+<tr><td>Profundidad</td><td colspan="2">Exactamente 1 — una variante nunca tiene variantes propias</td></tr>
+<tr><td>Puede estar en cadena</td><td>Sí</td><td>Sí — de forma independiente</td></tr>
+<tr><td>Es un ejercicio completo</td><td colspan="2"><strong>Sí, ambas.</strong> Una variante tiene sus 38 campos, su ID y su ficha propia</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Profundidad 1, sin excepción</div>
+  <p>El grafo de variantes es un árbol de un solo nivel: una raíz y sus hojas, nunca variantes de variantes. Con profundidad libre, «¿cuáles son todas las variantes de X?» exige un recorrido recursivo y admite respuestas distintas según por dónde se entre. Con profundidad 1 es una lectura de campo.</p>
+  <p>Un caso que parece exigir dos niveles —una variante de mancuernas que además tiene versión inclinada— se modela como <strong>tres hojas de la misma raíz</strong>, cada una con su combinación completa de atributos.</p>
+</div>
+
+<h2 id="raiz">Elección de la raíz</h2>
+<p class="matrix-note">Entre un conjunto de variantes, se designa raíz la que cumpla el primer criterio aplicable:</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Orden</th><th>Criterio</th><th>Motivo</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>La de <strong>menor requisito de equipo</strong></td><td>Es la disponible para más personas</td></tr>
+<tr><td>2</td><td>La de ejecución <strong>más común</strong> en la práctica</td><td>Es la que la mayoría reconoce por el nombre sin calificar</td></tr>
+<tr><td>3</td><td>La de <code>level</code> más bajo</td><td>Es el punto de entrada natural</td></tr>
+<tr><td>4</td><td>La de <code>id</code> menor</td><td>Desempate determinista</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">La raíz no es «la mejor»</div>
+  <p>Ser raíz no confiere prioridad en la resolución de slots ni calidad superior. Es una <strong>convención estructural</strong> para que el conjunto tenga un punto de anclaje estable. El resolutor elige entre todas las variantes por elegibilidad, y la raíz no compite con ventaja.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Un conjunto de variantes con su raíz</div>
+<pre class="mermaid">
+graph TD
+  R["RAÍZ<br/>menor requisito de equipo<br/>variant_of: null"]
+  R --- V1["variante · otro implemento"]
+  R --- V2["variante · otro agarre"]
+  R --- V3["variante · otro ángulo"]
+  V1 -.->|"variant_of"| R
+  V2 -.->|"variant_of"| R
+  V3 -.->|"variant_of"| R
+  R --> N["chain_next propio"]
+  V1 --> N1["chain_next propio<br/><i>independiente del de la raíz</i>"]
+</pre>
+</div>
+
+<h2 id="cadena">Variantes y cadena son independientes</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Regla</th><th>Detalle</th></tr></thead>
+<tbody>
+<tr><td>VR-1</td><td>Una variante tiene su <strong>propia</strong> cadena, no hereda la de su raíz</td></tr>
+<tr><td>VR-2</td><td>Avanzar en la cadena <strong>nunca</strong> cambia de conjunto de variantes por sí solo</td></tr>
+<tr><td>VR-3</td><td>Cambiar de variante <strong>no</strong> es progresar ni retroceder</td></tr>
+<tr><td>VR-4</td><td>El nivel de la cadena alcanzado por una variante no se transfiere a otra automáticamente</td></tr>
+<tr><td>VR-5</td><td>Una raíz sin cadena propia es válida — no toda variante encabeza una progresión</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">VR-4 · El caso que hay que tener presente</div>
+  <p>Que alguien domine el nivel 3 de la cadena de mancuernas no implica que domine el nivel 3 de la cadena de barra. Son gestos distintos con exigencias técnicas distintas.</p>
+  <p>Si el equipo deja de estar disponible y hay que cambiar de variante, la posición en la cadena nueva es una decisión que el dataset <strong>no</strong> resuelve: solo declara qué opciones existen. Cómo se reincorpora a alguien tras un cambio de variante es competencia del motor de progresión, no del catálogo.</p>
+</div>
+
+<h2 id="cuando">Cuándo crear una variante</h2>
+<div class="diagram">
+<div class="diagram-label">Árbol de decisión ante un gesto nuevo</div>
+<pre class="mermaid">
+flowchart TD
+  A["Gesto nuevo a documentar"] --> B{"¿Mismo pattern_primary<br/>que alguna entrada?"}
+  B -->|"No"| N1["Entrada independiente<br/>sin relación"]
+  B -->|"Sí"| C{"¿Misma modality?"}
+  C -->|"No"| N2["Cadena o entrada<br/>independiente"]
+  C -->|"Sí"| D{"¿La diferencia altera<br/>la exigencia?"}
+  D -->|"Sí"| N3["Paso de CADENA<br/>sección 13"]
+  D -->|"No"| E{"¿Ya existe un<br/>conjunto de variantes?"}
+  E -->|"Sí"| F["Nueva hoja<br/>variant_of = raíz existente"]
+  E -->|"No"| G["Crear el conjunto:<br/>designar raíz por criterio 1-4"]
+</pre>
+</div>
+
+<h2 id="limites">Límites del conjunto</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Regla</th><th>Detalle</th><th>Motivo</th></tr></thead>
+<tbody>
+<tr><td>VL-1</td><td>Un conjunto no debería superar <strong>6 variantes</strong></td><td>Más de seis suele indicar que se están catalogando matices que ningún consumidor distingue</td></tr>
+<tr><td>VL-2</td><td>Dos variantes no pueden tener clasificación <strong>idéntica</strong> en los 9 campos de Clasificación</td><td>Si coinciden en todo, el resolutor no puede preferir una y una sobra</td></tr>
+<tr><td>VL-3</td><td>Cada variante debe aportar al menos una combinación de equipo o énfasis que ninguna otra del conjunto cubre</td><td>Criterio de utilidad: una variante que nunca será la elegida no debería existir</td></tr>
+<tr><td>VL-4</td><td>VL-1 es una <strong>señal de revisión</strong>, no un límite duro</td><td>Un patrón legítimamente rico puede superarlo con justificación registrada</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">VL-2 es la regla verificable; VL-1 y VL-3 son criterios editoriales</div>
+  <p>VL-2 se comprueba de forma mecánica comparando los 9 campos de Clasificación entre las entradas de un conjunto. VL-1 y VL-3 exigen juicio y se aplican en el <a href="../16-checklist/index.html">checklist de alta</a>, no en la validación automática.</p>
+</div>
+
+<h2 id="invariantes">Invariantes de variantes</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>ID</th><th>Invariante</th></tr></thead>
+<tbody>
+<tr><td><code>VAR-1</code></td><td>Toda entrada con <code>variant_of</code> tiene <code>variants</code> vacío</td></tr>
+<tr><td><code>VAR-2</code></td><td>Todo <code>variant_of</code> apunta a una entrada con <code>variant_of: null</code></td></tr>
+<tr><td><code>VAR-3</code></td><td>La reciprocidad <code>variant_of</code> ↔ <code>variants</code> está declarada en ambos extremos</td></tr>
+<tr><td><code>VAR-4</code></td><td>Todas las entradas de un conjunto comparten <code>pattern_primary</code> y <code>modality</code></td></tr>
+<tr><td><code>VAR-5</code></td><td>Dos entradas del mismo conjunto no comparten los 9 campos de Clasificación</td></tr>
+<tr><td><code>VAR-6</code></td><td>Ninguna entrada se declara variante de sí misma</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../11-relaciones/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 11 · Relaciones</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../13-progresiones/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">13 · Progresiones →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

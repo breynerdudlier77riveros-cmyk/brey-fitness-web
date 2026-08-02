@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BREY Motor BPS Handbook v1.0</title>
+<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+
+<div class="landing-topbar">
+  <span class="topbar__brand">
+    <span class="topbar__brand-dot"></span>
+    BREY <span class="topbar__brand-sub">Motor BPS Handbook</span>
+  </span>
+  <span class="topbar__version">v1.0</span>
+</div>
+
+<div class="landing-wrap">
+
+  <div class="hero">
+    <p class="eyebrow">Especificación de dominio · sin código</p>
+    <h1>Motor BPS Handbook</h1>
+    <p>La especificación completa del orquestador: qué hace, qué no hace, cuándo actúa, cómo decide, cómo resuelve conflictos y cómo conversa con el resto del sistema. Suficiente para implementarlo sin preguntar nada. Si el código lo contradice, el handbook es la verdad.</p>
+    <a class="hero-cta" href="modules/00-introduccion/index.html">Empezar →</a>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Fundamentos</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/00-introduccion/index.html"><div class="module-card__num">00</div><div class="module-card__title">Introducción</div><div class="module-card__desc">Qué es, por qué existe, responsabilidades y no-responsabilidades, relación con los demás motores.</div></a>
+      <a class="module-card" href="modules/01-filosofia/index.html"><div class="module-card__num">01</div><div class="module-card__title">Filosofía</div><div class="module-card__desc">SSoT, determinismo, no IA, explicabilidad, fallo visible, trazabilidad, idempotencia, decisión ≠ ejecución.</div></a>
+      <a class="module-card" href="modules/02-arquitectura/index.html"><div class="module-card__num">02</div><div class="module-card__title">Arquitectura General</div><div class="module-card__desc">Entradas, procesamiento, salidas, dependencias, límites y los 7 invariantes (IN-1…IN-7).</div></a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Contrato de datos</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/03-entradas/index.html"><div class="module-card__num">03</div><div class="module-card__title">Entradas</div><div class="module-card__desc">Las 18 entradas con tipo, origen, obligatoriedad, productor, consumidor, frecuencia, validación y casos inválidos.</div></a>
+      <a class="module-card" href="modules/04-salidas/index.html"><div class="module-card__num">04</div><div class="module-card__title">Salidas</div><div class="module-card__desc">Punteros, 10 eventos, 3 invocaciones y 8 errores tipados — nada más puede salir del Motor.</div></a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Comportamiento</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/05-maquina-estados/index.html"><div class="module-card__num">05</div><div class="module-card__title">Máquina de Estados</div><div class="module-card__desc">8 estados, 15 transiciones con guards, estados imposibles y su reparación, replay determinista.</div></a>
+      <a class="module-card" href="modules/06-regla-activacion/index.html"><div class="module-card__num">06</div><div class="module-card__title">Regla de Activación</div><div class="module-card__desc">Disparadores y no-disparadores, idempotencia, reintentos, debounce, vigencia del Diagnóstico.</div></a>
+      <a class="module-card" href="modules/07-pipeline/index.html"><div class="module-card__num">07</div><div class="module-card__title">Pipeline interno</div><div class="module-card__desc">Del registro a la primera semana, y el ciclo semanal paso a paso con su mapa de fallos.</div></a>
+      <a class="module-card" href="modules/08-conflictos/index.html"><div class="module-card__num">08</div><div class="module-card__title">Resolución de conflictos</div><div class="module-card__desc">12 conflictos catalogados, el orden de precedencia de 5 niveles, y la meta-regla: precedencia, nunca ponderación.</div></a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Reglas</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/09-reglas/index.html"><div class="module-card__num">09</div><div class="module-card__title">Reglas de negocio</div><div class="module-card__desc">BPS-001…BPS-025, cada una con justificación, ejemplos válido/inválido, consecuencia y prioridad.</div></a>
+      <a class="module-card" href="modules/10-casos-limite/index.html"><div class="module-card__num">10</div><div class="module-card__title">Casos límite</div><div class="module-card__desc">19 casos por perfil, comportamiento y cambio de contexto — cada uno citando su regla exacta.</div></a>
+      <a class="module-card" href="modules/11-algoritmo/index.html"><div class="module-card__num">11</div><div class="module-card__title">Algoritmo conceptual</div><div class="module-card__desc">Los 4 procedimientos en pseudocódigo de alto nivel, con las 5 propiedades exigibles a cualquier implementación.</div></a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Sistema</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/12-integracion/index.html"><div class="module-card__num">12</div><div class="module-card__title">Integración</div><div class="module-card__desc">La matriz de 10 conversaciones con contrapartes y el diagrama de secuencia del ciclo completo.</div></a>
+      <a class="module-card" href="modules/13-observabilidad/index.html"><div class="module-card__num">13</div><div class="module-card__title">Observabilidad</div><div class="module-card__desc">Logs, 8 métricas, 4 warnings, 4 auditorías ejecutables y las plantillas de razón.</div></a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Gobernanza</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/14-riesgos/index.html"><div class="module-card__num">14</div><div class="module-card__title">Riesgos</div><div class="module-card__desc">10 riesgos clasificados con mitigación — y el meta-riesgo del orquestador que "parece simple".</div></a>
+      <a class="module-card" href="modules/15-adr/index.html"><div class="module-card__num">15</div><div class="module-card__title">Decisiones (ADR)</div><div class="module-card__desc">MBPS-ADR-01…06 propias + las 5 heredadas del marco que gobiernan este Motor.</div></a>
+      <a class="module-card" href="modules/16-preguntas/index.html"><div class="module-card__num">16</div><div class="module-card__title">Preguntas abiertas</div><div class="module-card__desc">9 pendientes registradas — nada resuelto aquí, improvisación prohibida por adelantado.</div></a>
+    </div>
+  </div>
+
+  <div class="landing-footer">BREY Motor BPS Handbook v1.0 — profundiza el módulo 07 del Architecture Handbook v1.0. El handbook tiene prioridad sobre el código.</div>
+
+</div>
+</body>
+</html>

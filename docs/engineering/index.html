@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BREY Engineering Handbook v1.0</title>
+<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+
+<div class="landing-topbar">
+  <span class="topbar__brand">
+    <span class="topbar__brand-dot"></span>
+    BREY <span class="topbar__brand-sub">Engineering Handbook</span>
+  </span>
+  <span class="topbar__version">v1.0</span>
+</div>
+
+<div class="landing-wrap">
+
+  <div class="hero">
+    <p class="eyebrow">Especificación técnica · sin código</p>
+    <h1>Engineering Handbook</h1>
+    <p>Cómo se construye técnicamente cualquier módulo de BREY — frontend, backend, base de datos, contratos, eventos, seguridad, performance, testing, observabilidad, despliegue y estándares. Verificado contra el código real, no aspiracional. Si el código futuro lo contradice, el handbook tiene prioridad.</p>
+    <a class="hero-cta" href="modules/00-introduccion/index.html">Empezar →</a>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Fundamentos</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/00-introduccion/index.html"><div class="module-card__num">00</div><div class="module-card__title">Introducción</div><div class="module-card__desc">Alcance sobre todo el ecosistema y las tres etiquetas de estado que gobiernan el documento.</div></a>
+      <a class="module-card" href="modules/01-filosofia-tecnica/index.html"><div class="module-card__num">01</div><div class="module-card__title">Filosofía Técnica</div><div class="module-card__desc">13 principios con ejemplo real, contraejemplo, conflictos y prioridad.</div></a>
+      <a class="module-card" href="modules/02-arquitectura-general/index.html"><div class="module-card__num">02</div><div class="module-card__title">Arquitectura General</div><div class="module-card__desc">Capas, bounded contexts y el mapa de los 10 diagramas y 10 matrices exigidos.</div></a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Capas</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/03-frontend-architecture/index.html"><div class="module-card__num">03</div><div class="module-card__title">Frontend Architecture</div><div class="module-card__desc">Las 12 carpetas — cuáles existen hoy y el umbral exacto para crear las que faltan.</div></a>
+      <a class="module-card" href="modules/04-backend-architecture/index.html"><div class="module-card__num">04</div><div class="module-card__title">Backend Architecture</div><div class="module-card__desc">Server Actions, repositorios y las piezas que aún no existen.</div></a>
+      <a class="module-card" href="modules/05-database-handbook/index.html"><div class="module-card__num">05</div><div class="module-card__title">Database Handbook</div><div class="module-card__desc">Las 5 tablas reales, naming, RLS, triggers, jsonb — sin idealizar.</div></a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Contratos</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/06-api-handbook/index.html"><div class="module-card__num">06</div><div class="module-card__title">API Handbook</div><div class="module-card__desc">DTOs, Commands, Queries y el catálogo real de errores.</div></a>
+      <a class="module-card" href="modules/07-domain-events/index.html"><div class="module-card__num">07</div><div class="module-card__title">Domain Events</div><div class="module-card__desc">progression_events consolidada — 25 tipos de evento reconciliados entre 3 handbooks.</div></a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Calidad y operación</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/08-security-handbook/index.html"><div class="module-card__num">08</div><div class="module-card__title">Security Handbook</div><div class="module-card__desc">RLS como barrera real, proxy.ts como UX — con la migración de endurecimiento pendiente.</div></a>
+      <a class="module-card" href="modules/09-performance-handbook/index.html"><div class="module-card__num">09</div><div class="module-card__title">Performance Handbook</div><div class="module-card__desc">SSR por defecto, sin ISR ni memoización — y el umbral para cambiar eso.</div></a>
+      <a class="module-card" href="modules/10-testing-handbook/index.html"><div class="module-card__num">10</div><div class="module-card__title">Testing Handbook</div><div class="module-card__desc">Cero infraestructura hoy, estrategia completa para cuando exista.</div></a>
+      <a class="module-card" href="modules/11-observability-handbook/index.html"><div class="module-card__num">11</div><div class="module-card__title">Observability Handbook</div><div class="module-card__desc">La convención real de logs, y la matriz Error → Recuperación.</div></a>
+      <a class="module-card" href="modules/12-deployment-handbook/index.html"><div class="module-card__num">12</div><div class="module-card__title">Deployment Handbook</div><div class="module-card__desc">Vercel + GitHub, sin CI — con el riesgo real de un solo proyecto Supabase.</div></a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Estándares y gobernanza</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/13-coding-standards/index.html"><div class="module-card__num">13</div><div class="module-card__title">Coding Standards</div><div class="module-card__desc">Naming, tipos, comentarios — extraído del código real, no importado.</div></a>
+      <a class="module-card" href="modules/14-adr/index.html"><div class="module-card__num">14</div><div class="module-card__title">ADR</div><div class="module-card__desc">ENG-ADR-01…06 — las decisiones técnicas transversales.</div></a>
+      <a class="module-card" href="modules/15-roadmap/index.html"><div class="module-card__num">15</div><div class="module-card__title">Roadmap</div><div class="module-card__desc">Toda la deuda técnica de los 14 módulos anteriores, en un solo lugar.</div></a>
+      <a class="module-card" href="modules/16-glosario/index.html"><div class="module-card__num">16</div><div class="module-card__title">Glosario</div><div class="module-card__desc">Vocabulario, sinónimos, términos prohibidos y confusiones frecuentes.</div></a>
+    </div>
+  </div>
+
+  <div class="landing-footer">BREY Engineering Handbook v1.0 — gobierna la construcción técnica de los cinco handbooks de dominio existentes. El handbook tiene prioridad sobre el código.</div>
+
+</div>
+</body>
+</html>

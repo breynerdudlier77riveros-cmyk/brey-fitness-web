@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>09 · Database Testing — BREY Testing Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="database-testing" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 09 · Superficies</p>
+<h1>Database Testing</h1>
+<p class="lede">Una prueba de violación por cada constraint que protege una regla de negocio, y una prueba de acceso por cada policy de RLS — nivel <span class="level level--integration">integration</span>, siempre contra Supabase de test real (02).</p>
+
+<h2 id="matriz-tabla-restricciones">Matriz Tabla → Restricciones</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tabla</th><th>Constraints (Database Handbook, 07)</th><th>Qué prueba de violación se necesita</th></tr></thead>
+<tbody>
+<tr><td><code>systems</code></td><td>1 PK, 1 CHECK</td><td><code>modelo_precio</code> fuera de {unico, membresia} → rechazo</td></tr>
+<tr><td><code>profiles</code></td><td>1 PK, 1 FK, 8 CHECK</td><td>Ver matriz CHECK→Validador (04) — 8 casos de límite exacto</td></tr>
+<tr><td><code>diagnoses</code></td><td>1 PK, 2 FK</td><td><code>sistema_recomendado</code> apuntando a un slug inexistente → rechazo de FK</td></tr>
+<tr><td><code>workouts</code></td><td>1 PK, 2 FK, 1 CHECK</td><td><code>estado</code> fuera de {planificado, completado, perdido} → rechazo</td></tr>
+<tr><td><code>workout_logs</code></td><td>1 PK, 2 FK</td><td><code>workout_id</code> inexistente → rechazo; <code>workout_id</code> nulo → aceptado (sesión ad-hoc, caso válido, no violación)</td></tr>
+<tr><td><code>progression_events</code></td><td>1 PK, 2 FK, 2 CHECK, NOT NULL en <code>razones</code></td><td><code>razones</code> ausente → rechazo (P2 con dientes, Database Handbook 07); <code>tipo</code>/<code>origen</code> fuera de enum → rechazo</td></tr>
+<tr><td><code>bcs_clientes</code></td><td>1 PK, 1 FK, 1 CHECK</td><td><code>estado</code> fuera de {activo, archivado, eliminado} → rechazo</td></tr>
+<tr><td><code>bcs_mediciones</code></td><td>1 PK, 1 FK, 1 CHECK (+ validación de rango físico aplicativa)</td><td><code>cliente_id</code> nulo → rechazo (IN-D5, NOT NULL real); variable de masa &gt; <code>peso_kg</code> → rechazo aplicativo</td></tr>
+<tr><td><code>bcs_enlaces_publicos</code></td><td>1 PK, 1 FK, 1 UNIQUE, 1 CHECK</td><td><code>token</code> duplicado → rechazo de UNIQUE; <code>estado</code> fuera de {activo, revocado} → rechazo</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="matriz-rls-verificacion">Matriz RLS → Verificación</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tabla</th><th>Test de acceso positivo</th><th>Test de acceso negativo (debe fallar)</th></tr></thead>
+<tbody>
+<tr><td><code>systems</code></td><td>Usuario Anonymous lee el catálogo completo</td><td>No aplica — lectura pública sin restricción</td></tr>
+<tr><td><code>profiles</code></td><td>Usuario lee/edita su propio perfil</td><td>Usuario A intenta leer/editar el perfil de Usuario B → denegado</td></tr>
+<tr><td><code>diagnoses</code></td><td>Usuario lee/crea sus propios diagnósticos</td><td>Usuario intenta <code>UPDATE</code>/<code>DELETE</code> sobre cualquier diagnóstico, incluido el propio → denegado (inmutable, P3)</td></tr>
+<tr><td><code>workouts</code> / <code>workout_logs</code></td><td>Usuario lee/crea sus propios registros; <code>workouts</code> además actualiza (transición de <code>estado</code>)</td><td>Usuario intenta <code>DELETE</code> → denegado (AR-018, aplicado en Sprint 0 — <code>supabase/schema.sql</code>, <code>supabase/migration_rls_endurecimiento.sql</code>); <code>workout_logs</code> además rechaza <code>UPDATE</code> (inmutable, I-W3)</td></tr>
+<tr><td><code>progression_events</code></td><td>Usuario lee/crea sus propios eventos</td><td>Usuario intenta <code>UPDATE</code>/<code>DELETE</code> sobre cualquier evento propio → denegado (append-only)</td></tr>
+<tr><td><code>bcs_clientes</code> / <code>bcs_mediciones</code></td><td>Entrenador lee/edita sus propios Clientes/Mediciones</td><td>Entrenador A intenta leer/editar un Cliente/Medición de Entrenador B → denegado</td></tr>
+<tr><td><code>bcs_enlaces_publicos</code></td><td>Portador de token <code>activo</code> resuelve el Reporte de solo lectura</td><td>Portador de token <code>revocado</code> o inexistente → denegado, mismo mensaje para ambos casos (BCS Handbook, 10)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="callout callout--escala">
+  <div class="callout__label">Brecha cerrada — Sprint 0</div>
+  <p><strong>Actualizado — Sprint 0:</strong> AR-018 quedó aplicado (Implementation Handbook, 05, M1; <code>supabase/schema.sql</code>). El test negativo de <code>DELETE</code> sobre <code>workouts</code>/<code>workout_logs</code>, especificado siempre contra el estado <em>correcto</em> (Database Handbook, 09) y nunca contra el estado permisivo que existía antes, ahora puede confirmar el rechazo real, no solo el esperado — el caso ya no depende de una migración pendiente.</p>
+</div>
+
+<h2 id="migraciones-testing">Migraciones — prueba de idempotencia del propio archivo</h2>
+<p>El patrón real de migración (<code>ADD COLUMN IF NOT EXISTS</code>, bloques <code>DO $$</code> para constraints) se prueba aplicando el mismo archivo dos veces consecutivas contra una base de test limpia — la segunda aplicación no debe producir error ni cambiar el estado resultante (Database Handbook, 11). Este es un test de <span class="level level--integration">integration</span> sobre el propio artefacto de migración, no sobre datos de aplicación.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../08-event-testing/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 08 · Event Testing</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../10-api-testing/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">10 · API Testing →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

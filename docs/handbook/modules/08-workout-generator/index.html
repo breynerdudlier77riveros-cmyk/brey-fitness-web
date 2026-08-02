@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>08 · Workout Generator — BREY Architecture Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="workout-generator" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 08 · Ejecución</p>
+<h1>Workout Generator</h1>
+<p class="lede">El ensamblador. No decide nada nuevo: toma el Microciclo vigente (plantilla), el Perfil fresco, la prescripción del Progression Engine y el veredicto del Recovery Engine, y materializa Sesiones concretas — el momento exacto donde plantilla se convierte en instancia inmutable (P5). Si alguna pieza no alcanza, falla visible con detalle (P6).</p>
+
+<div class="meta-row">
+  <span class="chip">Ensamblador, no decisor</span>
+  <span class="chip">Genera la semana completa</span>
+  <span class="chip">Instancia desnormalizada (P5)</span>
+</div>
+
+<h2 id="objetivo">Objetivo, alcance, dependencias, invariantes</h2>
+<p><strong>Objetivo:</strong> convertir decisiones ya tomadas en filas de <code>workouts</code> listas para el Player. <strong>Alcance:</strong> selección/filtrado/sustitución de ejercicios (delegando reglas a 04), aplicación de multiplicadores, orden por Rol (R-4 de 03), materialización desnormalizada. <strong>Fuera de alcance:</strong> decidir prescripciones base (03/05), decidir descarga (06), estados del usuario (07). <strong>Depende de:</strong> 03, 04, 05, 06, 07. <strong>Invariantes:</strong> I-G1 nunca genera una sesión con un slot vacío o forzado fuera de reglas; I-G2 la instancia copia todo lo que necesita — jamás referencia plantillas en lectura posterior (P5); I-G3 misma entrada → misma semana generada, byte a byte (P1); I-G4 corre solo si el Motor BPS lo invoca (gates ya pasados).</p>
+
+<h2 id="entradas-salidas">Entradas y salidas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Entrada</th><th>De</th></tr></thead>
+<tbody>
+<tr><td>Plantilla del Microciclo vigente (sesiones × slots Patrón×Rol + prescripción base de la semana del Mesociclo)</td><td>Catálogo (03)</td></tr>
+<tr><td>Perfil fresco: Track, duración por sesión, zonas (declaradas + temporales)</td><td>Perfil / eventos (06)</td></tr>
+<tr><td>Prescripción vigente por ejercicio/patrón (ajustes micro acumulados)</td><td>Progression Engine (05)</td></tr>
+<tr><td>Veredicto de descarga {si, tipo, razón}</td><td>Recovery Engine (06)</td></tr>
+<tr><td>Catálogo de ejercicios etiquetado + cadenas + equivalencias</td><td>Knowledge Base (04)</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Salida:</strong> N filas de <code>workouts</code> (una por sesión de la semana), cada una autocontenida: fecha, duración estimada, y por slot — patrón, rol, ejercicio (slug + nombre), series, reps/duración, RPE objetivo, descanso, tempo (si aplica), notas. Más el evento <code>semana_generada</code> con la versión de catálogo usada (P2/P3).</p>
+
+<h2 id="algoritmo">Pseudocódigo</h2>
+<pre class="codeblock">
+<span class="kw">FUNCIÓN</span> generarSemana(microciclo, perfil, prescripcion, recovery):
+  mult <span class="kw">←</span> recovery.si <span class="kw">? 0.6 : 1.0</span>              <span class="cm">// multiplicador de descarga (06)</span>
+  rpeDelta <span class="kw">←</span> recovery.si <span class="kw">? −1 : 0</span>
+  sesiones <span class="kw">←</span> []
+
+  <span class="kw">PARA</span> cada plan <span class="kw">EN</span> microciclo.sesiones:
+    slots <span class="kw">←</span> ordenarPorRol(plan.slots)            <span class="cm">// R-4 de 03 — orden no alterable</span>
+    slots <span class="kw">←</span> recortarPorTiempo(slots, perfil.duracion_sesion_min)   <span class="cm">// ver Regla de Recorte</span>
+    resueltos <span class="kw">←</span> []
+
+    <span class="kw">PARA</span> cada (patron, rol) <span class="kw">EN</span> slots:
+      ej <span class="kw">←</span> KB.resolverEjercicioParaSlot(patron, rol, perfil.track, nivel, perfil.zonas, capacidades)
+      <span class="kw">SI</span> ej <span class="kw">es</span> error <span class="kw">ENTONCES RETORNAR</span> fallo(CATALOGO_INSUFICIENTE, detalle: ej.detalle)  <span class="cm">// I-G1, semana completa falla</span>
+
+      p <span class="kw">←</span> prescripcion.para(patron, rol)          <span class="cm">// base del Mesociclo + ajuste micro vigente</span>
+      resueltos.agregar({
+        patron, rol,
+        ejercicio: {slug: ej.slug, nombre: ej.nombre, modalidad: ej.modalidad},   <span class="cm">// desnormalizado (I-G2)</span>
+        series: redondear(p.series <span class="kw">·</span> mult),
+        reps: p.rango, rpe: p.rpe <span class="kw">+</span> rpeDelta,
+        descanso: descansoPorRol(rol, bloque.enfasis),
+        tempo: p.tempo <span class="kw">?? "controlado"</span>, notas: plan.notasPara(patron, rol)
+      })
+
+    sesiones.agregar(materializar(plan.fecha, plan.duracionEstimada, resueltos))
+
+  <span class="kw">EMITIR</span> evento(<span class="str">"semana_generada"</span>, versionCatalogo, recovery.tipo <span class="kw">??</span> <span class="str">"normal"</span>)
+  <span class="kw">RETORNAR</span> sesiones
+</pre>
+
+<h2 id="reglas">Reglas del motor</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">R-G1 · Semana completa, no sesión por sesión</div>
+  <p>Se genera el Microciclo entero de una vez — el usuario ve y planea su semana. Un fallo en cualquier slot aborta la semana completa con detalle (I-G1): nunca media semana silenciosamente coja.</p>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">R-G2 · Regla de Recorte por tiempo</div>
+  <p>Si la duración estimada excede <code>duracion_sesion_min</code>, se recorta en orden inverso de prioridad: <code>metabolico</code> → <code>core-final</code> → <code>accesorio</code> (nunca <code>principal</code> ni <code>activacion</code>). Si aún así no cabe, la sesión se genera marcada "excede tu tiempo declarado" — informar sobre mutilar. <span class="ev ev--producto">decisión de producto</span></p>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">R-G3 · Multiplicador de descarga uniforme</div>
+  <p>La descarga aplica a toda la semana por igual (0.6 volumen, −1 RPE), nunca sesión por sesión.</p>
+</div>
+
+<h2 id="flujo">Flujo</h2>
+<div class="diagram">
+<div class="diagram-label">Cuatro fuentes → ensamblado → instancia o fallo visible</div>
+<pre class="mermaid">
+graph TD
+  MC["Microciclo (plantilla)"] --> WG[Workout Generator]
+  P["Perfil fresco"] --> WG
+  PE["Prescripción vigente (05)"] --> WG
+  RE["Veredicto descarga (06)"] --> WG
+  WG --> KB["KB.resolverEjercicioParaSlot (04)"]
+  KB -->|todos los slots resueltos| S["Sesiones instanciadas<br/>(workouts) + evento"]
+  KB -->|algún slot sin opción| ERR["CATALOGO_INSUFICIENTE<br/>detalle exacto → cola editorial"]
+</pre>
+</div>
+
+<h2 id="casos">Casos normales, límite e inválidos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Tipo</th><th>Comportamiento</th></tr></thead>
+<tbody>
+<tr><td>Semana estándar de 4 sesiones</td><td>Normal</td><td>4 filas de <code>workouts</code> + evento con versión de catálogo.</td></tr>
+<tr><td>Semana de descarga</td><td>Normal</td><td>Mismos patrones/roles, series ×0.6 redondeadas (mínimo 1), RPE −1.</td></tr>
+<tr><td>Sesión de 40 min con plantilla de 60</td><td>Límite</td><td>R-G2: recorta metabólico y core-final; si sigue excediendo, genera marcada.</td></tr>
+<tr><td>Track Casa + Avanzado + hombro excluido, sin ejercicio elegible</td><td>Límite</td><td>Fallo visible con detalle exacto del vacío; mensaje de producto claro, no error técnico crudo.</td></tr>
+<tr><td>Generación invocada dos veces para la misma semana</td><td>Límite</td><td>Idempotencia: si la semana ya existe sin ejecutar, se devuelve la existente — no se duplica ni regenera (P5). Regenerar exige invalidación explícita (solo si ninguna sesión fue ejecutada) con evento.</td></tr>
+<tr><td>Generar sin pasar por Motor BPS (gates)</td><td>Inválido</td><td>Violación de I-G4 — el contrato de 11 no expone ese camino.</td></tr>
+<tr><td>Redondeo de descarga deja 0 series en un principal</td><td>Inválido</td><td>Imposible por regla (mínimo 1) — el caso está definido, no librado al redondeo.</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="tradeoffs">Trade-offs y decisiones descartadas</h2>
+<div class="callout callout--tradeoff">
+  <div class="callout__label">Semana completa vs. bajo demanda</div>
+  <p>Visibilidad total para el usuario, a cambio de que cambios a mitad de semana solo afecten lo aún no generado (P5). La sustitución en vivo del Player cubre el hueco restante.</p>
+</div>
+<div class="callout callout--descartado">
+  <div class="callout__label">Rellenar huecos con "el menos malo"</div>
+  <p>Descartado — violaría P6 y el filtro de seguridad. Un vacío de catálogo es trabajo editorial, no un problema a maquillar en runtime (P14).</p>
+</div>
+<div class="callout callout--descartado">
+  <div class="callout__label">Variedad aleatoria de ejercicios</div>
+  <p>Descartado — P1. La variedad legítima se expresa como rotación determinista definida en la plantilla.</p>
+</div>
+
+<h2 id="riesgos">Riesgos, deuda y extensiones</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">El vacío de catálogo se experimenta aquí</div>
+  <p>Aunque la causa es editorial (04), el usuario lo vive como "no puedo generar mi semana". El mensaje de producto y la cola editorial alimentada por estos errores son parte del diseño, no un extra.</p>
+</div>
+<div class="callout callout--escala">
+  <div class="callout__label">Extensión — generación multi-semana</div>
+  <p>Cambio de frecuencia de invocación, no de lógica. Encaja cuando el producto quiera mostrar el Mesociclo completo por adelantado.</p>
+</div>
+
+<h2 id="preguntas">Preguntas abiertas</h2>
+<ul>
+  <li>¿La invalidación de una semana no ejecutada la puede pedir el usuario ("regenerar mi semana") o solo eventos del sistema (cambio de Track)? Propuesta: ambos, con evento diferenciado — sin decidir, Roadmap H2.</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../07-motor-bps/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 07 · Motor BPS</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../09-workout-player/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">09 · Workout Player →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

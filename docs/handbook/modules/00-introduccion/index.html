@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>00 · Introducción — BREY Architecture Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="introduccion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 00 · Empezar</p>
+<h1>Introducción</h1>
+<p class="lede">Este handbook es la fuente única de verdad del dominio de BREY. Todo el código futuro lo implementa; si código y handbook se contradicen, el handbook es el documento correcto y el código tiene un bug. Está escrito como especificación, no como artículo: cada afirmación existe porque alguien la va a convertir en software.</p>
+
+<div class="meta-row">
+  <span class="chip">Versión 1.0</span>
+  <span class="chip">Autoridad: handbook &gt; código</span>
+  <span class="chip">15 módulos</span>
+</div>
+
+<h2 id="proposito">Propósito</h2>
+<p>Un equipo de ingeniería debe poder desarrollar la plataforma completa leyendo únicamente este documento. Eso exige tres cosas de cada módulo: definir sus conceptos sin ambigüedad, declarar sus reglas con precisión ejecutable (pseudocódigo, no prosa vaga), y registrar por qué se decidió así — incluyendo las alternativas descartadas (<a href="../12-adr/index.html">módulo 12, ADRs</a>).</p>
+
+<h2 id="alcance">Alcance</h2>
+<div class="grid-2">
+<div class="card">
+  <h4>Dentro del alcance</h4>
+  <ul>
+    <li>El dominio completo de entrenamiento: jerarquía de programación, ontología de ejercicios, motores de decisión, generación y ejecución de sesiones</li>
+    <li>El modelo de datos, sus políticas de seguridad y su versionado</li>
+    <li>Los contratos internos entre subsistemas (API interna)</li>
+    <li>Las decisiones de arquitectura y su justificación</li>
+  </ul>
+</div>
+<div class="card">
+  <h4>Fuera del alcance</h4>
+  <ul>
+    <li>El sitio de marketing (congelado por decisión del fundador — no es parte del dominio)</li>
+    <li>Detalles de implementación de UI (frameworks, componentes visuales) — este es un documento de dominio, no de stack</li>
+    <li>Precios, checkout y pasarelas de pago — solo su efecto sobre el dominio (la Regla de Activación)</li>
+    <li>El contenido concreto de los programas (qué ejercicio va en qué semana) — eso es catálogo autorizado por humanos, no arquitectura</li>
+  </ul>
+</div>
+</div>
+
+<h2 id="objetivos">Objetivos</h2>
+<ol>
+  <li><strong>Determinismo:</strong> misma entrada → misma salida, en todos los motores, siempre.</li>
+  <li><strong>Explicabilidad:</strong> toda decisión que afecte al usuario lleva una razón legible adjunta.</li>
+  <li><strong>Reproducibilidad:</strong> cualquier decisión pasada puede recomputarse desde el historial y dar el mismo resultado.</li>
+  <li><strong>Auditabilidad:</strong> el historial de decisiones es inmutable y consultable.</li>
+  <li><strong>Compatibilidad a 5 años:</strong> nuevos Sistemas, Tracks y modalidades entran sin romper lo existente.</li>
+</ol>
+
+<h2 id="que-es">Qué es BREY</h2>
+<p>BREY es un <strong>sistema operativo para entrenamiento</strong>. El usuario no compra entrenamientos — entra en un sistema que evalúa (Diagnóstico), clasifica (Sistema/Track/Nivel), decide (Motor BPS), planifica (Training Framework + Workout Generator), adapta (Progression + Recovery Engine), ejecuta (Workout Player), registra (Historial) y aprende del historial para modificar la planificación siguiente. El ciclo completo está en el <a href="../02-arquitectura-general/index.html">módulo 02</a>.</p>
+<p>La metodología que gobierna ese ciclo es el <strong>BPS (Brey Performance System)</strong>: los 4 pilares metodológicos ya publicados (Sobrecarga Progresiva Inteligente, Gestión Científica de la Fatiga, Fuerza Relativa y Absoluta, Nutrición Periodizada) y los 5 principios de producto (Sobrecarga progresiva, Autorregulación, Periodización, Seguimiento del progreso, Adaptación individual). Cada uno tiene un dueño técnico asignado en este handbook — la tabla de correspondencia está en el módulo 02.</p>
+
+<h2 id="que-no-es">Qué NO es BREY</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>NO es</th><th>Por qué importa declararlo</th></tr></thead>
+<tbody>
+<tr><td>Un generador de rutinas aleatorio o "creativo"</td><td>Nada en el sistema depende de la creatividad de un modelo. Los motores ensamblan contenido autorizado por humanos según reglas deterministas — nunca inventan prescripciones.</td></tr>
+<tr><td>Una caja negra</td><td>Si una decisión no puede explicarse con una razón trazable, esa decisión no puede existir en BREY. Es un invariante, no una aspiración.</td></tr>
+<tr><td>Un chatbot de fitness</td><td>La interfaz conversacional del Diagnóstico es una presentación; debajo hay una función pura y auditable (<code>MotorDiagnostico</code>). La conversación nunca es la fuente de la decisión.</td></tr>
+<tr><td>Un reemplazo del criterio clínico</td><td>Ante dolor o lesión, el sistema restringe y recomienda evaluación profesional — no diagnostica ni trata. Ver <a href="../06-recovery-engine/index.html">módulo 06</a>.</td></tr>
+<tr><td>Un producto de contenido estático (PDF/curso)</td><td>El valor está en el ciclo de adaptación continua, no en una lista fija de ejercicios entregada una vez.</td></tr>
+<tr><td>Un sistema que finge datos</td><td>Ley heredada de la Constitución de producto: solo datos verdaderos. Estados vacíos honestos antes que métricas simuladas.</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="filosofia">Filosofía</h2>
+<p>Tres reglas de estilo gobiernan el documento entero:</p>
+<div class="callout callout--regla">
+  <div class="callout__label">Especificación, no narrativa</div>
+  <p>Tablas antes que párrafos, pseudocódigo antes que descripciones, invariantes explícitos antes que intenciones. Si una sección no le sirve a quien va a implementar, sobra.</p>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Ciencia marcada, nunca inventada</div>
+  <p>Toda regla con base fisiológica lleva un badge de nivel de evidencia:
+  <span class="ev ev--solida">consenso sólido</span>
+  <span class="ev ev--moderada">evidencia moderada</span>
+  <span class="ev ev--hipotesis">hipótesis</span>
+  <span class="ev ev--producto">decisión de producto</span>.
+  El cuarto badge es el más importante: marca los números y reglas que NO provienen de evidencia científica sino de una decisión de diseño calibrable (umbrales, pesos de fórmulas, defaults). Confundir decisiones de ingeniería con decisiones científicas es un error de integridad, no de estilo. Una regla sin badge es puramente estructural/de software y no hace ningún reclamo fisiológico.</p>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">El handbook manda</div>
+  <p>Cuando el código y este documento difieran, el código está mal — se corrige el código o se actualiza el handbook mediante un ADR nuevo, nunca por deriva silenciosa.</p>
+</div>
+
+<h2 id="principios">Principios</h2>
+<p>Los 16 principios fundamentales que todo módulo debe respetar están definidos con formato completo (definición, motivación, ejemplos, contraejemplos, consecuencias, trade-offs, impacto) en el <a href="../01-principios/index.html">módulo 01</a>. Los tres que más aparecen en el resto del documento: <strong>Determinismo total</strong> (P1), <strong>Plantilla ≠ Instancia</strong> (P5) y <strong>Fallo visible</strong> (P6).</p>
+
+<h2 id="como-leer">Cómo leer este handbook</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Si vas a…</th><th>Lee primero</th></tr></thead>
+<tbody>
+<tr><td>Implementar cualquier cosa</td><td>00 → 01 → 02 (obligatorio, en orden)</td></tr>
+<tr><td>Modelar contenido de entrenamiento</td><td>03 (Training Framework) → 04 (Knowledge Base)</td></tr>
+<tr><td>Construir los motores</td><td>05 → 06 → 07, con 03/04 ya leídos</td></tr>
+<tr><td>Construir generación/ejecución</td><td>08 → 09, con 04/05/06 ya leídos</td></tr>
+<tr><td>Tocar la base de datos</td><td>10 → 11, con 02 ya leído</td></tr>
+<tr><td>Cuestionar una decisión existente</td><td>12 (ADRs) — si no está ahí, la decisión no está tomada</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="estado">Estado del documento y del sistema</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Qué existe hoy vs. qué especifica este handbook</div>
+  <p>Este handbook especifica el sistema completo. Del sistema real ya existen: autenticación, perfil persistente (20 columnas), Diagnóstico BPS guionado, 5 tablas con RLS, App Shell, y la capa de repositorios/mappers. NO existen todavía: la ontología etiquetada del catálogo, los tres motores, el generador, el player con captura por serie, ni la tabla de eventos de progresión. El <a href="../13-roadmap/index.html">módulo 13</a> mantiene el corte exacto v1/v2. La discrepancia "6 Sistemas" (mencionada en un brief) vs. los 5 reales del catálogo sigue abierta y está registrada ahí — este documento asume 5.</p>
+</div>
+
+<div class="pagenav">
+  <div></div>
+  <a class="pagenav__item pagenav__item--next" href="../01-principios/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">01 · Principios Fundamentales →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

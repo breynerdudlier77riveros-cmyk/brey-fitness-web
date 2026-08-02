@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>04 · Salidas — Motor BPS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="salidas" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 04 · Contrato de datos</p>
+<h1>Salidas</h1>
+<p class="lede">Todo lo que el Motor produce — y nada más (regla del módulo 02). Cuatro familias: punteros de estado, eventos, invocaciones, y errores tipados. El Workout Plan NO es salida directa del Motor: es salida del Generator, que el Motor invoca.</p>
+
+<h2 id="punteros">Familia 1 — Punteros de estado</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Salida</th><th>Dónde vive</th><th>Cuándo se escribe</th><th>Quién más puede escribirla</th></tr></thead>
+<tbody>
+<tr><td><code>sistema_actual</code> (slug)</td><td>Perfil (físicamente) — propiedad del Motor (IN-3)</td><td>Activación; fin de ciclo de Sistema</td><td>Nadie</td></tr>
+<tr><td><code>nivel_actual</code> (texto del nivel interno)</td><td>Ídem</td><td>Activación (nivelEntrada del Diagnóstico); aplicación de decisión de Progression con alcance de Nivel</td><td>Nadie</td></tr>
+<tr><td>Estado de la FSM</td><td>Materializado + derivable de eventos (IN-5)</td><td>Cada transición (05)</td><td>Nadie</td></tr>
+<tr><td>Track vigente</td><td>Derivado — NO se persiste como puntero: es función de <code>lugar_entrenamiento</code> del Perfil fresco</td><td>—</td><td>— (el usuario, editando su Perfil)</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Por qué Track no es puntero</div>
+  <p>Persistirlo crearía una segunda fuente de verdad frente al Perfil (viola SSoT). El Track se deriva en cada ciclo del Perfil fresco (IN-6); las instancias ya generadas conservan el suyo desnormalizado (P5 del marco).</p>
+</div>
+
+<h2 id="eventos">Familia 2 — Eventos</h2>
+<p>Cada uno con <code>razones</code> (NOT NULL) y <code>contexto</code> (métricas/umbrales vigentes al decidir — trazabilidad, módulo 01). Persisten en <code>progression_events</code> (marco, módulo 10) con <code>origen: motor_bps</code> salvo indicación.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Evento</th><th>Cuándo</th><th>Contexto mínimo</th></tr></thead>
+<tbody>
+<tr><td><code>activacion</code></td><td>Compra confirmada procesada (06)</td><td>transaccionId, sistema, nivelEntrada, razones del Diagnóstico</td></tr>
+<tr><td><code>gate_fallado</code></td><td>Intento de generación con gate pendiente</td><td>Gate exacto + campos faltantes (BPS-020)</td></tr>
+<tr><td><code>transicion_estado</code></td><td>Cada cambio de la FSM (05)</td><td>Estado origen/destino, disparador, guard evaluado</td></tr>
+<tr><td><code>semana_generada</code></td><td>Generación exitosa (origen: workout_generator, invocado por el Motor)</td><td>Versión de catálogo (BPS-023), tipo de semana (normal/descarga), microciclo</td></tr>
+<tr><td><code>descarga_programada</code> / <code>descarga_reactiva</code></td><td>Aplicación del veredicto de Recovery (origen: recovery_engine)</td><td>Índice y desglose (reactiva) o semana del mesociclo (programada)</td></tr>
+<tr><td><code>avanza</code> / <code>sostiene</code> / <code>retrocede</code></td><td>Aplicación de la decisión de Progression (origen: progression_engine)</td><td>Métricas de la ventana + umbrales vigentes</td></tr>
+<tr><td><code>pausa</code> / <code>reanudacion</code></td><td>Transiciones a/desde <code>en_pausa</code> (incluida auto-pausa BPS-025)</td><td>Motivo {lesion, voluntaria, inactividad}; en reanudación: días transcurridos y propuesta de re-entrada</td></tr>
+<tr><td><code>sistema_completado</code></td><td>Último Bloque cerrado</td><td>Duración real vs. planificada del Sistema</td></tr>
+<tr><td><code>anomalia</code></td><td>Estado imposible detectado y reparado (05), entrada inválida de productor confiable</td><td>Detalle completo — es la señal de bug, jamás se silencia</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="callout callout--nota">
+  <div class="callout__label">Hallazgo de la autoauditoría — cambio aditivo requerido en el marco</div>
+  <p>Dos tipos de evento de esta tabla (<code>gate_fallado</code>, <code>transicion_estado</code>) no existen en la lista CHECK de <code>progression_events</code> del Architecture Handbook (módulo 10). No es contradicción de semántica sino de completitud: el marco debe extender su CHECK de forma aditiva antes de implementar este Motor. Registrado aquí para que la implementación no lo descubra como error de constraint en runtime.</p>
+</div>
+
+<h2 id="invocaciones">Familia 3 — Invocaciones</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Invocación</th><th>A quién</th><th>Con qué</th><th>Resultado esperado</th></tr></thead>
+<tbody>
+<tr><td>Evaluar recuperación</td><td>Recovery Engine</td><td>Ventana de historial (leída por el Motor vía repositorio), mesociclo actual</td><td>Veredicto — terminal si exige descarga (IN-7)</td></tr>
+<tr><td>Evaluar progresión</td><td>Progression Engine</td><td>Ventana, prescripción vigente, veredicto de Recovery</td><td>Decisión a aplicar como transición</td></tr>
+<tr><td>Generar semana</td><td>Workout Generator</td><td>Microciclo vigente, Perfil fresco, prescripción, veredicto, versión de catálogo</td><td>N filas de <code>workouts</code> — o <code>CATALOGO_INSUFICIENTE</code> que el Motor propaga</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="errores">Familia 4 — Errores tipados</h2>
+<p>Subconjunto del catálogo del marco (módulo 11) que este Motor emite, más uno propio de este handbook:</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Código</th><th>Cuándo</th><th>Payload</th><th>Acción esperada</th></tr></thead>
+<tbody>
+<tr><td><code>SISTEMA_NO_ACTIVO</code></td><td>Ciclo/generación sin Sistema activo</td><td>Estado actual</td><td>UI dirige a Diagnóstico/compra</td></tr>
+<tr><td><code>DIAGNOSTICO_REQUERIDO</code></td><td>Compra sin nivelEntrada (R-M2)</td><td>—</td><td>UI dirige al Diagnóstico</td></tr>
+<tr><td><code>PERFIL_INCOMPLETO</code></td><td>Gate de Perfil deportivo</td><td>Lista exacta de campos faltantes</td><td>Formulario con los faltantes</td></tr>
+<tr><td><code>ACTIVACION_SIN_COMPRA</code></td><td>Camino ilegítimo hacia activación</td><td>—</td><td>No existe flujo legítimo — bug</td></tr>
+<tr><td><code>SISTEMA_SIN_JERARQUIA</code></td><td>Elite (u otro 1:1) en flujo de generación</td><td>Sistema</td><td>Camino de coaching humano</td></tr>
+<tr><td><code>SEMANA_YA_GENERADA</code></td><td>Idempotencia del ciclo</td><td>La semana existente</td><td>Usarla — no es fallo para el usuario</td></tr>
+<tr><td><code>CATALOGO_INSUFICIENTE</code></td><td>Propagado del Generator</td><td>Detalle del vacío</td><td>Mensaje de producto + cola editorial</td></tr>
+<tr><td><code>ENTRADA_INVALIDA</code> <em>(nuevo en este handbook)</em></td><td>V-2 del módulo 03: valor presente fuera de vocabulario/forma</td><td>Entrada, valor, regla violada</td><td>Defecto del productor — alerta a ingeniería, no al usuario</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="logs">Logs y métricas</h2>
+<p>El Motor también produce salida de observabilidad (logs estructurados por decisión, métricas agregadas) — especificada por completo en el módulo <a href="../13-observabilidad/index.html">13</a>, no aquí, para mantener una sola fuente por tema.</p>
+
+<h2 id="casos">Casos inválidos de salida</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Nunca puede salir del Motor…</th><th>Por qué</th></tr></thead>
+<tbody>
+<tr><td>Un Workout Plan construido por el Motor mismo</td><td>El contenido es del Generator/KB — el Motor no conoce ejercicios (BPS-021)</td></tr>
+<tr><td>Una transición sin evento</td><td>IN-4</td></tr>
+<tr><td>Un evento sin razones</td><td>NOT NULL — P2 del marco</td></tr>
+<tr><td>Una escritura a Perfil (campos del usuario), catálogo o logs de sesión</td><td>Límite de escritura del módulo 02</td></tr>
+<tr><td>Un error sin payload de detalle</td><td>"Algo salió mal" no existe en el catálogo</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../03-entradas/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 03 · Entradas</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../05-maquina-estados/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">05 · Máquina de Estados →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

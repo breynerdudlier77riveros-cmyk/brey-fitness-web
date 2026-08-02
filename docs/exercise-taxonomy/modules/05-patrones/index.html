@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>05 · Patrones — Exercise Taxonomy Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="patrones" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 05 · Ejes de clasificación</p>
+<h1>Patrones</h1>
+<p class="lede">El eje que responde "¿qué movimiento es?". Nueve patrones — siete activos y dos reservados — con su grafo de degradación, la regla de un solo primario, y la propiedad del grafo que ningún handbook menciona pero que toda implementación debe manejar.</p>
+
+<h2 id="definicion">Definición</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Patrón de movimiento</div>
+  <p>La <strong>unidad biomecánica de programación</strong> (P7). Es la clase de movimiento que un slot abre y que un ejercicio concreto llena. Vive en un vocabulario cerrado: un ejercicio no describe su patrón, <em>declara</em> uno de los nueve.</p>
+</div>
+
+<h2 id="vocabulario">Vocabulario completo</h2>
+<p class="matrix-note">Transcripción de la tabla del Architecture Handbook 04. Slug estable desde el nacimiento (P15).</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Slug</th><th>Patrón</th><th>Ejemplo gym</th><th>Ejemplo casa/calistenia</th><th>Degrada a</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td><code>empuje-horizontal</code></td><td>Empuje horizontal</td><td>Press banca</td><td>Flexiones, fondos</td><td><code>empuje-vertical</code></td><td><span class="tag tag--implementado">activo</span></td></tr>
+<tr><td><code>empuje-vertical</code></td><td>Empuje vertical</td><td>Press militar</td><td>Pike push-up, pino</td><td><code>empuje-horizontal</code></td><td><span class="tag tag--implementado">activo</span></td></tr>
+<tr><td><code>traccion-horizontal</code></td><td>Tracción horizontal</td><td>Remo con barra</td><td>Remo invertido</td><td><code>traccion-vertical</code></td><td><span class="tag tag--implementado">activo</span></td></tr>
+<tr><td><code>traccion-vertical</code></td><td>Tracción vertical</td><td>Dominadas lastradas</td><td>Dominadas</td><td><code>traccion-horizontal</code></td><td><span class="tag tag--implementado">activo</span></td></tr>
+<tr><td><code>dominante-rodilla</code></td><td>Dominante de rodilla</td><td>Sentadilla</td><td>Búlgara, pistol</td><td><code>dominante-cadera</code></td><td><span class="tag tag--implementado">activo</span></td></tr>
+<tr><td><code>dominante-cadera</code></td><td>Dominante de cadera</td><td>Peso muerto</td><td>Hip thrust</td><td><code>dominante-rodilla</code></td><td><span class="tag tag--implementado">activo</span></td></tr>
+<tr><td><code>core</code></td><td>Core / anti-rotación / anti-extensión</td><td>Rueda abdominal</td><td>Plancha, L-sit</td><td>— (sin degradación)</td><td><span class="tag tag--implementado">activo</span></td></tr>
+<tr><td><code>locomocion</code></td><td>Locomoción / transporte</td><td>Farmer carry</td><td>Sprint</td><td>—</td><td><span class="tag tag--futuro">reservado</span></td></tr>
+<tr><td><code>rotacion-potencia</code></td><td>Rotación / potencia</td><td>—</td><td>—</td><td>—</td><td><span class="tag tag--futuro">reservado</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="reglas">Las tres reglas del vocabulario</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">(a) Un primario, N secundarios — solo el primario llena slots</div>
+  <p>Un ejercicio declara exactamente un <code>patronPrimario</code> y 0..N <code>patronesSecundarios</code>. La resolución de un slot filtra <strong>únicamente</strong> por primario: los secundarios describen, no habilitan. Un burpee "es" varios patrones a la vez, y aun así debe elegir uno — el Generator necesita respuesta inequívoca de qué slot llena.</p>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">(b) La degradación declarada es la única permitida</div>
+  <p>El paso 4 del algoritmo de sustitución no improvisa pares: solo puede degradar al patrón que la tabla declara en <code>degradaA</code>. No existe "patrón parecido", ni distancia entre patrones, ni fallback genérico.</p>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">(c) Degradar ajusta volumen y deja rastro</div>
+  <p>Al degradar patrón, "el volumen se ajusta según la regla del patrón destino, y el evento queda registrado con razón (P2)". Una degradación silenciosa es una violación de trazabilidad, no un detalle de implementación.</p>
+</div>
+
+<h2 id="grafo">Grafo de degradación</h2>
+<div class="diagram">
+<div class="diagram-label">Los tres pares son MUTUOS; core y los reservados son terminales</div>
+<pre class="mermaid">
+graph LR
+  EH["empuje-horizontal"] <--> EV["empuje-vertical"]
+  TH["traccion-horizontal"] <--> TV["traccion-vertical"]
+  DR["dominante-rodilla"] <--> DC["dominante-cadera"]
+  CO["core"]
+  LO["locomocion<br/><i>reservado</i>"]
+  RP["rotacion-potencia<br/><i>reservado</i>"]
+</pre>
+</div>
+
+<div class="callout callout--riesgo">
+  <div class="callout__label">Propiedad del grafo no documentada en la fuente — ciclos de longitud 2</div>
+  <p>Los tres pares de degradación son <strong>mutuos</strong>: <code>empuje-horizontal → empuje-vertical → empuje-horizontal</code>, y lo mismo para tracción y dominantes. El pseudocódigo de sustitución del Architecture Handbook 04 recursa en el paso 4 <strong>sin declarar una guarda de visitados</strong>. Si ambos patrones de un par quedan sin candidatos elegibles, la recursión literal no termina.</p>
+  <p>Este handbook no modifica la regla ni el pseudocódigo — solo hace explícita la propiedad: <strong>cada patrón debe intentarse a lo sumo una vez por resolución</strong>, y agotado el par, corresponde el paso 5 (<code>CATALOGO_INSUFICIENTE</code>). Registrado como <a href="../15-adr/index.html">TX-ADR-01</a> y como anti-patrón <a href="../14-anti-patterns/index.html">TXA-05</a>.</p>
+</div>
+
+<h2 id="cobertura">Matriz patrón × ejemplo por Track</h2>
+<p class="matrix-note">Los ejemplos de la fuente muestran que cada patrón activo tiene expresión en ambos Tracks — la excepción son los reservados.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Patrón</th><th>Tiene ejemplo gym</th><th>Tiene ejemplo casa</th><th>Degradable</th><th>Puede llenar slots hoy</th></tr></thead>
+<tbody>
+<tr><td><code>empuje-horizontal</code></td><td>Sí</td><td>Sí</td><td>Sí</td><td>Sí</td></tr>
+<tr><td><code>empuje-vertical</code></td><td>Sí</td><td>Sí</td><td>Sí</td><td>Sí</td></tr>
+<tr><td><code>traccion-horizontal</code></td><td>Sí</td><td>Sí</td><td>Sí</td><td>Sí</td></tr>
+<tr><td><code>traccion-vertical</code></td><td>Sí</td><td>Sí</td><td>Sí</td><td>Sí</td></tr>
+<tr><td><code>dominante-rodilla</code></td><td>Sí</td><td>Sí</td><td>Sí</td><td>Sí</td></tr>
+<tr><td><code>dominante-cadera</code></td><td>Sí</td><td>Sí</td><td>Sí</td><td>Sí</td></tr>
+<tr><td><code>core</code></td><td>Sí</td><td>Sí</td><td><strong>No</strong> — terminal</td><td>Sí</td></tr>
+<tr><td><code>locomocion</code></td><td>Sí</td><td>Sí</td><td>No</td><td><strong>No</strong> — reservado</td></tr>
+<tr><td><code>rotacion-potencia</code></td><td>—</td><td>—</td><td>No</td><td><strong>No</strong> — reservado</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Consecuencia de que <code>core</code> no degrade</div>
+  <p><code>core</code> es el único patrón activo sin salida de degradación. Un slot <code>core</code> sin candidatos elegibles va directo al paso 5: <code>CATALOGO_INSUFICIENTE</code>, sin segunda oportunidad. Es coherente — no existe un patrón "parecido a core" — pero significa que la cobertura de catálogo en <code>core</code> es más crítica que en cualquier otro patrón.</p>
+</div>
+
+<h2 id="activacion">Activar un patrón reservado</h2>
+<p>El Architecture Handbook 04 lo declara como extensión sin coste estructural: "<code>locomocion</code> y <code>rotacion-potencia</code> se activan agregando ejercicios etiquetados — cero cambio estructural". Es decir: el estado <code>reservado</code> no es un flag que alguien deba cambiar, sino la consecuencia observable de que ningún ejercicio declare todavía ese patrón como primario.</p>
+<div class="diagram">
+<div class="diagram-label">Qué hace falta para que un patrón reservado pase a activo</div>
+<pre class="mermaid">
+flowchart LR
+  R["Patrón reservado<br/>(slug ya fijado, P15)"] --> E["Etiquetar ≥1 ejercicio<br/>con ese patronPrimario"]
+  E --> V["Validación estructural<br/>del catálogo"]
+  V --> A["Patrón activo<br/>— sin cambio de código"]
+</pre>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../04-clasificacion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 04 · Clasificación</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../06-roles/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">06 · Roles →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

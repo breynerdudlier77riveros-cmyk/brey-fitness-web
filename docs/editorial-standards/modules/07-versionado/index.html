@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>07 · Versionado — Editorial Standards</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="versionado" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 07 · Garantías</p>
+<h1>Versionado</h1>
+<p class="lede">El ecosistema versiona <strong>tres cosas</strong> con disciplina —el catálogo, los contratos y los propios handbooks— y <strong>ninguna de ellas es la entrada individual</strong>. Este módulo documenta las tres, su asimetría y lo que esa asimetría impide.</p>
+
+<h2 id="tres">Los tres versionados que sí existen</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Qué se versiona</th><th>Mecanismo</th><th>Dónde se registra</th><th>Respaldo</th></tr></thead>
+<tbody>
+<tr><td><strong>El catálogo completo</strong></td><td>Identificador de versión por cambio</td><td>Campo obligatorio del evento <code>semana_generada</code></td><td>BPS-023 · ADR-009</td></tr>
+<tr><td><strong>Los contratos publicados</strong></td><td>Versión nueva junto a la anterior + ADR con razón y fecha de deprecación</td><td>El ADR</td><td>"Nunca mutación in-place de un contrato publicado"</td></tr>
+<tr><td><strong>Los handbooks</strong></td><td>Actualización vía ADR nuevo</td><td>El ADR</td><td>"El handbook manda… nunca por deriva silenciosa"</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">La disciplina común a los tres</div>
+  <p>Los tres comparten la misma forma: <strong>lo anterior se conserva, lo nuevo convive, y el cambio queda registrado con su razón</strong>. Es la aplicación de P3 (el historial permanece) y de R-2 (la Regla de Inmutabilidad) a tres objetos distintos. El estándar editorial no inventa nada aquí: constata que el ecosistema ya sabe versionar y lo hace bien.</p>
+</div>
+
+<h2 id="ausente">Lo que no se versiona: la entrada individual</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Deuda ED-D10 — no existe versionado por entrada</div>
+  <p>Ninguna fuente declara versión, revisión, <em>changelog</em> ni fecha de modificación por ejercicio. La única granularidad documentada es el catálogo completo. Se puede saber que el catálogo cambió entre v1 y v2 — <strong>no qué entrada cambió, en qué atributo, ni por qué</strong>.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Pregunta editorial</th><th>Respondible</th></tr></thead>
+<tbody>
+<tr><td>¿Qué versión de catálogo generó esta semana?</td><td>✅ Sí — campo obligatorio del evento</td></tr>
+<tr><td>¿Cambió el catálogo entre dos generaciones?</td><td>✅ Sí — comparando identificadores</td></tr>
+<tr><td>¿Qué entrada cambió entre v1 y v2?</td><td>❌ No</td></tr>
+<tr><td>¿Qué atributo de esa entrada cambió?</td><td>❌ No</td></tr>
+<tr><td>¿Por qué se cambió?</td><td>❌ No</td></tr>
+<tr><td>¿Quién lo cambió y cuándo?</td><td>❌ No</td></tr>
+<tr><td>¿Cuántas veces se ha revisado esta entrada?</td><td>❌ No</td></tr>
+<tr><td>¿Se puede volver a una versión anterior de una entrada?</td><td>❌ No</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="tipos">Tipos de cambio — clasificación editorial</h2>
+<p class="matrix-note">El brief solicita distinguir cambios mayores, menores y correcciones. <strong>Ninguna fuente publica esta taxonomía</strong> para el catálogo. Lo que sigue deriva de reglas existentes sobre qué consecuencias tiene cada tipo — no de una clasificación documentada.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tipo propuesto</th><th>Qué cambia</th><th>Consecuencia documentada</th><th>Estatuto</th></tr></thead>
+<tbody>
+<tr><td><strong>Cambio de identidad</strong></td><td>El <code>slug</code></td><td><strong>Prohibido</strong> — el slug es inmutable de por vida</td><td><span class="tag tag--implementado">respaldado</span> — P15</td></tr>
+<tr><td><strong>Cambio mayor</strong></td><td>Un atributo de elegibilidad: patrón, rol, modalidad, zona de riesgo, cadena</td><td>Altera qué slots puede llenar la entrada; nueva versión de catálogo</td><td><span class="tag tag--especificado">derivado</span></td></tr>
+<tr><td><strong>Cambio menor</strong></td><td>Un atributo descriptivo: nombre, músculos, ficha educativa</td><td>No altera la elegibilidad; nueva versión de catálogo</td><td><span class="tag tag--especificado">derivado</span></td></tr>
+<tr><td><strong>Corrección</strong></td><td>Un error de dato sin cambio de intención</td><td>Indistinguible de un cambio menor con el modelo actual</td><td><span class="tag tag--futuro">no distinguible</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">La distinción es útil y no es oficial</div>
+  <p>La diferencia mayor/menor se deriva de una consecuencia real y verificable —si el cambio altera la elegibilidad o no—, pero <strong>ninguna fuente la enuncia</strong>. Se documenta como derivación explícita, no como regla del ecosistema. Con versionado únicamente a nivel de catálogo, además, la distinción no puede aplicarse: no hay dónde declarar de qué tipo fue un cambio.</p>
+</div>
+
+<h2 id="consecuencias">Lo que la asimetría impide</h2>
+<div class="diagram">
+<div class="diagram-label">Tres objetos versionados, uno sin versionar — y las consecuencias</div>
+<pre class="mermaid">
+graph TD
+  V1["Catálogo completo<br/>✅ versionado"] --> OK1["Reproducibilidad de<br/>generaciones pasadas"]
+  V2["Contratos<br/>✅ versionado + ADR"] --> OK2["Migración ordenada<br/>de consumidores"]
+  V3["Handbooks<br/>✅ versionado + ADR"] --> OK3["Evolución sin<br/>deriva silenciosa"]
+  V4["Entrada individual<br/>❌ sin versionar"] --> X1["No se sabe qué cambió"]
+  V4 --> X2["No se puede revertir<br/>una entrada"]
+  V4 --> X3["No se puede auditar<br/>una decisión concreta"]
+  X3 --> P14["⛔ P14 no verificable"]
+</pre>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Capacidad editorial impedida</th><th>Severidad</th></tr></thead>
+<tbody>
+<tr><td>Auditar una decisión concreta — qué se decidió sobre este ejercicio y cuándo</td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td>Revertir una entrada a su estado anterior sin revertir todo el catálogo</td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td>Medir la actividad editorial — cuántas entradas se revisaron este mes</td><td><span class="severity severity--media">media</span></td></tr>
+<tr><td>Detectar entradas que nunca se han revisado desde su creación</td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td>Distinguir una corrección de un cambio de criterio</td><td><span class="severity severity--media">media</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="precedente">El precedente disponible</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">El ecosistema ya versiona por objeto — en otro dominio</div>
+  <p>La disciplina de contratos hace exactamente lo que le falta al catálogo: versión nueva junto a la anterior, ADR que registra la razón, fecha de deprecación del anterior, migración de consumidores. Es un modelo directamente análogo.</p>
+  <p>Este handbook <strong>no lo adopta</strong>: pertenece a contratos publicados, no a entradas de catálogo, y extenderlo sería crear una regla nueva. Se registra como precedente para la decisión documental que cierre ED-D10.</p>
+</div>
+
+<h2 id="relacion">Relación con las demás deudas</h2>
+<p>El versionado por entrada no es una deuda aislada: es una de las tres patas de la misma brecha. Sin <strong>estados</strong> (ED-D01) no se puede marcar una entrada como aprobada; sin <strong>versionado por entrada</strong> (ED-D10) no se puede saber qué cambió; sin <strong>registro de autoría</strong> (ED-D08) no se puede saber quién lo cambió. Las tres juntas son lo que P14 exige y ninguna existe por separado — se resuelven juntas o no se resuelven.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../06-evidencia/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 06 · Evidencia</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../08-trazabilidad/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">08 · Trazabilidad →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

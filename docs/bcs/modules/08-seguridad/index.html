@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>08 · Seguridad — BCS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="seguridad" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 08 · Acceso y datos sensibles</p>
+<h1>Seguridad</h1>
+<p class="lede">Permisos, seguridad a nivel de fila (RLS) y auditoría — quién puede tocar qué, y cómo queda registrado cada cambio. Este módulo también cumple la promesa de detalle de observabilidad hecha en 01.</p>
+
+<h2 id="permisos">Modelo de permisos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Identidad</th><th>Autenticación</th><th>Permisos</th></tr></thead>
+<tbody>
+<tr><td>Entrenador</td><td>Login autenticado (reutiliza el mecanismo del Core Product, 01)</td><td>Lectura y escritura total sobre sus propios Clientes, Mediciones y EnlacesPúblicos</td></tr>
+<tr><td>Cliente (vía enlace público)</td><td>Ninguna — posesión del token es la única credencial (09, 10)</td><td>Lectura exclusiva del Reporte de un único Cliente — cero acceso a cualquier otro dato del sistema</td></tr>
+<tr><td>Cualquier otra identidad</td><td>n/a</td><td>Sin acceso — no existe un rol "administrador global" distinto del propio entrenador en v1 (single-tenant, 12, 16)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="rls">Seguridad a nivel de fila (RLS)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tabla conceptual</th><th>Política</th></tr></thead>
+<tbody>
+<tr><td>Cliente</td><td>Solo visible/editable por el entrenador propietario — en v1 con un único entrenador, la política es trivial, pero se especifica como si existieran varios para no bloquear 12/17</td></tr>
+<tr><td>Medición</td><td>Solo visible/editable por el entrenador propietario del Cliente al que pertenece; visible en modo exclusivamente lectura para quien presente el token del EnlacePúblico correspondiente a ese mismo Cliente</td></tr>
+<tr><td>EnlacePúblico</td><td>Creación/revocación solo por el entrenador propietario; resolución de token→reporte es la única operación que un actor anónimo puede ejecutar, y solo si el token está en estado <em>activo</em> (02)</td></tr>
+<tr><td>Fotografía</td><td>Mismas reglas que Medición — nunca accesible fuera del contexto de su Cliente (11)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="diagrama">Diagrama de resolución de acceso</h2>
+<div class="diagram">
+<div class="diagram-label">Dos caminos de acceso, nunca convergentes</div>
+<pre class="mermaid">
+flowchart TD
+  A["Solicitud entrante"] --> B{"¿Trae sesión de entrenador autenticado?"}
+  B -->|"Sí"| C["Acceso completo a sus propios Clientes"]
+  B -->|"No"| D{"¿Trae token de EnlacePúblico válido?"}
+  D -->|"Sí, activo"| E["Solo lectura del Reporte de ese Cliente"]
+  D -->|"No, o revocado"| F["Acceso denegado"]
+</pre>
+</div>
+
+<h2 id="auditoria">Auditoría</h2>
+<p>Toda operación de escritura queda registrada de forma inmutable: quién (el entrenador — identidad única en v1, pero el campo existe para 12), qué acción, sobre qué entidad, cuándo, y el valor anterior cuando aplique (para Mediciones corregidas, 05).</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Acción auditada</th><th>Qué se registra</th></tr></thead>
+<tbody>
+<tr><td>Crear/editar/archivar/eliminar Cliente</td><td>Identidad del entrenador, timestamp, estado anterior y nuevo</td></tr>
+<tr><td>Registrar/corregir Medición</td><td>Identidad del entrenador, timestamp, Medición anulada (si aplica) referenciada por id</td></tr>
+<tr><td>Crear/revocar EnlacePúblico</td><td>Identidad del entrenador, timestamp, token afectado (nunca el token en texto plano en el log de auditoría — solo su identificador interno)</td></tr>
+<tr><td>Acceso vía EnlacePúblico</td><td>Timestamp del acceso — sin identidad, porque el acceso es anónimo por diseño (09, 10); se audita el hecho de "el enlace X fue visitado", no quién lo visitó</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="eventos-seguridad">Eventos de seguridad</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Evento</th><th>Disparador</th></tr></thead>
+<tbody>
+<tr><td><code>token_invalido_intentado</code></td><td>Solicitud a un token que no existe — posible enumeración</td></tr>
+<tr><td><code>token_revocado_intentado</code></td><td>Solicitud a un token que existió pero fue revocado (09) — distinto de un token inexistente para diagnóstico</td></tr>
+<tr><td><code>enlace_creado</code> / <code>enlace_revocado</code></td><td>UC-07 / UC-08 (02)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="casos-limite">Casos límite</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Comportamiento</th></tr></thead>
+<tbody>
+<tr><td>Múltiples intentos de token inválido en poco tiempo desde el mismo origen</td><td>Se registra el patrón como <code>token_invalido_intentado</code> repetido — mitigación de fuerza bruta (rate limiting) es responsabilidad de infraestructura, no de este dominio, pero el evento debe existir para que esa capa pueda actuar (13, 17)</td></tr>
+<tr><td>Entrenador intenta acceder a un Cliente que no le pertenece (futuro multi-entrenador, 12)</td><td>Acceso denegado — no existe en v1 con un solo entrenador, pero la política de RLS se especifica ya pensando en ese caso</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../07-modelo-visualizacion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 07 · Modelo de Visualización</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../09-comparticion/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">09 · Compartición →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

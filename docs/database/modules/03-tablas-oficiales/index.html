@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03 · Tablas Oficiales — BREY Database Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="tablas-oficiales" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 03 · Modelo</p>
+<h1>Tablas Oficiales</h1>
+<p class="lede">Una ficha por tabla — nueve en total. Cada una cita su handbook de origen exacto; ninguna se inventa aquí.</p>
+
+<div class="meta-row">
+  <span class="chip">9 tablas</span>
+  <span class="chip">Cada ficha cita owner, aggregate, naturaleza y ownership de escritura/lectura</span>
+</div>
+
+<div class="diagram">
+<div class="diagram-label">9 fichas, agrupadas por bounded context dueño (02)</div>
+<pre class="mermaid">
+graph TD
+  ID["Identity"] --> profiles
+  CT["Core Training"] --> systems
+  CT --> workouts
+  CT --> workout_logs
+  DX["Diagnostics"] --> diagnoses
+  PRG["Progression (compartida)"] --> progression_events
+  BCX["Body Composition"] --> bcs_clientes
+  BCX --> bcs_mediciones
+  BCX --> bcs_enlaces_publicos
+</pre>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">systems</span><span class="persist persist--persistente">persistente</span></div>
+<h3>Catálogo-espejo de Sistemas comerciales</h3>
+<dl>
+<dt>Descripción</dt><dd>Catálogo liviano de los Sistemas vendibles (Calistenia, Hipertrofia, Híbrido, Fuerza, Elite) — el contenido rico (ontología, plantillas) vive en código versionado, no aquí (Architecture Handbook, ADR-009).</dd>
+<dt class="half">Owner (bounded context)</dt><dd class="half">Core Training</dd>
+<dt class="half">Aggregate root</dt><dd class="half">Ninguno — es catálogo, no dato de usuario ni historial</dd>
+<dt class="half">Quién escribe</dt><dd class="half">Nadie por RLS de aplicación — gestión vía dashboard/service role únicamente</dd>
+<dt class="half">Quién lee</dt><dd class="half">Cualquiera, incluso Anonymous (lectura pública)</dd>
+<dt class="half">Quién nunca escribe</dt><dd class="half">Ningún motor ni Server Action de usuario final</dd>
+<dt class="half">Quién nunca lee</dt><dd class="half">No aplica — lectura sin restricción</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">profiles</span><span class="persist persist--persistente">persistente</span></div>
+<h3>Perfil del Usuario</h3>
+<dl>
+<dt>Descripción</dt><dd>Fila 1:1 con <code>auth.users</code>, 20 columnas — identidad, datos físicos, preferencias de entrenamiento, y los dos punteros de estado del Motor BPS (<code>sistema_actual</code>, <code>nivel_actual</code>).</dd>
+<dt class="half">Owner (bounded context)</dt><dd class="half">Identity</dd>
+<dt class="half">Aggregate root</dt><dd class="half">Usuario (Domain Model Handbook, 08)</dd>
+<dt class="half">Quién escribe</dt><dd class="half">El propio Usuario, sus campos generales; el proceso de Diagnóstico/Motor BPS, exclusivamente <code>sistema_actual</code>/<code>nivel_actual</code> (Domain Model Handbook, DX-04)</dd>
+<dt class="half">Quién lee</dt><dd class="half">El propio Usuario; Motor BPS, Progression Engine, Workout Generator (lectura fresca cada ciclo)</dd>
+<dt class="half">Quién nunca escribe</dt><dd class="half">Ningún otro Usuario; BCS (frontera de contexto, 02)</dd>
+<dt class="half">Quién nunca lee</dt><dd class="half">Cualquier actor Anonymous; cualquier Entrenador vía el panel del BCS</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">diagnoses</span><span class="persist persist--persistente">persistente</span></div>
+<h3>Resultado de Diagnóstico</h3>
+<dl>
+<dt>Descripción</dt><dd>Un Diagnóstico completado — Sistema recomendado, Nivel de entrada, razones. Un Usuario puede tener múltiples a lo largo del tiempo; retomar siempre crea uno nuevo (Domain Model Handbook, DM-ADR-07).</dd>
+<dt class="half">Owner (bounded context)</dt><dd class="half">Diagnostics</dd>
+<dt class="half">Aggregate root</dt><dd class="half">Diagnóstico (Domain Model Handbook, 08)</dd>
+<dt class="half">Quién escribe</dt><dd class="half">El proceso de Diagnóstico — una sola vez, en su creación</dd>
+<dt class="half">Quién lee</dt><dd class="half">El propio Usuario; Motor BPS (lectura del resultado vigente para activación)</dd>
+<dt class="half">Quién nunca escribe</dt><dd class="half">Nadie tras la creación — ni el propio Usuario, ni ningún motor (inmutable, P3)</dd>
+<dt class="half">Quién nunca lee</dt><dd class="half">Progression Engine, Recovery Engine (no es su entrada — solo Motor BPS la consulta)</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">workouts</span><span class="persist persist--persistente">persistente</span></div>
+<h3>Sesión de entrenamiento planificada</h3>
+<dl>
+<dt>Descripción</dt><dd>Una sesión instanciada por el Workout Generator — sus Slots y Prescripciones vigentes viven dentro, como <code>jsonb</code> (04). Siempre el plan, nunca la ejecución.</dd>
+<dt class="half">Owner (bounded context)</dt><dd class="half">Core Training</dd>
+<dt class="half">Aggregate root</dt><dd class="half">Workout (Domain Model Handbook, 08; DM-ADR-02)</dd>
+<dt class="half">Quién escribe</dt><dd class="half">El Workout Generator, exclusivamente — el <code>estado</code> transiciona por el propio ciclo del Motor BPS</dd>
+<dt class="half">Quién lee</dt><dd class="half">El propio Usuario; Progression Engine (lectura, nunca escritura, para evaluar el ciclo)</dd>
+<dt class="half">Quién nunca escribe</dt><dd class="half">El Usuario directamente; Progression Engine; Recovery Engine; cualquier Client Component</dd>
+<dt class="half">Quién nunca lee</dt><dd class="half">Cualquier otro Usuario; cualquier actor del BCS</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">workout_logs</span><span class="persist persist--persistente">persistente</span></div>
+<h3>Sesión de entrenamiento ejecutada</h3>
+<dl>
+<dt>Descripción</dt><dd>Lo que un Usuario realmente ejecutó — Series con carga/reps/esfuerzo reales, vía el Workout Player. Puede existir sin <code>workout_id</code> (sesión ad-hoc).</dd>
+<dt class="half">Owner (bounded context)</dt><dd class="half">Core Training</dd>
+<dt class="half">Aggregate root</dt><dd class="half">WorkoutLog — separado de Workout (Domain Model Handbook, DM-ADR-02)</dd>
+<dt class="half">Quién escribe</dt><dd class="half">El Usuario, a través del Workout Player — una sola escritura por sesión, al cierre (I-W3)</dd>
+<dt class="half">Quién lee</dt><dd class="half">El propio Usuario; Progression Engine (ventana de historial, su única fuente real)</dd>
+<dt class="half">Quién nunca escribe</dt><dd class="half">Nadie tras el cierre de sesión — ni el propio Usuario (corrección = registro nuevo, no edición)</dd>
+<dt class="half">Quién nunca lee</dt><dd class="half">Cualquier otro Usuario; cualquier actor del BCS</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">progression_events</span><span class="persist persist--persistente">persistente</span></div>
+<h3>Historial append-only de decisiones de motor</h3>
+<dl>
+<dt>Descripción</dt><dd>El único registro de auditoría transversal del ecosistema (excluyendo BCS) — cada fila es una decisión ya tomada por Motor BPS, Progression Engine, Recovery Engine, Workout Generator, o un override del propio Usuario (08).</dd>
+<dt class="half">Owner (bounded context)</dt><dd class="half">Compartida — partición lógica vía <code>origen</code> (ENG-ADR-03)</dd>
+<dt class="half">Aggregate root</dt><dd class="half">EventoProgresión (Domain Model Handbook, 08) — sin jerarquía entre eventos</dd>
+<dt class="half">Quién escribe</dt><dd class="half">El motor que origina cada tipo de evento — cada uno escribe solo los tipos de su <code>origen</code> (08)</dd>
+<dt class="half">Quién lee</dt><dd class="half">El propio Usuario (timeline); Motor BPS (replay de estado, IN-5); Progression Engine (evaluación del ciclo siguiente); Observabilidad</dd>
+<dt class="half">Quién nunca escribe</dt><dd class="half">Cualquier UPDATE o DELETE, de cualquier actor — append-only sin excepción (DM-ADR-06)</dd>
+<dt class="half">Quién nunca lee</dt><dd class="half">Cualquier actor del BCS; cualquier actor Anonymous</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">bcs_clientes</span><span class="persist persist--persistente">persistente</span></div>
+<h3>Cliente del Entrenador (BCS)</h3>
+<dl>
+<dt>Descripción</dt><dd>Persona presencial medida por un Entrenador — standalone, sin relación de dominio con Usuario (Domain Model Handbook, IN-31). Contiene solo sus propios datos identificativos y estado.</dd>
+<dt class="half">Owner (bounded context)</dt><dd class="half">Body Composition</dd>
+<dt class="half">Aggregate root</dt><dd class="half">Cliente (BCS Handbook, BCS-ADR-01)</dd>
+<dt class="half">Quién escribe</dt><dd class="half">El Entrenador que lo creó, vía el panel del BCS</dd>
+<dt class="half">Quién lee</dt><dd class="half">El Entrenador dueño únicamente</dd>
+<dt class="half">Quién nunca escribe</dt><dd class="half">El propio Cliente (nunca se autentica, BCS Handbook, 00); cualquier otro Entrenador</dd>
+<dt class="half">Quién nunca lee</dt><dd class="half">Motor BPS, Progression Engine, Recovery Engine, Workout Generator — ningún motor de Core Training conoce esta tabla (02)</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">bcs_mediciones</span><span class="persist persist--persistente">persistente</span></div>
+<h3>Medición de composición corporal</h3>
+<dl>
+<dt>Descripción</dt><dd>Captura puntual de hasta 25 variables (04), con fecha. La tabla más ancha del ecosistema — 28 columnas en total (25 variables + <code>id</code>, <code>cliente_id</code>, <code>estado</code>).</dd>
+<dt class="half">Owner (bounded context)</dt><dd class="half">Body Composition</dd>
+<dt class="half">Aggregate root</dt><dd class="half">Medición — independiente de Cliente, solo lo referencia (BCS Handbook, BCS-ADR-01)</dd>
+<dt class="half">Quién escribe</dt><dd class="half">El Entrenador dueño del Cliente referenciado, vía el panel del BCS</dd>
+<dt class="half">Quién lee</dt><dd class="half">El Entrenador dueño; el Cliente, indirectamente, a través de un <code>bcs_enlaces_publicos</code> válido</dd>
+<dt class="half">Quién nunca escribe</dt><dd class="half">Cualquier UPDATE en sitio de una fila <code>vigente</code> — la corrección siempre anula + crea (BCS-ADR-03, IN-D1)</dd>
+<dt class="half">Quién nunca lee</dt><dd class="half">Cualquier otro Entrenador; cualquier motor de Core Training</dd>
+</dl>
+</div>
+
+<div class="entity">
+<div class="entity__head"><span class="entity__id">bcs_enlaces_publicos</span><span class="persist persist--persistente">persistente</span></div>
+<h3>Token de acceso público al Reporte</h3>
+<dl>
+<dt>Descripción</dt><dd>Token de solo lectura y anónimo al Reporte computado de un Cliente — nunca almacena el Reporte mismo, solo el token y su estado.</dd>
+<dt class="half">Owner (bounded context)</dt><dd class="half">Body Composition / Reporting</dd>
+<dt class="half">Aggregate root</dt><dd class="half">EnlacePúblico — independiente de Cliente (BCS Handbook, BCS-ADR-01)</dd>
+<dt class="half">Quién escribe</dt><dd class="half">El Entrenador dueño del Cliente referenciado, vía el panel del BCS</dd>
+<dt class="half">Quién lee</dt><dd class="half">El Entrenador dueño (gestión); cualquier portador del token, solo para resolver a un Reporte de solo lectura si <code>estado = activo</code></dd>
+<dt class="half">Quién nunca escribe</dt><dd class="half">Cualquier actor Anonymous; el propio Cliente</dd>
+<dt class="half">Quién nunca lee</dt><dd class="half">Cualquier otro Entrenador; ningún motor de Core Training</dd>
+</dl>
+</div>
+
+<div class="callout callout--nota">
+  <div class="callout__label"><code>auth.users</code> — raíz externa, sin ficha propia</div>
+  <p>Gestionada íntegramente por Supabase Auth, fuera del esquema de aplicación de BREY. Se documenta en 02 (Modelo Global) y 05 (Relaciones) como el destino de toda FK de identidad — sin ficha propia aquí porque su forma no la especifica ningún handbook de BREY, la especifica el proveedor de autenticación.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../02-modelo-global/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 02 · Modelo Global</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../04-columnas/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">04 · Columnas →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

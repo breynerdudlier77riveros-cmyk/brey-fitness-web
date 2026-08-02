@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>05 · Autoridad — Editorial Standards</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="autoridad" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 05 · Gobierno</p>
+<h1>Autoridad</h1>
+<p class="lede">El módulo mejor respaldado del handbook. El concepto de autoridad aparece en <strong>44 archivos</strong> y está formulado con precisión en P14. Lo que falta no es la autoridad — es el registro de su ejercicio.</p>
+
+<h2 id="principio">El principio rector</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">P14 · El motor ensambla; el humano autoriza</div>
+  <p>"Ningún motor crea contenido de entrenamiento. Los motores seleccionan, combinan y ajustan piezas que <strong>una persona con criterio de entrenador autorizó</strong> (Bloques, prescripciones, cadenas, ejercicios). <strong>El catálogo es la frontera de autoridad humana.</strong> <em>Motivación:</em> la responsabilidad sobre lo que un cuerpo humano ejecuta debe poder rastrearse a una decisión humana."</p>
+</div>
+
+<h2 id="reparto">Reparto de autoridad por tipo de decisión</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tipo de decisión</th><th>Autoridad</th><th>Ejemplos</th><th>Respaldo</th></tr></thead>
+<tbody>
+<tr><td><strong>Contenido de entrenamiento</strong></td><td>Persona con criterio de entrenador · <strong>Contenido</strong></td><td>Patrón primario, roles, modalidad, zonas de riesgo, orden de cadena, capacidades</td><td>P14 · Roadmap #2</td></tr>
+<tr><td><strong>Estructura y validación</strong></td><td><strong>Ingeniería</strong></td><td>Sin ciclos, cardinalidades, integridad referencial, vocabulario cerrado</td><td>Regla 4 de la cadena</td></tr>
+<tr><td><strong>Vocabularios y reglas</strong></td><td><strong>Documentación</strong> (vía handbook + ADR)</td><td>Ampliar los 9 patrones, cambiar un umbral, definir un estado nuevo</td><td>"El handbook manda" · los vocabularios se publican en handbooks</td></tr>
+<tr><td><strong>Nivel de evidencia de una regla</strong></td><td><strong>Documentación</strong></td><td>Marcar una regla como <em>decisión de producto</em> o <em>evidencia moderada</em></td><td>Architecture Handbook 00 — sistema de 4 badges</td></tr>
+<tr><td><strong>Comercial / producto</strong></td><td>Fuera del dominio</td><td>Precio, disponibilidad de Sistemas, reembolsos</td><td>Motor BPS 06 — "frontera comercial abierta"</td></tr>
+<tr><td><strong>Clínica</strong></td><td><strong>Nadie</strong> — fuera del alcance</td><td>Diagnóstico, tratamiento, condiciones médicas</td><td>"El sistema NO diagnostica ni trata"</td></tr>
+</tbody>
+</table>
+</div>
+<div class="diagram">
+<div class="diagram-label">Cuatro dominios de autoridad, con fronteras declaradas</div>
+<pre class="mermaid">
+graph TD
+  D["Decisión editorial"] --> Q1{"¿Afecta a lo que<br/>un cuerpo ejecuta?"}
+  Q1 -- Sí --> CONT["CONTENIDO<br/>criterio de entrenador · P14"]
+  Q1 -- No --> Q2{"¿Es sobre la forma<br/>del dato?"}
+  Q2 -- Sí --> ING["INGENIERÍA<br/>validación estructural"]
+  Q2 -- No --> Q3{"¿Cambia una regla<br/>o un vocabulario?"}
+  Q3 -- Sí --> DOC["DOCUMENTACIÓN<br/>handbook + ADR"]
+  Q3 -- No --> Q4{"¿Es clínica?"}
+  Q4 -- Sí --> NADIE["NADIE<br/>fuera del dominio"]
+  Q4 -- No --> ESC["Escalar · sin autoridad<br/>documentada"]
+</pre>
+</div>
+
+<h2 id="quien-no">Quién NO puede decidir</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Actor</th><th>Prohibición</th><th>Respaldo</th></tr></thead>
+<tbody>
+<tr><td>Cualquier motor</td><td>No crea contenido de entrenamiento</td><td>P14 · BPS-021 — "el Motor nunca decide contenido"</td></tr>
+<tr><td>Un proceso automático de inferencia</td><td>No etiqueta atributos biomecánicos</td><td>"No se infiere del nombre — exige etiquetado con criterio biomecánico"</td></tr>
+<tr><td>Ingeniería, sobre valores de contenido</td><td>Su ámbito es la estructura</td><td>Regla 4 de la cadena</td></tr>
+<tr><td>Contenido, sobre reglas del modelo</td><td>Ampliar un vocabulario es decisión documental</td><td>Los vocabularios se publican en handbooks, no en el catálogo</td></tr>
+<tr><td>El usuario final</td><td>No participa en el catálogo</td><td>La Knowledge Base no conoce usuarios</td></tr>
+<tr><td>El código</td><td>Ante divergencia, "el código está mal"</td><td>"El handbook manda… nunca por deriva silenciosa"</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="handbook-manda">La regla de autoridad más ejecutable del ecosistema</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">El handbook manda</div>
+  <p>"Cuando el código y este documento difieran, <strong>el código está mal</strong> — se corrige el código o se actualiza el handbook mediante un ADR nuevo, <strong>nunca por deriva silenciosa</strong>."</p>
+</div>
+<p>Es la única regla de autoridad del ecosistema que especifica <em>quién gana</em>, <em>qué hacer al respecto</em> y <em>qué está prohibido</em> — las tres cosas. Por eso este handbook la eleva a principio (ED-05) y la usa como modelo de lo que las demás decisiones editoriales deberían alcanzar.</p>
+<div class="callout callout--nota">
+  <div class="callout__label">Lo que falta para aplicarla</div>
+  <p>La regla dice qué hacer ante una divergencia detectada, pero <strong>ningún proceso detecta divergencias</strong>. No hay revisión periódica de código contra handbook, ni responsable de esa comprobación. La regla es ejecutable en su resolución e inexistente en su disparo — ver <a href="../16-deuda-editorial/index.html">ED-D07</a>.</p>
+</div>
+
+<h2 id="brecha">La brecha central: autoridad sin registro</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">P14 se cumple en su mitad prescriptiva y no en su mitad probatoria</div>
+  <p>El principio tiene dos partes: <em>quién debe autorizar</em> (definido con precisión, en 44 archivos) y <em>que la responsabilidad pueda rastrearse</em> (sin ningún mecanismo). Ninguna entrada del modelo de Exercise tiene campo de autoría, no hay estados que registren aprobación y no hay versionado por entrada.</p>
+  <p>Consecuencia editorial: hoy es posible cumplir P14 en el acto y ser incapaz de demostrarlo después. Es la deuda <a href="../16-deuda-editorial/index.html">ED-D08</a>, y la que atraviesa los módulos <a href="../02-ciclo-vida/index.html">02</a>, <a href="../07-versionado/index.html">07</a> y <a href="../08-trazabilidad/index.html">08</a>.</p>
+</div>
+
+<h2 id="resumen">Resumen</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Dimensión de la autoridad</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>Quién decide contenido</td><td><span class="tag tag--implementado">definido</span> — P14 · Contenido</td></tr>
+<tr><td>Quién decide estructura</td><td><span class="tag tag--implementado">definido</span> — Ingeniería</td></tr>
+<tr><td>Quién decide reglas y vocabularios</td><td><span class="tag tag--implementado">definido</span> — Documentación vía ADR</td></tr>
+<tr><td>Quién decide niveles de evidencia</td><td><span class="tag tag--implementado">definido</span> — Documentación</td></tr>
+<tr><td>Quién aprueba una publicación</td><td><span class="tag tag--futuro">sin autoridad</span></td></tr>
+<tr><td>Quién retira una entrada</td><td><span class="tag tag--futuro">sin autoridad</span></td></tr>
+<tr><td>Dónde consta que la autoridad se ejerció</td><td><span class="tag tag--futuro">sin mecanismo</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../04-flujo/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 04 · Flujo Editorial</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../06-evidencia/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">06 · Evidencia →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

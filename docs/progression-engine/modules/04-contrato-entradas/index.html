@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>04 · Contrato de Entradas — Progression Engine Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="contrato-entradas" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 04 · Modelo</p>
+<h1>Contrato de Entradas</h1>
+<p class="lede">Todo lo que el motor recibe, con su forma exacta, sus precondiciones y qué ocurre cuando una entrada llega incompleta o inválida. El motor no hace I/O propio (IN-P1) — todo lo de aquí llega ya resuelto por el orquestador (Motor BPS).</p>
+
+<h2 id="objetivo">Objetivo</h2>
+<p>Que la firma de invocación del motor sea inambigua: cinco entradas, ni una más ni una menos, cada una con su contrato de forma y de validez.</p>
+
+<h2 id="alcance">Alcance</h2>
+<p>Las cinco entradas del pipeline (06, paso 1): Ventana de historial, Prescripción vigente, Veredicto de Recovery, Cadenas + capacidades, Fecha del ciclo.</p>
+
+<h2 id="no-alcance">No alcance</h2>
+<p>Cómo se construyen estas entradas (responsabilidad del Motor BPS y sus repositorios) — aquí solo se especifica la forma que deben tener al llegar.</p>
+
+<h2 id="entradas">Las cinco entradas</h2>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">ENTRADA 1</span></div>
+<h3>Ventana de historial</h3>
+<dl>
+<dt>Forma</dt><dd><code>Aparicion[]</code> ordenado por fecha ascendente, por Slot</dd>
+<dt class="half">Origen</dt><dd class="half">workout_logs reales (nunca prescripciones no ejecutadas)</dd>
+<dt class="half">Tamaño mínimo</dt><dd class="half">4 apariciones para cualquier decisión macro (IN-P3); sin mínimo para decisión micro, que puede operar con 1</dd>
+<dt>Precondición</dt><dd>Cada Aparición trae fecha, valores reales completos, RPE reportado si el Slot lo pedía, y flag de cumplimiento</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">ENTRADA 2</span></div>
+<h3>Prescripción vigente</h3>
+<dl>
+<dt>Forma</dt><dd>{peso, repeticiones, series, tempo, descanso, rpeObjetivo, rir, duracion, volumen, densidad} — campos nulos permitidos solo si el Slot no los usa (ej. tempo en trabajo isométrico)</dd>
+<dt class="half">Origen</dt><dd class="half">La última Decisión micro aplicada, o el default de programa si el Slot es nuevo</dd>
+<dt class="half">Puede ser null</dt><dd class="half">Sí — Slot nunca antes prescrito; el motor trata esto como "usar default de cadena", no como error</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">ENTRADA 3</span></div>
+<h3>Veredicto de Recovery</h3>
+<dl>
+<dt>Forma</dt><dd><code>{procede: boolean, tipo: "normal"|"descarga", razon: string}</code></dd>
+<dt>Precondición</dt><dd>Obligatorio, no nulable — el orquestador debe consultar Recovery antes de invocar este motor (BPS-007/019). Su ausencia es un error de invocación, no un caso de negocio del Progression Engine.</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">ENTRADA 4</span></div>
+<h3>Cadenas + capacidades</h3>
+<dl>
+<dt>Forma</dt><dd>Catálogo read-only: por Slot, la cadena de eslabones ordenada y la posición actual del usuario en ella</dd>
+<dt class="half">Origen</dt><dd class="half">Knowledge Base</dd>
+<dt class="half">Mutabilidad</dt><dd class="half">El motor nunca la modifica — solo lee la posición actual y, si decide avanzar, indica "siguiente eslabón" sin resolverlo a ejercicio</dd>
+</dl>
+</div>
+
+<div class="perule">
+<div class="perule__head"><span class="perule__id">ENTRADA 5</span></div>
+<h3>Fecha del ciclo</h3>
+<dl>
+<dt>Forma</dt><dd>Fecha explícita (BPS-022) — nunca <code>Date.now()</code> implícito dentro del motor</dd>
+<dt>Por qué</dt><dd>Determinismo (P1/IN-P1): reprocesar el mismo ciclo días después debe producir la misma decisión, lo que exige que "ahora" sea un parámetro, no una llamada de sistema.</dd>
+</dl>
+</div>
+
+<h2 id="estados-invalidos">Estados inválidos de entrada</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Estado inválido</th><th>Tratamiento</th></tr></thead>
+<tbody>
+<tr><td>Veredicto de Recovery ausente</td><td>Error de invocación — el pipeline no arranca (06, paso "Validación")</td></tr>
+<tr><td>Ventana con Aparición fuera de orden temporal</td><td>Error de invocación — la ventana debe llegar ya ordenada; el motor no ordena, solo valida orden</td></tr>
+<tr><td>Ventana con menos de 4 apariciones y se solicita evaluación macro</td><td>No es error — es <code>VENTANA_INSUFICIENTE</code> (P6), decisión macro resuelve a "sostiene"</td></tr>
+<tr><td>Prescripción vigente null en Slot nuevo</td><td>No es error — usa default de cadena (comportamiento esperado, no caso límite)</td></tr>
+<tr><td>Fecha del ciclo anterior a la última Aparición de la ventana</td><td>Error de invocación — viola causalidad; el orquestador nunca debería producir esto</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="ejemplo">Ejemplo de contrato completo (ilustrativo, no código)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Campo</th><th>Valor de ejemplo</th></tr></thead>
+<tbody>
+<tr><td>ventana</td><td>4 apariciones del Slot "Empuje horizontal · Principal", RPE reportados [7, 7, 8, 7]</td></tr>
+<tr><td>prescripcionVigente</td><td>{repeticiones: 8, series: 3, rpeObjetivo: 7, rir: 3, descanso: 90s, …}</td></tr>
+<tr><td>veredictoRecovery</td><td>{procede: true, tipo: "normal", razon: "sin señales de alerta"}</td></tr>
+<tr><td>cadena</td><td>eslabón actual: "Flexión con banda asistida", eslabón siguiente: "Flexión estándar"</td></tr>
+<tr><td>fechaCiclo</td><td>2026-07-20</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../03-modelo-conceptual/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 03 · Modelo Conceptual</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../05-modelo-decision/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">05 · Modelo de Decisión →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

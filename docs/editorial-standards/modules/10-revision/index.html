@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10 · Revisión — Editorial Standards</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="revision" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 10 · Garantías</p>
+<h1>Revisión</h1>
+<p class="lede">Revisión técnica, editorial, científica y de dominio. El barrido devuelve <strong>cero para las cuatro</strong>. Este módulo documenta la ausencia, identifica lo que ocupa su lugar y explica por qué es la deuda más consecuente del flujo editorial.</p>
+
+<h2 id="barrido">Resultado del barrido</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tipo de revisión</th><th>Archivos</th><th>Veredicto</th></tr></thead>
+<tbody>
+<tr><td><strong>Revisión técnica</strong></td><td><strong>0</strong></td><td><span class="tag tag--futuro">no existe</span></td></tr>
+<tr><td><strong>Revisión científica</strong></td><td><strong>0</strong></td><td><span class="tag tag--futuro">no existe</span></td></tr>
+<tr><td><strong>Revisión editorial</strong></td><td><strong>0</strong> como proceso nombrado</td><td><span class="tag tag--futuro">no existe</span></td></tr>
+<tr><td><strong>Revisión de dominio</strong></td><td><strong>0</strong></td><td><span class="tag tag--futuro">no existe</span></td></tr>
+<tr><td><code>revisor</code></td><td><strong>0</strong></td><td><span class="tag tag--futuro">no existe el rol</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Deuda ED-D04 — no existe ningún proceso de revisión</div>
+  <p>Ni el tipo, ni el rol, ni el momento en que ocurre, ni qué la dispara, ni qué produce. Este handbook <strong>no inventa las cuatro revisiones</strong>: definirlas aquí crearía cuatro procesos que nadie ha acordado y cuatro responsabilidades que nadie ha aceptado.</p>
+</div>
+
+<h2 id="sustituto">Lo que ocupa su lugar</h2>
+<p>Sin proceso de revisión, el ecosistema depende de tres mecanismos que verifican <em>algo</em> pero no equivalen a una revisión:</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Mecanismo</th><th>Qué verifica</th><th>Qué NO verifica</th><th>Cuándo actúa</th></tr></thead>
+<tbody>
+<tr><td><strong>Validación estructural</strong></td><td>Forma: vocabularios, cardinalidades, ciclos, referencias</td><td>Nada del contenido — una clasificación equivocada la pasa entera</td><td>Automática, en cada cambio</td></tr>
+<tr><td><strong>Validación de contenido</strong></td><td>Que el valor sea correcto</td><td>—</td><td><span class="tag tag--futuro">sin proceso ni responsable declarados</span></td></tr>
+<tr><td><strong>Cola editorial</strong></td><td>Defectos <em>ya en producción</em>, detectados por fallo de resolución</td><td>Errores que no producen fallo — los peligrosos</td><td>A posteriori, reactiva</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">El problema estructural</div>
+  <p>La validación estructural es <strong>preventiva pero ciega al contenido</strong>. La cola editorial es <strong>sensible al contenido pero reactiva</strong>: solo detecta lo que llega a fallar. Entre ambas queda un hueco — <strong>los errores de contenido que no producen fallo</strong>: una zona de riesgo etiquetada como <code>medio</code> cuando es <code>alto</code>, un rol mal asignado, una cadena en orden incorrecto. Ninguno hace fallar nada; todos llegan al usuario. Ese hueco es exactamente lo que un proceso de revisión existiría para cubrir.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Los dos mecanismos existentes y el hueco entre ellos</div>
+<pre class="mermaid">
+graph LR
+  E["Entrada"] --> V["Validación estructural<br/>✅ preventiva<br/>❌ ciega al contenido"]
+  V --> P["Producción"]
+  P --> F{"¿Produce fallo<br/>de resolución?"}
+  F -- Sí --> C["Cola editorial<br/>⚠ reactiva"]
+  F -- No --> U["Llega al usuario<br/>⛔ HUECO SIN COBERTURA"]
+  C --> E
+</pre>
+</div>
+
+<h2 id="exigencia">Lo que sí está exigido, sin proceso que lo cumpla</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Exigencia documentada</th><th>Fuente</th><th>¿Proceso que la cumpla?</th></tr></thead>
+<tbody>
+<tr><td>"La estructura la valida ingeniería"</td><td>Regla 4 de la cadena</td><td>✅ Sí — validación automática</td></tr>
+<tr><td>"El orden lo autoriza criterio de entrenador"</td><td>Regla 4 de la cadena</td><td>❌ No hay proceso de autorización</td></tr>
+<tr><td>"Exige etiquetado con criterio biomecánico"</td><td>Trade-off de zonas de riesgo</td><td>❌ No hay proceso de verificación</td></tr>
+<tr><td>Ninguna entrada sin autorización humana</td><td>P14 · ED-01</td><td>❌ No hay acto de aprobación</td></tr>
+<tr><td>Corregir el código ante divergencia con el handbook</td><td>"El handbook manda"</td><td>❌ Nada detecta la divergencia</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Cuatro exigencias sin proceso</div>
+  <p>El ecosistema es explícito sobre <em>qué</em> debe verificarse con criterio humano —lo dice cuatro veces, con distintas palabras— y no define <strong>ni una sola vez</strong> cómo, cuándo ni quién. Es la misma forma de la brecha central del handbook: <strong>la exigencia existe, el aparato no</strong>.</p>
+</div>
+
+<h2 id="deriva">El caso especial: detección de deriva</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">ED-D07 — la regla mejor formulada del ecosistema no tiene disparador</div>
+  <p>"Cuando el código y este documento difieran, el código está mal — se corrige el código o se actualiza el handbook mediante un ADR nuevo, <strong>nunca por deriva silenciosa</strong>." La regla especifica quién gana, qué hacer y qué está prohibido. Lo que no especifica es <strong>quién comprueba si hay divergencia, cada cuánto y con qué método</strong>. Una regla contra la deriva silenciosa que no se verifica periódicamente es, precisamente, silenciosa.</p>
+</div>
+
+<h2 id="requisitos">Qué haría falta para cerrar ED-D04</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Elemento</th><th>Depende de</th></tr></thead>
+<tbody>
+<tr><td>Qué tipos de revisión existen y qué cubre cada uno</td><td>Decisión documental</td></tr>
+<tr><td>Quién las ejecuta</td><td>ED-D02 — no existen roles</td></tr>
+<tr><td>Cuándo se disparan (creación, cambio, periódica)</td><td>ED-D01 — sin estados no hay "en revisión"</td></tr>
+<tr><td>Qué producen (aprobación, rechazo, observaciones)</td><td>ED-D01 · ED-D05</td></tr>
+<tr><td>Dónde se registra el resultado</td><td>ED-D08 — no hay soporte de trazabilidad</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">La revisión es la deuda que depende de todas las demás</div>
+  <p>Los cinco requisitos apuntan a otras deudas: roles, estados, aprobación y trazabilidad. No es una deuda aislada que pueda saldarse por su cuenta — <strong>es la que se resuelve al final</strong>, cuando las otras cuatro ya lo estén. Ese orden importa para el roadmap del módulo <a href="../17-roadmap/index.html">17</a>.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../09-control-calidad/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 09 · Control de Calidad</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../11-conflictos/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">11 · Conflictos →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

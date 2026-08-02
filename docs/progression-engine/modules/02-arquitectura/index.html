@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>02 · Arquitectura — Progression Engine Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="arquitectura" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 02 · Fundamentos</p>
+<h1>Arquitectura</h1>
+<p class="lede">El motor como caja: qué entra, cómo se procesa, qué sale, de qué depende, sus límites duros, y el mapa de las 7 matrices de trazabilidad que este handbook exige, distribuidas en los módulos donde tienen más sentido.</p>
+
+<h2 id="diagrama">Diagrama de arquitectura completo</h2>
+<div class="diagram">
+<div class="diagram-label">El Progression Engine como función pura invocada por el Motor BPS</div>
+<pre class="mermaid">
+graph TD
+  subgraph ENTRADA["Entrada (04)"]
+    VEN["Ventana de historial<br/>(workout_logs reales)"]
+    PRE["Prescripción vigente"]
+    VER["Veredicto de Recovery"]
+    CAT["Cadenas + capacidades (catálogo)"]
+    FEC["Fecha del ciclo"]
+  end
+  subgraph PE["PROGRESSION ENGINE (06 Pipeline)"]
+    V["Validación"] --> N["Normalización"] --> E["Evaluación"] --> RC["Resolución de conflictos"] --> AP["Aplicación"]
+  end
+  subgraph SALIDA["Salida"]
+    MIC["Ajuste micro (08)"]
+    MAC["Decisión macro (09)"]
+    EST["Señal de estancamiento (11)"]
+    EVT["Eventos con razón"]
+  end
+  ENTRADA --> PE
+  PE --> SALIDA
+  SALIDA -->|"consume"| MB["Motor BPS<br/>(aplica transición)"]
+  SALIDA -->|"consume"| WG["Workout Generator<br/>(recibe prescripción)"]
+</pre>
+</div>
+
+<h2 id="procesamiento">Los dos modos de procesamiento</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Modo</th><th>Cadencia</th><th>Qué produce</th></tr></thead>
+<tbody>
+<tr><td><strong>Micro</strong></td><td>Por aparición de un ejercicio (dentro del ciclo semanal del Motor BPS, no por sesión aislada — ver 08)</td><td>Ajuste de peso/reps/tempo/descanso/RPE-objetivo/RIR/duración/volumen/densidad para la próxima vez que ese slot se resuelva</td></tr>
+<tr><td><strong>Macro</strong></td><td>Al cierre de cada Microciclo, sobre ventana móvil (09)</td><td>Avanza / sostiene / retrocede un escalón de la jerarquía (cadena → Microciclo → Mesociclo → Bloque → Nivel)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="dependencias">Dependencias</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Depende de</th><th>Para qué</th></tr></thead>
+<tbody>
+<tr><td>Motor BPS</td><td>Invocación con ventana ya leída, prescripción vigente, veredicto de Recovery y fecha (BPS-022) — el motor no hace I/O propio</td></tr>
+<tr><td>Recovery Engine</td><td>Veredicto {si, tipo, razón} — entrada obligatoria, consultada primero por el orquestador (P8), nunca por este motor directamente</td></tr>
+<tr><td>Knowledge Base</td><td>Cadenas de progresión y capacidades — el motor decide "avanza un eslabón", la KB resuelve a qué ejercicio corresponde ese eslabón</td></tr>
+<tr><td>Training Framework</td><td>La estructura de la jerarquía (qué Mesociclo sigue a cuál, qué Nivel sigue a cuál) contra la que se aplica un avance macro</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Quién depende de este motor:</strong> el Motor BPS (aplica sus decisiones como transiciones de estado) y el Workout Generator (consume la prescripción resultante). Nadie más — ni el Player ni la Knowledge Base lo conocen.</p>
+
+<h2 id="limites">Límites</h2>
+<ul>
+  <li><strong>Temporal:</strong> corre solo cuando el orquestador lo invoca — no observa continuamente, no tiene proceso propio en segundo plano.</li>
+  <li><strong>De conocimiento:</strong> no conoce ejercicios con nombre, no conoce fisiología de fatiga/dolor/sueño, no conoce el catálogo comercial de Sistemas.</li>
+  <li><strong>De escritura:</strong> no escribe nada directamente — devuelve DTOs; el Motor BPS es quien persiste transiciones y eventos.</li>
+</ul>
+
+<h2 id="invariantes">Invariantes</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>ID</th><th>Invariante</th></tr></thead>
+<tbody>
+<tr><td>IN-P1</td><td>El motor es una función pura: mismas entradas → misma salida, sin I/O propio</td></tr>
+<tr><td>IN-P2</td><td>El veredicto de Recovery, si exige descarga, es terminal — el resto del pipeline (06) no se ejecuta ese ciclo salvo el registro del hecho</td></tr>
+<tr><td>IN-P3</td><td>Ninguna decisión macro se toma sobre una ventana de menos de 4 sesiones registradas (mínimo estadístico de producto, 🟠)</td></tr>
+<tr><td>IN-P4</td><td>El motor nunca referencia un ejercicio por nombre — solo Patrón×Rol y posición en cadena</td></tr>
+<tr><td>IN-P5</td><td>Toda salida trae razón + contexto (valores exactos que la produjeron)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="matrices">Mapa de las 7 matrices de trazabilidad</h2>
+<p>Distribuidas en el módulo donde su consulta es más natural — todas existen, ninguna se omite.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Matriz</th><th>Vive en</th></tr></thead>
+<tbody>
+<tr><td>Regla → Pipeline</td><td><a href="../06-pipeline/index.html#matriz-regla-pipeline">06 · Pipeline</a></td></tr>
+<tr><td>Decisión → Evidencia</td><td><a href="../06-pipeline/index.html#matriz-decision-evidencia">06 · Pipeline</a></td></tr>
+<tr><td>Input → Regla</td><td><a href="../07-reglas-negocio/index.html#matriz-input-regla">07 · Reglas de Negocio</a></td></tr>
+<tr><td>Regla → Salida</td><td><a href="../07-reglas-negocio/index.html#matriz-regla-salida">07 · Reglas de Negocio</a></td></tr>
+<tr><td>Pipeline → Evento</td><td><a href="../13-integracion/index.html#matriz-pipeline-evento">13 · Integración</a></td></tr>
+<tr><td>Evento → Consumidor</td><td><a href="../13-integracion/index.html#matriz-evento-consumidor">13 · Integración</a></td></tr>
+<tr><td>Error → Recuperación</td><td><a href="../14-observabilidad/index.html#matriz-error-recuperacion">14 · Observabilidad</a></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../01-filosofia/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 01 · Filosofía</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../03-modelo-conceptual/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">03 · Modelo Conceptual →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

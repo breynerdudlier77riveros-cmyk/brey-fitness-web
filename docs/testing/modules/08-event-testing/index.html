@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>08 · Event Testing — BREY Testing Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="event-testing" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 08 · Niveles</p>
+<h1>Event Testing</h1>
+<p class="lede"><code>progression_events</code> — replay determinista, idempotencia, y el gap real de <code>contexto</code> (AR-013/AR-026) documentado como requisito de testing, nunca resuelto aquí.</p>
+
+<h2 id="matriz-evento-verificacion">Matriz Evento → Verificación (por productor)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Productor (<code>origen</code>)</th><th>Qué se verifica en cada tipo que emite</th><th>Nivel</th></tr></thead>
+<tbody>
+<tr><td><code>motor_bps</code></td><td>El evento corresponde exactamente a la transición T1-T15 que lo originó (07); <code>razones</code> nunca vacío</td><td><span class="level level--integration">integration</span></td></tr>
+<tr><td><code>progression_engine</code></td><td>El evento refleja la Decisión producida por el pipeline puro (06) con la misma entrada</td><td><span class="level level--unit">unit</span> (generación) + <span class="level level--integration">integration</span> (persistencia)</td></tr>
+<tr><td><code>recovery_engine</code></td><td>El evento solo se emite cuando <code>procede: true</code> (<code>descarga_reactiva</code>) — nunca cuando <code>procede: false</code></td><td><span class="level level--unit">unit</span></td></tr>
+<tr><td><code>workout_generator</code></td><td><code>semana_generada</code> registra la versión de catálogo exacta usada (determinismo, 03)</td><td><span class="level level--integration">integration</span></td></tr>
+<tr><td><code>usuario</code></td><td><code>override_usuario</code> registra la justificación del usuario, nunca vacía</td><td><span class="level level--integration">integration</span></td></tr>
+<tr><td><code>coach</code></td><td>Ningún tipo de evento real existe para este productor (AR-011) — no hay caso que probar; un test que intente insertar con <code>origen = coach</code> hoy no tiene <code>tipo</code> válido que usar</td><td>No aplica</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="check-gap">El gap del CHECK — 14 reales, 25 consolidados</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Prerrequisito de testing — no un caso de test en sí</div>
+  <p>El CHECK real de <code>progression_events.tipo</code> tiene 14 valores hoy; 11 de los 25 consolidados (Database Handbook, DB-ADR-03) dependen de la migración M2 todavía no aplicada. <strong>Ningún test de <span class="level level--integration">integration</span> de un evento de esos 11 tipos puede ejecutarse hasta que M2 se aplique</strong> — se especifican aquí como <span class="level level--bloqueado">bloqueado</span>, no se omiten ni se simulan contra un CHECK que no es el real.</p>
+</div>
+
+<h2 id="replay-testing">Replay determinista — cómo se prueba</h2>
+<div class="diagram">
+<div class="diagram-label">Un test de replay nunca ejecuta lógica de negocio — solo reconstruye desde el log</div>
+<pre class="mermaid">
+flowchart LR
+  FIX["Fixture: secuencia conocida<br/>de EventoProgresión"] --> RC["Recomputar estado<br/>(IN-5, orden por created_at)"]
+  RC --> CMP{"¿Coincide con el<br/>estado esperado?"}
+  CMP -->|"Sí"| PASS["Test pasa"]
+  CMP -->|"No"| FAIL["Test falla — replay no es determinista"]
+</pre>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Fixture</th><th>Resultado esperado</th></tr></thead>
+<tbody>
+<tr><td>Replay simple</td><td>Secuencia: <code>activacion</code> → <code>avanza</code> → <code>avanza</code></td><td>Estado recomputado = Nivel avanzado dos veces desde el nivel de entrada</td></tr>
+<tr><td>Replay con descarga</td><td>Secuencia incluye <code>descarga_reactiva</code> entre dos <code>avanza</code></td><td>El multiplicador de volumen se refleja solo en el ciclo de la descarga, nunca después</td></tr>
+<tr><td>Divergencia puntero↔log</td><td>Puntero materializado manipulado directamente (fixture corrupta a propósito)</td><td>El replay gana — el estado recomputado ignora el puntero corrupto (01, MBPS-ADR-01)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="idempotencia-eventos">Idempotencia — gap real, no inventado (AR-027)</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Sin clave de idempotencia especificada para el INSERT de un evento</div>
+  <p>Ningún handbook de origen define una clave de idempotencia para el <code>INSERT</code> de un <code>EventoProgresión</code> individual (Database Handbook, 10; AR-027). Este documento no inventa una — especifica que, hasta que exista, <strong>todo test de reintento de red sobre este <code>INSERT</code> debe documentarse como caso conocido sin cobertura posible</strong>, nunca como "ya probado" mediante una clave asumida.</p>
+</div>
+
+<h2 id="contexto-gap-testing">El gap de <code>contexto</code> — AR-013 y AR-026, documentados sin resolver</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Por qué esto bloquea una clase entera de test, no un caso aislado</div>
+  <p><code>contexto</code> (jsonb) existe para habilitar el replay determinista, pero ningún handbook define su forma exacta por tipo de evento (AR-013). Sin ese esquema, <strong>no existe manera de escribir un test que verifique "este <code>contexto</code> es suficiente para reconstruir la decisión"</strong> — solo se puede verificar que el campo no está vacío, nunca que está completo (AR-026, ángulo de observabilidad). Este documento especifica exactamente qué se debe poder probar el día que el esquema exista (tabla abajo) — no lo inventa antes de tiempo.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Qué se podrá probar cuando el esquema de <code>contexto</code> exista</th><th>Nivel</th><th>Estado hoy</th></tr></thead>
+<tbody>
+<tr><td>Todo evento de un tipo dado tiene las mismas claves en <code>contexto</code>, nunca un subconjunto distinto entre dos instancias del mismo <code>tipo</code></td><td><span class="level level--integration">integration</span></td><td><span class="level level--bloqueado">bloqueado</span></td></tr>
+<tr><td>El replay de una decisión usando solo <code>contexto</code> (sin volver a leer <code>workout_logs</code>) produce el mismo resultado que el replay completo</td><td><span class="level level--integration">integration</span></td><td><span class="level level--bloqueado">bloqueado</span></td></tr>
+<tr><td>Un evento con <code>contexto</code> insuficiente para su tipo es rechazado antes del <code>INSERT</code>, no silenciosamente aceptado</td><td><span class="level level--unit">unit</span> (validador) + <span class="level level--integration">integration</span></td><td><span class="level level--bloqueado">bloqueado</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="eventos-bcs">Los 10 eventos del BCS — verificación por efecto, no por fila propia</h2>
+<p>A diferencia de <code>progression_events</code>, los eventos del BCS (Database Handbook, 08) no tienen tabla de eventos propia — se verifican por su efecto persistido (ej. <code>cliente_archivado</code> se verifica comprobando que <code>bcs_clientes.estado = 'archivado'</code>, no leyendo una fila de evento). Ver 06 (BCS → Casos) para el detalle por caso de uso.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../07-fsm-testing/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 07 · FSM Testing</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../09-database-testing/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">09 · Database Testing →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

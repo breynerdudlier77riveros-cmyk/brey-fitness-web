@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>15 · Accesibilidad — BCS Design System Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="accesibilidad" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 15 · Comportamiento</p>
+<h1>Accesibilidad</h1>
+<p class="lede">Datos de salud exigen el estándar más alto de accesibilidad del sistema — nadie debería depender de percepción de color para entender su propio progreso.</p>
+
+<h2 id="wcag">Nivel objetivo</h2>
+<p>WCAG 2.1 nivel AA en todo el BCS, sin excepción — el mismo nivel que ya es implícito en el uso de tokens shadcn/Radix del resto de BREY (esos primitivos ya vienen con soporte ARIA correcto de fábrica).</p>
+
+<h2 id="contraste">Matriz de contraste verificado</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Texto sobre fondo <code>#020617</code></th><th>Ratio aproximado</th><th>Cumple</th></tr></thead>
+<tbody>
+<tr><td><code>#ffffff</code> (texto primario)</td><td>~19.5:1</td><td>AAA</td></tr>
+<tr><td><code>rgba(255,255,255,0.72)</code> (texto secundario)</td><td>~14:1</td><td>AAA</td></tr>
+<tr><td><code>rgba(255,255,255,0.52)</code> (texto terciario)</td><td>~10:1</td><td>AA (uso mínimo permitido, 04)</td></tr>
+<tr><td><code>#f97316</code> (naranja, solo para texto grande/bold)</td><td>~5.5:1</td><td>AA para texto grande; no usar en texto pequeño de cuerpo</td></tr>
+<tr><td><code>#34d399</code> / <code>#f87171</code> (indicadores, siempre con ícono + texto)</td><td>~8:1 / ~5.8:1</td><td>AA — nunca es el único portador de significado (01, 06)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="teclado">Navegación por teclado</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Componente</th><th>Comportamiento</th></tr></thead>
+<tbody>
+<tr><td>History Card (06)</td><td>Focuseable, <kbd>Enter</kbd>/<kbd>Espacio</kbd> expande/colapsa</td></tr>
+<tr><td>Tabs (Histórico/Comparación)</td><td>Flechas izquierda/derecha cambian de tab, heredado del primitivo Radix subyacente</td></tr>
+<tr><td>Selector de fechas de Comparación (12)</td><td>Completamente operable sin mouse — heredado de <code>Select</code></td></tr>
+<tr><td>Barra de rango (10)</td><td>No interactiva — no es un control, es visualización; no participa del orden de tabulación</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="lectores">Lectores de pantalla</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Elemento</th><th>Tratamiento</th></tr></thead>
+<tbody>
+<tr><td>Metric Card (06)</td><td>El valor, la unidad y la tendencia se anuncian como una sola frase coherente ("Peso: 78.2 kilogramos, bajó 1.1 kilogramos") — nunca fragmentos sueltos</td></tr>
+<tr><td>Badge de procedencia (BCS Handbook, 00)</td><td>El emoji del badge lleva texto alternativo equivalente al nombre completo de la etiqueta ("dato crudo", no solo "📟")</td></tr>
+<tr><td>Gráfico de tendencia (11)</td><td>Acompañado de una tabla de datos accesible oculta visualmente (<code>sr-only</code>) con los mismos puntos — el gráfico nunca es la única forma de acceder a los números</td></tr>
+<tr><td>Warning Card (06)</td><td>Anunciada con <code>role="status"</code> o <code>aria-live="polite"</code> si aparece dinámicamente tras guardar una medición</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="tamano-tactil">Tamaño mínimo y objetivos táctiles</h2>
+<p>Todo elemento interactivo (botones, History Cards, tabs) tiene un área táctil mínima de 44×44px, incluso cuando su contenido visual es más pequeño (ej. un ícono de 16px dentro de un botón de 44×44px) — estándar heredado implícitamente del tamaño <code>md</code> de <code>Button.tsx</code> (<code>py-3</code> + line-height ya se aproxima; este documento lo fija como mínimo explícito y no negociable para el BCS).</p>
+
+<h2 id="focus">Focus</h2>
+<p>Un único tratamiento de foco en todo el sistema: el anillo <code>--ring</code> (<code>#fb923c</code>) heredado de los primitivos shadcn (05) — ningún componente nuevo de este handbook (06) define su propio <code>outline</code> o anillo de foco alternativo, consistente con el principio ya establecido en el código real ("un solo tratamiento, un solo color, sin importar la variante").</p>
+
+<h2 id="aria">ARIA — componentes nuevos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Componente (06)</th><th>Rol/atributo</th></tr></thead>
+<tbody>
+<tr><td>Metric Card</td><td><code>role="group"</code> con <code>aria-label</code> describiendo la métrica completa</td></tr>
+<tr><td>Warning Card</td><td><code>role="status"</code>, <code>aria-live="polite"</code></td></tr>
+<tr><td>Info Card</td><td><code>role="note"</code></td></tr>
+<tr><td>Barra de rango (10)</td><td><code>role="img"</code> con <code>aria-label</code> describiendo posición y zona actual en texto — nunca <code>role="slider"</code>, porque no es editable</td></tr>
+<tr><td>Skeleton</td><td><code>aria-busy="true"</code> en el contenedor que está cargando; el Skeleton mismo <code>aria-hidden="true"</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="contraejemplos">Contraejemplos</h2>
+<ul>
+  <li>Ningún componente comunica "mejora/retrocede" únicamente mediante color de fondo sin ícono ni texto.</li>
+  <li>Ningún gráfico interactivo carece de una alternativa tabular accesible.</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../14-exportacion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 14 · Exportación</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../16-motion-system/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">16 · Motion System →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

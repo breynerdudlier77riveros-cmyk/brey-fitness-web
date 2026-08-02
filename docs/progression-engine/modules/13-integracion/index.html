@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>13 · Integración — Progression Engine Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="integracion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 13 · Sistema</p>
+<h1>Integración</h1>
+<p class="lede">Cómo este motor se conecta con el resto de BREY — quién lo invoca, a quién consulta indirectamente, quién consume su salida, y qué NO conoce directamente.</p>
+
+<h2 id="objetivo">Objetivo</h2>
+<p>Que el contrato de integración de este motor con cada sistema vecino esté completamente especificado, sin zonas grises sobre quién inicia la comunicación.</p>
+
+<h2 id="tabla-integracion">Puntos de integración</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Sistema</th><th>Relación</th><th>Dirección</th></tr></thead>
+<tbody>
+<tr><td><strong>Motor BPS</strong></td><td>Orquestador — invoca este motor con las 5 entradas ya resueltas (04), aplica sus decisiones como transiciones/persistencia</td><td>Motor BPS → este motor → Motor BPS</td></tr>
+<tr><td><strong>Recovery Engine</strong></td><td>Precede a este motor en la cadena de invocación — este motor nunca lo consulta directamente, solo recibe su Veredicto ya resuelto</td><td>Recovery → Motor BPS → este motor (indirecta)</td></tr>
+<tr><td><strong>Workout Generator</strong></td><td>Consumidor directo de la Prescripción vigente resultante</td><td>Este motor → Workout Generator (vía Motor BPS)</td></tr>
+<tr><td><strong>Workout Player</strong></td><td>Ninguna relación directa — el Player ejecuta lo que el Generator ya construyó</td><td>N/A</td></tr>
+<tr><td><strong>Knowledge Base</strong></td><td>Fuente de cadenas de progresión y capacidades (entrada 4, módulo 04) — este motor lee posición en cadena, nunca contenido de eslabones</td><td>Knowledge Base → este motor</td></tr>
+<tr><td><strong>Diagnóstico</strong></td><td>Ninguna relación directa — el Diagnóstico alimenta activación (Motor BPS), no progresión</td><td>N/A</td></tr>
+<tr><td><strong>Repositorio / Base de datos</strong></td><td>Ninguna — este motor no hace I/O propio (IN-P1); toda persistencia la realiza el Motor BPS con los DTOs que este motor produce</td><td>N/A directa</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="secuencia">Diagrama de secuencia — un ciclo completo</h2>
+<div class="diagram">
+<div class="diagram-label">Invocación real end-to-end</div>
+<pre class="mermaid">
+sequenceDiagram
+  participant MB as Motor BPS
+  participant RE as Recovery Engine
+  participant PE as Progression Engine
+  participant KB as Knowledge Base
+  participant WG as Workout Generator
+  MB->>RE: consulta veredicto (BPS-007)
+  RE-->>MB: Veredicto {procede, tipo, razon}
+  MB->>KB: lee cadenas + posición actual
+  KB-->>MB: catálogo read-only
+  MB->>PE: invoca(ventana, prescripción, veredicto, cadenas, fecha)
+  PE->>PE: pipeline de 9 pasos (06)
+  PE-->>MB: Decisión (micro y/o macro) + evento
+  MB->>MB: persiste transición + evento (14/15)
+  MB->>WG: nueva Prescripción vigente
+</pre>
+</div>
+
+<h2 id="matriz-pipeline-evento">Matriz Pipeline → Evento</h2>
+<p class="matrix-note">Qué paso del pipeline (06) puede originar qué tipo de evento.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Paso del pipeline</th><th>Evento que puede originar</th></tr></thead>
+<tbody>
+<tr><td>2. Validación</td><td><code>error_invocacion</code></td></tr>
+<tr><td>4. Evaluación</td><td><code>candidatas_evaluadas</code> (interno, solo para replay — no expuesto fuera del motor)</td></tr>
+<tr><td>5. Resolución de conflictos</td><td><code>conflicto_resuelto</code> (contexto: qué regla ganó y por qué)</td></tr>
+<tr><td>6. Aplicación</td><td><code>prescripcion_actualizada</code>, <code>escalon_avanzado</code>, <code>escalon_retrocedido</code></td></tr>
+<tr><td>4/5 (rama estancamiento)</td><td><code>estancamiento_confirmado</code>, <code>estancamiento_resuelto</code></td></tr>
+<tr><td>6 (rama deload)</td><td><code>deload_aplicado</code>, <code>deload_cancelado</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="matriz-evento-consumidor">Matriz Evento → Consumidor</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Evento</th><th>Consumidor</th></tr></thead>
+<tbody>
+<tr><td><code>prescripcion_actualizada</code></td><td>Workout Generator, Observabilidad (14)</td></tr>
+<tr><td><code>escalon_avanzado</code> / <code>escalon_retrocedido</code></td><td>Motor BPS (persiste puntero), Observabilidad</td></tr>
+<tr><td><code>estancamiento_confirmado</code> / <code>estancamiento_resuelto</code></td><td>Observabilidad, futura capa de notificación al usuario (fuera de alcance)</td></tr>
+<tr><td><code>deload_aplicado</code> / <code>deload_cancelado</code></td><td>Workout Generator, Observabilidad</td></tr>
+<tr><td><code>error_invocacion</code></td><td>Observabilidad, alertas de integridad (14)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="no-alcance">No alcance</h2>
+<p>El esquema físico de las tablas donde el Motor BPS persiste estos eventos vive en 15. La reacción de la capa de presentación a un evento vive fuera de este handbook (dominio de producto/UI).</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../12-deload/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 12 · Deload</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../14-observabilidad/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">14 · Observabilidad →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

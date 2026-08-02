@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03 · Identidad — Exercise Taxonomy Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="identidad" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 03 · El ejercicio</p>
+<h1>Identidad</h1>
+<p class="lede">Qué identifica a un ejercicio de forma permanente, qué puede cambiar sin romper nada, y por qué el nombre — lo único que ve el usuario — es precisamente lo que menos autoridad tiene.</p>
+
+<h2 id="slug">Slug — el identificador</h2>
+<div class="table-wrap">
+<table>
+<tbody>
+<tr><td><strong>Definición</strong></td><td>Identificador textual estable y único de un ejercicio dentro del catálogo.</td></tr>
+<tr><td><strong>Obligatorio</strong></td><td>Sí — sin slug no hay entrada de catálogo.</td></tr>
+<tr><td><strong>Mutabilidad</strong></td><td><strong>Inmutable de por vida.</strong> Nace con el ejercicio y sobrevive a todo cambio de nombre, clasificación o disponibilidad.</td></tr>
+<tr><td><strong>Estado en el catálogo actual</strong></td><td><span class="tag tag--implementado">existe</span> — Architecture Handbook 04 lo marca "Existe"</td></tr>
+<tr><td><strong>Respaldo</strong></td><td>P15 · Architecture Handbook 04: "Slug estable desde el nacimiento (P15)"</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Regla de identidad</div>
+  <p>Cambiar el slug de un ejercicio equivale a <strong>borrar uno y crear otro</strong>. Todo lo que lo referencia — cadenas de progresión, Workouts ya generados con la copia desnormalizada, eventos históricos — queda apuntando a una identidad que dejó de existir. Si un slug está mal escrito, la corrección honesta es crear el ejercicio correcto y retirar el anterior, no renombrar en sitio.</p>
+</div>
+
+<h3 id="slugs-reservados">Slugs reservados</h3>
+<p>El ecosistema admite fijar identidad <em>antes</em> de tener contenido. Los patrones <code>locomocion</code> y <code>rotacion-potencia</code> existen como slugs reservados sin ejercicios asociados, precisamente para que activarlos más adelante sea "cero cambio estructural". El mismo mecanismo es válido para ejercicios: reservar el slug fija la identidad futura y evita que se ocupe con otro significado.</p>
+
+<h2 id="nombre">Nombre y nombre en inglés</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Atributo</th><th>Obligatorio</th><th>Mutabilidad</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td><code>nombre</code></td><td>Sí</td><td>Mutable por decisión editorial — no afecta la identidad</td><td><span class="tag tag--implementado">existe</span></td></tr>
+<tr><td><code>nombreIngles</code></td><td>No</td><td>Mutable</td><td><span class="tag tag--implementado">existe</span></td></tr>
+</tbody>
+</table>
+</div>
+<p>El nombre es <strong>presentación</strong>, no identidad. Es lo que el Player muestra y lo que el usuario reconoce, y por eso puede corregirse libremente: "Press de Banca con Barra" puede pasar a "Press Banca (barra)" sin que ningún motor, cadena o Workout histórico se entere. Esta asimetría es deliberada — permite mejorar la redacción del catálogo sin coste técnico.</p>
+
+<h2 id="alias">Alias</h2>
+<div class="table-wrap">
+<table>
+<tbody>
+<tr><td><strong>Estado documental</strong></td><td><span class="tag tag--futuro">deuda documental</span></td></tr>
+<tr><td><strong>Resultado del barrido</strong></td><td>El término <code>alias</code> aparece en 2 documentos: API Contract Handbook 01 ("alias del mismo concepto", sobre nomenclatura de API) y Engineering Handbook 13 (convenciones de código). <strong>Ninguna de las dos apariciones se refiere a ejercicios.</strong></td></tr>
+<tr><td><strong>Conclusión</strong></td><td>No existe un atributo <code>alias</code> de Ejercicio en ninguna fuente. Este handbook no lo define.</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Por qué importa que falte</div>
+  <p>Un catálogo sin alias no puede resolver búsquedas por sinónimo ("dominadas" / "pull-ups" / "chin-ups") ni desambiguar nombres regionales. El precursor más cercano que sí existe es <code>nombreIngles</code>, que cubre exactamente un sinónimo y solo en un idioma. Registrado como <a href="../16-preguntas-abiertas/index.html">TX-Q01</a>.</p>
+</div>
+
+<h2 id="jerarquia-identidad">Jerarquía de identidad</h2>
+<div class="diagram">
+<div class="diagram-label">Del identificador inmutable a la presentación mutable</div>
+<pre class="mermaid">
+graph TD
+  S["slug<br/><i>inmutable de por vida</i>"] --> N["nombre<br/><i>mutable, presentación</i>"]
+  S --> NI["nombreIngles<br/><i>mutable, opcional</i>"]
+  S --> A["alias[]<br/><i>NO EXISTE — deuda TX-Q01</i>"]
+  S --> C["clasificación completa<br/><i>mutable por criterio editorial</i>"]
+  S --> R["referencias externas:<br/>cadenas · Workouts · eventos"]
+</pre>
+</div>
+
+<h2 id="unicidad">Unicidad y colisiones</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Regla</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>El slug es único dentro del catálogo de ejercicios</td><td>Implícito en su función de identificador; ninguna fuente lo enuncia como constraint explícito</td></tr>
+<tr><td>El slug de ejercicio y el slug de patrón viven en espacios de nombres distintos</td><td>Se deduce de que ambos son vocabularios separados, pero <strong>ninguna fuente lo declara</strong> — ver <a href="../15-adr/index.html">TX-ADR-04</a></td></tr>
+<tr><td>Dos ejercicios no pueden compartir nombre</td><td><strong>No especificado</strong> en ninguna fuente — el nombre no es identidad, así que la colisión de nombres es legal aunque confusa</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="decision">Árbol de decisión — ¿es el mismo ejercicio?</h2>
+<div class="diagram">
+<div class="diagram-label">Cuándo corregir en sitio y cuándo crear una entrada nueva</div>
+<pre class="mermaid">
+flowchart TD
+  Q1{"¿Cambia el movimiento<br/>ejecutado?"} -->|Sí| NEW["Ejercicio NUEVO<br/>slug nuevo"]
+  Q1 -->|No| Q2{"¿Cambia el patrón<br/>primario?"}
+  Q2 -->|Sí| REV["Revisar: si el patrón cambia,<br/>probablemente era otro ejercicio<br/>→ decisión editorial"]
+  Q2 -->|No| Q3{"¿Cambia solo el nombre,<br/>la ficha o la clasificación<br/>secundaria?"}
+  Q3 -->|Sí| SAME["MISMO ejercicio<br/>slug intacto · versión de catálogo nueva"]
+  Q3 -->|No| SAME
+</pre>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../02-ontologia-ejercicio/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 02 · Ontología del Ejercicio</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../04-clasificacion/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">04 · Clasificación →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

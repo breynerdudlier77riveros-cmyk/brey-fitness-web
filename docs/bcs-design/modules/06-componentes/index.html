@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>06 · Componentes — BCS Design System Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="componentes" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 06 · Componentes y pantallas</p>
+<h1>Componentes</h1>
+<p class="lede">BREY ya tiene 18 componentes de marca reutilizables. El BCS no los reemplaza — compone 7 componentes nuevos específicos del dominio a partir de ellos, y documenta cómo usa los heredados.</p>
+
+<h2 id="nuevos">Componentes nuevos de este dominio</h2>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">BCS-C01</span><span class="speccard__badges"><span class="tag tag--nuevo">nuevo</span></span></div>
+<h3>Metric Card</h3>
+<dl>
+<dt>Composición</dt><dd>Compone <code>Card</code> heredado (rounded-2xl, border white/[0.07]) + valor numérico en tabular figures (04) + badge de tendencia (Indicador, BCS-C07) + badge de procedencia (BCS Handbook, 00)</dd>
+<dt class="half">Contenido</dt><dd class="half">Nombre de variable, valor + unidad, delta vs. medición anterior, badge de procedencia</dd>
+<dt class="half">Interactividad</dt><dd class="half">No clicable por defecto — es de solo lectura; usa <code>cardStyles.base</code>, nunca <code>.interactive</code></dd>
+<dt>Cuándo se usa</dt><dd>Grid de 3 columnas en el Dashboard (07) y en el Reporte (09)</dd>
+<dt>Contraejemplo</dt><dd>Nunca muestra un valor numérico sin unidad ni badge de procedencia (04, 01 Claridad)</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">BCS-C02</span><span class="speccard__badges"><span class="tag tag--nuevo">nuevo</span></span></div>
+<h3>Section Card</h3>
+<dl>
+<dt>Composición</dt><dd>Compone <code>Card</code> + <code>CardHeader</code>/<code>CardTitle</code> heredados — contenedor de una sección completa del Reporte (Ficha actual, Histórico, Comparación)</dd>
+<dt class="half">Contenido</dt><dd class="half">Título de sección (h2, 04), contenido variable (tabla, gráfico, o grid de Metric Cards)</dd>
+<dt class="half">Interactividad</dt><dd class="half">Puede colapsarse en mobile (07) — usa <code>Accordion</code> heredado internamente cuando colapsa</dd>
+<dt>Cuándo se usa</dt><dd>Estructura raíz de cada bloque del Reporte (BCS Handbook, 04)</dd>
+<dt>Contraejemplo</dt><dd>Nunca anida una Section Card dentro de otra Section Card</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">BCS-C03</span><span class="speccard__badges"><span class="tag tag--nuevo">nuevo</span></span></div>
+<h3>History Card</h3>
+<dl>
+<dt>Composición</dt><dd>Fila compacta: fecha + 3–4 variables clave + ícono de expansión — al expandir muestra la Ficha completa de esa Medición</dd>
+<dt class="half">Contenido</dt><dd class="half">Fecha (destacada), variables clave configurables, indicador de "corregida" si aplica (BCS Handbook, 05)</dd>
+<dt class="half">Interactividad</dt><dd class="half">Clicable — expande/colapsa; usa <code>cardStyles.interactive</code></dd>
+<dt>Cuándo se usa</dt><dd>Lista del Histórico completo (BCS Handbook, 05)</dd>
+<dt>Contraejemplo</dt><dd>Nunca muestra una Medición <em>anulada</em> — solo vigentes (BCS Handbook, IN-D1)</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">BCS-C04</span><span class="speccard__badges"><span class="tag tag--nuevo">nuevo</span></span></div>
+<h3>Warning Card</h3>
+<dl>
+<dt>Composición</dt><dd>Variante de <code>Card</code> con borde izquierdo amarillo (05) + ícono de advertencia + texto — para valores sospechosos (BCS Handbook, 03)</dd>
+<dt class="half">Contenido</dt><dd class="half">Descripción del valor sospechoso, variable afectada, nunca una acción de "corregir" inline (eso requiere el flujo completo de CorregirMedición)</dd>
+<dt class="half">Interactividad</dt><dd class="half">No clicable — informativa</dd>
+<dt>Cuándo se usa</dt><dd>Junto a una Metric Card o History Card cuyo valor esté marcado sospechoso</dd>
+<dt>Contraejemplo</dt><dd>Nunca usa el rojo de error (05) — el amarillo de advertencia y el rojo de error tienen significados distintos y no son intercambiables (Ley 2)</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">BCS-C05</span><span class="speccard__badges"><span class="tag tag--nuevo">nuevo</span></span></div>
+<h3>Info Card</h3>
+<dl>
+<dt>Composición</dt><dd>Variante de <code>Card</code> con borde izquierdo azul + ícono de información — para el aviso poblacional y notas de procedencia (BCS Handbook, 06)</dd>
+<dt class="half">Contenido</dt><dd class="half">Texto explicativo, nunca una cifra propia</dd>
+<dt class="half">Interactividad</dt><dd class="half">No clicable</dd>
+<dt>Cuándo se usa</dt><dd>Junto a clasificaciones con aviso poblacional (IMC, WHR — BCS Handbook, 06)</dd>
+<dt>Contraejemplo</dt><dd>Nunca se usa para errores ni advertencias — esos tienen sus propias tarjetas (BCS-C04, ver también Estados, 13)</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">BCS-C06</span><span class="speccard__badges"><span class="tag tag--nuevo">nuevo</span></span></div>
+<h3>Indicador de tendencia</h3>
+<dl>
+<dt>Composición</dt><dd>Ícono (↑/↓/→) + texto corto ("+1.3 kg") — nunca solo color, nunca solo ícono (01, Accesibilidad)</dd>
+<dt class="half">Colores</dt><dd class="half">Emerald si la dirección coincide con "mejora" (BCS Handbook, 05); Red si es "retroceso"; Neutral (blanco apagado) si Peso/IMC sin dirección asignada</dd>
+<dt class="half">Interactividad</dt><dd class="half">No clicable</dd>
+<dt>Cuándo se usa</dt><dd>Metric Card, History Card, Comparación (12)</dd>
+<dt>Contraejemplo</dt><dd>Nunca aparece un ↑ o ↓ sin el valor numérico del delta junto a él</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">BCS-C07</span><span class="speccard__badges"><span class="tag tag--nuevo">nuevo</span></span></div>
+<h3>Skeleton</h3>
+<dl>
+<dt>Composición</dt><dd>Bloques rectangulares <code>rounded-2xl</code> con animación de pulso sutil, del mismo tamaño y posición exactos que el contenido real que reemplazan (13, estado de Carga)</dd>
+<dt class="half">Color</dt><dd class="half"><code>rgba(255,255,255,0.04)</code> con un shimmer que va a <code>0.07</code> — nunca colores semánticos (05)</dd>
+<dt class="half">Duración de animación</dt><dd class="half">1.5s, ease-in-out, infinito — respeta <code>prefers-reduced-motion</code> (16): se vuelve estático, sin pulso</dd>
+<dt>Cuándo se usa</dt><dd>Carga inicial del Dashboard, carga de un Reporte con historial grande (12, 13)</dd>
+<dt>Contraejemplo</dt><dd>Nunca un spinner genérico reemplazando toda la pantalla — el Skeleton preserva el layout para evitar salto de contenido (CLS)</dd>
+</dl>
+</div>
+
+<h2 id="heredados">Componentes heredados — cómo los usa el BCS</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Componente</th><th>Origen</th><th>Uso en el BCS</th></tr></thead>
+<tbody>
+<tr><td>Button</td><td><code>brand/Button.tsx</code></td><td>Variante <code>primary</code> para "Registrar medición"/"Generar enlace"; <code>outline</code> para acciones secundarias; <strong>nunca</strong> variante <code>buy</code> — el BCS no tiene transacciones de dinero</td></tr>
+<tr><td>Card</td><td><code>brand/Card.tsx</code></td><td>Base de las 5 tarjetas nuevas (BCS-C01–05)</td></tr>
+<tr><td>Tabs</td><td><code>brand/Tabs.tsx</code></td><td>Alternar entre "Histórico" y "Comparación" dentro de la Ficha de Cliente</td></tr>
+<tr><td>Badge</td><td><code>brand/Badge.tsx</code></td><td>Extendido con las 5 variantes de procedencia (05) además de las 2 existentes (success/neutral)</td></tr>
+<tr><td>Progress</td><td><code>brand/Progress.tsx</code></td><td>Base del Sistema de barras (10) — mismo grosor h-0.5 para indicadores discretos, variante más gruesa nueva para barras de rango (10)</td></tr>
+<tr><td>Accordion</td><td><code>brand/Accordion.tsx</code></td><td>Colapsar secciones del Reporte en mobile (03); expandir una History Card</td></tr>
+<tr><td>Dialog</td><td><code>brand/Dialog.tsx</code></td><td>Confirmación de acciones irreversibles (EliminarClientePermanentemente — BCS Handbook, UC-04)</td></tr>
+<tr><td>Tooltip</td><td><code>brand/Tooltip.tsx</code></td><td>Explicar una sigla (SMI, WHR) al pasar el cursor sobre su etiqueta</td></tr>
+<tr><td>Input / Select / Textarea</td><td><code>brand/*.tsx</code></td><td>Formulario de Nueva Medición y Editar Cliente</td></tr>
+<tr><td>Toast</td><td><code>brand/Toast.tsx</code></td><td>Confirmaciones ("Medición registrada", "Enlace revocado")</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="matriz-cobertura">Matriz de cobertura — ninguna métrica sin componente</h2>
+<p class="matrix-note">Verificación cruzada con el catálogo de 25 variables del BCS Handbook (03): toda variable numérica se renderiza en Metric Card (BCS-C01) dentro de una Section Card (BCS-C02); toda variable con clasificación (BCS Handbook, 06) puede llevar Warning Card o Info Card adjunta según corresponda.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../05-sistema-color/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 05 · Sistema de color</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../07-dashboard-entrenador/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">07 · Dashboard del entrenador →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>01 · Principios Fundamentales — BREY Architecture Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="principios" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 01 · Empezar</p>
+<h1>Principios Fundamentales</h1>
+<p class="lede">Dieciséis principios no negociables. Cada módulo posterior los referencia por número (P1…P16). Cuando dos reglas de módulos distintos entren en conflicto, gana la que defienda el principio de número menor — los principios están ordenados por precedencia deliberadamente.</p>
+
+<div class="meta-row">
+  <span class="chip">16 principios</span>
+  <span class="chip">Ordenados por precedencia</span>
+</div>
+
+<h2 id="p1-p4">Integridad de decisión (P1–P4)</h2>
+
+<div class="principle" id="p1">
+  <div class="principle__num">P1</div>
+  <h3>Determinismo total</h3>
+  <dl>
+    <dt>Definición</dt><dd>Toda función de decisión del sistema produce exactamente la misma salida ante la misma entrada. Ninguna decisión depende de aleatoriedad, del reloj (salvo como entrada explícita), ni de la creatividad de un modelo generativo.</dd>
+    <dt>Motivación</dt><dd>Un usuario que pregunta "¿por qué me tocó esto?" merece una respuesta exacta, y un ingeniero que depura un reporte debe poder reproducir la decisión localmente.</dd>
+    <dt>Ejemplo</dt><dd><code>motorGuionado</code> del Diagnóstico: mismo historial de respuestas → mismo Sistema recomendado, siempre. Es la implementación de referencia del principio.</dd>
+    <dt>Contraejemplo</dt><dd>Un generador que "varía los ejercicios para dar frescura" usando un random. Si la variedad es deseable, se especifica como regla determinista (ej. rotación por índice de semana), nunca como azar.</dd>
+    <dt>Consecuencias</dt><dd>Todo motor es una función pura sobre (catálogo versionado + estado del usuario + historial). Los LLM solo pueden vivir DETRÁS de un contrato determinista de validación, nunca decidiendo directamente (ver ADR-001).</dd>
+    <dt>Trade-off</dt><dd>Se renuncia a la sorpresa/novedad como valor de producto. Aceptado: la confianza vale más que la frescura.</dd>
+    <dt>Impacto</dt><dd>Define la forma de los 3 motores (05, 06, 07), del generador (08) y del contrato de API (11).</dd>
+  </dl>
+</div>
+
+<div class="principle" id="p2">
+  <div class="principle__num">P2</div>
+  <h3>Explicabilidad obligatoria</h3>
+  <dl>
+    <dt>Definición</dt><dd>Toda decisión que afecte al usuario (Sistema asignado, avance, retroceso, descarga, sustitución) lleva adjunta una razón legible por humanos en el momento en que se toma — no reconstruida después.</dd>
+    <dt>Motivación</dt><dd>La marca promete "el fin del entrenamiento a ciegas". Un sistema que decide sin explicar es entrenamiento a ciegas con más pasos.</dd>
+    <dt>Ejemplo</dt><dd><code>Resultado.razones</code> del Diagnóstico ya lo hace: "tu objetivo es ganar masa muscular", "entrenas en gym". Los motores heredan el patrón: <code>decision("avanza", razon: "Adherencia 0.83 y cumplimiento 0.75 sobre umbral")</code>.</dd>
+    <dt>Contraejemplo</dt><dd>Un log que dice <code>nivel_actual: cambió de "Intermedio" a "Avanzado"</code> sin campo de razón. El cambio es correcto; el registro es inválido.</dd>
+    <dt>Consecuencias</dt><dd>La tabla <code>progression_events</code> (módulo 10) tiene <code>razones</code> como campo obligatorio, no opcional.</dd>
+    <dt>Trade-off</dt><dd>Cada regla nueva cuesta también escribir su plantilla de razón. Aceptado: es el costo de no ser caja negra.</dd>
+    <dt>Impacto</dt><dd>Modelo de datos (10), contratos de retorno de los 3 motores (05–07), UI de historial futura.</dd>
+  </dl>
+</div>
+
+<div class="principle" id="p3">
+  <div class="principle__num">P3</div>
+  <h3>Historial inmutable y auditable</h3>
+  <dl>
+    <dt>Definición</dt><dd>Los hechos (sesiones generadas, logs de ejecución, eventos de decisión) se escriben una vez y no se editan jamás. Una corrección es un evento nuevo que referencia al anterior, nunca una mutación del original.</dd>
+    <dt>Motivación</dt><dd>Reproducibilidad (P1) exige que la entrada histórica de cualquier decisión pasada siga existiendo intacta. Un historial editable invalida toda auditoría retroactiva.</dd>
+    <dt>Ejemplo</dt><dd>Un <code>workout_log</code> con el peso mal tipeado: se registra un evento de corrección con el valor nuevo; el agregado de volumen usa el corregido, el original permanece.</dd>
+    <dt>Contraejemplo</dt><dd><code>UPDATE workout_logs SET volumen_total_kg = …</code> tres días después de la sesión. Prohibido incluso para administradores.</dd>
+    <dt>Consecuencias</dt><dd>Las políticas RLS de las tablas de historial no otorgan UPDATE/DELETE a nadie (módulo 10). La edición en el Player solo existe mientras la sesión está abierta (módulo 09).</dd>
+    <dt>Trade-off</dt><dd>Los agregados deben resolver correcciones (más lógica de lectura). Aceptado: leer es más barato que perder la verdad.</dd>
+    <dt>Impacto</dt><dd>RLS (10), máquina de estados del Player (09), diseño de <code>progression_events</code> (10).</dd>
+  </dl>
+</div>
+
+<div class="principle" id="p4">
+  <div class="principle__num">P4</div>
+  <h3>Una capa, una decisión, una escala de tiempo</h3>
+  <dl>
+    <dt>Definición</dt><dd>Cada capa de la jerarquía (03) y cada motor (05–07) decide exactamente una cosa, a una sola cadencia, y delega el resto. Cada módulo declara "qué nunca debe decidir".</dd>
+    <dt>Motivación</dt><dd>El error clásico de los sistemas de entrenamiento es mezclar "lógica de negocio" con "lógica de la sesión de hoy" — cambiar una rompe la otra.</dd>
+    <dt>Ejemplo</dt><dd>El Sistema se decide una vez (años); el Nivel en semanas; la Sesión cada semana; el Descanso entre series. Cuatro cadencias, cuatro dueños distintos.</dd>
+    <dt>Contraejemplo</dt><dd>Que el Workout Generator "aproveche" para subir el Nivel del usuario porque vio buenos números al generar. Generar y progresar son cadencias distintas con dueños distintos.</dd>
+    <dt>Consecuencias</dt><dd>La sección "qué nunca debe decidir" es obligatoria en todo módulo de motor/capa; su ausencia es un defecto del documento.</dd>
+    <dt>Trade-off</dt><dd>Más handoffs entre subsistemas. Aceptado: los handoffs explícitos son auditables; el acoplamiento no.</dd>
+    <dt>Impacto</dt><dd>Estructura completa de los módulos 03, 05, 06, 07, 08.</dd>
+  </dl>
+</div>
+
+<h2 id="p5-p8">Integridad estructural (P5–P8)</h2>
+
+<div class="principle" id="p5">
+  <div class="principle__num">P5</div>
+  <h3>Plantilla ≠ Instancia</h3>
+  <dl>
+    <dt>Definición</dt><dd>Todo lo diseñado por el equipo de contenido (Sistema→Microciclo, catálogo, cadenas) es plantilla versionada. Todo lo generado para un usuario concreto es instancia inmutable. Editar la plantilla nunca altera instancias ya generadas.</dd>
+    <dt>Motivación</dt><dd>Sin esta separación, cada edición de contenido es un riesgo de romper silenciosamente el programa de alguien que ya está entrenando dentro de él.</dd>
+    <dt>Ejemplo</dt><dd>Se corrige el volumen del Bloque "Hipertrofia Científica" — los usuarios a mitad de ese Bloque terminan su semana como fue generada; el cambio aplica desde su próxima generación.</dd>
+    <dt>Contraejemplo</dt><dd>Una Sesión que renderiza leyendo la plantilla en vivo ("join" al catálogo en tiempo de lectura) — la edición de plantilla mutaría el pasado.</dd>
+    <dt>Consecuencias</dt><dd>La instancia copia (desnormaliza) todo lo que necesita en el momento de generarse: nombre del ejercicio, prescripción, descansos. El módulo 10 lo refleja en la forma del jsonb.</dd>
+    <dt>Trade-off</dt><dd>Duplicación de datos entre catálogo e instancias. Aceptado: es la duplicación correcta — la que congela hechos.</dd>
+    <dt>Impacto</dt><dd>Generador (08), modelo de datos (10), política de versionado de catálogo (12/ADR-009).</dd>
+  </dl>
+</div>
+
+<div class="principle" id="p6">
+  <div class="principle__num">P6</div>
+  <h3>Fallo visible, nunca silencioso</h3>
+  <dl>
+    <dt>Definición</dt><dd>Cuando un motor no tiene información o contenido suficiente para decidir con seguridad, lo declara con un error tipado y una razón — jamás inventa un default silencioso que enmascare el vacío.</dd>
+    <dt>Motivación</dt><dd>Un default silencioso en un dominio de esfuerzo físico no es una molestia — es un riesgo de seguridad disfrazado de conveniencia.</dd>
+    <dt>Ejemplo</dt><dd>El Generator no encuentra ejercicio elegible para <code>empuje-vertical/principal</code> en Track Casa con exclusión de hombro → error <code>CATALOGO_INSUFICIENTE</code> con el detalle exacto del vacío.</dd>
+    <dt>Contraejemplo</dt><dd>"No hay opción para ese slot, pongo press banca porque es popular." Rompe la exclusión de lesión que el usuario declaró.</dd>
+    <dt>Consecuencias</dt><dd>Catálogo de errores tipados en el módulo 11. Cada error de dominio nombra qué falta, no solo que algo falló.</dd>
+    <dt>Trade-off</dt><dd>El usuario puede ver "no pudimos generar tu semana". Aceptado: honesto y accionable supera a completo e inseguro. Excepción acotada: DURANTE una sesión en vivo, la prioridad se invierte a "no dejar colgado al usuario" — ver P10.</dd>
+    <dt>Impacto</dt><dd>Generator (08), Player (09), API interna (11).</dd>
+  </dl>
+</div>
+
+<div class="principle" id="p7">
+  <div class="principle__num">P7</div>
+  <h3>Patrón sobre ejercicio</h3>
+  <dl>
+    <dt>Definición</dt><dd>La unidad de programación es el patrón de movimiento (+ rol), nunca el ejercicio con nombre propio. Ninguna capa por encima de Patrón puede referenciar un ejercicio específico.</dd>
+    <dt>Motivación</dt><dd>Permite sustituir por lesión/equipo sin rediseñar el programa, y que un solo motor sirva a gym, calistenia e híbrido con el mismo vocabulario.</dd>
+    <dt>Ejemplo</dt><dd>El Microciclo prescribe "1 <code>dominante-rodilla</code> <code>principal</code>"; el Generator lo resuelve a sentadilla, prensa o pistol según Track/Nivel/lesiones.</dd>
+    <dt>Contraejemplo</dt><dd>Un Bloque que exige "obligatoriamente press banca". Si un énfasis técnico lo amerita, se expresa como restricción del patrón + Notas, no como referencia dura.</dd>
+    <dt>Consecuencias</dt><dd>Todo ejercicio del catálogo DEBE declarar patrón primario (04); un ejercicio sin patrón es inválido y no entra al catálogo.</dd>
+    <dt>Trade-off</dt><dd>El contenido pierde control fino sobre el ejercicio exacto que verá el usuario. Aceptado con válvula: las cadenas de progresión ordenan preferencias dentro del patrón.</dd>
+    <dt>Impacto</dt><dd>Knowledge Base (04), Generator (08), plantillas de Microciclo (03).</dd>
+  </dl>
+</div>
+
+<div class="principle" id="p8">
+  <div class="principle__num">P8</div>
+  <h3>Seguridad antes que progreso</h3>
+  <dl>
+    <dt>Definición</dt><dd>Las señales de protección (fatiga, dolor, lesión declarada) tienen precedencia absoluta sobre las de progresión. Recovery Engine manda sobre Progression Engine, sin excepción ni ponderación.</dd>
+    <dt>Motivación</dt><dd>El costo de progresar una semana tarde es marginal; el de progresar sobre una lesión incubándose, no.</dd>
+    <dt>Ejemplo</dt><dd>Usuario con adherencia perfecta y RPE en objetivo, pero índice de fatiga sobre umbral → descarga. La evaluación de avance ni siquiera se ejecuta esa semana.</dd>
+    <dt>Contraejemplo</dt><dd>Un motor único que pondera "70% rendimiento, 30% fatiga" y avanza igual. La ponderación interna es inauditable — por eso son dos motores con precedencia explícita (ADR-010).</dd>
+    <dt>Consecuencias</dt><dd><code>macroEvaluacion()</code> consulta <code>exigeDescarga()</code> como primera instrucción (05); el orden no es opcional.</dd>
+    <dt>Trade-off</dt><dd>Falsos positivos de fatiga frenan progreso legítimo. Aceptado: es el lado correcto del error.</dd>
+    <dt>Impacto</dt><dd>Progression (05), Recovery (06), orquestación del Motor BPS (07).</dd>
+  </dl>
+</div>
+
+<h2 id="p9-p12">Integridad de datos y vocabulario (P9–P12)</h2>
+
+<div class="principle" id="p9">
+  <div class="principle__num">P9</div>
+  <h3>Tres categorías de dato, nunca mezcladas</h3>
+  <dl>
+    <dt>Definición</dt><dd>Todo dato es exactamente una de tres cosas: <strong>Catálogo</strong> (contenido autorizado, cambia poco), <strong>Dato de usuario</strong> (vivo, editable), o <strong>Historial</strong> (hechos, inmutables). La categoría determina quién escribe y con qué frecuencia.</dd>
+    <dt>Motivación</dt><dd>La mayoría de los bugs de integridad en sistemas de capas nace de tratar un catálogo como dato vivo o un hecho como editable.</dd>
+    <dt>Ejemplo</dt><dd><code>profiles</code> es dato de usuario; <code>workout_logs</code> es historial; la definición de un Bloque es catálogo. Tres regímenes de escritura distintos.</dd>
+    <dt>Contraejemplo</dt><dd>Guardar el "RPE objetivo actual" del usuario editando la plantilla del Mesociclo. La prescripción ajustada es estado del usuario, no catálogo.</dd>
+    <dt>Consecuencias</dt><dd>El módulo 10 clasifica cada tabla/entidad en su categoría antes de definir columnas; una entidad sin categoría clara es un defecto de diseño.</dd>
+    <dt>Trade-off</dt><dd>Alguna fricción al decidir dónde vive un dato nuevo. Aceptado: esa fricción es el diseño funcionando.</dd>
+    <dt>Impacto</dt><dd>Modelo de datos completo (10), RLS (10), repositorios (11).</dd>
+  </dl>
+</div>
+
+<div class="principle" id="p10">
+  <div class="principle__num">P10</div>
+  <h3>Recomendar con fuerza, no bloquear</h3>
+  <dl>
+    <dt>Definición</dt><dd>En tiempo de ejecución (sesión en vivo), el sistema nunca impide físicamente al usuario entrenar o continuar — reduce la prescripción por defecto, comunica el riesgo y registra la decisión del usuario.</dd>
+    <dt>Motivación</dt><dd>La autonomía del usuario sobre su propio cuerpo es suya. Un sistema que bloquea genera abandono o mentira (registrar fuera de la app); ninguna de las dos sirve al historial.</dd>
+    <dt>Ejemplo</dt><dd>Semana de descarga recomendada → el Player ofrece la sesión reducida por defecto, con opción explícita de la completa; la elección queda en el log.</dd>
+    <dt>Contraejemplo</dt><dd>"No puedes registrar esta sesión porque estás en descarga." Prohibido.</dd>
+    <dt>Consecuencias</dt><dd>Todo estado restrictivo (descarga, pausa por lesión) define su versión "recomendada" Y su override registrable (06, 09).</dd>
+    <dt>Trade-off</dt><dd>El usuario puede ignorar sistemáticamente las protecciones. Mitigación: la señal de overrides repetidos es en sí misma un dato para el Recovery Engine (v2).</dd>
+    <dt>Impacto</dt><dd>Player (09), Recovery (06), UX de estados restrictivos.</dd>
+  </dl>
+</div>
+
+<div class="principle" id="p11">
+  <div class="principle__num">P11</div>
+  <h3>Evidencia marcada, fisiología nunca inventada</h3>
+  <dl>
+    <dt>Definición</dt><dd>Toda regla con base fisiológica declara su nivel: <span class="ev ev--solida">consenso sólido</span> <span class="ev ev--moderada">evidencia moderada</span> <span class="ev ev--hipotesis">hipótesis</span>, o se marca <span class="ev ev--producto">decisión de producto</span> si el número/regla es una elección de diseño calibrable y no un hallazgo científico.</dd>
+    <dt>Motivación</dt><dd>La marca se posiciona en evidencia científica. Vestir de ciencia un umbral arbitrario (aunque razonable) es el tipo de deshonestidad que destruye esa posición.</dd>
+    <dt>Ejemplo</dt><dd>"El sueño insuficiente degrada recuperación y rendimiento" <span class="ev ev--solida">consenso sólido</span> vs. "el índice de fatiga pesa RPE al 50%" <span class="ev ev--producto">decisión de producto</span>.</dd>
+    <dt>Contraejemplo</dt><dd>"La ciencia dice que debes descargar cuando el índice supera 0.65." La ciencia no dice eso; nuestro producto lo decide.</dd>
+    <dt>Consecuencias</dt><dd>Los módulos 05 y 06 badgean cada regla fisiológica. Todo umbral de producto se declara calibrable.</dd>
+    <dt>Trade-off</dt><dd>El documento admite abiertamente cuánto es diseño y no ciencia. Aceptado: es exactamente el punto.</dd>
+    <dt>Impacto</dt><dd>Progression (05), Recovery (06), contenido de marketing que cite este handbook.</dd>
+  </dl>
+</div>
+
+<div class="principle" id="p12">
+  <div class="principle__num">P12</div>
+  <h3>Vocabulario único</h3>
+  <dl>
+    <dt>Definición</dt><dd>Cada concepto tiene exactamente un término canónico en todo el sistema (documento, código, UI, base de datos). Los sinónimos existen solo en el Glosario, marcados como sinónimos.</dd>
+    <dt>Motivación</dt><dd>Dos nombres para lo mismo terminan siendo dos implementaciones de lo mismo. El caso real que motivó este principio: <code>nivel_actual</code> vs. <code>nivel_experiencia</code> — parecidos, semánticamente disjuntos, y la confusión más peligrosa del dominio.</dd>
+    <dt>Ejemplo</dt><dd>"Descarga" es canónico; "deload" es sinónimo registrado. "Bloque" es canónico; "fase" es el término legacy del catálogo actual, registrado como equivalencia.</dd>
+    <dt>Contraejemplo</dt><dd>Introducir "semana de recuperación" en la UI para lo que el dominio llama descarga.</dd>
+    <dt>Consecuencias</dt><dd>El Glosario (14) es normativo, no informativo: un PR que introduce un término nuevo sin registrarlo está incompleto.</dd>
+    <dt>Trade-off</dt><dd>Rigidez terminológica. Aceptada: la creatividad va en el producto, no en los nombres.</dd>
+    <dt>Impacto</dt><dd>Todo el handbook, todo el código futuro, el Glosario (14).</dd>
+  </dl>
+</div>
+
+<h2 id="p13-p16">Evolución y honestidad (P13–P16)</h2>
+
+<div class="principle" id="p13">
+  <div class="principle__num">P13</div>
+  <h3>Contratos antes que implementaciones</h3>
+  <dl>
+    <dt>Definición</dt><dd>Cada subsistema se define primero por su contrato (entradas, salidas, errores) y solo después por su implementación. Las implementaciones se reemplazan; los contratos se versionan.</dd>
+    <dt>Motivación</dt><dd>Es lo que permite que "migrar el Diagnóstico a IA" sea cambiar una línea detrás de <code>MotorDiagnostico</code> — patrón ya probado en el sistema real.</dd>
+    <dt>Ejemplo</dt><dd><code>MotorDiagnostico { iniciar(), responder(historial) }</code>: la UI conversacional no sabe si detrás hay un guion o un modelo.</dd>
+    <dt>Contraejemplo</dt><dd>La UI del Player importando la fórmula del índice de fatiga directamente. El día que la fórmula cambie, cambia la UI — acoplamiento inverso.</dd>
+    <dt>Consecuencias</dt><dd>El módulo 11 define los contratos de todos los subsistemas ANTES de que exista su primera implementación.</dd>
+    <dt>Trade-off</dt><dd>Diseñar contratos para implementaciones que aún no existen puede sobre-especular. Mitigación: los contratos de 11 cubren solo lo que los módulos 03–09 ya exigen.</dd>
+    <dt>Impacto</dt><dd>API interna (11), estrategia de migración a IA (13), testabilidad de todo el sistema.</dd>
+  </dl>
+</div>
+
+<div class="principle" id="p14">
+  <div class="principle__num">P14</div>
+  <h3>El motor ensambla; el humano autoriza</h3>
+  <dl>
+    <dt>Definición</dt><dd>Ningún motor crea contenido de entrenamiento. Los motores seleccionan, combinan y ajustan piezas que una persona con criterio de entrenador autorizó (Bloques, prescripciones, cadenas, ejercicios). El catálogo es la frontera de autoridad humana.</dd>
+    <dt>Motivación</dt><dd>La responsabilidad sobre lo que un cuerpo humano ejecuta debe poder rastrearse a una decisión humana, no a una interpolación.</dd>
+    <dt>Ejemplo</dt><dd>El Generator elige "sentadilla a caja, 4×6-8 @RPE 8" porque la cadena, el rango y la intensidad estaban autorizados para ese Bloque/Nivel — no porque calculó que "parecía apropiado".</dd>
+    <dt>Contraejemplo</dt><dd>Un motor que inventa una progresión de planche porque no había cadena definida. Eso es <code>CATALOGO_INSUFICIENTE</code> (P6), no una oportunidad de improvisar.</dd>
+    <dt>Consecuencias</dt><dd>Los vacíos de catálogo son trabajo de contenido, jamás parcheables desde ingeniería. El sistema los reporta, no los rellena.</dd>
+    <dt>Trade-off</dt><dd>La cobertura del sistema crece a la velocidad del contenido autorizado, no del código. Aceptado: es una plataforma de método, no de volumen.</dd>
+    <dt>Impacto</dt><dd>Knowledge Base (04), Generator (08), proceso editorial de contenido (fuera de este handbook).</dd>
+  </dl>
+</div>
+
+<div class="principle" id="p15">
+  <div class="principle__num">P15</div>
+  <h3>Identificadores estables, evolución aditiva</h3>
+  <dl>
+    <dt>Definición</dt><dd>Todo concepto referenciable (Sistema, patrón, rol, ejercicio, zona de riesgo) tiene un slug estable que nunca se renombra ni se reutiliza. La evolución es aditiva: se agregan slugs nuevos, se deprecan viejos, no se mutan.</dd>
+    <dt>Motivación</dt><dd>Instancias inmutables (P5) e historial (P3) referencian slugs para siempre. Renombrar uno rompe el pasado en silencio.</dd>
+    <dt>Ejemplo</dt><dd><code>SistemaSlug</code> ya funciona así; los patrones nacen con slug fijado incluso los reservados (<code>locomocion</code>, <code>rotacion-potencia</code>) sin contenido aún.</dd>
+    <dt>Contraejemplo</dt><dd>Renombrar <code>dominante-rodilla</code> a <code>knee-dominant</code> por consistencia de idioma. La consistencia no vale un historial roto.</dd>
+    <dt>Consecuencias</dt><dd>Deprecación formal: un slug deprecado sigue resolviendo para lectura histórica, deja de ser elegible para generación nueva.</dd>
+    <dt>Trade-off</dt><dd>Se convive con nombres imperfectos para siempre. Aceptado: los slugs son identidad, no prosa.</dd>
+    <dt>Impacto</dt><dd>Knowledge Base (04), migraciones (10), versionado de catálogo (12/ADR-009).</dd>
+  </dl>
+</div>
+
+<div class="principle" id="p16">
+  <div class="principle__num">P16</div>
+  <h3>Solo datos verdaderos</h3>
+  <dl>
+    <dt>Definición</dt><dd>El sistema jamás muestra datos simulados, contadores inventados o métricas infladas. Donde no hay dato real todavía, hay un estado vacío honesto.</dd>
+    <dt>Motivación</dt><dd>Ley heredada de la Constitución de producto de BREY y ya aplicada (mocks del dashboard retirados por completo). En un producto cuya tesis es la honestidad científica, un dato falso es una falla de marca, no un placeholder.</dd>
+    <dt>Ejemplo</dt><dd>La sección Progreso muestra "Aún no tienes datos de progreso" hasta que existan logs reales — nunca una curva de ejemplo.</dd>
+    <dt>Contraejemplo</dt><dd>Un contador de "atletas entrenando ahora" alimentado por un número inventado.</dd>
+    <dt>Consecuencias</dt><dd>Todo módulo con superficie de UI define sus estados vacíos como parte de la especificación, no como caso residual.</dd>
+    <dt>Trade-off</dt><dd>El producto se ve "vacío" al inicio. Aceptado hace tiempo; no se reabre.</dd>
+    <dt>Impacto</dt><dd>Player (09), dashboard, cualquier superficie futura de métricas.</dd>
+  </dl>
+</div>
+
+<h2 id="conflictos">Resolución de conflictos entre principios</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Conflicto típico</th><th>Resolución</th><th>Regla aplicada</th></tr></thead>
+<tbody>
+<tr><td>Fallo visible (P6) vs. no bloquear en vivo (P10)</td><td>Antes de la sesión gana P6 (no se genera); durante la sesión gana P10 (omitir es válido)</td><td>La frontera es el inicio de la sesión — definida en 08/09</td></tr>
+<tr><td>Progreso del usuario vs. señal de fatiga</td><td>Gana la fatiga, siempre</td><td>P8, sin ponderación</td></tr>
+<tr><td>Consistencia terminológica vs. slugs históricos imperfectos</td><td>Gana el slug estable</td><td>P15 sobre P12 — el Glosario documenta la imperfección</td></tr>
+<tr><td>Cobertura del producto vs. contenido sin autorizar</td><td>Gana la autorización humana — el vacío se reporta</td><td>P14 + P6</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="preguntas">Preguntas abiertas</h2>
+<ul>
+  <li>¿Los overrides repetidos del usuario (P10) deben escalar a una intervención humana (coach) además de alimentar al Recovery Engine? Decisión de producto pendiente, registrada en el <a href="../13-roadmap/index.html">Roadmap</a>.</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../00-introduccion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 00 · Introducción</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../02-arquitectura-general/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">02 · Arquitectura General →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

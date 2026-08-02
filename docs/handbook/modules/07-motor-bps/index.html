@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>07 · Motor BPS — BREY Architecture Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="motor-bps" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 07 · Motores</p>
+<h1>Motor BPS</h1>
+<p class="lede">El orquestador. Mantiene la máquina de estados del usuario dentro del sistema: traduce el resultado del Diagnóstico en un Sistema/Nivel activos (una sola vez), verifica los gates, coordina a los demás motores y gestiona las transiciones de ciclo de vida (activación, pausa, completado, re-diagnóstico). No genera, no progresa, no descarga — orquesta a quienes lo hacen.</p>
+
+<div class="meta-row">
+  <span class="chip">Orquestador, no decisor de contenido</span>
+  <span class="chip">Regla de Activación</span>
+  <span class="chip">Máquina de estados del usuario</span>
+</div>
+
+<h2 id="objetivo">Objetivo, alcance, dependencias, invariantes</h2>
+<p><strong>Objetivo:</strong> que en todo momento exista una respuesta única y auditable a "¿en qué estado está este usuario y qué corresponde hacer ahora?". <strong>Alcance:</strong> activación, gates, transición de estados, resolución de conflictos entre motores, ciclo de fin de Sistema. <strong>Fuera de alcance:</strong> recomendar Sistema (Diagnóstico), progresar (05), descargar (06), ensamblar sesiones (08). <strong>Depende de:</strong> Diagnóstico, 03, 05, 06. <strong>Invariantes:</strong> I-M1 el Sistema activo solo cambia por compra confirmada o transición de fin de ciclo — nunca por re-evaluación automática; I-M2 <code>nivel_actual</code> solo lo escriben el Diagnóstico (entrada) y el Progression Engine (progresión) a través de este motor; I-M3 ninguna generación ocurre sin pasar los dos gates; I-M4 toda transición de estado emite evento con razón (P2/P3).</p>
+
+<h2 id="entradas">Entradas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Entrada</th><th>Fuente</th><th>Cuándo se lee</th><th>Obligatoria</th></tr></thead>
+<tbody>
+<tr><td>Resultado del Diagnóstico (sistema, nivelEntrada, razones)</td><td>Diagnóstico (determinista, P1)</td><td>Una vez, al activar</td><td>Sí para activar</td></tr>
+<tr><td>Confirmación de compra</td><td>Checkout (fuera del dominio)</td><td>Evento único</td><td>Sí — Regla de Activación</td></tr>
+<tr><td>Objetivos y logística (días, lugar, duración, lesiones)</td><td>Perfil (vivo)</td><td>Fresca en cada generación — jamás congelada al activar</td><td>Días/lugar/lesiones sí (gate); duración no (default por Bloque)</td></tr>
+<tr><td>Restricciones (zonas declaradas/temporales)</td><td>Perfil + eventos de dolor (06)</td><td>Fresca en cada generación</td><td>—</td></tr>
+<tr><td>Historial (adherencia, rendimiento, eventos)</td><td>Historial</td><td>Vía 05/06 — este motor no lo interpreta directamente</td><td>—</td></tr>
+<tr><td><code>nivel_experiencia</code> (autopercibido)</td><td>Perfil</td><td><strong>Nunca</strong> — sin uso algorítmico, por diseño (P12, Glosario)</td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="reglas">Reglas del motor</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">R-M1 · Regla de Activación</div>
+  <p>Completar el Diagnóstico <strong>recomienda</strong>; solo la compra confirmada <strong>activa</strong> (<code>sistema_actual</code> + <code>nivel_actual</code>). Los Sistemas son productos pagos: el motor no genera contenido premium sin transacción (ADR-002). El Diagnóstico es re-tomable sin límite y sin efecto hasta que exista compra.</p>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">R-M2 · Gate de Diagnóstico</div>
+  <p>Compra sin Diagnóstico previo es válida (compra directa desde marketing) — pero la activación queda en espera: el usuario debe completar el Diagnóstico para obtener <code>nivelEntrada</code>. Nunca se asigna un nivel por defecto (P6: sin defaults silenciosos en datos de seguridad).</p>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">R-M3 · Gate de Perfil deportivo</div>
+  <p>Sin <code>dias_por_semana</code>, <code>lugar_entrenamiento</code> y lesiones declaradas (aunque sea "ninguna"), no hay generación. El gate dice exactamente qué falta.</p>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">R-M4 · Resolución de conflictos entre motores</div>
+  <p>Orden fijo de consulta en cada ciclo: (1) Recovery — su veredicto es terminal si exige descarga (P8); (2) Progression — solo si Recovery no intervino; (3) Generator — con la prescripción resultante. Un solo orden, sin ponderación, auditable.</p>
+</div>
+
+<h2 id="estados">Máquina de estados del usuario</h2>
+<div class="diagram">
+<div class="diagram-label">Ciclo de vida completo dentro del sistema</div>
+<pre class="mermaid">
+stateDiagram-v2
+  [*] --> SinDiagnostico: registro
+  SinDiagnostico --> Diagnosticado: completa Diagnóstico
+  Diagnosticado --> Diagnosticado: re-toma (sin efecto)
+  Diagnosticado --> PendientePerfil: compra confirmada (R-M1)
+  SinDiagnostico --> PendienteDiagnostico: compra directa (R-M2)
+  PendienteDiagnostico --> PendientePerfil: completa Diagnóstico
+  PendientePerfil --> Activo: perfil deportivo completo (R-M3)
+  Activo --> EnDescarga: Recovery exige (06)
+  EnDescarga --> Activo: descarga completada
+  Activo --> EnPausa: lesión mayor / pausa voluntaria
+  EnPausa --> Activo: reanudación (re-evalúa punto de entrada si &gt;30 días)
+  Activo --> SistemaCompletado: último Bloque terminado
+  SistemaCompletado --> Diagnosticado: re-diagnóstico
+  SistemaCompletado --> PendientePerfil: compra de otro Sistema
+</pre>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Estado</th><th>Significado</th><th>Puede generar sesiones</th></tr></thead>
+<tbody>
+<tr><td><code>sin_diagnostico</code></td><td>Registrado, sin evaluar</td><td>No</td></tr>
+<tr><td><code>diagnosticado</code></td><td>Resultado emitido, sin compra</td><td>No</td></tr>
+<tr><td><code>pendiente_diagnostico</code></td><td>Compra sin Diagnóstico (R-M2)</td><td>No</td></tr>
+<tr><td><code>pendiente_perfil</code></td><td>Activado, gate de Perfil sin pasar (R-M3)</td><td>No</td></tr>
+<tr><td><code>activo</code></td><td>Ciclo normal de generación/ejecución/evaluación</td><td>Sí</td></tr>
+<tr><td><code>en_descarga</code></td><td>Semana con multiplicador de descarga</td><td>Sí (reducidas)</td></tr>
+<tr><td><code>en_pausa</code></td><td>Lesión mayor o pausa voluntaria — sin generación, sin evaluación macro</td><td>No</td></tr>
+<tr><td><code>sistema_completado</code></td><td>Último Bloque cerrado — transición de fin de ciclo</td><td>No</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="algoritmo">Pseudocódigo — ciclo semanal del orquestador</h2>
+<pre class="codeblock">
+<span class="kw">FUNCIÓN</span> cicloSemanal(usuario):
+  <span class="kw">SI</span> usuario.estado <span class="kw">∉</span> {activo, en_descarga} <span class="kw">ENTONCES RETORNAR</span> nada    <span class="cm">// estados sin generación</span>
+
+  <span class="cm">// R-M4 — orden fijo</span>
+  recovery <span class="kw">←</span> RecoveryEngine.exigeDescarga(mesocicloActual, ventana)
+  <span class="kw">SI</span> recovery.si <span class="kw">ENTONCES</span>
+    transicionar(usuario, en_descarga, razon: recovery.razon)
+  <span class="kw">SI NO</span>
+    progresion <span class="kw">←</span> ProgressionEngine.macroEvaluacion(ventana)
+    aplicarTransicion(usuario, progresion)                       <span class="cm">// avanza/sostiene/retrocede + evento</span>
+    <span class="kw">SI</span> usuario.estado <span class="kw">=</span> en_descarga <span class="kw">ENTONCES</span> transicionar(usuario, activo, razon: <span class="str">"Descarga completada"</span>)
+
+  <span class="kw">SI</span> esFinDeUltimoBloque(usuario) <span class="kw">ENTONCES</span>
+    <span class="kw">RETORNAR</span> transicionar(usuario, sistema_completado, razon: <span class="str">"Último Bloque del Sistema terminado"</span>)
+
+  perfil <span class="kw">←</span> leerPerfilFresco(usuario)                             <span class="cm">// jamás el congelado de la activación</span>
+  <span class="kw">SI NO</span> gatePerfil(perfil) <span class="kw">ENTONCES RETORNAR</span> transicionar(usuario, pendiente_perfil, razon: faltantes)
+
+  <span class="kw">RETORNAR</span> WorkoutGenerator.generarSemana(microcicloVigente, perfil, prescripcionVigente, recovery)
+</pre>
+
+<h2 id="casos">Casos normales, límite e inválidos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Tipo</th><th>Comportamiento</th></tr></thead>
+<tbody>
+<tr><td>Diagnóstico → compra → perfil completo → generación</td><td>Normal</td><td>El camino feliz del diagrama maestro (02).</td></tr>
+<tr><td>Compra directa sin Diagnóstico</td><td>Límite</td><td><code>pendiente_diagnostico</code> — R-M2; nunca nivel por defecto.</td></tr>
+<tr><td>Re-toma del Diagnóstico con Sistema ya activo</td><td>Límite</td><td>Permitida; el resultado NO re-activa nada (I-M1). Si recomienda otro Sistema, se muestra como información — el cambio real exige decisión de compra.</td></tr>
+<tr><td>Usuario borra <code>dias_por_semana</code> del Perfil con Sistema activo</td><td>Límite</td><td>Siguiente ciclo cae al gate: <code>pendiente_perfil</code> con detalle. Las sesiones ya generadas se conservan (P5).</td></tr>
+<tr><td>Reanudación tras pausa &gt; 30 días</td><td>Límite</td><td>El punto de entrada se re-evalúa: retroceso automático de un Mesociclo como propuesta, aceptable/ajustable — el detraining es real pero su magnitud individual varía <span class="ev ev--moderada">evidencia moderada</span>; la regla de 30 días/1 mesociclo <span class="ev ev--producto">decisión de producto</span>.</td></tr>
+<tr><td>Elite comprado</td><td>Límite</td><td>Se activa el estado comercial pero NO entra a esta máquina de generación — coaching 1:1 humano (ADR-012).</td></tr>
+<tr><td>Activar sin compra confirmada</td><td>Inválido</td><td>Rechazo (R-M1). No existe camino de código legítimo hacia ese estado.</td></tr>
+<tr><td>Dos Sistemas activos simultáneos</td><td>Inválido</td><td><code>sistema_actual</code> es escalar único — el modelo de datos lo impide por diseño (10). El multi-sistema paralelo está en "nunca" del Roadmap.</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="tradeoffs">Trade-offs y decisiones descartadas</h2>
+<div class="callout callout--tradeoff">
+  <div class="callout__label">Activación en compra — fricción vs. modelo de negocio</div>
+  <p>Diagnosticarse y no poder usar "tu Sistema" hasta pagar es fricción real de producto. Aceptada (ADR-002): la alternativa regala el contenido premium. La UI debe hacer el puente emocional; el dominio no lo resuelve.</p>
+</div>
+<div class="callout callout--descartado">
+  <div class="callout__label">Activación automática al diagnosticar</div>
+  <p>Descartada — ADR-002.</p>
+</div>
+<div class="callout callout--descartado">
+  <div class="callout__label">Re-evaluación automática de Sistema por historial</div>
+  <p>Descartada: "el sistema te cambió de producto solo" es una sorpresa comercial inaceptable. El re-diagnóstico informa; la persona decide (I-M1).</p>
+</div>
+
+<h2 id="riesgos">Riesgos, deuda y extensiones</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">El estado del usuario hoy no se persiste como máquina</div>
+  <p>Los estados existen implícitos (hay o no <code>sistema_actual</code>, hay o no perfil completo). La máquina formal exige persistir el estado + sus transiciones como eventos (10) — parte del bloqueante #3 del Roadmap.</p>
+</div>
+<div class="callout callout--escala">
+  <div class="callout__label">Extensión — panel del entrenador</div>
+  <p>Un coach humano como actor que fuerza transiciones (con evento <code>override_coach</code> y razón) encaja en I-M4 sin nuevos estados.</p>
+</div>
+
+<h2 id="preguntas">Preguntas abiertas</h2>
+<ul>
+  <li>Fin de Sistema: ¿la renovación del mismo Sistema re-entra en el último Nivel alcanzado o re-diagnostica siempre? Propuesta: re-diagnóstico ligero (solo experiencia/situación) — sin decidir, Roadmap H3.</li>
+  <li>¿La pausa voluntaria pausa también la vigencia comercial del Sistema? Negocio, fuera del dominio — pero el dominio necesita la respuesta para el estado <code>en_pausa</code>.</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../06-recovery-engine/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 06 · Recovery Engine</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../08-workout-generator/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">08 · Workout Generator →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

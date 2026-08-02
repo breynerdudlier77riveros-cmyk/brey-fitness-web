@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>04 · Backend Architecture — Engineering Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="backend-architecture" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 04 · Capas</p>
+<h1>Backend Architecture</h1>
+<p class="lede">BREY no tiene un servidor separado — el "backend" son Server Actions y Route Handlers de Next.js corriendo sobre la infraestructura de Vercel, con Supabase como única base de datos y proveedor de auth.</p>
+
+<h2 id="diagrama">Diagrama de capas del backend</h2>
+<div class="diagram">
+<div class="diagram-label">Server Actions → Repositorios → Supabase — sin capa de Application Services intermedia hoy</div>
+<pre class="mermaid">
+graph TD
+  SA["Server Actions<br/>'use server'"] --> REPO["Repositorios<br/>lib/&lt;dominio&gt;/repository.ts"]
+  RH["Route Handlers<br/>app/api/*/route.ts"] --> REPO
+  REPO --> MAP["Mappers/Parsers<br/>lib/database/"]
+  REPO --> SB["Supabase client<br/>lib/supabase/server.ts"]
+  SB --> PG["Postgres + RLS"]
+  DOM["Motores de dominio<br/>lib/diagnostico/motor.ts"] -.->|"función pura, sin I/O"| SA
+</pre>
+</div>
+
+<h2 id="capas-backend">Las piezas del backend</h2>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">BE-01</span><span class="speccard__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>Server Actions</h3>
+<dl>
+<dt>Responsabilidad</dt><dd>Punto de entrada de toda mutación desde el cliente — reciben el input (de un <code>&lt;form action={fn}&gt;</code> o invocación directa), validan, invocan repositorios</dd>
+<dt class="half">Ejemplo real</dt><dd class="half"><code>signOut()</code> (<code>lib/supabase/actions.ts</code>) — <code>"use server"</code>, invocada como <code>&lt;form action={signOut}&gt;</code> nativo de React 19, sin JS de cliente adicional</dd>
+<dt class="half">Regla</dt><dd class="half">Una Server Action nunca contiene SQL directo — siempre delega en un repositorio (BE-03)</dd>
+<dt>Dependencias permitidas</dt><dd><code>lib/supabase/server.ts</code>, repositorios, validadores de dominio (<code>lib/perfil/perfil.ts</code>)</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">BE-02</span><span class="speccard__badges"><span class="tag tag--futuro">futuro</span></span></div>
+<h3>Application Services</h3>
+<dl>
+<dt>Estado actual</dt><dd>No existe como capa distinta — las Server Actions de hoy son suficientemente simples (un repositorio, poca orquestación) para no necesitar un servicio de aplicación intermedio</dd>
+<dt class="half">Umbral de creación</dt><dd class="half">Cuando un caso de uso orqueste ≥2 repositorios con lógica de coordinación no trivial — el primer candidato real es <code>GenerarReporte</code> del BCS Handbook (04), que combina Cliente + Mediciones + cálculo de interpretación</dd>
+<dt class="half">Responsabilidad especificada</dt><dd class="half">Orquestar múltiples repositorios y/o motores de dominio para un caso de uso — sin contener SQL ni JSX</dd>
+<dt>Relación con los motores</dt><dd>Un Application Service invoca un motor de dominio (BE-05) como función pura y persiste su resultado vía repositorio — nunca al revés</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">BE-03</span><span class="speccard__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>Repositories</h3>
+<dl>
+<dt>Responsabilidad</dt><dd>Único punto de acceso de lectura/escritura a una tabla o agregado — recibe el <code>SupabaseClient</code> como primer parámetro (FT-10)</dd>
+<dt class="half">Ejemplo real</dt><dd class="half"><code>getProfile</code>, <code>getOrCreateProfile</code>, <code>updateProfile</code> (<code>lib/profile/repository.ts</code>) — cada uno recibe <code>supabase</code> explícito</dd>
+<dt class="half">Regla</dt><dd class="half">Un repositorio hace <code>select("*")</code> por defecto, no listas parciales de columnas — elimina duplicación de column-lists entre call sites (decisión de Sprint 4.1, documentada como trade-off aceptado)</dd>
+<dt>Excepción documentada</dt><dd><code>components/layout/Navbar.tsx</code> sigue con su propio <code>.select("nombre")</code> — corre client-side en cada página del sitio marketing (no solo <code>/app</code>), y forzarlo a traer el perfil completo (incluye <code>lesiones</code>/<code>observaciones</code>) solo para un nombre es un costo real y evitable en la ruta más caliente del sitio</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">BE-04</span><span class="speccard__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>Policies</h3>
+<dl>
+<dt>Responsabilidad</dt><dd>Autorización a nivel de fila — vive en Postgres (RLS), no en TypeScript (08)</dd>
+<dt>Regla</dt><dd>Ningún repositorio implementa su propio chequeo de "¿es este el dueño de la fila?" en código de aplicación — esa lógica vive exclusivamente en las políticas RLS de la tabla (05, 08); duplicarla en TypeScript sería una segunda fuente de verdad (FT-01)</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">BE-05</span><span class="speccard__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>Domain Services (motores)</h3>
+<dl>
+<dt>Responsabilidad</dt><dd>Lógica de negocio pura, determinista, sin I/O (FT-03) — el "Domain" de la capa (02)</dd>
+<dt class="half">Ejemplo real</dt><dd class="half"><code>lib/diagnostico/motor.ts</code> — recibe respuestas, devuelve un resultado, sin tocar Supabase</dd>
+<dt class="half">Especificados, no implementados</dt><dd class="half">Motor BPS, Progression Engine (sus propios handbooks especifican el motor completo; aquí solo se fija que, cuando se construyan, deben seguir este mismo patrón de función pura)</dd>
+<dt>Regla</dt><dd>Un motor nunca importa <code>lib/supabase/*</code> — si necesita datos, los recibe como parámetro ya resueltos por la Application Service/Server Action que lo invoca</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">BE-06</span><span class="speccard__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>Infrastructure</h3>
+<dl>
+<dt>Responsabilidad</dt><dd>Adaptadores hacia sistemas externos — hoy, exclusivamente Supabase</dd>
+<dt>Ejemplo real</dt><dd><code>lib/supabase/server.ts</code> (cliente para Server Components/Actions), <code>lib/supabase/client.ts</code> (cliente para Client Components), <code>lib/supabase/proxy.ts</code> (refresco de sesión, 08)</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">BE-07</span><span class="speccard__badges"><span class="tag tag--futuro">futuro</span></span></div>
+<h3>Storage</h3>
+<dl>
+<dt>Estado actual</dt><dd>Ningún módulo de hoy sube archivos — Supabase Storage no está configurado aún</dd>
+<dt class="half">Primer consumidor previsto</dt><dd class="half">Fotografías de progreso del BCS Handbook (03, 11) — bucket separado, acceso solo vía referencia autenticada o token de EnlacePúblico, nunca URL directa (BCS Handbook, 11)</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">BE-08</span><span class="speccard__badges"><span class="tag tag--futuro">futuro</span></span></div>
+<h3>Events</h3>
+<dl>
+<dt>Estado actual</dt><dd>Cero tablas de eventos en producción hoy — ver 07 para el contrato completo especificado por Motor BPS Handbook y Progression Engine Handbook, aún no implementado</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">BE-09</span><span class="speccard__badges"><span class="tag tag--futuro">futuro</span></span></div>
+<h3>Jobs y Schedulers</h3>
+<dl>
+<dt>Estado actual</dt><dd>No existe ningún job en segundo plano ni cron configurado — el ciclo semanal del Motor BPS Handbook (batch, no reactivo, MBPS-ADR-04) requerirá esta pieza cuando se implemente</dd>
+<dt>Candidato técnico</dt><dd>Vercel Cron Jobs (ya disponible en la plataforma de despliegue actual, 12) o Supabase Edge Functions con <code>pg_cron</code> — decisión pendiente, ver 15</dd>
+</dl>
+</div>
+
+<h2 id="matriz-servicio-repositorio">Matriz Servicio → Repositorio</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Server Action / Ruta</th><th>Repositorio(s) que invoca</th></tr></thead>
+<tbody>
+<tr><td><code>signOut</code></td><td>Ninguno — solo <code>supabase.auth.signOut()</code> directo (no hay tabla de dominio involucrada)</td></tr>
+<tr><td>Guardar formulario de perfil (<code>PerfilForm.tsx</code>)</td><td><code>profile/repository.ts</code> → <code>updateProfile</code></td></tr>
+<tr><td>Carga de <code>app/app/layout.tsx</code></td><td><code>profile/repository.ts</code> → <code>getOrCreateProfile</code></td></tr>
+<tr><td>Carga de calendario/historial de entrenamientos</td><td><code>workouts/repository.ts</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="matriz-repositorio-tabla">Matriz Repositorio → Tabla</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Repositorio</th><th>Tabla(s)</th></tr></thead>
+<tbody>
+<tr><td><code>profile/repository.ts</code></td><td><code>profiles</code></td></tr>
+<tr><td><code>workouts/repository.ts</code></td><td><code>workouts</code>, <code>workout_logs</code></td></tr>
+<tr><td>Ninguno hoy</td><td><code>systems</code> (consultada directamente donde se necesita — catálogo público de solo lectura, riesgo bajo) y <code>diagnoses</code> (sin escritor implementado aún, 05)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../03-frontend-architecture/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 03 · Frontend Architecture</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../05-database-handbook/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">05 · Database Handbook →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

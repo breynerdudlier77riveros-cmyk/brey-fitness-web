@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>04 · Validación e Integración — Anatomical Vocabulary</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="validacion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Sección 04 · Operación</p>
+<h1>Validación e Integración</h1>
+<p class="lede">Once comprobaciones mecánicas, todas en cero. Cobertura verificada contra los nueve patrones del Master Exercise Dataset. Dos desajustes de integración declarados, no resueltos por cuenta propia.</p>
+
+<h2 id="cifras">Cifras</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Métrica</th><th>Valor</th></tr></thead>
+<tbody>
+<tr><td>Estructuras</td><td><strong>72</strong></td></tr>
+<tr><td>Grupos</td><td><strong>13</strong></td></tr>
+<tr><td>Regiones</td><td><strong>4</strong></td></tr>
+<tr><td>Sinónimos resolubles</td><td><strong>79</strong></td></tr>
+<tr><td>Términos ambiguos rechazados</td><td><strong>15</strong></td></tr>
+<tr><td>Estructuras sin sinónimos</td><td>27 <span class="matrix-note">— término técnico sin forma coloquial extendida</span></td></tr>
+<tr><td>Estructuras en <code>status: active</code></td><td>72 <span class="matrix-note">— el 100 %</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="validacion">Las once comprobaciones</h2>
+<p class="matrix-note">Ejecutadas sobre la totalidad del vocabulario. Todas mecánicas: ninguna requiere criterio.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Comprobación</th><th>Regla</th><th>Fallos</th></tr></thead>
+<tbody>
+<tr><td>V1</td><td><code>id</code> duplicados</td><td>AV-3</td><td><strong>0</strong></td></tr>
+<tr><td>V2</td><td><code>id</code> con formato inválido — <code>snake_case</code></td><td>AV-1</td><td><strong>0</strong></td></tr>
+<tr><td>V3</td><td><code>display_name</code> duplicados</td><td>AV-5</td><td><strong>0</strong></td></tr>
+<tr><td>V4</td><td><code>common_name_es</code> duplicados</td><td>AV-6</td><td><strong>0</strong></td></tr>
+<tr><td>V5</td><td>Sinónimos ambiguos — el mismo término en dos estructuras</td><td>SY-1</td><td><strong>0</strong></td></tr>
+<tr><td>V6</td><td>Sinónimo que coincide con el nombre de otra estructura</td><td>SY-3</td><td><strong>0</strong></td></tr>
+<tr><td>V7</td><td>Sinónimos redundantes — repiten el nombre propio</td><td>SY-4</td><td><strong>0</strong></td></tr>
+<tr><td>V8</td><td>Grupos no declarados</td><td>AV-9</td><td><strong>0</strong></td></tr>
+<tr><td>V9</td><td>Grupos asignados a más de una región</td><td>C-5</td><td><strong>0</strong></td></tr>
+<tr><td>V10</td><td>Grupos sin ninguna estructura</td><td>AV-10</td><td><strong>0</strong></td></tr>
+<tr><td>V11</td><td>Términos ambiguos usados como sinónimo por error</td><td>SY-7</td><td><strong>0</strong></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">V7 detectó 10 fallos reales en la primera pasada</div>
+  <p>Diez estructuras llevaban como sinónimo su propio <code>common_name_es</code> —<code>romboides mayor</code> en <code>rhomboid_major</code>, <code>glúteo medio</code> en <code>gluteus_medius</code>…—. No rompían nada, pero inflaban el índice con entradas que no aportaban resolución. Se eliminaron: el recuento de sinónimos bajó de 89 a <strong>79</strong>.</p>
+</div>
+
+<h2 id="cobertura">Cobertura del Master Exercise Dataset</h2>
+<p class="matrix-note">Para cada patrón primario se enumeró la musculatura implicada y se comprobó que todo identificador existe en el vocabulario.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th><code>pattern_primary</code></th><th>Referencias</th><th>Sin resolver</th><th>Grupos implicados</th></tr></thead>
+<tbody>
+<tr><td><code>empuje-horizontal</code></td><td>10</td><td><strong>0</strong></td><td>3</td></tr>
+<tr><td><code>empuje-vertical</code></td><td>11</td><td><strong>0</strong></td><td>4</td></tr>
+<tr><td><code>traccion-horizontal</code></td><td>14</td><td><strong>0</strong></td><td>4</td></tr>
+<tr><td><code>traccion-vertical</code></td><td>13</td><td><strong>0</strong></td><td>5</td></tr>
+<tr><td><code>dominante-rodilla</code></td><td>12</td><td><strong>0</strong></td><td>6</td></tr>
+<tr><td><code>dominante-cadera</code></td><td>12</td><td><strong>0</strong></td><td>5</td></tr>
+<tr><td><code>core</code></td><td>10</td><td><strong>0</strong></td><td>5</td></tr>
+<tr><td><code>locomocion</code></td><td>15</td><td><strong>0</strong></td><td>6</td></tr>
+<tr><td><code>rotacion-potencia</code></td><td>12</td><td><strong>0</strong></td><td>7</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>109</strong></td><td><strong>0</strong></td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Resultado: 9 / 9 patrones con cobertura completa</div>
+  <p>Las 109 referencias resuelven. Los nueve patrones del Master Exercise Dataset —incluidos los dos reservados— pueden expresar su <code>muscle_primary</code> y sus <code>muscles_secondary</code> sin ningún identificador ausente.</p>
+</div>
+
+<h3 id="no-usadas">Las 12 estructuras no implicadas en ningún patrón</h3>
+<p class="matrix-note">60 de 72 estructuras (83,3 %) aparecen en la musculatura de al menos un patrón. Las 12 restantes existen para trabajo accesorio y de aislamiento, que no se clasifica por patrón primario.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Estructuras</th><th>Grupo</th><th>Para qué existen</th></tr></thead>
+<tbody>
+<tr><td><code>flexor_carpi_radialis</code> · <code>flexor_carpi_ulnaris</code> · <code>extensor_carpi_radialis</code> · <code>extensor_carpi_ulnaris</code> · <code>extensor_digitorum</code> · <code>pronator_teres</code></td><td>Forearm</td><td>Trabajo directo de antebrazo y muñeca — <code>isolation</code></td></tr>
+<tr><td><code>sternocleidomastoid</code> · <code>splenius_capitis</code> · <code>scalenes</code></td><td>Neck</td><td>Trabajo directo de cuello — <code>isolation</code></td></tr>
+<tr><td><code>gracilis</code> · <code>pectineus</code></td><td>Adductors</td><td><code>muscles_secondary</code> en aducción y sentadilla profunda</td></tr>
+<tr><td><code>coracobrachialis</code></td><td>Arm</td><td><code>muscles_secondary</code> en flexión de hombro</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Estas 12 no son cobertura sobrante</div>
+  <p>Un patrón primario describe un movimiento compuesto; un ejercicio de aislamiento de antebrazo o de cuello no tiene patrón dominante en el sentido del Master Exercise Dataset, pero sí necesita nombrar su musculatura. Retirarlas dejaría sin vocabulario a los ejercicios de rol <code>accesorio</code> de esas zonas.</p>
+</div>
+
+<h2 id="desajustes">Desajustes de integración declarados</h2>
+<p>El Master Exercise Dataset define <code>muscle_primary</code> sobre <strong>8 grupos musculares en español</strong>. Este vocabulario define <strong>13 grupos en inglés</strong>. Los dos modelos no coinciden, y el vocabulario <strong>no modifica el modelo existente</strong>: declara el desajuste y aporta el mapeo.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Grupo del Master Exercise Dataset</th><th>Grupos de este vocabulario</th><th>Estructuras</th></tr></thead>
+<tbody>
+<tr><td><code>pecho</code></td><td><code>Chest</code></td><td>5</td></tr>
+<tr><td><code>espalda</code></td><td><code>Back</code></td><td>9</td></tr>
+<tr><td><code>hombros</code></td><td><code>Shoulders</code></td><td>7</td></tr>
+<tr><td><code>brazos</code></td><td><code>Arm</code> · <code>Forearm</code></td><td>16</td></tr>
+<tr><td><code>piernas</code></td><td><code>Hip</code> · <code>Quadriceps</code> · <code>Hamstrings</code> · <code>Adductors</code> · <code>Calves</code></td><td>23</td></tr>
+<tr><td><code>core</code></td><td><code>Core</code></td><td>6</td></tr>
+<tr><td><code>gluteos</code></td><td><code>Glute</code></td><td>3</td></tr>
+<tr><td><code>full-body</code></td><td><span class="matrix-note">ninguno</span></td><td><strong>0</strong></td></tr>
+<tr><td><span class="matrix-note">ninguno</span></td><td><code>Neck</code></td><td><strong>3</strong></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Desajuste 1 · <code>full-body</code> no es una estructura anatómica</div>
+  <p>Es un agregado que significa «muchos grupos a la vez». Ningún grupo del vocabulario le corresponde, y no se crea uno artificial: sería una entrada sin músculo detrás, lo que viola el propósito del documento. Un ejercicio marcado <code>full-body</code> en el Master Exercise Dataset debe enumerar sus estructuras reales en <code>muscles_secondary</code>.</p>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Desajuste 2 · <code>Neck</code> no tiene equivalente</div>
+  <p>Los 8 grupos del Master Exercise Dataset no contemplan el cuello. Las tres estructuras cervicales existen aquí porque el ecosistema puede necesitar nombrarlas, pero hoy <strong>ningún ejercicio podría declararlas como <code>muscle_primary</code></strong> sin extender el enumerado del Master Exercise Dataset.</p>
+  <p>Extenderlo sería una <strong>versión MENOR</strong> de aquel dataset —la regla de extensión aditiva lo permite—, pero es una decisión de su propietario. Aquí se registra, no se ejecuta.</p>
+</div>
+
+<h2 id="contrato">Contrato de uso</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Regla de integración</th></tr></thead>
+<tbody>
+<tr><td>I-1</td><td>Un consumidor referencia una estructura <strong>siempre por <code>id</code></strong>, nunca por nombre ni por sinónimo</td></tr>
+<tr><td>I-2</td><td>Un consumidor no persiste una copia del vocabulario como fuente propia</td></tr>
+<tr><td>I-3</td><td>Un consumidor puede rechazar cualquier identificador que no exista aquí — el vocabulario es cerrado</td></tr>
+<tr><td>I-4</td><td>La resolución por sinónimo es para <strong>entrada de texto libre y búsqueda</strong>; su resultado no alimenta una decisión automática</td></tr>
+<tr><td>I-5</td><td>Un término de la tabla de ambiguos <strong>no se resuelve</strong>: se devuelve la lista de candidatos y se pide precisión</td></tr>
+<tr><td>I-6</td><td><code>group</code> y <code>region</code> son facetas de agregación; no sustituyen al <code>id</code> como referencia</td></tr>
+<tr><td>I-7</td><td>Añadir estructuras es aditivo y no rompe a ningún consumidor; retirarlas no está previsto en v1.0</td></tr>
+</tbody>
+</table>
+</div>
+<div class="diagram">
+<div class="diagram-label">Cómo consume el ecosistema el vocabulario</div>
+<pre class="mermaid">
+flowchart LR
+  AV[("Anatomical<br/>Vocabulary<br/>72 · solo lectura")] -->|"id"| MED["Master Exercise Dataset<br/>muscle_primary<br/>muscles_secondary"]
+  AV -->|"id"| TAG["Exercise Tagging"]
+  AV -->|"id"| TAX["Exercise Taxonomy"]
+  AV -->|"id"| PE["Progression Engine<br/><i>solapamiento muscular</i>"]
+  AV -->|"id"| WG["Workout Generator<br/><i>reparto de volumen</i>"]
+  AV -->|"group · region"| ST["Estadísticas · filtros"]
+  AV -->|"synonyms"| IA["IA · búsqueda<br/><i>texto libre → id</i>"]
+  IA -.->|"término ambiguo:<br/>devuelve candidatos"| ASK["Pide precisión"]
+</pre>
+</div>
+
+<h2 id="conclusion">Conclusión</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">El vocabulario puede usarse ya como dependencia oficial</div>
+  <p>Las 11 comprobaciones están en cero, los 9 patrones tienen cobertura completa y las 109 referencias resuelven. El Master Exercise Dataset puede adoptarlo <strong>inmediatamente</strong> como fuente de <code>muscle_primary</code> y <code>muscles_secondary</code>.</p>
+  <p>Con una condición explícita: los dos desajustes de arriba son <strong>decisiones pendientes del propietario del Master Exercise Dataset</strong>, no defectos de este vocabulario. Hasta que se resuelvan, ningún ejercicio puede declarar musculatura cervical como primaria, y <code>full-body</code> sigue siendo un agregado sin estructura anatómica propia.</p>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Sobre la cifra de cobertura</div>
+  <p>La cobertura se midió contra los <strong>nueve patrones</strong>, no contra 220 fichas — esas fichas todavía no existen. Es una estimación por construcción: si la musculatura de cada patrón está cubierta, la de cualquier ejercicio de ese patrón también lo está. La primera comprobación real llegará con las 18 entradas de la fase 1 del roadmap del Master Exercise Dataset.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../03-sinonimos/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 03 · Sinónimos</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../../index.html">
+    <div class="pagenav__dir">Volver</div>
+    <div class="pagenav__title">Índice del vocabulario →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

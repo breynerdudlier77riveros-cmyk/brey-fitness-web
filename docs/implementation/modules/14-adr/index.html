@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>14 · ADR — Implementation Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="adr" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 14 · Checklists y gobernanza</p>
+<h1>Decisiones de Arquitectura (ADR)</h1>
+<p class="lede">Seis decisiones propias de este handbook — todas de secuenciación u orquestación, ninguna redefine una regla de negocio de los seis documentos que este handbook asume.</p>
+
+<div class="adr" id="imp-adr-01">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">IMP-ADR-01</div>
+  <h3>Forma canónica del Veredicto de Recovery, para efectos de implementación</h3>
+  <p><strong>Contexto:</strong> la Architecture Review (AR-001) encontró que Motor BPS Handbook (<code>{si, tipo?: programada|reactiva, razon?}</code>) y Progression Engine Handbook (<code>{procede: boolean, tipo: "normal"|"descarga", razon: string}</code>) especifican formas incompatibles del mismo DTO.</p>
+  <p><strong>Problema:</strong> ninguno de los dos handbooks puede editarse desde este documento (alcance de este handbook: orquestar, no reescribir) — pero la implementación necesita una forma única para poder empezar.</p>
+  <p><strong>Alternativas consideradas:</strong> (a) adoptar la forma de Motor BPS tal cual; (b) adoptar la forma de Progression Engine tal cual; (c) reconciliar ambas, preservando la información que cada una aporta y que la otra no tiene (Motor BPS distingue <em>cómo</em> se disparó la descarga — programada/reactiva —, información ausente en Progression Engine).</p>
+  <p><strong>Decisión:</strong> se adopta la forma reconciliada <code>{procede: boolean, subtipo?: "programada" | "reactiva", razon: string}</code> — el campo booleano y la obligatoriedad de <code>razon</code> de Progression Engine (más seguro, sin chequeos de nulidad adicionales), más el detalle de subtipo de Motor BPS renombrado a <code>subtipo</code> para no colisionar con ningún uso existente de <code>tipo</code> en ningún handbook.</p>
+  <p><strong>Consecuencias:</strong> esta forma es la que se implementa en código (08, 09). No sustituye lo que Motor BPS Handbook o Progression Engine Handbook dicen en su propio texto — es la interpretación de implementación de este handbook, documentada aquí para que ambos equipos (si son distintos) construyan contra el mismo contrato desde el primer día.</p>
+</div>
+
+<div class="adr" id="imp-adr-02">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">IMP-ADR-02</div>
+  <h3>Recovery Engine se implementa con contrato mínimo, sin esperar su handbook completo</h3>
+  <p><strong>Contexto:</strong> la Architecture Review (AR-006) identificó que Recovery Engine es una dependencia estructural de dos motores ya especificados en profundidad, pero no tiene handbook de dominio propio.</p>
+  <p><strong>Problema:</strong> esperar el handbook completo de Recovery Engine antes de empezar Motor BPS/Progression Engine bloquearía toda la Pista B indefinidamente, sin fecha cierta.</p>
+  <p><strong>Alternativas consideradas:</strong> (a) bloquear la Pista B hasta que exista el handbook completo; (b) implementar un contrato mínimo (la forma de IMP-ADR-01, con una lógica interna deliberadamente simple) que desbloquea a los consumidores sin fingir que la especificación de dominio de Recovery está terminada.</p>
+  <p><strong>Decisión:</strong> se adopta (b) — el contrato mínimo se implementa en el paso 10 de 04; la lógica de decisión real de Recovery Engine (qué constituye fatiga, cuándo exige descarga) queda pendiente de su propio handbook, y su ausencia se declara explícitamente, no se disfraza.</p>
+  <p><strong>Consecuencias:</strong> Motor BPS y Progression Engine pueden avanzar sin bloqueo indefinido; el comportamiento real de Recovery (más allá de "siempre procede") se corrige cuando su handbook exista, sin requerir cambios de contrato en sus consumidores.</p>
+</div>
+
+<div class="adr" id="imp-adr-03">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">IMP-ADR-03</div>
+  <h3>BCS y Motores se construyen en pistas paralelas, no secuenciales</h3>
+  <p><strong>Contexto:</strong> el BCS Handbook (00) declara explícitamente ausencia de dependencia de dominio hacia Motor BPS/Progression Engine.</p>
+  <p><strong>Problema:</strong> sin una decisión explícita, la tentación natural es secuenciar todo el trabajo en una única lista, alargando innecesariamente el tiempo total.</p>
+  <p><strong>Alternativas consideradas:</strong> (a) construir todo en serie, en el orden en que los handbooks fueron escritos; (b) paralelizar exactamente donde el dominio ya lo garantiza (Regla 3, 01).</p>
+  <p><strong>Decisión:</strong> se adopta (b) — Pista A (BCS) y Pista B (Motores) corren en paralelo desde la Fase 1 (03), compartiendo solo la Fase 0 (fundación) como precondición común.</p>
+  <p><strong>Consecuencias:</strong> el tiempo total de la Fase 1 es el máximo de las dos pistas, no la suma — pero exige que ambos equipos (si son distintos) no asuman disponibilidad del trabajo del otro antes de la Fase 2 (Integración, 09).</p>
+</div>
+
+<div class="adr" id="imp-adr-04">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">IMP-ADR-04</div>
+  <h3>La migración de endurecimiento RLS se aplica antes que cualquier feature nueva</h3>
+  <p><strong>Contexto:</strong> la Architecture Review (AR-018) reafirma una migración ya especificada por el Architecture Handbook desde antes de este roadmap, nunca aplicada.</p>
+  <p><strong>Problema:</strong> es tentador tratar esta migración como "una más" en la lista y postergarla detrás de trabajo de feature más visible.</p>
+  <p><strong>Alternativas consideradas:</strong> (a) aplicarla junto con la primera feature que la necesite (Progression Engine, que lee el historial); (b) aplicarla primero, antes de cualquier otra cosa, como parte de la Fase 0.</p>
+  <p><strong>Decisión:</strong> se adopta (b) — M1 es el primer paso de 04, antes incluso que las migraciones nuevas (M2, M3). Ninguna feature nueva se considera "lista para empezar" mientras esta brecha de seguridad siga abierta (Regla 5, 01).</p>
+  <p><strong>Consecuencias:</strong> un usuario pierde la capacidad de borrar su propio historial de entrenamientos antes de que exista ninguna razón de negocio urgente para ello — se acepta el costo de UX (mínimo, ya que borrar historial no era un caso de uso de producto declarado) a cambio de cerrar la brecha cuanto antes.</p>
+</div>
+
+<div class="adr" id="imp-adr-05">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">IMP-ADR-05</div>
+  <h3>Ningún motor se implementa sin una Definition of Ready verificada, ligada a la Architecture Review</h3>
+  <p><strong>Contexto:</strong> la Architecture Review catalogó hallazgos con distinta severidad (🔴🟠🟡🟢) sobre los handbooks de dominio.</p>
+  <p><strong>Problema:</strong> sin una regla explícita, cada equipo podría decidir por su cuenta qué hallazgos son "suficientemente graves" para bloquear su propio trabajo, con criterios inconsistentes entre pistas.</p>
+  <p><strong>Alternativas consideradas:</strong> (a) dejar el criterio a discreción de cada equipo; (b) fijar una regla objetiva: ningún motor empieza si tiene un hallazgo 🔴 abierto que lo afecte directamente y no esté resuelto por un IMP-ADR de este mismo módulo.</p>
+  <p><strong>Decisión:</strong> se adopta (b) — la Definition of Ready de 01/08 aplica este criterio de forma literal: los 🔴 de AR-001/AR-006 se resuelven aquí mismo (IMP-ADR-01/02); AR-014 (transición de Nivel faltante) y AR-008 (PE-012 ambiguo) son 🟠 y quedan como condición explícita de "completo" para sus respectivos pasos en 08, no como bloqueantes de inicio.</p>
+  <p><strong>Consecuencias:</strong> un hallazgo 🔴 nuevo que surja durante la construcción (no anticipado por la Architecture Review) detiene el trabajo de la pieza afectada hasta que se resuelva con el mismo rigor — este documento no distingue entre hallazgos "ya conocidos" y "descubiertos después" para efectos de esta regla.</p>
+</div>
+
+<div class="adr" id="imp-adr-06">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">IMP-ADR-06</div>
+  <h3>Mapeo canónico de las 25 variables del BCS a nombre de columna</h3>
+  <p><strong>Contexto:</strong> la Architecture Review (AR-017) encontró que ningún documento traduce las 25 fichas de variable del BCS Handbook (03) a una lista de columnas concreta.</p>
+  <p><strong>Problema:</strong> sin esa traducción, dos implementadores podrían nombrar la misma variable de forma distinta, rompiendo SSoT antes de la primera migración.</p>
+  <p><strong>Alternativas consideradas:</strong> (a) dejar que la primera implementación real fije el nombre y se documente retroactivamente; (b) resolverlo en este handbook, aplicando la convención de naming ya fijada por el Engineering Handbook (05), antes de escribir la migración M3.</p>
+  <p><strong>Decisión:</strong> se adopta (b) — la tabla completa de mapeo vive en 05 (Migraciones), no en el BCS Handbook (que se mantiene sin editar, con sus 25 fichas en prosa) ni en el Engineering Handbook (que fija la convención general, no el caso particular).</p>
+  <p><strong>Consecuencias:</strong> la migración M3 puede escribirse sin ambigüedad; cualquier variable nueva que el BCS Handbook añada en el futuro requiere una entrada nueva en esta misma tabla antes de su propia migración, siguiendo el mismo patrón.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../13-release-checklist/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 13 · Release Checklist</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../15-glosario/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">15 · Glosario →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

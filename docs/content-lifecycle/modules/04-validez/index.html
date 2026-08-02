@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>04 · Validez y Vigencia — Content Lifecycle</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="validez" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 04 · El ciclo</p>
+<h1>Validez y Vigencia</h1>
+<p class="lede">Pregunta 8: ¿cuándo deja de ser válida una entrada? La respuesta documental es incómoda y precisa: <strong>nunca</strong>. Una vez válida, nada documentado la invalida por el paso del tiempo.</p>
+
+<h2 id="validez">Qué hace válida a una entrada</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Condición</th><th>Verificable por</th><th>Fuente</th></tr></thead>
+<tbody>
+<tr><td>Los 15 atributos obligatorios están presentes</td><td>Máquina</td><td>Modelo de 21 atributos</td></tr>
+<tr><td>Todo valor pertenece a su vocabulario cerrado</td><td>Máquina</td><td>Vocabularios publicados</td></tr>
+<tr><td>Existe exactamente un <code>patronPrimario</code></td><td>Máquina</td><td>"Sin él el ejercicio es inválido"</td></tr>
+<tr><td>La cadena no cruza de patrón ni tiene ciclos</td><td>Máquina</td><td>Reglas 1 y 4 de la cadena</td></tr>
+<tr><td><code>zonasRiesgo</code> distingue ausencia de lista vacía</td><td>Máquina</td><td>Filtro de seguridad "no removible"</td></tr>
+<tr><td>La clasificación describe correctamente el movimiento</td><td><strong>Humana</strong></td><td>P14 · criterio de entrenador</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">La validez es una propiedad del estado actual, no del tiempo</div>
+  <p>Toda condición documentada de validez se evalúa sobre <strong>los atributos que la entrada tiene ahora</strong>. Ninguna depende de cuándo se creó, de cuánto tiempo lleva sin revisarse ni de qué versión de catálogo la introdujo.</p>
+</div>
+
+<h2 id="invalidez">Qué la invalida</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Causa</th><th>¿Documentada?</th><th>Efecto</th></tr></thead>
+<tbody>
+<tr><td>Falta un atributo obligatorio</td><td>✅ Sí</td><td>"Rechazado al validar el catálogo — nunca llega a ser elegible"</td></tr>
+<tr><td>Un valor sale del vocabulario</td><td>✅ Sí</td><td>Rechazo estructural</td></tr>
+<tr><td>La cadena forma un ciclo</td><td>✅ Sí</td><td>"Rechazado por validación estructural"</td></tr>
+<tr><td>Una referencia deja de resolver</td><td>⚠️ Derivada</td><td>Integridad referencial rota</td></tr>
+<tr><td><strong>El paso del tiempo</strong></td><td>❌ No</td><td>Ninguno</td></tr>
+<tr><td><strong>Un cambio de vocabulario</strong></td><td>❌ No documentado</td><td>La entrada quedaría inconsistente sin que nada la marque</td></tr>
+<tr><td><strong>Un cambio de evidencia científica</strong></td><td>❌ No</td><td>Ver módulo <a href="../13-evidencia-cientifica/index.html">13</a></td></tr>
+<tr><td><strong>La retirada</strong></td><td>❌ No expresable</td><td>Ver módulo <a href="../06-publicacion/index.html">06</a></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Deuda CL-D02 — no existe caducidad ni revisión periódica</div>
+  <p>El barrido devuelve <strong>cero</strong> para cualquier mecanismo que invalide una entrada por antigüedad, por falta de revisión o por cambio del contexto que la respaldaba. Una entrada etiquetada hoy seguirá siendo válida indefinidamente mientras sus atributos no cambien, aunque el vocabulario, la evidencia o el criterio hayan evolucionado.</p>
+</div>
+
+<h2 id="contraste">El contraste: el ecosistema sí sabe caducar</h2>
+<p class="matrix-note">La caducidad por tiempo existe y está bien resuelta — para otros objetos.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Objeto</th><th>Mecanismo de caducidad</th><th>Fuente</th></tr></thead>
+<tbody>
+<tr><td><strong>Diagnóstico</strong></td><td>Expira a los 6 meses: "un nivel de entrada de hace un año no es un dato de seguridad vigente"</td><td>Motor BPS 06</td></tr>
+<tr><td><strong>Restricción temporal de zona</strong></td><td>Vigencia de 14 días desde el evento de dolor; expira sola</td><td>BPS-024</td></tr>
+<tr><td><strong>Capacidad demostrada</strong></td><td>Pregunta abierta: "¿expiran tras 6 meses sin entrenar? Propuesta: sí — sin decidir"</td><td>Architecture Handbook 04</td></tr>
+<tr><td><strong>Semana generada</strong></td><td>Un Workout vence a <code>perdido</code> si pasa su fecha sin ejecución</td><td>Domain Model 10</td></tr>
+<tr><td><strong>Entrada de catálogo</strong></td><td><strong>Ninguno</strong></td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Cuatro precedentes de caducidad, ninguno aplicado al catálogo</div>
+  <p>El ecosistema razona la caducidad con cuidado cuando la necesita, y llega a declararla como pregunta abierta cuando no la decide. Que el catálogo no tenga ninguno no es un olvido de forma: es que <strong>nadie ha planteado la pregunta</strong> para las entradas.</p>
+</div>
+
+<h2 id="vigencia">"Vigente" en el ecosistema</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">82 archivos usan "vigente" y ninguno se refiere a una entrada</div>
+  <p>El término está muy presente, siempre aplicado a otros objetos: <strong>prescripción vigente</strong> (la que el Progression Engine ajusta), <strong>eslabón vigente</strong> (la posición del usuario en una cadena), <strong>resultado vigente</strong> (el diagnóstico no expirado), <strong>Mesociclo vigente</strong>, <strong>Microciclo vigente</strong>. Es un adjetivo de <em>estado del usuario o del programa</em>, nunca de estado de catálogo.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Todo lo que el ecosistema declara "vigente" — y lo que no</div>
+<pre class="mermaid">
+graph TD
+  V["'vigente' · 82 archivos"] --> P["Prescripción vigente<br/>Progression Engine"]
+  V --> E["Eslabón vigente<br/>posición del usuario"]
+  V --> D["Resultado vigente<br/>diagnóstico no expirado"]
+  V --> M["Mesociclo / Microciclo vigente<br/>Training Framework"]
+  X["Entrada de catálogo"] -.->|"❌ nunca se declara<br/>vigente ni no vigente"| V
+</pre>
+</div>
+
+<h2 id="consecuencias">Consecuencias de la ausencia de caducidad</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Consecuencia</th><th>Severidad</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Una entrada etiquetada con un criterio antiguo nunca se marca para reevaluación</td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td>2</td><td>Un cambio de vocabulario deja entradas inconsistentes sin identificarlas</td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td>3</td><td>No se puede distinguir una entrada revisada recientemente de una nunca revisada</td><td><span class="severity severity--media">media</span></td></tr>
+<tr><td>4</td><td>La única forma de detectar una entrada obsoleta es que produzca un fallo</td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td>5</td><td>Los errores de contenido que no producen fallo permanecen indefinidamente</td><td><span class="severity severity--critica">crítica</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">La consecuencia estructural</div>
+  <p>Sin caducidad ni revisión periódica, <strong>la única vía de salida de un error de catálogo es que alguien tropiece con él</strong>. Y como los errores más peligrosos —una zona de riesgo mal etiquetada, un rol equivocado— no producen ningún fallo visible, el mecanismo de detección no cubre precisamente los casos que más importan.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../03-nacimiento/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 03 · Nacimiento</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../05-autoridad/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">05 · Autoridad →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

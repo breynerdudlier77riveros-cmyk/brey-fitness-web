@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>07 · Equipamiento — Exercise Tagging Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="equipamiento" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 07 · Reglas por atributo</p>
+<h1>Reglas de Etiquetado — Equipamiento</h1>
+<p class="lede">El único eje del proceso que ya está etiquetado en los 19 ejercicios del catálogo. Y, aun así, el que arrastra dos ambigüedades que impiden usarlo con precisión.</p>
+
+<h2 id="estado">Estado singular de este eje</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Etiquetado completo, semántica incompleta</div>
+  <p><code>equipo[]</code> es el único de los ejes de elegibilidad que la tabla de atributos marca como "Existe" en el catálogo actual: los 19 ejercicios lo declaran. La fuente cierra el vocabulario explícitamente — "el vocabulario en sí queda cerrado aquí" — pero deja abiertas dos cuestiones que condicionan cómo se interpreta lo ya etiquetado.</p>
+</div>
+
+<h2 id="vocabulario">Vocabulario cerrado</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Slug</th><th>Etiquetable</th></tr></thead>
+<tbody>
+<tr><td><code>barra</code></td><td>Sí</td></tr>
+<tr><td><code>mancuernas</code></td><td>Sí</td></tr>
+<tr><td><code>maquina</code></td><td>Sí</td></tr>
+<tr><td><code>peso-corporal</code></td><td>Sí</td></tr>
+<tr><td><code>cables</code></td><td>Sí</td></tr>
+<tr><td><code>kettlebell</code></td><td>Sí</td></tr>
+</tbody>
+</table>
+</div>
+<p>Cualquier implemento fuera de esta lista no es etiquetable: ampliar el vocabulario es una decisión documental, nunca el efecto colateral de etiquetar un ejercicio nuevo (TG-01 / nivel 3 de la jerarquía).</p>
+
+<h2 id="ambiguedad-1">Ambigüedad 1 — conjunción o disyunción</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Ninguna fuente declara qué significa una lista con varios equipos</div>
+  <p>El paso 0 de la resolución filtra por "equipoElegible: track", pero no se especifica si un ejercicio con <code>equipo: ["barra", "mancuernas"]</code> requiere <strong>todo</strong> el equipo listado o <strong>alguno</strong> de él.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Lectura</th><th>Significado al etiquetar</th><th>Efecto en elegibilidad</th></tr></thead>
+<tbody>
+<tr><td><strong>Conjunción</strong> ("necesita todo")</td><td>La lista enumera los implementos <em>imprescindibles</em> del ejercicio</td><td>Más restrictiva: un ejercicio de barra+banco exige ambos disponibles</td></tr>
+<tr><td><strong>Disyunción</strong> ("basta uno")</td><td>La lista enumera los implementos <em>con los que puede ejecutarse</em></td><td>Más permisiva: <code>equipo[]</code> se lee como variantes de implemento</td></tr>
+</tbody>
+</table>
+</div>
+<p>Ambas lecturas son compatibles con el texto existente y producen catálogos elegibles distintos. Más grave para el etiquetado: <strong>producen etiquetas distintas para el mismo ejercicio</strong> — quien crea en la conjunción listará lo imprescindible, quien crea en la disyunción listará lo posible. Deuda <a href="../17-auditoria/index.html">TG-D05</a>.</p>
+
+<h2 id="ambiguedad-2">Ambigüedad 2 — el mapeo equipo→Track no existe</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">La fuente lo declara pendiente y usa un ejemplo propio</div>
+  <p>"El mapeo exacto (<strong>¿kettlebell es <code>casa</code>?</strong>) es decisión de contenido pendiente — Roadmap H2". Solo <code>peso-corporal</code> se deduce sin ambigüedad como disponible en ambos Tracks. Deuda <a href="../17-auditoria/index.html">TG-D06</a>.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">La cadena de filtrado tiene un eslabón sin definir</div>
+<pre class="mermaid">
+flowchart LR
+  E["Ejercicio<br/>equipo[] etiquetado ✅"] --> F{"Filtro de elegibilidad"}
+  P["Perfil<br/>lugar_entrenamiento ✅"] --> T["Track<br/>gym · casa · ambos ✅"]
+  T -->|"conjunto de equipo elegible<br/>❌ MAPEO NO DEFINIDO"| F
+  F --> R["Candidatos"]
+</pre>
+</div>
+
+<h2 id="proceso">Cómo se etiqueta</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Pregunta</th><th>Respuesta documental</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>¿Qué valores admite?</td><td>Los 6 del vocabulario cerrado</td><td><span class="tag tag--implementado">documentada</span></td></tr>
+<tr><td>¿Es obligatorio?</td><td>Sí — la tabla de atributos lo marca obligatorio</td><td><span class="tag tag--implementado">documentada</span></td></tr>
+<tr><td>¿Puede ir vacío?</td><td>No declarado. Un ejercicio sin equipo sería <code>peso-corporal</code>, que es un valor del vocabulario</td><td><span class="tag tag--especificado">derivada</span></td></tr>
+<tr><td>¿Cómo se decide qué listar?</td><td>Observable del movimiento, pero <strong>ninguna fuente lo enuncia como criterio</strong></td><td><span class="tag tag--especificado">parcial</span></td></tr>
+<tr><td>¿Qué significa listar varios?</td><td>Sin definir — ver ambigüedad 1</td><td><span class="tag tag--futuro">deuda</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="densidad">Efecto sobre la densidad de catálogo</h2>
+<p>El equipamiento es uno de los tres filtros que producen <code>CATALOGO_INSUFICIENTE</code>, junto con el nivel y las zonas excluidas. La fuente anticipa el resultado como comportamiento correcto: "Con 19 ejercicios, combinaciones legítimas (<strong>Casa</strong> + Avanzado + exclusión de hombro) caerán en <code>CATALOGO_INSUFICIENTE</code>". Etiquetar equipamiento con criterio restrictivo estrecha el catálogo elegible; etiquetarlo con criterio laxo produce sesiones que el usuario no puede ejecutar. Sin resolver la ambigüedad 1, no hay forma de saber cuál de los dos errores se está cometiendo.</p>
+
+<h2 id="validaciones">Validaciones aplicables</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Validación</th><th>Capa</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>Todos los valores pertenecen a los 6 publicados</td><td>Estructural</td><td><span class="tag tag--implementado">verificable</span></td></tr>
+<tr><td>El atributo está presente</td><td>Estructural</td><td><span class="tag tag--implementado">verificable</span></td></tr>
+<tr><td>No hay valores repetidos</td><td>Estructural</td><td><span class="tag tag--futuro">no declarada</span></td></tr>
+<tr><td>La lista refleja el equipo realmente necesario</td><td><strong>Contenido</strong></td><td>Bloqueada por TG-D05 — no se sabe qué debe reflejar</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../06-modalidad/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 06 · Modalidad</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../08-zonas-riesgo/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">08 · Zonas de Riesgo →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -18,3 +18,10 @@ export const APP_PREFIX = '/app';
 // Rutas de autenticación — tampoco llevan chrome de marketing (tienen su
 // propio layout minimalista en app/(auth)/layout.tsx).
 export const AUTH_ROUTES = ['/login', '/signup', '/reset-password', '/update-password'];
+
+// Reporte público del BCS por token. Tampoco lleva chrome de marketing: es un
+// documento clínico que el entrenador entrega a su cliente, y el cliente no
+// es un visitante de la landing. Sin esto, quien abría el enlace se
+// encontraba el Navbar con "Entrar"/"Crear cuenta" y el Footer con los
+// enlaces legales del sitio alrededor de su informe.
+export const REPORT_PREFIX = '/reportes';

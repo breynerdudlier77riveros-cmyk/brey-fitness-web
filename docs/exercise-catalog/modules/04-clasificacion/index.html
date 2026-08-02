@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>04 · Clasificación — Exercise Catalog</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="clasificacion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 04 · El contrato</p>
+<h1>Clasificación</h1>
+<p class="lede">Este módulo <strong>no define ninguna clasificación</strong>. La delega íntegramente al Exercise Taxonomy Handbook y documenta únicamente lo que el catálogo necesita saber: qué ejes consume, con qué cardinalidad y qué obligación impone cada uno a una entrada.</p>
+
+<h2 id="delegacion">Delegación explícita</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">CT-ADR-01 aplicado</div>
+  <p>Los vocabularios de clasificación —9 patrones, 5 roles, 2 ejes de modalidad, 6 equipos, 6 zonas de riesgo con 3 intensidades— se publican en el Architecture Handbook 04 y se consolidan en el Exercise Taxonomy Handbook. Este handbook los <strong>referencia</strong>. Reproducir aquí las tablas completas crearía una cuarta copia del vocabulario y, con el tiempo, una cuarta versión divergente.</p>
+</div>
+
+<h2 id="ejes">Los ejes que una entrada debe declarar</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Eje</th><th>Atributo</th><th>Cardinalidad</th><th>Obligatorio</th><th>Vocabulario</th></tr></thead>
+<tbody>
+<tr><td>Patrón primario</td><td><code>patronPrimario</code></td><td>Exactamente 1</td><td>Sí — sin él la entrada es inválida</td><td>9 valores (7 activos, 2 reservados)</td></tr>
+<tr><td>Patrones secundarios</td><td><code>patronesSecundarios[]</code></td><td>0..N</td><td>No</td><td>Los mismos 9</td></tr>
+<tr><td>Roles</td><td><code>rolesPosibles[]</code></td><td>1..5 · sin límite superior declarado</td><td>Sí</td><td>5 valores</td></tr>
+<tr><td>Modalidad · ejecución</td><td><code>modalidad</code></td><td>Exactamente 1</td><td>Sí</td><td><code>dinamico</code> · <code>isometrico</code></td></tr>
+<tr><td>Modalidad · lateralidad</td><td><code>modalidad</code></td><td>Exactamente 1</td><td>Sí</td><td><code>bilateral</code> · <code>unilateral</code></td></tr>
+<tr><td>Equipamiento</td><td><code>equipo[]</code></td><td>1..N</td><td>Sí</td><td>6 valores</td></tr>
+<tr><td>Zonas de riesgo</td><td><code>zonasRiesgo[]</code></td><td>0..6 · lista vacía válida</td><td>Sí (la <em>ausencia</em> no lo es)</td><td>6 zonas × 3 intensidades</td></tr>
+<tr><td>Nivel</td><td><code>nivel</code></td><td>Exactamente 1</td><td>Sí</td><td>3 valores</td></tr>
+<tr><td>Tipo</td><td><code>tipo</code></td><td>Exactamente 1</td><td>Sí</td><td>3 valores</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="reglas">Las tres reglas de clasificación que el catálogo hace cumplir</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Un primario, N secundarios — solo el primario llena slots</div>
+  <p>La resolución filtra <strong>únicamente</strong> por patrón primario. Los secundarios describen; no habilitan. Una entrada con dos primarios es estructuralmente inválida.</p>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Los vocabularios son cerrados</div>
+  <p>Un valor fuera del vocabulario publicado invalida la entrada. Ampliar un vocabulario es una decisión documental, nunca el efecto colateral de crear una entrada de catálogo.</p>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Ausencia y lista vacía son afirmaciones distintas</div>
+  <p>En <code>zonasRiesgo</code>, la lista vacía afirma "evaluado: no carga zonas en riesgo"; la ausencia afirma "sin evaluar". El catálogo debe poder distinguirlas, porque el filtro de seguridad "es de seguridad y no removible".</p>
+</div>
+
+<h2 id="ortogonalidad">Ortogonalidad</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Casi ninguna combinación está prohibida</div>
+  <p>El barrido no encuentra ninguna regla que prohíba una combinación concreta de valores entre dos ejes distintos: cualquier patrón admite cualquier rol, cualquier modalidad y cualquier equipamiento. La única restricción inter-eje documentada es que <strong>la cadena no cruza de patrón</strong>. Para el catálogo esto significa que la validación de clasificación es por eje, no por combinación.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Qué condiciona qué — y la única restricción cruzada</div>
+<pre class="mermaid">
+graph TD
+  E["Entrada de catálogo"] --> P["patronPrimario"]
+  E --> R["rolesPosibles[]"]
+  E --> M["modalidad"]
+  E --> Q["equipo[]"]
+  E --> Z["zonasRiesgo[]"]
+  E --> N["nivel · tipo"]
+  P -->|"ÚNICA restricción cruzada:<br/>la cadena vive dentro<br/>de un patrón"| C["cadena"]
+  R -.->|sin relación| M
+  M -.->|sin relación| Q
+  Q -.->|sin relación| Z
+</pre>
+</div>
+
+<h2 id="estado-real">Estado de la clasificación en el catálogo actual</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Eje</th><th>Poblado en los 19</th><th>Consecuencia</th></tr></thead>
+<tbody>
+<tr><td><code>tipo</code>, <code>nivel</code>, <code>equipo[]</code></td><td>✅ 19 de 19</td><td>Utilizables como filtro</td></tr>
+<tr><td><code>musculoPrincipal</code>, <code>musculosSecundarios[]</code></td><td>✅ 19 de 19</td><td>Descriptivos; no participan en la resolución de slots</td></tr>
+<tr><td><code>patronPrimario</code></td><td>❌ 0 de 19</td><td><strong>Ninguna entrada puede llenar un slot</strong></td></tr>
+<tr><td><code>rolesPosibles[]</code></td><td>❌ 0 de 19</td><td>Sin rol no hay posición en la sesión</td></tr>
+<tr><td><code>modalidad</code></td><td>❌ 0 de 19</td><td>El Player no sabría si mostrar contador o cronómetro</td></tr>
+<tr><td><code>zonasRiesgo[]</code></td><td>❌ 0 de 19</td><td>El filtro de seguridad excluye todo lo no evaluado</td></tr>
+</tbody>
+</table>
+</div>
+<p>El reparto es exacto: <strong>los ejes descriptivos están completos; los ejes que la resolución de slots consume están vacíos</strong>. Es la misma frontera que el Roadmap declara como bloqueante #2, con dueño "Contenido".</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../03-identidad/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 03 · Identidad</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../05-compatibilidades/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">05 · Compatibilidades →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

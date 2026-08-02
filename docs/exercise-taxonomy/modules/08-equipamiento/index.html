@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>08 · Equipamiento — Exercise Taxonomy Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="equipamiento" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 08 · Ejes de clasificación</p>
+<h1>Equipamiento</h1>
+<p class="lede">El eje que responde "¿qué hace falta para ejecutarlo?". Seis valores cerrados, su relación con el Track del usuario, y el mapeo pendiente que hoy impide filtrar el catálogo con precisión.</p>
+
+<h2 id="vocabulario">Vocabulario cerrado</h2>
+<p>El Architecture Handbook 04 lo declara ya existente en el catálogo y cerrado en su forma: <code>barra</code> · <code>mancuernas</code> · <code>maquina</code> · <code>peso-corporal</code> · <code>cables</code> · <code>kettlebell</code>.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Slug</th><th>Estado en catálogo</th><th>Track evidente</th></tr></thead>
+<tbody>
+<tr><td><code>barra</code></td><td><span class="tag tag--implementado">existe</span></td><td>gym</td></tr>
+<tr><td><code>mancuernas</code></td><td><span class="tag tag--implementado">existe</span></td><td><strong>no especificado</strong></td></tr>
+<tr><td><code>maquina</code></td><td><span class="tag tag--implementado">existe</span></td><td>gym</td></tr>
+<tr><td><code>peso-corporal</code></td><td><span class="tag tag--implementado">existe</span></td><td>ambos</td></tr>
+<tr><td><code>cables</code></td><td><span class="tag tag--implementado">existe</span></td><td>gym</td></tr>
+<tr><td><code>kettlebell</code></td><td><span class="tag tag--implementado">existe</span></td><td><strong>no especificado</strong> — la fuente lo usa como ejemplo del problema</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">El mapeo equipo→Track no existe</div>
+  <p>La fuente es explícita: "El mapeo exacto (¿kettlebell es <code>casa</code>?) es decisión de contenido pendiente — Roadmap H2; <strong>el vocabulario en sí queda cerrado aquí</strong>". La columna "Track evidente" de la tabla anterior es lectura de sentido común, <strong>no documentación</strong>: solo <code>peso-corporal</code> se deduce sin ambigüedad. Este handbook no completa el mapeo — sería inventar contenido. Registrado en <a href="../16-preguntas-abiertas/index.html">TX-Q19</a>.</p>
+</div>
+
+<h2 id="track">Relación con el Track</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">El Track almacena el conjunto de equipo elegible</div>
+  <p>El Track (capa 2 del Training Framework) es la variante de contexto/equipo del Sistema: <code>gym</code> · <code>casa</code> · <code>ambos</code>. "Almacena: el conjunto de etiquetas de equipo elegible que filtra el catálogo hacia abajo" y "Decide: qué subconjunto del catálogo de ejercicios es válido para este usuario".</p>
+</div>
+<p>De aquí se sigue una propiedad importante de diseño: <strong>la Knowledge Base no necesita conocer el Track</strong>. Le basta recibir el conjunto de equipo elegible que el Track ya resolvió. Es lo que permite que la KB no dependa del Training Framework y que ningún filtro de catálogo tenga que saber qué es un Sistema.</p>
+<div class="diagram">
+<div class="diagram-label">El Track traduce contexto a equipo; la KB solo ve equipo</div>
+<pre class="mermaid">
+flowchart LR
+  P["Perfil:<br/>lugar_entrenamiento"] --> T["Track<br/>gym · casa · ambos"]
+  T -->|"resuelve a"| EQ["Conjunto de equipo elegible<br/>(subconjunto de los 6)"]
+  EQ --> KB["Knowledge Base<br/>filtra candidatos"]
+  KB -.->|"NO conoce"| T
+</pre>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Track es contexto, no espacio</div>
+  <p>ADR-005 define Track como <strong>contexto/equipo</strong> y descarta explícitamente definirlo como sub-objetivo. La razón declarada: "la definición contexto/equipo conecta un dato real ya recolectado (<code>lugar_entrenamiento</code>); la alternativa no tenía dato esperando". Esto es relevante para la solicitud de "compatibilidad con espacio físico": el Track se le parece pero <strong>no es</strong> una declaración de espacio disponible (metros, altura de techo, barra fija en casa). Ver <a href="../16-preguntas-abiertas/index.html">TX-Q13</a>.</p>
+</div>
+
+<h2 id="filtro">Semántica del filtro</h2>
+<p>El paso 0 de la resolución filtra por <code>equipoElegible: track</code>. La fuente no especifica si un ejercicio con <code>equipo: ["barra", "mancuernas"]</code> requiere <strong>todo</strong> el equipo listado o <strong>alguno</strong> de ellos.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Interpretación</th><th>Consecuencia</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>Conjunción — el usuario necesita <em>todo</em> el equipo declarado</td><td>Más restrictiva; un ejercicio de barra+banco exige ambos</td><td><strong>No confirmada</strong> por ninguna fuente</td></tr>
+<tr><td>Disyunción — basta <em>uno</em> de los equipos declarados</td><td>Más permisiva; <code>equipo[]</code> se lee como "variantes de implemento"</td><td><strong>No confirmada</strong> por ninguna fuente</td></tr>
+</tbody>
+</table>
+</div>
+<p>Ambas lecturas son compatibles con el texto existente y producen catálogos elegibles distintos. Registrado en <a href="../16-preguntas-abiertas/index.html">TX-Q20</a>.</p>
+
+<h2 id="densidad">Equipamiento y densidad de catálogo</h2>
+<p>El equipamiento es, junto con el nivel y las zonas excluidas, uno de los tres filtros que producen <code>CATALOGO_INSUFICIENTE</code>. La fuente lo anticipa como comportamiento esperado, no como fallo:</p>
+<div class="callout callout--nota">
+  <div class="callout__label">Riesgo declarado en la fuente</div>
+  <p>"Con 19 ejercicios, combinaciones legítimas (Casa + Avanzado + exclusión de hombro) caerán en <code>CATALOGO_INSUFICIENTE</code>. Correcto por diseño (P6) — el error alimenta la cola editorial de contenido."</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Los tres filtros que estrechan el universo elegible</div>
+<pre class="mermaid">
+graph TD
+  CAT["Catálogo completo"] --> F1["Filtro patrón + rol"]
+  F1 --> F2["Filtro nivel"]
+  F2 --> F3["Filtro equipo elegible<br/>(Track)"]
+  F3 --> F4["Exclusión por zona<br/>de riesgo alta"]
+  F4 --> F5["Filtro capacidades<br/>cumplidas"]
+  F5 --> R{"¿Queda algún<br/>candidato?"}
+  R -->|Sí| OK["Resolución por pasos 1-3"]
+  R -->|No| DEG["Paso 4: degradar patrón"]
+  DEG --> ERR["Paso 5: CATALOGO_INSUFICIENTE<br/>→ cola editorial"]
+</pre>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../07-modalidades/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 07 · Modalidades</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../09-capacidades-fisicas/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">09 · Capacidades Físicas →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

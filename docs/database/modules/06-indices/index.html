@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>06 · Índices — BREY Database Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="indices" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 06 · Esquema físico</p>
+<h1>Índices</h1>
+<p class="lede">15 índices reales o ya especificados — 9 implícitos de PK, 1 implícito de UNIQUE, 5 compuestos especificados y pendientes de aplicar. No 35+: ningún handbook ha especificado un patrón de consulta que justifique más sin inventarlo. Ver la autoauditoría (16) para el detalle.</p>
+
+<div class="meta-row">
+  <span class="chip">15 índices</span>
+  <span class="chip">0 más allá de PK/UNIQUE en producción hoy</span>
+</div>
+
+<h2 id="existentes">Índices existentes hoy</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Ninguno más allá de PK — confirmado (Architecture Handbook, 10)</div>
+  <p>"Hoy no existe ninguno más allá de PKs — irrelevante con tablas vacías, obligatorio antes de que el Player escriba en volumen." Los 9 índices de PK (uno por tabla, automáticos) y el índice único de <code>bcs_enlaces_publicos.token</code> (automático por el <code>UNIQUE</code>, 07) son, hoy, el 100% del índice real del ecosistema.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Índice</th><th>Tabla</th><th>Tipo</th><th>Origen</th></tr></thead>
+<tbody>
+<tr><td>PK</td><td><code>systems</code></td><td>Implícito (PK)</td><td>Postgres automático</td></tr>
+<tr><td>PK</td><td><code>profiles</code></td><td>Implícito (PK)</td><td>Postgres automático</td></tr>
+<tr><td>PK</td><td><code>diagnoses</code></td><td>Implícito (PK)</td><td>Postgres automático</td></tr>
+<tr><td>PK</td><td><code>workouts</code></td><td>Implícito (PK)</td><td>Postgres automático</td></tr>
+<tr><td>PK</td><td><code>workout_logs</code></td><td>Implícito (PK)</td><td>Postgres automático</td></tr>
+<tr><td>PK</td><td><code>progression_events</code></td><td>Implícito (PK)</td><td>Postgres automático</td></tr>
+<tr><td>PK</td><td><code>bcs_clientes</code></td><td>Implícito (PK)</td><td>Postgres automático</td></tr>
+<tr><td>PK</td><td><code>bcs_mediciones</code></td><td>Implícito (PK)</td><td>Postgres automático</td></tr>
+<tr><td>PK</td><td><code>bcs_enlaces_publicos</code></td><td>Implícito (PK)</td><td>Postgres automático</td></tr>
+<tr><td>UNIQUE(<code>token</code>)</td><td><code>bcs_enlaces_publicos</code></td><td>Implícito (UNIQUE)</td><td>BCS-ADR-02 — Postgres crea el índice único automáticamente</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="obligatorios">Índices obligatorios — especificados, pendientes de aplicar</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Índice</th><th>Sobre</th><th>Sirve a</th><th>Origen</th></tr></thead>
+<tbody>
+<tr><td><code>(user_id, fecha_planificada)</code></td><td><code>workouts</code></td><td>Sesión del día (<code>GET /workouts/hoy</code>), rango del calendario</td><td>Architecture Handbook, 10; Implementation Handbook, 05 (M4)</td></tr>
+<tr><td><code>(user_id, fecha desc)</code></td><td><code>workout_logs</code></td><td>Historial reciente, ventanas de Progression Engine</td><td>Architecture Handbook, 10; Implementation Handbook, 05 (M4)</td></tr>
+<tr><td><code>(user_id, created_at desc)</code></td><td><code>progression_events</code></td><td>Timeline de decisiones, estado vigente de la máquina de Motor BPS (replay, IN-5)</td><td>Architecture Handbook, 10; Implementation Handbook, 05 (M4)</td></tr>
+<tr><td><code>(user_id, tipo, created_at desc)</code></td><td><code>progression_events</code></td><td>Restricciones de zona activas (filtro por <code>tipo</code>)</td><td>Architecture Handbook, 10; Implementation Handbook, 05 (M4)</td></tr>
+<tr><td><code>(cliente_id, fecha desc)</code></td><td><code>bcs_mediciones</code></td><td>Historial de Mediciones por Cliente, paginación &gt;50 (BCS Handbook, 12)</td><td>Implementation Handbook, 05 (M4, por analogía directa con <code>workout_logs</code>)</td></tr>
+</tbody>
+</table>
+</div>
+<p>Los cinco se aplican con <code>CONCURRENTLY</code> para no bloquear escrituras en producción (Implementation Handbook, 05) — parte de la migración M4, la última de las cuatro migraciones ya secuenciadas (11).</p>
+
+<h2 id="diagrama-indices">Diagrama — índice sirve a consulta</h2>
+<div class="diagram">
+<div class="diagram-label">Cada índice obligatorio existe por una consulta ya especificada, nunca por anticipación</div>
+<pre class="mermaid">
+flowchart LR
+  I1["(user_id, fecha_planificada)"] --> Q1["GET /workouts/hoy"]
+  I2["(user_id, fecha desc)<br/>workout_logs"] --> Q2["Ventana de historial<br/>Progression Engine"]
+  I3["(user_id, created_at desc)<br/>progression_events"] --> Q3["Timeline + replay<br/>de estado (IN-5)"]
+  I4["(user_id, tipo, created_at desc)"] --> Q4["Restricciones de zona<br/>activas"]
+  I5["(cliente_id, fecha desc)<br/>bcs_mediciones"] --> Q5["Historial de Mediciones<br/>paginado &gt;50"]
+</pre>
+</div>
+
+<h2 id="futuros">Índices futuros — candidatos sin comprometer</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Candidato</th><th>Trigger que lo activaría</th></tr></thead>
+<tbody>
+<tr><td>Índice sobre <code>bcs_clientes.entrenador_id</code></td><td>Cuando el listado paginado de Clientes por Entrenador (<code>GET /bcs/clientes</code>, API Contract Handbook 07) se vuelva un cuello de botella real — hoy sin volumen que lo justifique</td></tr>
+<tr><td>Índice GIN sobre <code>workouts.ejercicios</code> / <code>workout_logs.ejercicios</code></td><td>El mismo trigger que activaría la normalización a tabla (ENG-ADR-05) — el día que una consulta real filtre por un campo interno del jsonb, ese día se decide entre GIN o normalizar, no antes</td></tr>
+<tr><td>Índice sobre <code>diagnoses.user_id</code> (además del ya cubierto por FK)</td><td>Cuando exista un escritor real conectado al flujo autenticado (hoy sin escritor, Architecture Handbook 10)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="prohibidos">Índices prohibidos — por qué no crearlos todavía</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Índice que NO se crea</th><th>Por qué</th></tr></thead>
+<tbody>
+<tr><td>Cualquier índice sobre <code>profiles.lesiones</code> u <code>observaciones</code></td><td>Texto libre nunca parseado ni consultado por campo — indexarlo sería optimizar una consulta que no existe (mismo principio que ENG-ADR-01, "sin abstracción sin caso de uso real")</td></tr>
+<tr><td>Índice sobre <code>workouts.nombre</code></td><td>Ninguna consulta especificada filtra por nombre de Workout — es un campo de despliegue en UI, no de búsqueda</td></tr>
+<tr><td>Índice full-text sobre cualquier columna del ecosistema</td><td>Ningún handbook especifica una funcionalidad de búsqueda de texto libre — inventarlo sería añadir funcionalidad nueva, prohibido por este mismo encargo</td></tr>
+<tr><td>Cualquier índice adicional sobre <code>bcs_mediciones</code> más allá de <code>(cliente_id, fecha desc)</code></td><td>Ninguna de las 25 variables se consulta individualmente hoy — todas se leen juntas como parte de una Medición completa (04)</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Justificación general — indexar por necesidad probada, nunca por anticipación</div>
+  <p>El mismo principio que gobierna ENG-ADR-01 (sin capa de Application Services hasta que se necesite) gobierna este módulo: un índice sin una consulta real que lo necesite es costo de escritura sin beneficio de lectura. Los cinco "obligatorios" de arriba no son una excepción a esta regla — son consultas ya especificadas por otros handbooks (calendario, historial, timeline), no anticipación de este documento.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../05-relaciones/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 05 · Relaciones</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../07-constraints/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">07 · Constraints →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

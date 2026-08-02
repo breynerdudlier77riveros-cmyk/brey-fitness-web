@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>02 · Ontología del Ejercicio — Exercise Taxonomy Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="ontologia-ejercicio" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 02 · El ejercicio</p>
+<h1>Ontología del Ejercicio</h1>
+<p class="lede">Qué es exactamente un Ejercicio en BREY, y las siete fronteras que lo separan de las entidades con las que se confunde a diario. La mayoría de los errores de modelado del ecosistema son, en el fondo, una de estas siete confusiones.</p>
+
+<h2 id="definicion">Definición oficial</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Ejercicio</div>
+  <p>Un <strong>Ejercicio</strong> es una entrada del catálogo que describe un movimiento concreto y ejecutable, con toda su ficha de ontología: su identidad estable, su clasificación en los ejes cerrados, su ficha educativa y sus relaciones de progresión. Es una entidad de <strong>catálogo</strong>: existe con independencia de que algún usuario lo ejecute alguna vez, no pertenece a nadie, y no cambia porque alguien entrene.</p>
+</div>
+<p>Deriva de la capa 9 del Architecture Handbook 03: "El movimiento concreto elegido para el slot, con toda su ficha de ontología (04)", y del Architecture Handbook 04: "El catálogo real de ejercicios es una instancia de esta ontología — no la ontología".</p>
+
+<h2 id="que-no-es">Qué NO es un Ejercicio</h2>
+<p class="matrix-note">Las siete fronteras. Cada fila es una entidad distinta con dueño, ciclo de vida y mutabilidad propios.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Entidad</th><th>Qué es</th><th>Dueño</th><th>¿Muta?</th><th>Frontera con Ejercicio</th></tr></thead>
+<tbody>
+<tr><td><strong>Ejercicio</strong></td><td>Entrada de catálogo: identidad + clasificación + ficha</td><td>Contenido editorial (P14)</td><td>Solo por decisión editorial</td><td>—</td></tr>
+<tr><td><strong>Prescripción</strong></td><td>Cuántas series, cuántas reps, a qué intensidad, con cuánto descanso y qué tempo — <em>hoy, para este usuario</em></td><td>Training Framework + Progression Engine</td><td>Cada ciclo</td><td>El Ejercicio nunca declara su prescripción (capa 9, "nunca decide")</td></tr>
+<tr><td><strong>Slot</strong></td><td>Una posición abierta en una sesión: Patrón × Rol</td><td>Training Framework (capa 8)</td><td>No — es plantilla</td><td>El Slot no nombra ejercicios; se <em>resuelve</em> a exactamente uno</td></tr>
+<tr><td><strong>Plantilla</strong></td><td>Las capas 1–6 (Sistema→Microciclo): estructura autorizada, sin usuario</td><td>Training Framework</td><td>Por decisión editorial</td><td>R-3: ninguna capa por encima del slot referencia ejercicios por nombre</td></tr>
+<tr><td><strong>Workout</strong></td><td>La sesión de un día concreto ya materializada para un usuario — fila de <code>workouts</code></td><td>Workout Generator</td><td><strong>Nunca</strong> tras generarse (P5 / I-W2)</td><td>El Workout <em>copia</em> el ejercicio desnormalizado; no lo referencia vivo</td></tr>
+<tr><td><strong>Workout Log</strong></td><td>Lo que realmente se ejecutó — fila de <code>workout_logs</code></td><td>Workout Player</td><td><strong>Nunca</strong> tras el cierre (I-W3)</td><td>El log registra desempeño; jamás modifica la ficha del ejercicio</td></tr>
+<tr><td><strong>Movimiento</strong></td><td>No es una entidad formal del ecosistema — ver abajo</td><td>—</td><td>—</td><td>Coloquialmente designa al Patrón (clase) o al Ejercicio (instancia)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="callout callout--nota">
+  <div class="callout__label">Sobre "Movimiento"</div>
+  <p>El barrido documental no encuentra ninguna entidad llamada <em>Movimiento</em> con definición propia. El término aparece siempre como parte de <strong>"patrón de movimiento"</strong> (la capa 8 / el eje de clasificación) o como sinónimo informal de Ejercicio ("el movimiento más pesado del patrón", en la definición del rol <code>principal</code>). Este handbook, por tanto, <strong>no define Movimiento como entidad</strong>: usar el término sin calificar es ambiguo y debe evitarse en documentación y código. Registrado como <a href="../14-anti-patterns/index.html">TXA-08</a>.</p>
+</div>
+
+<h2 id="er">Diagrama entidad-relación conceptual</h2>
+<div class="diagram">
+<div class="diagram-label">Conceptual, no físico: solo dos de estas entidades tienen tabla propia hoy</div>
+<pre class="mermaid">
+erDiagram
+  PATRON ||--o{ EJERCICIO : "clasifica (primario)"
+  PATRON }o--o{ EJERCICIO : "clasifica (secundarios)"
+  ROL }o--o{ EJERCICIO : "admite"
+  EQUIPO }o--o{ EJERCICIO : "requiere"
+  ZONA_RIESGO }o--o{ EJERCICIO : "carga con intensidad"
+  CAPACIDAD }o--o{ EJERCICIO : "condiciona elegibilidad"
+  EJERCICIO ||--o| EJERCICIO : "cadena anterior/siguiente"
+  SLOT }o--|| PATRON : "declara"
+  SLOT }o--|| ROL : "declara"
+  SLOT ||--|| EJERCICIO : "se resuelve a exactamente uno"
+  MICROCICLO ||--o{ SESION_PLANTILLA : "contiene"
+  SESION_PLANTILLA ||--o{ SLOT : "ordena por rol (R-4)"
+  WORKOUT ||--o{ EJERCICIO_DESNORMALIZADO : "copia"
+  WORKOUT_LOG }o--o| WORKOUT : "registra ejecución de"
+</pre>
+</div>
+
+<h2 id="flujo">Del catálogo a la ejecución</h2>
+<div class="diagram">
+<div class="diagram-label">Dónde entra el Ejercicio y dónde deja de ser editable</div>
+<pre class="mermaid">
+flowchart LR
+  subgraph PLANTILLA["PLANTILLA · editable por contenido"]
+    CAT["Catálogo de Ejercicios"]
+    SLOT["Slot: Patrón × Rol"]
+  end
+  subgraph INSTANCIA["INSTANCIA · inmutable (P5)"]
+    WK["Workout (fila)"]
+    LOG["Workout Log (fila)"]
+  end
+  SLOT -->|"resolverEjercicioParaSlot"| CAT
+  CAT -->|"copia desnormalizada:<br/>slug + nombre + modalidad"| WK
+  WK -->|"ejecución real"| LOG
+  CAT -.->|"editar el catálogo NO<br/>altera instancias (R-2)"| WK
+</pre>
+</div>
+
+<h2 id="pertenencia">Qué pertenece a quién</h2>
+<p class="matrix-note">Matriz de pertenencia: responde las preguntas "¿qué pertenece al ejercicio / al usuario / al entrenamiento / al motor / al workout / al catálogo?".</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Dato</th><th>Pertenece a</th><th>Justificación documental</th></tr></thead>
+<tbody>
+<tr><td>Slug, nombre, patrón, roles, modalidad, equipo, zonas, cadena</td><td><strong>Catálogo</strong> (Ejercicio)</td><td>Architecture Handbook 04, tabla de atributos</td></tr>
+<tr><td>Series, repeticiones, intensidad, descanso, tempo</td><td><strong>Prescripción</strong> (Training Framework + Progression)</td><td>Capas 10–14; capa 9 "nunca decide su propia prescripción"</td></tr>
+<tr><td>Zonas lesionadas declaradas, días disponibles, lugar de entrenamiento</td><td><strong>Usuario</strong> (Perfil)</td><td>Gate de Perfil deportivo, BPS-004</td></tr>
+<tr><td>Capacidades demostradas</td><td><strong>Usuario</strong> (historial de eventos)</td><td>Architecture Handbook 04 — "el usuario acumula capacidades demostradas en su historial (registradas como eventos, P3)"</td></tr>
+<tr><td>Eslabón vigente de una cadena</td><td><strong>Usuario</strong> (estado de progresión)</td><td>Progression Engine — la cadena declara el orden; el avance es del usuario</td></tr>
+<tr><td>Fecha planificada, duración estimada, orden de slots</td><td><strong>Workout</strong> (instancia)</td><td>Capa 7 — "fecha planificada, duración estimada, lista ordenada de slots"</td></tr>
+<tr><td>RPE real, reps reales, peso real, cumplimiento</td><td><strong>Workout Log</strong></td><td>Capa 12 — "el real capturado vive en el log, nunca aquí"</td></tr>
+<tr><td>La decisión de avanzar/sostener/retroceder</td><td><strong>Motor</strong> (Progression Engine)</td><td>PE-013 a PE-017; el catálogo no decide progresión</td></tr>
+<tr><td>La decisión de descargar</td><td><strong>Motor</strong> (Recovery Engine)</td><td>I-R2 — <code>exigeDescarga()</code> es su única salida</td></tr>
+<tr><td>La elección de qué ejercicio llena un slot</td><td><strong>Motor</strong> (Generator vía KB)</td><td>Architecture Handbook 08 — "el ensamblador. No decide nada nuevo"</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="permanencia">Qué cambia y qué no</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Categoría</th><th>Atributos</th><th>Mutabilidad</th></tr></thead>
+<tbody>
+<tr><td><strong>Nunca cambia</strong></td><td><code>slug</code></td><td>Inmutable de por vida (TX-02 / P15). Un slug distinto es un ejercicio distinto.</td></tr>
+<tr><td><strong>Cambia solo por decisión editorial</strong></td><td>nombre, clasificación completa, ficha educativa, cadena</td><td>Con autorización humana (P14) y versión de catálogo nueva (BPS-023)</td></tr>
+<tr><td><strong>Cambia por ciclo</strong></td><td>Nada del Ejercicio — cambia la <em>prescripción</em> asociada</td><td>Progression Engine, por ciclo</td></tr>
+<tr><td><strong>Congelado al materializar</strong></td><td>La copia desnormalizada dentro de un Workout</td><td>Inmutable tras la generación (P5 / R-2)</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Consecuencia práctica de R-2</div>
+  <p>Corregir la clasificación de un ejercicio en el catálogo <strong>no</strong> repara los Workouts ya generados con la clasificación anterior: "Editar plantillas nunca altera instancias generadas (P5). El cambio de catálogo aplica desde la siguiente generación". Por eso la versión de catálogo se registra en cada generación (BPS-023): es lo único que permite saber con qué taxonomía se produjo una semana pasada.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../01-filosofia/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 01 · Filosofía</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../03-identidad/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">03 · Identidad →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

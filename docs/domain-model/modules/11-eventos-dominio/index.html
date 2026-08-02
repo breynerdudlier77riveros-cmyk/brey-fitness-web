@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>11 · Eventos del Dominio — Domain Model Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="eventos-dominio" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 11 · Comportamiento</p>
+<h1>Eventos del Dominio</h1>
+<p class="lede">Treinta y cinco eventos — los 25 tipos ya consolidados por el Engineering Handbook (07) para <code>progression_events</code>, más los 10 del BCS Handbook (13). Este módulo no inventa ningún evento nuevo: solo los agrupa por contexto y les añade la lectura de dominio (qué conoce/produce cada uno) que faltaba.</p>
+
+<div class="callout callout--nota">
+  <div class="callout__label">Corrección Sprint 0 — 34 → 35</div>
+  <p>La versión anterior de este módulo contaba <code>token_invalido_intentado</code> y <code>token_revocado_intentado</code> como una sola entrada combinada (34 en total). El BCS Handbook (08) los especifica como dos tipos de evento distintos, con trigger y semántica diferentes — se corrige aquí a 35, separándolos en dos filas propias en la tabla correspondiente.</p>
+</div>
+
+<div class="callout callout--nota">
+  <div class="callout__label">Estado real</div>
+  <p><code>progression_events</code> está <span class="tag tag--especificado">especificado</span>, no implementado (Engineering Handbook, 07) — su columna <code>origen</code> es la fuente de verdad de qué motor produce cada tipo. Los 10 eventos del BCS son <span class="tag tag--implementado">implementado</span> a nivel de efecto (el caso de uso que los emite sí corre en producción), pero ninguno de los dos grupos persiste hoy en una tabla de eventos dedicada del lado BCS.</p>
+</div>
+
+<h2 id="identity-diagnostics">Identity &amp; Diagnostics — productor <code>motor_bps</code></h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Evento</th><th>Payload conceptual</th><th>Consumidores</th><th>Persistencia</th><th>Idempotencia</th></tr></thead>
+<tbody>
+<tr><td><code>activacion</code></td><td>Sistema, Nivel de entrada, Track</td><td>Timeline, Motor BPS (replay)</td><td><code>progression_events</code></td><td>Sí — vía <code>transaccionId</code> (Motor BPS Handbook, 06)</td></tr>
+<tr><td><code>pausa</code></td><td>Razón de pausa</td><td>Timeline, Motor BPS (replay)</td><td><code>progression_events</code></td><td>No especificada (16)</td></tr>
+<tr><td><code>reanudacion</code></td><td>Punto de reanudación</td><td>Timeline, Motor BPS (replay)</td><td><code>progression_events</code></td><td>No especificada (16)</td></tr>
+<tr><td><code>sistema_completado</code></td><td>Sistema finalizado, fecha</td><td>Timeline, Motor BPS (replay)</td><td><code>progression_events</code></td><td>No especificada (16)</td></tr>
+<tr><td><code>gate_fallado</code></td><td>Campos de gate ausentes (DX-04)</td><td>Observabilidad (Engineering Handbook, 11)</td><td><code>progression_events</code></td><td>No especificada (16)</td></tr>
+<tr><td><code>transicion_estado</code></td><td>Estado origen, estado destino</td><td>Motor BPS (replay)</td><td><code>progression_events</code></td><td>No especificada (16)</td></tr>
+<tr><td><code>anomalia</code></td><td>Descripción del estado imposible detectado</td><td>Observabilidad</td><td><code>progression_events</code></td><td>No especificada (16)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="progression">Progression — productor <code>progression_engine</code></h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Evento</th><th>Payload conceptual</th><th>Consumidores</th><th>Persistencia</th><th>Idempotencia</th></tr></thead>
+<tbody>
+<tr><td><code>avanza</code></td><td>Slot, Prescripción anterior/nueva</td><td>Timeline, Progression Engine (ventana siguiente)</td><td><code>progression_events</code></td><td>No especificada (16)</td></tr>
+<tr><td><code>sostiene</code></td><td>Slot, razón de sostenimiento</td><td>Timeline, Progression Engine</td><td><code>progression_events</code></td><td>No especificada</td></tr>
+<tr><td><code>retrocede</code></td><td>Slot, Prescripción anterior/nueva</td><td>Timeline, Progression Engine</td><td><code>progression_events</code></td><td>No especificada</td></tr>
+<tr><td><code>prescripcion_actualizada</code></td><td>Prescripción nueva completa (PR-01)</td><td>Workout Generator (siguiente ciclo)</td><td><code>progression_events</code></td><td>No especificada</td></tr>
+<tr><td><code>escalon_avanzado</code></td><td>Escalón origen/destino de la Cadena</td><td>Timeline</td><td><code>progression_events</code></td><td>No especificada</td></tr>
+<tr><td><code>escalon_retrocedido</code></td><td>Escalón origen/destino de la Cadena</td><td>Timeline</td><td><code>progression_events</code></td><td>No especificada</td></tr>
+<tr><td><code>estancamiento_confirmado</code></td><td>Ventana de historial que lo confirma</td><td>Progression Engine, Timeline</td><td><code>progression_events</code></td><td>No especificada</td></tr>
+<tr><td><code>estancamiento_resuelto</code></td><td>Evaluación que lo resuelve</td><td>Progression Engine</td><td><code>progression_events</code></td><td>No especificada</td></tr>
+<tr><td><code>deload_aplicado</code></td><td>Tipo de Descarga (PR-06), magnitud</td><td>Progression Engine, Timeline</td><td><code>progression_events</code></td><td>No especificada</td></tr>
+<tr><td><code>deload_cancelado</code></td><td>Razón de cancelación</td><td>Progression Engine</td><td><code>progression_events</code></td><td>No especificada</td></tr>
+<tr><td><code>conflicto_resuelto</code></td><td>Tipos de Descarga en conflicto, prioridad aplicada (PE-037)</td><td>Timeline, Observabilidad</td><td><code>progression_events</code></td><td>No especificada</td></tr>
+<tr><td><code>error_invocacion</code></td><td>Motor invocado, causa del error</td><td>Observabilidad</td><td><code>progression_events</code></td><td>No especificada</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="recovery">Recovery — productor <code>recovery_engine</code></h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Evento</th><th>Payload conceptual</th><th>Consumidores</th><th>Persistencia</th><th>Idempotencia</th></tr></thead>
+<tbody>
+<tr><td><code>descarga_reactiva</code></td><td>EstadoRecuperación (Veredicto, PR-04) que la origina</td><td>Progression Engine, Timeline</td><td><code>progression_events</code></td><td>No especificada</td></tr>
+<tr><td><code>dolor_reportado</code></td><td>Zona, intensidad (VO-09) — nunca la SeñalFatiga cruda completa (P8)</td><td>Recovery Engine (interno), Observabilidad</td><td><code>progression_events</code></td><td>No especificada</td></tr>
+<tr><td><code>restriccion_zona</code></td><td>Zona corporal restringida, duración</td><td>Workout Generator (siguiente sesión)</td><td><code>progression_events</code></td><td>No especificada</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="workout-generator">Core Training — productor <code>workout_generator</code></h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Evento</th><th>Payload conceptual</th><th>Consumidores</th><th>Persistencia</th><th>Idempotencia</th></tr></thead>
+<tbody>
+<tr><td><code>semana_generada</code></td><td>Microciclo generado, Workouts creados</td><td>Timeline</td><td><code>progression_events</code></td><td>No especificada</td></tr>
+<tr><td><code>descarga_programada</code></td><td>Tipo Descarga=programada (PR-06), Bloque de Training Framework que la define</td><td>Progression Engine, Timeline</td><td><code>progression_events</code></td><td>No especificada</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="usuario">Identity — productor <code>usuario</code></h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Evento</th><th>Payload conceptual</th><th>Consumidores</th><th>Persistencia</th><th>Idempotencia</th></tr></thead>
+<tbody>
+<tr><td><code>override_usuario</code></td><td>Decisión de motor sobreescrita, justificación del Usuario</td><td>Timeline, Progression Engine (siguiente ciclo)</td><td><code>progression_events</code></td><td>No especificada</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="bcs">Body Composition — 10 eventos (BCS Handbook, 13)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Evento</th><th>Payload conceptual</th><th>Consumidores</th><th>Persistencia</th><th>Idempotencia</th></tr></thead>
+<tbody>
+<tr><td><code>cliente_creado</code></td><td>Datos identificativos del Cliente nuevo (UC-01)</td><td>Panel del BCS</td><td>Efecto persistido en Cliente — sin tabla de eventos propia</td><td>No especificada</td></tr>
+<tr><td><code>cliente_editado</code></td><td>Campos modificados (UC-02)</td><td>Panel del BCS</td><td>Efecto persistido en Cliente</td><td>No especificada</td></tr>
+<tr><td><code>cliente_archivado</code></td><td>Cliente afectado (UC-03)</td><td>Panel del BCS</td><td>Efecto persistido en Cliente</td><td>No especificada</td></tr>
+<tr><td><code>cliente_eliminado</code></td><td>Cliente eliminado — dispara revocación en cascada de sus EnlacesPúblicos (UC-04, 10)</td><td>Panel del BCS</td><td>Efecto persistido (eliminación) — sin tabla de eventos propia</td><td>No especificada</td></tr>
+<tr><td><code>medicion_registrada</code></td><td>Las 25 variables capturadas (UC-05)</td><td>Panel del BCS, HistorialMediciones</td><td>Efecto persistido en Medición</td><td>No especificada</td></tr>
+<tr><td><code>medicion_corregida</code></td><td>Medición anulada + Medición nueva (UC-06)</td><td>Panel del BCS, HistorialMediciones</td><td>Efecto persistido en ambas Mediciones</td><td>No especificada</td></tr>
+<tr><td><code>enlace_creado</code></td><td>Token nuevo, Cliente asociado (UC-07)</td><td>Panel del BCS</td><td>Efecto persistido en EnlacePúblico</td><td>No especificada</td></tr>
+<tr><td><code>enlace_revocado</code></td><td>Token revocado, razón (manual UC-08, o reemplazo automático UC-07)</td><td>Panel del BCS</td><td>Efecto persistido en EnlacePúblico</td><td>No especificada</td></tr>
+<tr><td><code>token_invalido_intentado</code></td><td>Solicitud a un token que no existe — posible enumeración (UC-09, rama de error)</td><td>Seguridad (BCS Handbook, 08)</td><td>Log de seguridad — fuera de <code>progression_events</code></td><td>No especificada</td></tr>
+<tr><td><code>token_revocado_intentado</code></td><td>Solicitud a un token que existió pero fue revocado — distinto de un token inexistente para diagnóstico (UC-09, rama de error)</td><td>Seguridad (BCS Handbook, 08)</td><td>Log de seguridad — fuera de <code>progression_events</code></td><td>No especificada</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="por-que-separados">Por qué los eventos de BCS no viven en <code>progression_events</code></h2>
+<p>Los 10 eventos de Body Composition no comparten productor (<code>origen</code>) con ninguno de los 25 de <code>progression_events</code>, y BCS es un bounded context standalone que nunca conoce Core Training/Progression (02, BC-01). Mezclarlos en una única tabla obligaría a BCS a depender del esquema de Progression solo para registrar sus propios eventos — exactamente la dependencia prohibida que 02 ya descarta. Cada grupo permanece en su propio contexto; este módulo los cataloga juntos solo para dar una vista completa del ecosistema, no para proponer una tabla compartida.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../10-maquinas-estado/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 10 · Máquinas de Estado</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../12-invariantes-globales/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">12 · Invariantes Globales →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

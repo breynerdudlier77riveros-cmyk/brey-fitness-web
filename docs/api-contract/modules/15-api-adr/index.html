@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>15 · API-ADR — BREY API Contract Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="api-adr" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 15 · Gobernanza</p>
+<h1>API-ADR</h1>
+<p class="lede">Diez decisiones propias de este documento — todas de notación, consolidación o documentación de gaps ya existentes. Ninguna redefine una regla de negocio de los nueve handbooks que este documento respeta; donde una discrepancia real existía, se cita quién ya la resolvió (jerarquía, 00) o se declara sin resolver.</p>
+
+<div class="adr" id="api-adr-01">
+<span class="adr__estado">Aceptada</span>
+<span class="adr__id">API-ADR-01</span>
+<h3>Notación REST transporte-agnóstica para todo el catálogo</h3>
+<p><strong>Contexto:</strong> el Engineering Handbook (06) afirma que BREY no expone una API pública versionada — sus contratos reales son firmas de repositorio, Server Actions y 2 Route Handlers. El encargo de este documento exige, en cambio, un catálogo con ruta y método HTTP por operación.</p>
+<p><strong>Problema:</strong> documentar cada operación como si ya fuera un endpoint HTTP real podría leerse como una afirmación de que BREY va a exponer una API pública — algo que ningún handbook decide todavía.</p>
+<p><strong>Alternativas consideradas:</strong> (a) documentar solo las firmas de función ya usadas por Server Actions/repositorios, sin ruta ni método; (b) usar ruta + método como notación transporte-agnóstica, igual que el BCS Handbook (13) ya hace con pseudocódigo.</p>
+<p><strong>Decisión:</strong> se adopta (b). Cada fila del catálogo (07) es una unidad de contrato — quién la invoca, qué recibe, qué devuelve — independiente de si hoy se realiza como Server Action, Route Handler, o mañana como endpoint de una API pública.</p>
+<p><strong>Consecuencias:</strong> este documento nunca afirma que BREY expone hoy una API HTTP pública — lo aclara explícitamente en 00 y 01. Una implementación futura puede materializar cualquier fila como Server Action sin contradecir este documento.</p>
+</div>
+
+<div class="adr" id="api-adr-02">
+<span class="adr__estado">Aceptada</span>
+<span class="adr__id">API-ADR-02</span>
+<h3>Forma canónica del Veredicto de Recovery — se adopta la ya resuelta por IMP-ADR-01</h3>
+<p><strong>Contexto:</strong> la Architecture Review (AR-001) encontró formas incompatibles del mismo DTO entre Motor BPS Handbook (<code>{si, tipo?, razon?}</code>) y Progression Engine Handbook (<code>{procede, tipo, razon}</code>). El Implementation Handbook (IMP-ADR-01), de mayor autoridad que este documento (00), ya reconcilió ambas en <code>{procede: boolean, subtipo?: "programada"|"reactiva", razon: string}</code>.</p>
+<p><strong>Problema:</strong> este documento necesita una única forma para el catálogo (07, 08) sin volver a arbitrar algo ya arbitrado por un documento superior.</p>
+<p><strong>Alternativas consideradas:</strong> (a) re-arbitrar la discrepancia de forma independiente; (b) adoptar literalmente la forma ya fijada por IMP-ADR-01, sin modificarla.</p>
+<p><strong>Decisión:</strong> se adopta (b). Este documento nunca decide una forma de DTO donde el Implementation Handbook ya decidió una.</p>
+<p><strong>Consecuencias:</strong> el catálogo (07) y los DTO (08) usan <code>{procede, subtipo?, razon}</code> en todo lugar donde aparece el Veredicto de Recovery. Motor BPS Handbook, Progression Engine Handbook y el módulo de Recovery Engine del Architecture Handbook siguen mostrando sus formas originales, sin editar — este documento no las sustituye, solo no las usa como contrato de implementación.</p>
+</div>
+
+<div class="adr" id="api-adr-03">
+<span class="adr__estado">Aceptada</span>
+<span class="adr__id">API-ADR-03</span>
+<h3>CHECK de <code>progression_events.tipo</code> — se documenta el consolidado de 25, pendiente de migración</h3>
+<p><strong>Contexto:</strong> el CHECK real de <code>progression_events.tipo</code> tiene 14 valores; Motor BPS Handbook y Progression Engine Handbook, entre ambos, requieren 11 valores adicionales ya identificados por el Engineering Handbook (07) y el Domain Model Handbook (11) — 25 en total.</p>
+<p><strong>Problema:</strong> el catálogo (07) y el DTO de Evento (08) necesitan listar qué eventos <em>puede</em> producir cada endpoint — pero solo 14 de esos 25 valores existen hoy en la base de datos real.</p>
+<p><strong>Alternativas consideradas:</strong> (a) documentar solo los 14 valores reales, dejando fuera del catálogo la funcionalidad ya especificada por Motor BPS/Progression Engine; (b) documentar los 25 consolidados, marcando explícitamente que 11 dependen de la migración M2 (Implementation Handbook, 05) todavía no aplicada.</p>
+<p><strong>Decisión:</strong> se adopta (b). El catálogo (07) y el DTO de Evento (08) listan los 25 valores; este ADR es la referencia única de que 11 de ellos no son insertables hasta que M2 se aplique.</p>
+<p><strong>Consecuencias:</strong> un endpoint que "produce" <code>escalon_avanzado</code> hoy fallaría contra la base de datos real con un error de CHECK — comportamiento esperado y ya cubierto por el propio catálogo de errores (09, "tipo fuera del CHECK") hasta que M2 se aplique.</p>
+</div>
+
+<div class="adr" id="api-adr-04">
+<span class="adr__estado">Aceptada</span>
+<span class="adr__id">API-ADR-04</span>
+<h3><code>origen = 'coach'</code> permanece reservado, sin evento ni endpoint inventado</h3>
+<p><strong>Contexto:</strong> el CHECK de <code>progression_events.origen</code> incluye <code>coach</code> sin que ningún tipo de evento lo use como productor (AR-011) — una extensión especulativa para un futuro Coach IA que no tiene handbook de dominio.</p>
+<p><strong>Problema:</strong> el DTO de Evento (08) necesita listar el CHECK completo de <code>origen</code>, lo que expone este valor sin contenido.</p>
+<p><strong>Alternativas consideradas:</strong> (a) omitir <code>coach</code> de la tabla para no exponer un vacío; (b) listarlo explícitamente marcado como reservado sin evento asociado.</p>
+<p><strong>Decisión:</strong> se adopta (b). Ocultar el valor sería menos honesto que documentar la reserva tal como es.</p>
+<p><strong>Consecuencias:</strong> ningún endpoint de este catálogo (07) tiene a Coach IA como actor. Si un Coach IA Handbook llega a existir, este documento se extiende entonces — no antes.</p>
+</div>
+
+<div class="adr" id="api-adr-05">
+<span class="adr__estado">Aceptada</span>
+<span class="adr__id">API-ADR-05</span>
+<h3>No existe un rol Admin — no se inventa en este documento</h3>
+<p><strong>Contexto:</strong> el encargo original de este handbook nombra "trainer, cliente, admin, anonymous" como los roles a documentar en Autenticación (03). El Security Handbook (Engineering, 08) no define ningún rol de administrador transversal — solo Usuario, Entrenador (un Usuario en contexto BCS), Cliente y Anonymous.</p>
+<p><strong>Problema:</strong> documentar un rol Admin con permisos inventados llenaría el vacío que el encargo sugiere, pero violaría directamente la restricción de no inventar funcionalidad nueva.</p>
+<p><strong>Alternativas consideradas:</strong> (a) inventar un rol Admin razonable (ej. "puede ver todos los Entrenadores"); (b) documentar los cuatro actores reales y registrar la ausencia de Admin como pregunta abierta.</p>
+<p><strong>Decisión:</strong> se adopta (b) — ver 03 y 16 (AP-01).</p>
+<p><strong>Consecuencias:</strong> ningún endpoint del catálogo (07) tiene a "Admin" como actor. Si BREY necesita un rol de operación transversal en el futuro, requiere su propia decisión de producto antes de que este documento lo incorpore.</p>
+</div>
+
+<div class="adr" id="api-adr-06">
+<span class="adr__estado">Aceptada</span>
+<span class="adr__id">API-ADR-06</span>
+<h3>Rate limiting — se documenta dónde importa, no cifras inventadas</h3>
+<p><strong>Contexto:</strong> ni el Security Handbook ni el Performance Handbook (Engineering, 08/09) definen un límite numérico de rate limiting en ningún endpoint real.</p>
+<p><strong>Problema:</strong> el encargo pide explícitamente una sección de "límites, políticas, 429, reintentos" (12) — una tabla vacía se sentiría incompleta, pero llenarla con cifras plausibles sería inventar una política que nadie ha decidido.</p>
+<p><strong>Alternativas consideradas:</strong> (a) proponer cifras razonables (ej. 60 req/min) como punto de partida; (b) documentar la forma de la respuesta 429 (ya derivable de 06) y dónde el riesgo es mayor, sin cifras.</p>
+<p><strong>Decisión:</strong> se adopta (b).</p>
+<p><strong>Consecuencias:</strong> 12 tiene una Matriz Endpoint→Rate Limit completa en estructura, con la columna de límite numérico marcada "No definido" en cada fila — honesto sobre el estado real, sin fingir una decisión de producto que no existe.</p>
+</div>
+
+<div class="adr" id="api-adr-07">
+<span class="adr__estado">Aceptada</span>
+<span class="adr__id">API-ADR-07</span>
+<h3>Sin convención de request ID / trace ID / correlation ID</h3>
+<p><strong>Contexto:</strong> el Observability Handbook (Engineering, 11) declara explícitamente que no existe distributed tracing ni un identificador de request propagado — "añadiría complejidad sin un problema real que resolver todavía".</p>
+<p><strong>Problema:</strong> el encargo pide una sección de Observabilidad (14) que incluya request ID/trace ID/correlation ID — términos que ningún handbook define para este ecosistema.</p>
+<p><strong>Alternativas consideradas:</strong> (a) definir una convención nueva de header <code>X-Request-Id</code> propagado por todo el catálogo; (b) documentar honestamente la ausencia, con la convención real que sí existe (<code>[contexto]</code> en logs).</p>
+<p><strong>Decisión:</strong> se adopta (b).</p>
+<p><strong>Consecuencias:</strong> 14 documenta el gap explícitamente en vez de fabricar una convención. Se registra como pregunta abierta (AP-05, 16) para cuando el volumen de producción lo justifique.</p>
+</div>
+
+<div class="adr" id="api-adr-08">
+<span class="adr__estado">Aceptada</span>
+<span class="adr__id">API-ADR-08</span>
+<h3>Idempotencia — se documentan claves reales, se declaran gaps donde no las hay</h3>
+<p><strong>Contexto:</strong> algunas operaciones tienen clave de idempotencia real y ya especificada (<code>transaccion_id</code>, <code>device_id</code>+secuencia, <code>SEMANA_YA_GENERADA</code>); otras — la creación de Cliente/Medición/EnlacePúblico del BCS, el <code>INSERT</code> de un EventoProgresión — no tienen ninguna definida por ningún handbook (AR-027).</p>
+<p><strong>Problema:</strong> presentar el catálogo como si todo fuera idempotente ocultaría un riesgo real; presentar todo como no idempotente ignoraría lo que sí está resuelto.</p>
+<p><strong>Alternativas consideradas:</strong> (a) inventar una clave de idempotencia razonable para las operaciones sin definir (ej. hash del body); (b) documentar cada caso con su estado real: clave conocida, o gap explícito.</p>
+<p><strong>Decisión:</strong> se adopta (b) — 11 tiene dos tablas separadas, una por cada caso.</p>
+<p><strong>Consecuencias:</strong> un reintento de red sobre <code>POST /bcs/clientes</code> puede crear un Cliente duplicado hoy — riesgo real, documentado, no resuelto por este documento porque su resolución (ej. una clave de idempotencia por Entrenador+nombre+fecha) es una decisión de producto/dominio, no de contrato.</p>
+</div>
+
+<div class="adr" id="api-adr-09">
+<span class="adr__estado">Aceptada</span>
+<span class="adr__id">API-ADR-09</span>
+<h3><code>PATCH</code> de Medición no tiene semántica de reemplazo en sitio</h3>
+<p><strong>Contexto:</strong> <code>PATCH /bcs/mediciones/{id}</code> (07) representa la corrección de una Medición (BCS Handbook, UC-06) — pero por IN-D1/IN-23 (Domain Model Handbook), una Medición <code>vigente</code> nunca se edita en sitio: la corrección anula la anterior y crea una nueva.</p>
+<p><strong>Problema:</strong> un consumidor familiarizado con la semántica estándar de PATCH (actualización parcial en sitio del mismo recurso) asumiría, incorrectamente, que el <code>id</code> de la respuesta es el mismo que el del path.</p>
+<p><strong>Alternativas consideradas:</strong> (a) modelar la corrección como <code>POST /bcs/mediciones/{id}/corregir</code> para evitar la ambigüedad de método; (b) mantener <code>PATCH</code> por ser semánticamente la operación más cercana (actualización parcial de valores), documentando la desviación explícitamente.</p>
+<p><strong>Decisión:</strong> se adopta (b) — <code>PATCH</code> describe mejor la intención del actor (corregir valores) que un sub-recurso de acción; la desviación se documenta en 07 y aquí, no se oculta.</p>
+<p><strong>Consecuencias:</strong> todo consumidor de este endpoint debe leer la respuesta para obtener el <code>id</code> vigente — nunca asumir que es el mismo que el del path.</p>
+</div>
+
+<div class="adr" id="api-adr-10">
+<span class="adr__estado">Aceptada</span>
+<span class="adr__id">API-ADR-10</span>
+<h3>Paginación por rango de fecha/cursor — no offset/límite genérico</h3>
+<p><strong>Contexto:</strong> el único umbral de paginación realmente especificado (BCS Handbook, 12: &gt;50 Mediciones → 20 por página) es por fecha, no por offset numérico. Ningún otro handbook especifica paginación.</p>
+<p><strong>Problema:</strong> el encargo pide una convención general de paginación (05, 06) — sin un segundo precedente real que generalizar.</p>
+<p><strong>Alternativas consideradas:</strong> (a) adoptar OFFSET/LIMIT genérico, más común en APIs REST convencionales; (b) generalizar el único patrón real (cursor/rango de fecha) a cualquier lista futura del catálogo que lo necesite.</p>
+<p><strong>Decisión:</strong> se adopta (b) — es el único patrón con precedencia real en el ecosistema, y evita los problemas de consistencia de OFFSET/LIMIT sobre datos que crecen (Mediciones, WorkoutLogs, EventoProgresión).</p>
+<p><strong>Consecuencias:</strong> cualquier endpoint nuevo de este catálogo que necesite paginar adopta <code>cursor</code>/<code>fecha_desde</code>/<code>fecha_hasta</code> (05) en vez de <code>page</code>/<code>per_page</code>.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../14-observabilidad/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 14 · Observabilidad</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../16-preguntas-abiertas/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">16 · Preguntas Abiertas →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

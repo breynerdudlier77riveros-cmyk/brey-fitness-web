@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>09 · Relaciones del Dominio — Domain Model Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="relaciones-dominio" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 09 · Estructura</p>
+<h1>Relaciones del Dominio</h1>
+<p class="lede">Trece diagramas — cardinalidad, ownership y navegación permitida/prohibida para cada relación real del ecosistema.</p>
+
+<h2 id="cardinalidades">Resumen de cardinalidades</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Relación</th><th>Cardinalidad</th><th>Ownership</th></tr></thead>
+<tbody>
+<tr><td>Usuario — Diagnóstico</td><td>1 : N</td><td>Usuario es dueño; un Diagnóstico nunca sobrevive sin su Usuario</td></tr>
+<tr><td>Usuario — Workout</td><td>1 : N</td><td>Usuario es dueño; cascade delete real (<code>on delete cascade</code>)</td></tr>
+<tr><td>Workout — Slot</td><td>1 : N (contenido)</td><td>Workout es dueño físico (jsonb)</td></tr>
+<tr><td>Slot — Prescripción</td><td>1 : 1</td><td>Reemplazo atómico, nunca edición parcial</td></tr>
+<tr><td>Usuario — EventoProgresión</td><td>1 : N</td><td>Usuario es dueño; append-only</td></tr>
+<tr><td>Cliente — Medición</td><td>1 : N (por referencia, no contención)</td><td>Cliente NO es dueño físico — Medición es su propio aggregate (08)</td></tr>
+<tr><td>Cliente — EnlacePúblico</td><td>1 : N histórico, 1 : 0..1 activo</td><td>Ídem — por referencia</td></tr>
+<tr><td>Usuario — Cliente</td><td><strong>Ninguna</strong></td><td>No existe relación de dominio — solo comparten la noción de "Entrenador" como rol (02)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="diagramas">Los trece diagramas</h2>
+
+<div class="diagram">
+<div class="diagram-label">1 — Usuario y su Perfil</div>
+<pre class="mermaid">
+erDiagram
+  USUARIO ||--|| PERFIL : tiene
+  PERFIL ||--|| PERFIL_ENTRENAMIENTO : incluye
+</pre>
+</div>
+
+<div class="diagram">
+<div class="diagram-label">2 — Usuario, Diagnóstico y sus partes</div>
+<pre class="mermaid">
+erDiagram
+  USUARIO ||--o{ DIAGNOSTICO : realiza
+  DIAGNOSTICO ||--o{ RESPUESTA : contiene
+  DIAGNOSTICO ||--|| RESULTADO_DIAGNOSTICO : produce
+</pre>
+</div>
+
+<div class="diagram">
+<div class="diagram-label">3 — Programa como posición derivada, no como tabla</div>
+<pre class="mermaid">
+graph LR
+  PERFIL["Perfil<br/>(sistema_actual, nivel_actual)"] -.->|"deriva la posición de"| PROG["Programa<br/>(conceptual)"]
+  WO["Workouts existentes<br/>(semana, semana_total)"] -.->|"deriva la posición de"| PROG
+</pre>
+</div>
+
+<div class="diagram">
+<div class="diagram-label">4 — Workout, Slot y Ejercicio (resolución, no contención)</div>
+<pre class="mermaid">
+erDiagram
+  WORKOUT ||--o{ SLOT : contiene
+  SLOT }o--|| EJERCICIO : "resuelve (Knowledge Base)"
+</pre>
+</div>
+
+<div class="diagram">
+<div class="diagram-label">5 — Workout, WorkoutLog y Serie</div>
+<pre class="mermaid">
+erDiagram
+  USUARIO ||--o{ WORKOUT : planifica
+  USUARIO ||--o{ WORKOUT_LOG : ejecuta
+  WORKOUT |o--o{ WORKOUT_LOG : "origina (opcional)"
+  WORKOUT_LOG ||--o{ SERIE : contiene
+</pre>
+</div>
+
+<div class="diagram">
+<div class="diagram-label">6 — Slot y Prescripción</div>
+<pre class="mermaid">
+erDiagram
+  SLOT ||--|| PRESCRIPCION : tiene
+</pre>
+</div>
+
+<div class="diagram">
+<div class="diagram-label">7 — Prescripción, EvaluaciónProgresión y EventoProgresión</div>
+<pre class="mermaid">
+graph LR
+  EP["EvaluaciónProgresión<br/>(efímera)"] -->|"produce"| PRE["Prescripción nueva"]
+  EP -->|"se registra como"| EV["EventoProgresión<br/>(persistente)"]
+</pre>
+</div>
+
+<div class="diagram">
+<div class="diagram-label">8 — EventoProgresión y su Usuario</div>
+<pre class="mermaid">
+erDiagram
+  USUARIO ||--o{ EVENTO_PROGRESION : origina
+  WORKOUT_LOG |o--o{ EVENTO_PROGRESION : "puede originar"
+</pre>
+</div>
+
+<div class="diagram">
+<div class="diagram-label">9 — Motor BPS/Progression Engine invocan, no contienen</div>
+<pre class="mermaid">
+graph LR
+  MB["Motor BPS"] -.->|"invoca"| PE["Progression Engine"]
+  MB -->|"consulta"| REC["EstadoRecuperación"]
+  PE -->|"consulta"| REC
+</pre>
+</div>
+
+<div class="diagram">
+<div class="diagram-label">10 — Cliente y Medición (por referencia, nunca contención)</div>
+<pre class="mermaid">
+erDiagram
+  CLIENTE ||--o{ MEDICION : "referencia (clienteId)"
+</pre>
+</div>
+
+<div class="diagram">
+<div class="diagram-label">11 — Cliente y EnlacePúblico</div>
+<pre class="mermaid">
+erDiagram
+  CLIENTE ||--o{ ENLACE_PUBLICO : "referencia (clienteId)"
+</pre>
+</div>
+
+<div class="diagram">
+<div class="diagram-label">12 — Cliente, HistorialMediciones y Reporte (derivación efímera)</div>
+<pre class="mermaid">
+graph LR
+  CLI["Cliente"] --> HIST["HistorialMediciones<br/>(proyección)"]
+  MED["Mediciones vigentes"] --> HIST
+  CLI --> RPT["Reporte<br/>(efímero)"]
+  HIST --> RPT
+</pre>
+</div>
+
+<div class="diagram">
+<div class="diagram-label">13 — Usuario y Cliente: la ausencia deliberada de relación</div>
+<pre class="mermaid">
+graph LR
+  USR["Usuario<br/>(Entrenador)"] -.->|"SIN relación de dominio"| CLI["Cliente"]
+  USR -->|"su identidad autoriza"| BCS_PANEL["Panel del BCS"]
+  BCS_PANEL -->|"opera sobre"| CLI
+</pre>
+</div>
+
+<h2 id="navegacion">Navegación permitida y prohibida</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Navegación</th><th>Permitida</th></tr></thead>
+<tbody>
+<tr><td>Medición → Cliente</td><td>Sí, vía <code>clienteId</code></td></tr>
+<tr><td>Cliente → sus Mediciones</td><td>Sí, vía consulta explícita (nunca carga automática, BC-01)</td></tr>
+<tr><td>Slot → Ejercicio</td><td>Sí, solo por Patrón×Rol, nunca por nombre directo (P7)</td></tr>
+<tr><td>Cliente → Workout/Programa</td><td><strong>Prohibida</strong> — no existe relación de dominio (diagrama 13)</td></tr>
+<tr><td>Progression Engine → estado interno de Motor BPS</td><td><strong>Prohibida</strong> — solo consume su contrato de invocación (02)</td></tr>
+<tr><td>Cualquier entidad → SeñalFatiga cruda</td><td><strong>Prohibida</strong> salvo Recovery Engine mismo (P8)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../08-agregados-ownership/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 08 · Agregados y Ownership</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../10-maquinas-estado/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">10 · Máquinas de Estado →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

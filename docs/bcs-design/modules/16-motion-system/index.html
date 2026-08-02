@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>16 · Motion System — BCS Design System Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="motion-system" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 16 · Comportamiento</p>
+<h1>Motion System</h1>
+<p class="lede">El ritmo de movimiento del BCS es el mismo que ya existe en BREY — 300–500ms, discreto, nunca decorativo. Este módulo formaliza ese ritmo y lo extiende a los componentes nuevos (06).</p>
+
+<h2 id="heredado">Ritmo heredado <span class="tag tag--heredado">heredado</span></h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Interacción</th><th>Duración real en el código</th></tr></thead>
+<tbody>
+<tr><td>Hover de tarjeta (<code>cardStyles.interactive</code>)</td><td>300ms</td></tr>
+<tr><td>Transición de la barra de progreso (<code>Progress.tsx</code>)</td><td>500ms — el ritmo "pausado" de referencia del sitio</td></tr>
+<tr><td>Hover/active de botón (<code>Button.tsx</code>)</td><td>200ms, escala 1→1.03 (hover) / 0.98 (active)</td></tr>
+<tr><td>Transición por defecto de Tailwind (no usada como estándar del sitio)</td><td>150ms — considerada "rápida", reservada para micro-ajustes, no para el ritmo principal</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="escala-duracion">Escala de duración del BCS</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Token</th><th>Duración</th><th>Uso</th></tr></thead>
+<tbody>
+<tr><td><code>fast</code></td><td>150ms</td><td>Cambios de estado instantáneos (checkbox, toggle)</td></tr>
+<tr><td><code>base</code></td><td>200ms</td><td>Hover/active de Button, Indicador de tendencia al actualizar</td></tr>
+<tr><td><code>medium</code></td><td>300ms</td><td>Hover de Card, expansión de Accordion/History Card</td></tr>
+<tr><td><code>slow</code></td><td>500ms</td><td>Barra de progreso/rango (10), marcador deslizándose a su posición</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="curvas">Curvas de animación</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Curva</th><th>Uso</th></tr></thead>
+<tbody>
+<tr><td><code>ease-out</code></td><td>Elementos que entran (Toast, Skeleton→contenido real)</td></tr>
+<tr><td><code>ease-in-out</code></td><td>Transiciones de estado bidireccionales (hover que puede revertirse)</td></tr>
+<tr><td><code>cubic-bezier(0.16, 1, 0.3, 1)</code></td><td>Heredada de <code>msg-in</code> en <code>globals.css</code> — reservada para entradas con más carácter (aparición de un mensaje/notificación), no usada en microinteracciones de datos</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="cuando-animar">Cuándo animar</h2>
+<ul>
+  <li>Al cargar una barra de rango (10) por primera vez — una única vez.</li>
+  <li>Al expandir/colapsar una History Card o Accordion.</li>
+  <li>Al aparecer un Toast de confirmación.</li>
+  <li>Hover/active en elementos interactivos (Button, Card interactiva).</li>
+</ul>
+
+<h2 id="cuando-no-animar">Cuándo NO animar</h2>
+<ul>
+  <li>Actualización de datos en tiempo real de un gráfico de tendencia — un re-render de datos nuevos nunca reanima toda la curva desde cero, evita distraer de lo que realmente cambió.</li>
+  <li>Skeletons — el pulso es sutil (opacidad, no movimiento de posición) para no generar más ruido visual del que ya implica un estado de carga.</li>
+  <li>Ninguna animación en la exportación a PDF/impresión (14) — es un medio estático por definición.</li>
+  <li>Ningún elemento de la vista pública del cliente (08) usa animaciones de entrada llamativas al cargar — el tono es de documento profesional, no de producto consumer con "wow factor".</li>
+</ul>
+
+<h2 id="reduced-motion">Movimiento reducido <span class="tag tag--heredado">heredado</span></h2>
+<p>Toda animación de este sistema respeta <code>prefers-reduced-motion</code> a través del mismo mecanismo centralizado ya establecido en <code>layout.tsx</code> (<code>MotionConfig reducedMotion="user"</code> para lo que use la librería Motion, y la clase utilitaria <code>motion-reduce:</code> de Tailwind para las transiciones CSS puras de Button/Card). Ningún componente nuevo del BCS (06) implementa su propio chequeo de esta preferencia — se apoya en el mecanismo ya existente.</p>
+
+<h2 id="microinteracciones">Microinteracciones específicas del BCS</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Componente</th><th>Microinteracción</th></tr></thead>
+<tbody>
+<tr><td>Metric Card</td><td>Sin hover especial — es de solo lectura (06), no usa <code>cardStyles.interactive</code></td></tr>
+<tr><td>History Card</td><td>Hover: elevación 6px + escala 1.02, idéntico a <code>cardStyles.interactive</code></td></tr>
+<tr><td>Indicador de tendencia</td><td>Sin animación de entrada — aparece junto con el resto de la Metric Card, evita parpadeos innecesarios en una cifra de salud</td></tr>
+<tr><td>Marcador de la barra de rango</td><td>Única animación deliberadamente "vistosa" del sistema: desliza desde el extremo izquierdo, 500ms ease-out, una sola vez (10)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../15-accesibilidad/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 15 · Accesibilidad</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../17-design-tokens/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">17 · Design Tokens →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

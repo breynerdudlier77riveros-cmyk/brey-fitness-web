@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BREY Domain Model Handbook v1.0</title>
+<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+
+<div class="landing-topbar">
+  <span class="topbar__brand">
+    <span class="topbar__brand-dot"></span>
+    BREY <span class="topbar__brand-sub">Domain Model Handbook</span>
+  </span>
+  <span class="topbar__version">v1.0</span>
+</div>
+
+<div class="landing-wrap">
+
+  <div class="hero">
+    <p class="eyebrow">Especificación de dominio · sin código</p>
+    <h1>Domain Model Handbook</h1>
+    <p>El lenguaje oficial del negocio de BREY. Define entidades, relaciones, agregados, eventos, ownership e invariantes para todo el ecosistema.</p>
+    <a class="hero-cta" href="modules/00-introduccion/index.html">Empezar →</a>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Fundamentos</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/00-introduccion/index.html"><div class="module-card__num">00</div><div class="module-card__title">Introducción</div><div class="module-card__desc">Propósito, alcance, no-alcance y la regla de prioridad documental.</div></a>
+      <a class="module-card" href="modules/01-lenguaje-ubicuo/index.html"><div class="module-card__num">01</div><div class="module-card__title">Lenguaje Ubicuo</div><div class="module-card__desc">21 términos — definición, sinónimos permitidos y términos prohibidos.</div></a>
+      <a class="module-card" href="modules/02-arquitectura-dominio/index.html"><div class="module-card__num">02</div><div class="module-card__title">Arquitectura del Dominio</div><div class="module-card__desc">Los 7 bounded contexts y sus dependencias permitidas.</div></a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Entidades</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/03-entidades-core-training/index.html"><div class="module-card__num">03</div><div class="module-card__title">Entidades del Core Training</div><div class="module-card__desc">Programa, Bloque, Mesociclo, Microciclo, Workout, Slot, Ejercicio, Serie.</div></a>
+      <a class="module-card" href="modules/04-entidades-diagnostico/index.html"><div class="module-card__num">04</div><div class="module-card__title">Entidades de Diagnóstico</div><div class="module-card__desc">Diagnóstico, Respuesta, ResultadoDiagnóstico, PerfilEntrenamiento.</div></a>
+      <a class="module-card" href="modules/05-entidades-progresion-recuperacion/index.html"><div class="module-card__num">05</div><div class="module-card__title">Entidades de Progresión y Recuperación</div><div class="module-card__desc">Qué es persistente, derivado o efímero en Progression y Recovery.</div></a>
+      <a class="module-card" href="modules/06-entidades-composicion-corporal/index.html"><div class="module-card__num">06</div><div class="module-card__title">Entidades de Composición Corporal</div><div class="module-card__desc">Cliente, Medición, HistorialMediciones, Reporte, EnlacePúblico.</div></a>
+      <a class="module-card" href="modules/07-objetos-valor/index.html"><div class="module-card__num">07</div><div class="module-card__title">Objetos de Valor</div><div class="module-card__desc">13 value objects — sin identidad propia, definidos por su valor.</div></a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Estructura</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/08-agregados-ownership/index.html"><div class="module-card__num">08</div><div class="module-card__title">Agregados y Ownership</div><div class="module-card__desc">Los Aggregate Roots reales — y por qué otras entidades no lo son.</div></a>
+      <a class="module-card" href="modules/09-relaciones-dominio/index.html"><div class="module-card__num">09</div><div class="module-card__title">Relaciones del Dominio</div><div class="module-card__desc">Trece diagramas — cardinalidad, ownership, navegación permitida.</div></a>
+      <a class="module-card" href="modules/10-maquinas-estado/index.html"><div class="module-card__num">10</div><div class="module-card__title">Máquinas de Estado</div><div class="module-card__desc">Diagnóstico, Programa, Workout, Medición, EnlacePúblico.</div></a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Comportamiento</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/11-eventos-dominio/index.html"><div class="module-card__num">11</div><div class="module-card__title">Eventos del Dominio</div><div class="module-card__desc">35 eventos, consolidados de Motor BPS, Progression Engine y BCS.</div></a>
+      <a class="module-card" href="modules/12-invariantes-globales/index.html"><div class="module-card__num">12</div><div class="module-card__title">Invariantes Globales</div><div class="module-card__desc">31 reglas que nunca pueden violarse, por severidad.</div></a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Implementación futura</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/13-mapeo-persistencia/index.html"><div class="module-card__num">13</div><div class="module-card__title">Mapeo a Persistencia</div><div class="module-card__desc">Persistente, Derivable o Efímero — sin una línea de SQL.</div></a>
+      <a class="module-card" href="modules/14-anti-patrones/index.html"><div class="module-card__num">14</div><div class="module-card__title">Anti-Patrones</div><div class="module-card__desc">Seis formas de romper este modelo, y por qué no hacerlo.</div></a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Gobernanza</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/15-adr/index.html"><div class="module-card__num">15</div><div class="module-card__title">ADR del Modelo de Dominio</div><div class="module-card__desc">DM-ADR-01…08 — las decisiones detrás de cada regla.</div></a>
+      <a class="module-card" href="modules/16-preguntas-abiertas/index.html"><div class="module-card__num">16</div><div class="module-card__title">Preguntas Abiertas</div><div class="module-card__desc">Doce preguntas sin resolver, deliberadamente.</div></a>
+    </div>
+  </div>
+
+  <div class="landing-footer">BREY Domain Model Handbook v1.0 — el lenguaje del negocio, sin código.</div>
+
+</div>
+</body>
+</html>

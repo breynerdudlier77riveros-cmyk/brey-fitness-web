@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>02 · Dependencias — Implementation Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="dependencias" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 02 · Fundamentos</p>
+<h1>Dependencias</h1>
+<p class="lede">El árbol completo de dependencias del ecosistema — corregido. La matriz equivalente del Engineering Handbook (02) contiene un ciclo falso entre Motor BPS y Progression Engine (Architecture Review, AR-005); este módulo es la versión canónica para efectos de secuenciación de construcción.</p>
+
+<div class="callout callout--riesgo">
+  <div class="callout__label">Corrección aplicada, sin editar el Engineering Handbook</div>
+  <p>La Architecture Review (AR-005) encontró que el Engineering Handbook (02) declara simultáneamente "Motor BPS depende de Progression Engine" y "Progression Engine depende de Motor BPS" — un ciclo. Verificado contra los dos handbooks de dominio originales (que son consistentes entre sí): la relación real es unidireccional — Motor BPS <strong>invoca</strong> a Progression Engine como función pura; Progression Engine nunca depende de Motor BPS, solo es llamado por él. Este handbook usa la relación corregida para todo efecto de secuenciación — no se edita el Engineering Handbook, que sigue siendo el documento de arquitectura técnica; este es el documento de orden de construcción.</p>
+</div>
+
+<h2 id="tipos-relacion">Dos tipos de relación — nunca se confunden</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Relación</th><th>Significa</th><th>Efecto en la secuencia de construcción</th></tr></thead>
+<tbody>
+<tr><td><strong>A depende de B</strong></td><td>A necesita el contrato/output de B para funcionar — B debe existir (al menos como contrato) antes que A</td><td>B se construye antes que A, sin excepción</td></tr>
+<tr><td><strong>A es invocado por B</strong></td><td>B llama a A en tiempo de ejecución, pero A no necesita conocer a B para existir — A es una función pura consumible por cualquiera que cumpla su contrato de entrada</td><td>A y B pueden construirse en paralelo, siempre que el contrato de entrada de A esté fijo primero (Regla 1, 01)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="arbol">Árbol completo de dependencias</h2>
+<div class="diagram">
+<div class="diagram-label">Flechas sólidas = "depende de" · flechas punteadas = "es invocado por" (nunca ambas entre el mismo par)</div>
+<pre class="mermaid">
+graph TD
+  CORE["Core Product<br/>(implementado)"]
+  DIAG["Diagnóstico BPS<br/>(implementado, motor puro)"]
+  REC["Recovery Engine<br/>(sin handbook — contrato mínimo vía IMP-ADR-01)"]
+  MB["Motor BPS<br/>(especificado)"]
+  PE["Progression Engine<br/>(especificado)"]
+  BCS["Body Composition System<br/>(especificado)"]
+  BCSD["BCS Design System<br/>(especificado)"]
+  BRAND["Sistema de diseño real<br/>(implementado — src/components/brand)"]
+
+  MB -->|"depende de"| DIAG
+  MB -->|"depende de"| REC
+  PE -->|"depende de"| REC
+  MB -.->|"invoca"| PE
+  BCS -->|"depende de (solo auth)"| CORE
+  BCSD -->|"depende de"| BCS
+  BCSD -->|"depende de"| BRAND
+</pre>
+</div>
+
+<h2 id="matriz-dependencias">Matriz de dependencias — corregida</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Módulo</th><th>Depende de (bloqueante)</th><th>Es invocado por (no bloqueante para su propia construcción)</th></tr></thead>
+<tbody>
+<tr><td>Core Product</td><td>Ninguno</td><td>Todos los demás, indirectamente (autenticación)</td></tr>
+<tr><td>Diagnóstico BPS</td><td>Ninguno</td><td>Motor BPS (activación)</td></tr>
+<tr><td>Recovery Engine</td><td>Ninguno (contrato mínimo, ver IMP-ADR-01)</td><td>Motor BPS, Progression Engine</td></tr>
+<tr><td>Motor BPS</td><td>Diagnóstico BPS, Recovery Engine</td><td>Nadie — es el orquestador</td></tr>
+<tr><td>Progression Engine</td><td>Recovery Engine</td><td>Motor BPS</td></tr>
+<tr><td>Body Composition System</td><td>Core Product (solo identidad del entrenador)</td><td>BCS Design System</td></tr>
+<tr><td>BCS Design System</td><td>Body Composition System, sistema de diseño real</td><td>Nadie</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="paralelizable">Qué puede construirse en paralelo</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Pista</th><th>Contenido</th><th>Independiente de</th></tr></thead>
+<tbody>
+<tr><td>Pista A — BCS</td><td>Migración de tablas BCS (05) → repositorios BCS (06) → componentes BCS Design System (07)</td><td>Pista B por completo — solo comparte Core Product como base de autenticación, ya implementada</td></tr>
+<tr><td>Pista B — Motores</td><td>Contrato mínimo de Recovery (IMP-ADR-01) → Motor BPS → Progression Engine (puede empezar en paralelo con Motor BPS una vez el contrato de Recovery está fijo, ya que PE no depende de MB)</td><td>Pista A por completo</td></tr>
+<tr><td>Dentro de la Pista B</td><td>Progression Engine (lógica pura de sus 39 reglas) puede implementarse y testearse en paralelo con la construcción del orquestador de Motor BPS, siempre que ambos ya compartan el contrato de Recovery fijado por IMP-ADR-01</td><td>El pipeline de invocación real (09, Integración) sí requiere que ambos existan</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="que-bloquea">Qué bloquea y qué desbloquea</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Evento</th><th>Desbloquea</th></tr></thead>
+<tbody>
+<tr><td>IMP-ADR-01 aceptado (forma canónica del Veredicto de Recovery)</td><td>Inicio de implementación de Motor BPS y Progression Engine, en paralelo</td></tr>
+<tr><td>Migración de endurecimiento RLS aplicada (05, M1)</td><td>Cualquier feature nueva que lea/escriba <code>workouts</code>/<code>workout_logs</code>, incluida la ventana móvil de Progression Engine</td></tr>
+<tr><td>Migración de <code>progression_events</code> aplicada (05, M2)</td><td>Persistencia real de decisiones de Motor BPS y Progression Engine</td></tr>
+<tr><td>Migración de tablas BCS aplicada (05, M3)</td><td>Backend del BCS (repositorios, casos de uso)</td></tr>
+<tr><td>Mapeo de columnas BCS resuelto (IMP-ADR-06)</td><td>La migración M3 en sí — no puede escribirse sin el mapeo</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../01-estrategia-general/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 01 · Estrategia general</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../03-roadmap/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">03 · Roadmap →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

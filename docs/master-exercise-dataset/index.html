@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BREY Master Exercise Dataset v1.0</title>
+<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+
+<div class="landing-topbar">
+  <span class="topbar__brand">
+    <span class="topbar__brand-dot"></span>
+    BREY <span class="topbar__brand-sub">Master Exercise Dataset</span>
+  </span>
+  <span class="topbar__version">v1.0</span>
+</div>
+
+<div class="landing-wrap">
+
+  <div class="hero">
+    <p class="eyebrow">Especificación técnica del activo central de BREY</p>
+    <h1>Master Exercise Dataset</h1>
+    <p>La Source of Truth definitiva de todos los ejercicios del ecosistema. Esta especificación <strong>congela el modelo</strong>: define los 38 campos de un Exercise, su identidad permanente, su versionado, su ciclo de estados y las reglas de crecimiento del catálogo. A partir de aquí un ejercicio existe si y solo si aparece en este dataset — y la estructura no vuelve a cambiar: solo se añaden ejercicios.</p>
+    <a class="hero-cta" href="modules/00-introduccion/index.html">Abrir la especificación →</a>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Fundamento</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/00-introduccion/index.html">
+        <div class="module-card__num">00</div>
+        <div class="module-card__title">Introducción</div>
+        <div class="module-card__desc">Qué es el dataset, qué reemplaza, su alcance y el compromiso de congelación del modelo.</div>
+      </a>
+      <a class="module-card" href="modules/01-filosofia/index.html">
+        <div class="module-card__num">01</div>
+        <div class="module-card__title">Filosofía del Dataset</div>
+        <div class="module-card__desc">Diez principios de diseño: identidad inmutable, append-only, crecer sin migrar.</div>
+      </a>
+      <a class="module-card" href="modules/02-arquitectura/index.html">
+        <div class="module-card__num">02</div>
+        <div class="module-card__title">Arquitectura</div>
+        <div class="module-card__desc">Las cuatro capas del dataset y el contrato de lectura de los nueve consumidores.</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">El Exercise</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/03-identidad/index.html">
+        <div class="module-card__num">03</div>
+        <div class="module-card__title">Identidad</div>
+        <div class="module-card__desc">La dualidad ID permanente / slug legible, y qué identifica realmente a un ejercicio.</div>
+      </a>
+      <a class="module-card" href="modules/04-modelo/index.html">
+        <div class="module-card__num">04</div>
+        <div class="module-card__title">Modelo Oficial</div>
+        <div class="module-card__desc">Los 38 campos en 7 bloques, con tipo, cardinalidad y obligatoriedad. El esquema congelado.</div>
+      </a>
+      <a class="module-card" href="modules/05-organizacion/index.html">
+        <div class="module-card__num">05</div>
+        <div class="module-card__title">Organización</div>
+        <div class="module-card__desc">Particionado por patrón, índice maestro y el plan de cobertura de 220 ejercicios.</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Estabilidad</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/06-versionado/index.html">
+        <div class="module-card__num">06</div>
+        <div class="module-card__title">Versionado</div>
+        <div class="module-card__desc">Revisión por entrada, versión del dataset y la clasificación mayor / menor / corrección.</div>
+      </a>
+      <a class="module-card" href="modules/07-compatibilidad/index.html">
+        <div class="module-card__num">07</div>
+        <div class="module-card__title">Compatibilidad</div>
+        <div class="module-card__desc">Append-only, sucesión declarada y resolución histórica: nada se rompe hacia atrás.</div>
+      </a>
+      <a class="module-card" href="modules/08-convenciones-nombres/index.html">
+        <div class="module-card__num">08</div>
+        <div class="module-card__title">Convenciones de Nombres</div>
+        <div class="module-card__desc">Nombre canónico, display, corto, inglés y alias — con reglas de formación exactas.</div>
+      </a>
+      <a class="module-card" href="modules/09-ids/index.html">
+        <div class="module-card__num">09</div>
+        <div class="module-card__title">IDs Permanentes</div>
+        <div class="module-card__desc">Formato <code>EX-0001</code>, asignación secuencial, rangos reservados y la regla de no reutilización.</div>
+      </a>
+      <a class="module-card" href="modules/10-slugs/index.html">
+        <div class="module-card__num">10</div>
+        <div class="module-card__title">Slugs</div>
+        <div class="module-card__desc">Reglas de derivación, resolución de colisiones y por qué el slug también es inmutable.</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Relaciones</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/11-relaciones/index.html">
+        <div class="module-card__num">11</div>
+        <div class="module-card__title">Relaciones</div>
+        <div class="module-card__desc">Los cinco tipos de arista del grafo, su cardinalidad y sus reglas de integridad.</div>
+      </a>
+      <a class="module-card" href="modules/12-variantes/index.html">
+        <div class="module-card__num">12</div>
+        <div class="module-card__title">Variantes</div>
+        <div class="module-card__desc">El criterio de identidad: cuándo algo es una variante y cuándo es un ejercicio nuevo.</div>
+      </a>
+      <a class="module-card" href="modules/13-progresiones/index.html">
+        <div class="module-card__num">13</div>
+        <div class="module-card__title">Progresiones</div>
+        <div class="module-card__desc">La estructura de la cadena ascendente, sin poblarla todavía.</div>
+      </a>
+      <a class="module-card" href="modules/14-regresiones/index.html">
+        <div class="module-card__num">14</div>
+        <div class="module-card__title">Regresiones</div>
+        <div class="module-card__desc">La cadena descendente y la regla de reciprocidad que garantiza su coherencia.</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="landing-group">
+    <div class="landing-group-title">Operación</div>
+    <div class="landing-grid">
+      <a class="module-card" href="modules/15-mantenimiento/index.html">
+        <div class="module-card__num">15</div>
+        <div class="module-card__title">Mantenimiento</div>
+        <div class="module-card__desc">Los seis estados del ciclo, sus transiciones y quién puede ejecutar cada una.</div>
+      </a>
+      <a class="module-card" href="modules/16-checklist/index.html">
+        <div class="module-card__num">16</div>
+        <div class="module-card__title">Checklist de Alta</div>
+        <div class="module-card__desc">Los 28 ítems que debe superar un ejercicio para entrar al dataset.</div>
+      </a>
+      <a class="module-card" href="modules/17-roadmap/index.html">
+        <div class="module-card__num">17</div>
+        <div class="module-card__title">Roadmap</div>
+        <div class="module-card__desc">Las cinco fases de construcción, los lotes y los hitos hasta 220 ejercicios.</div>
+      </a>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

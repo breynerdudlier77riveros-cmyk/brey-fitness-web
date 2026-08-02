@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>16 · Glosario — Engineering Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="glosario" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 16 · Estándares y gobernanza</p>
+<h1>Glosario</h1>
+<p class="lede">Todo el vocabulario técnico transversal, sinónimos aceptados, términos prohibidos y las confusiones más frecuentes entre este handbook y los de dominio.</p>
+
+<h2 id="terminos">Vocabulario técnico</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Término</th><th>Definición</th></tr></thead>
+<tbody>
+<tr><td><strong>Application Service</strong></td><td>Capa que orquesta ≥2 repositorios/motores para un caso de uso (04) — <span class="tag tag--futuro">futuro</span>, no existe todavía</td></tr>
+<tr><td><strong>Bounded context</strong></td><td>Un dominio de negocio con su propio vocabulario y modelo, sin compartir tipos con otro (02)</td></tr>
+<tr><td><strong>Domain Service</strong></td><td>Motor de dominio puro, sin I/O — <code>lib/diagnostico/motor.ts</code> es el único real hoy (04)</td></tr>
+<tr><td><strong>especificado</strong></td><td>Etiqueta: contrato completo en un handbook de dominio, sin código que lo implemente (00)</td></tr>
+<tr><td><strong>futuro</strong></td><td>Etiqueta: ni siquiera especificado en detalle, candidato de roadmap (00, 15)</td></tr>
+<tr><td><strong>implementado</strong></td><td>Etiqueta: existe en el código real, verificado contra el repositorio (00)</td></tr>
+<tr><td><strong>proxy.ts</strong></td><td>El sucesor de <code>middleware.ts</code> en Next.js 16 — capa de UX, nunca la barrera de seguridad real (08)</td></tr>
+<tr><td><strong>progression_events</strong></td><td>La única tabla de eventos de todo el ecosistema, especificada por el Architecture Handbook, aún no creada (05, 07)</td></tr>
+<tr><td><strong>Repository</strong></td><td>Único punto de acceso a una tabla/agregado, recibe el <code>SupabaseClient</code> como parámetro (04)</td></tr>
+<tr><td><strong>RLS</strong></td><td>Row Level Security de Postgres — la barrera de seguridad real de todo el sistema (08)</td></tr>
+<tr><td><strong>Server Action</strong></td><td>Función <code>"use server"</code>, punto de entrada de una mutación desde el cliente (04)</td></tr>
+<tr><td><strong>SSoT</strong></td><td>Single Source of Truth — FT-01, el principio de mayor precedencia junto a Fail Visible</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="sinonimos">Sinónimos aceptados</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Términos equivalentes</th><th>Preferido en este handbook</th></tr></thead>
+<tbody>
+<tr><td>"Motor de dominio" / "Domain Service"</td><td>Ambos válidos — "motor" cuando se habla en el contexto de un handbook de dominio (Motor BPS, Progression Engine), "Domain Service" cuando se habla de la capa arquitectónica (04)</td></tr>
+<tr><td>"Función pura" / "sin efectos secundarios" / "determinista"</td><td>"Determinista" (FT-03) es el término formal; los otros dos son descripciones equivalentes aceptadas en prosa</td></tr>
+<tr><td>"Endpoint" / "Route Handler"</td><td>"Route Handler" — es el término oficial de Next.js y evita ambigüedad con Server Actions, que no son endpoints HTTP tradicionales</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="prohibidos">Términos prohibidos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Término prohibido</th><th>Por qué</th><th>Usar en su lugar</th></tr></thead>
+<tbody>
+<tr><td>"Microservicio"</td><td>BREY es un monolito Next.js desplegado como una sola unidad (02, 12) — el término sugiere una arquitectura que no existe</td><td>"Módulo" o "bounded context"</td></tr>
+<tr><td>"Base de datos" a secas cuando se habla de Postgres vs. Supabase</td><td>Ambigüedad real entre la base de datos (Postgres) y la plataforma que la aloja (Supabase, que también da Auth y Storage)</td><td>"Postgres" para el motor de datos, "Supabase" para la plataforma completa</td></tr>
+<tr><td>"API" sin calificar cuando se refiere a contratos internos</td><td>BREY no tiene una API pública versionada (06) — decir "la API" sin contexto sugiere algo que no existe</td><td>"Contrato interno", "Route Handler" o "Server Action" según corresponda</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="confusiones">Confusiones frecuentes entre handbooks</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Confusión</th><th>Aclaración</th></tr></thead>
+<tbody>
+<tr><td>"BCS" puede referirse al handbook de dominio o al de diseño</td><td>"BCS Handbook" = dominio (datos, reglas); "BCS Design System Handbook" = diseño visual — nunca "BCS" a secas en un contexto donde ambos podrían aplicar</td></tr>
+<tr><td><code>nivel_actual</code> vs. <code>nivel_experiencia</code></td><td>Ya aclarado en el Architecture Handbook (ADR-003) y repetido aquí porque es el error más fácil de cometer: <code>nivel_actual</code> es asignado por el Diagnóstico/Motor BPS y acoplado a un Sistema; <code>nivel_experiencia</code> es autorreportado y sin uso algorítmico en ningún motor</td></tr>
+<tr><td>"Evento" en este handbook vs. "evento" de analítica</td><td>Un evento de dominio (07) vive en <code>progression_events</code> con RLS por usuario; un evento de analítica (page view, clic) vive en Plausible — nunca se mezclan en la misma tabla ni en la misma conversación sin aclarar cuál</td></tr>
+<tr><td>"Especificado" no significa "aprobado para implementar sin revisión"</td><td>Un handbook de dominio especifica el contrato completo, pero la implementación real puede descubrir un caso no previsto — en ese caso, el handbook se actualiza primero (00), no se improvisa en el código y se deja el handbook desactualizado</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../15-roadmap/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 15 · Roadmap</div>
+  </a>
+  <div></div>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

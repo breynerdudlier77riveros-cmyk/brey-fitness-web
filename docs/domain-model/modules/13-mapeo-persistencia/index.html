@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>13 · Mapeo a Persistencia — Domain Model Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="mapeo-persistencia" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 13 · Implementación futura</p>
+<h1>Mapeo a Persistencia</h1>
+<p class="lede">⚠️ Sin SQL. Qué espera cada entidad de su futura capa de persistencia — Persistente, Derivable o Efímero — sin nombrar una sola tabla ni columna nueva que no exista ya en un handbook anterior.</p>
+
+<div class="callout callout--riesgo">
+  <div class="callout__label">Corrección respecto a un ejemplo del encargo original</div>
+  <p>El encargo de este handbook da, como ejemplo ilustrativo, una tabla con "Programa Persistente, Bloque Persistente, Mesociclo Persistente". Los módulos 03, 08 y este mismo ya establecieron lo contrario con evidencia del esquema real: Programa/Bloque/Mesociclo/Microciclo no tienen fila propia — su "persistencia" es enteramente <code>profiles.sistema_actual</code>/<code>nivel_actual</code> más las columnas posicionales de <code>workouts</code> (<code>semana</code>, <code>semana_total</code>, ENG-ADR-05). Marcarlos "Persistente" en el sentido de "tienen su propia tabla" contradiría eso. Este módulo los clasifica como <strong>Derivable</strong> — consistente con 08 — y usa Prescripción y Workout, que sí son persistentes en sentido literal, como los ejemplos reales de esa categoría.</p>
+</div>
+
+<h2 id="categorias">Las tres categorías</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Categoría</th><th>Significa</th></tr></thead>
+<tbody>
+<tr><td><strong>Persistente</strong></td><td>Tiene (o debería tener) fila propia con identidad — sobrevive independientemente de cualquier cálculo</td></tr>
+<tr><td><strong>Derivable</strong></td><td>Se recalcula a partir de datos persistentes ya existentes — no necesita su propia fila, solo una función de lectura</td></tr>
+<tr><td><strong>Efímero</strong></td><td>Existe solo durante un cálculo o una sesión — nunca tiene forma persistida, ni siquiera indirecta</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="mapeo">Entidad → Persistencia esperada</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Entidad</th><th>Persistencia esperada</th><th>Justificación</th></tr></thead>
+<tbody>
+<tr><td>Usuario</td><td>Persistente</td><td><code>auth.users</code> + <code>profiles</code> (Architecture Handbook)</td></tr>
+<tr><td>Diagnóstico</td><td>Persistente</td><td>Tabla real <code>diagnoses</code> (DX-01)</td></tr>
+<tr><td>Respuesta</td><td>Persistente (contenida)</td><td>Array jsonb <code>respuestas</code> dentro de <code>diagnoses</code> — persistente, pero sin fila propia (DX-02)</td></tr>
+<tr><td>ResultadoDiagnóstico</td><td>Persistente (contenida)</td><td>Columnas jsonb de <code>diagnoses</code> (DX-03)</td></tr>
+<tr><td>PerfilEntrenamiento</td><td>Persistente (subconjunto)</td><td>Columnas de <code>profiles</code> — no una tabla separada (DX-04)</td></tr>
+<tr><td>Programa</td><td>Derivable</td><td><code>profiles.sistema_actual</code>/<code>nivel_actual</code> + posición de Workouts existentes (CT-01, 08)</td></tr>
+<tr><td>Bloque</td><td>Derivable</td><td>Posicional — sin fila propia (CT-02, 08)</td></tr>
+<tr><td>Mesociclo</td><td>Derivable</td><td>Posicional (CT-03, 08)</td></tr>
+<tr><td>Microciclo</td><td>Derivable</td><td>Posicional, vía <code>semana</code>/<code>semana_total</code> de <code>workouts</code> (CT-04, 08)</td></tr>
+<tr><td>Workout</td><td>Persistente</td><td>Tabla real <code>workouts</code> (CT-05)</td></tr>
+<tr><td>Slot</td><td>Persistente (contenido)</td><td>Dentro del jsonb <code>ejercicios</code> de <code>workouts</code> — persistente, sin fila propia (ENG-ADR-05)</td></tr>
+<tr><td>Ejercicio</td><td>Persistente</td><td>Knowledge Base — fuera de alcance de este handbook (CT-07)</td></tr>
+<tr><td>Serie</td><td>Persistente (contenida)</td><td>Dentro del jsonb <code>ejercicios</code> de <code>workout_logs</code> (CT-08)</td></tr>
+<tr><td>WorkoutLog</td><td>Persistente</td><td>Tabla real <code>workout_logs</code> (08)</td></tr>
+<tr><td>Prescripción</td><td>Persistente</td><td>Es la entrada real que el Workout Generator consume ciclo a ciclo (PR-01)</td></tr>
+<tr><td>EvaluaciónProgresión</td><td>Efímero</td><td>Se recalcula en cada ciclo; solo su resultado se registra como EventoProgresión (PR-02)</td></tr>
+<tr><td>EventoProgresión</td><td>Persistente</td><td><code>progression_events</code>, especificada, REQUERIDA, append-only (PR-03, 11)</td></tr>
+<tr><td>EstadoRecuperación</td><td>Derivable</td><td>Recalculado cada ciclo a partir de SeñalFatiga — nunca almacenado como tal (PR-04, IMP-ADR-01)</td></tr>
+<tr><td>SeñalFatiga</td><td>Efímero</td><td>Nunca sale de Recovery Engine, ni siquiera para persistirse fuera de su cálculo inmediato (PR-05, IN-21)</td></tr>
+<tr><td>Descarga</td><td>Derivable</td><td>Clasificación de por qué una Prescripción cambió — nunca una tabla propia (PR-06)</td></tr>
+<tr><td>Cliente</td><td>Persistente</td><td>Aggregate root propio del BCS (BC-01, BCS-ADR-01)</td></tr>
+<tr><td>Medición</td><td>Persistente</td><td>Aggregate root propio del BCS (BC-02, BCS-ADR-01)</td></tr>
+<tr><td>HistorialMediciones</td><td>Derivable</td><td>Proyección/consulta ordenada — sin fila propia (BC-03)</td></tr>
+<tr><td>Reporte</td><td>Efímero</td><td>Recalculado en cada visualización — nunca persistido (BC-04, BCS-IN-D3)</td></tr>
+<tr><td>EnlacePúblico</td><td>Persistente</td><td>Aggregate root propio del BCS (BC-05, BCS-ADR-01)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="resumen">Resumen por categoría</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Categoría</th><th>Cantidad</th></tr></thead>
+<tbody>
+<tr><td>Persistente (incluye contenidas)</td><td>16</td></tr>
+<tr><td>Derivable</td><td>6</td></tr>
+<tr><td>Efímero</td><td>3</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../12-invariantes-globales/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 12 · Invariantes Globales</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../14-anti-patrones/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">14 · Anti-Patrones →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

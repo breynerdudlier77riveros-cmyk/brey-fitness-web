@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03 · Frontend Architecture — Engineering Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="frontend-architecture" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 03 · Capas</p>
+<h1>Frontend Architecture</h1>
+<p class="lede">La estructura de carpetas completa — las que ya existen en el código real, y las que este handbook especifica como convención para cuando el proyecto crezca más allá de su escala actual.</p>
+
+<div class="callout callout--nota">
+  <div class="callout__label">Honestidad de escala</div>
+  <p>No todas las 12 carpetas que un frontend "de nivel empresarial" suele tener existen hoy en BREY — y eso es correcto para su escala actual, no una omisión. <code>hooks/</code>, <code>contexts/</code>, <code>providers/</code>, <code>features/</code>, <code>services/</code>, <code>types/</code>, <code>styles/</code>, <code>assets/</code> y <code>utils/</code> como carpetas dedicadas no existen: hay exactamente 1 hook custom (inline en <code>AppShell.tsx</code>), 1 contexto (idem), <code>types.ts</code> y <code>utils.ts</code> son archivos únicos de 189 y ~30 líneas respectivamente. Este módulo documenta la convención real de hoy y el punto exacto en que cada carpeta debería materializarse.</p>
+</div>
+
+<h2 id="diagrama">Diagrama de capas del Frontend</h2>
+<div class="diagram">
+<div class="diagram-label">Tres niveles de componentes — la regla de import es de abajo hacia arriba únicamente</div>
+<pre class="mermaid">
+graph TD
+  APP["app/ — rutas (App Router)"] --> COMP_APP["components/app/<br/>compuestos del panel privado"]
+  APP --> COMP_LAYOUT["components/layout/<br/>chrome del sitio marketing"]
+  COMP_APP --> BRAND["components/brand/<br/>wrappers de marca (única vía pública)"]
+  COMP_LAYOUT --> BRAND
+  BRAND --> UI["components/ui/<br/>primitivas shadcn/Radix crudas"]
+  APP --> LIB["lib/ — dominio por carpeta"]
+  LIB --> DATA["data/ — catálogos estáticos"]
+</pre>
+</div>
+
+<h2 id="tabla-carpetas">Las 12 carpetas</h2>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">FE-01</span><span class="speccard__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>app/</h3>
+<dl>
+<dt>Responsabilidad</dt><dd>Rutas del App Router de Next.js — páginas, layouts, route handlers, Server Actions co-ubicadas con su ruta</dd>
+<dt class="half">Puede contener</dt><dd class="half"><code>page.tsx</code>, <code>layout.tsx</code>, <code>loading.tsx</code>, componentes Client de una sola ruta (ej. <code>PerfilForm.tsx</code> dentro de <code>app/app/perfil/</code>)</dd>
+<dt class="half">Nunca contiene</dt><dd class="half">Lógica de dominio reutilizable entre rutas — eso vive en <code>lib/</code></dd>
+<dt class="half">Dependencias permitidas</dt><dd class="half"><code>components/</code>, <code>lib/</code>, <code>data/</code></dd>
+<dt class="half">Dependencias prohibidas</dt><dd class="half">Ninguna ruta importa de otra ruta directamente — la reutilización pasa por <code>components/</code> o <code>lib/</code></dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">FE-02</span><span class="speccard__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>components/</h3>
+<dl>
+<dt>Responsabilidad</dt><dd>Tres subcarpetas con jerarquía estricta: <code>ui/</code> (primitivas shadcn generadas, nunca editadas a mano salvo vía CLI), <code>brand/</code> (wrappers con la identidad de BREY — única vía de import para código de features), <code>app/</code> y <code>layout/</code> (composición específica de superficie)</dd>
+<dt class="half">Puede contener</dt><dd class="half">Componentes de presentación puros — reciben props, no hacen fetch propio salvo excepción documentada (04)</dd>
+<dt class="half">Nunca contiene</dt><dd class="half">Reglas de negocio, acceso directo a Supabase (salvo la excepción de <code>Navbar.tsx</code>, documentada en 04)</dd>
+<dt class="half">Dependencias permitidas</dt><dd class="half"><code>ui/</code> solo importable desde <code>brand/</code>; <code>brand/</code> importable desde cualquier <code>app/</code>, <code>layout/</code> o ruta</dd>
+<dt class="half">Dependencias prohibidas</dt><dd class="half">Ningún componente de <code>app/</code> (ruta) importa <code>ui/</code> directamente, saltándose <code>brand/</code></dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">FE-03</span><span class="speccard__badges"><span class="tag tag--futuro">futuro</span></span></div>
+<h3>features/</h3>
+<dl>
+<dt>Responsabilidad especificada</dt><dd>Agrupar por feature de negocio (ej. <code>features/composicion-corporal/</code>) cuando un bounded context (02) tenga suficientes componentes, hooks y lógica propia para justificar su propia carpeta en vez de dispersarse entre <code>app/</code>, <code>components/</code> y <code>lib/</code></dd>
+<dt class="half">Estado actual</dt><dd class="half">No existe — cada bounded context de hoy (perfil, workouts, diagnóstico) es pequeño y vive distribuido en <code>lib/&lt;dominio&gt;/</code> + su ruta en <code>app/</code></dd>
+<dt class="half">Umbral de creación</dt><dd class="half">Cuando un bounded context tenga ≥3 componentes propios + ≥1 hook propio + lógica de dominio no trivial — el Body Composition System (BCS Handbook) es el primer candidato real</dd>
+<dt>Dependencias (cuando exista)</dt><dd><code>lib/&lt;dominio&gt;/</code>, <code>components/brand/</code> — nunca otra <code>features/&lt;otro-dominio&gt;/</code> directamente</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">FE-04</span><span class="speccard__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>hooks/</h3>
+<dl>
+<dt>Estado actual</dt><dd>No existe como carpeta dedicada — 1 hook custom (<code>useSidebarCollapse</code>) vive inline en <code>components/app/AppShell.tsx</code>, junto al contexto que expone, porque son indivisibles (FT-11, Alta cohesión)</dd>
+<dt class="half">Umbral de creación</dt><dd class="half">Al segundo hook custom que no esté acoplado 1:1 a un solo componente</dd>
+<dt class="half">Responsabilidad especificada</dt><dd class="half">Lógica de estado reutilizable entre componentes — nunca fetch de datos de servidor (eso es responsabilidad de Server Components/Actions, 04)</dd>
+<dt class="half">Dependencias prohibidas</dt><dd class="half">Un hook nunca importa un componente — la dirección es siempre componente → hook</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">FE-05</span><span class="speccard__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>contexts/ y providers/</h3>
+<dl>
+<dt>Estado actual</dt><dd>No existen como carpetas — <code>SidebarCollapseContext</code> es el único contexto de la app, definido junto a <code>AppShell.tsx</code>; <code>MotionConfig</code>/<code>TooltipProvider</code>/<code>Toaster</code> se montan directamente en <code>app/layout.tsx</code> sin una capa <code>providers/</code> intermedia</dd>
+<dt class="half">Umbral de creación</dt><dd class="half">Al tercer contexto propio de la aplicación (no de una librería de terceros)</dd>
+<dt class="half">Responsabilidad especificada</dt><dd class="half">Estado verdaderamente global (tema, sesión de cliente) — nunca estado que un solo árbol de componentes necesita</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">FE-06</span><span class="speccard__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>lib/</h3>
+<dl>
+<dt>Responsabilidad</dt><dd>Una subcarpeta por dominio (<code>profile/</code>, <code>workouts/</code>, <code>diagnostico/</code>, <code>perfil/</code>, <code>supabase/</code>, <code>database/</code>) — repositorios, validación, mappers, motores puros (FT-02)</dd>
+<dt class="half">Puede contener</dt><dd class="half">Repositorios (04), funciones de validación, motores de dominio, clientes de infraestructura (<code>supabase/server.ts</code>, <code>supabase/client.ts</code>)</dd>
+<dt class="half">Nunca contiene</dt><dd class="half">Componentes React, JSX de cualquier tipo</dd>
+<dt class="half">Dependencias permitidas</dt><dd class="half">Otra carpeta de <code>lib/</code> (ej. <code>profile/repository.ts</code> importa <code>database/mappers.ts</code>), <code>@supabase/*</code></dd>
+<dt class="half">Dependencias prohibidas</dt><dd class="half"><code>lib/</code> nunca importa de <code>components/</code> ni de <code>app/</code> — la dependencia siempre va en un solo sentido (02, IN-E1 aplicado al frontend)</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">FE-07</span><span class="speccard__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>types/</h3>
+<dl>
+<dt>Estado actual</dt><dd><code>src/lib/types.ts</code> — un único archivo de 189 líneas con todos los tipos de dominio compartidos (<code>Profile</code>, <code>Workout</code>, <code>WorkoutLog</code>, enums)</dd>
+<dt class="half">Umbral de creación de carpeta</dt><dd class="half">Cuando ese archivo supere ~400 líneas o mezcle tipos de dominios claramente no relacionados — entonces se divide por dominio (<code>types/profile.ts</code>, <code>types/workout.ts</code>), nunca antes</dd>
+<dt class="half">Regla mientras sea un archivo único</dt><dd class="half">Un tipo usado por un solo módulo vive junto a ese módulo, no en <code>types.ts</code> — solo los tipos genuinamente compartidos entran ahí (FT-01, SSoT sin sobre-centralizar)</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">FE-08</span><span class="speccard__badges"><span class="tag tag--futuro">futuro</span></span></div>
+<h3>services/</h3>
+<dl>
+<dt>Estado actual</dt><dd>No existe — no hay hoy ninguna integración con un servicio HTTP externo que justifique una capa de cliente propia (Plausible Analytics se integra vía <code>&lt;script&gt;</code> estático, no vía SDK)</dd>
+<dt class="half">Umbral de creación</dt><dd class="half">Al primer servicio externo real que requiera autenticación, retry o manejo de errores propio — un futuro Coach IA consumiendo un LLM externo es el candidato más probable</dd>
+<dt class="half">Responsabilidad especificada</dt><dd class="half">Adaptador de un servicio HTTP externo — nunca lógica de negocio, solo el contrato de comunicación</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">FE-09</span><span class="speccard__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>styles/</h3>
+<dl>
+<dt>Estado actual</dt><dd>No existe como carpeta — un único <code>src/app/globals.css</code> con los design tokens (<code>@theme inline</code>, variables de shadcn) y las pocas animaciones custom del sitio</dd>
+<dt class="half">Por qué no se divide hoy</dt><dd class="half">Tailwind v4 concentra la mayoría del styling como utilidades inline en JSX — un archivo CSS separado por sección duplicaría esa fuente de verdad sin necesidad real</dd>
+<dt class="half">Umbral de creación de carpeta</dt><dd class="half">Si <code>globals.css</code> creciera con múltiples archivos de animaciones/temas — no anticipado en el roadmap actual (15)</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">FE-10</span><span class="speccard__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>assets/</h3>
+<dl>
+<dt>Estado actual</dt><dd><code>public/</code> a nivel de raíz del proyecto (convención estándar de Next.js), no <code>src/assets/</code> — imágenes estáticas servidas directamente por el App Router</dd>
+<dt>Regla</dt><dd>Ningún asset se importa mediante un bundler de imágenes propio — <code>public/</code> más el componente <code>next/image</code> es la única vía</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">FE-11</span><span class="speccard__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>utils/</h3>
+<dl>
+<dt>Estado actual</dt><dd><code>src/lib/utils.ts</code> — un único archivo con <code>cn()</code> (merge de clases Tailwind), <code>iniciales()</code>, <code>fechaISOLocal()</code></dd>
+<dt class="half">Regla</dt><dd class="half">Solo funciones puras, sin estado, sin dependencia de React ni de Supabase — cualquier función que necesite el cliente de Supabase pertenece a <code>lib/&lt;dominio&gt;/</code>, no aquí</dd>
+<dt class="half">Umbral de división</dt><dd class="half">Mismo criterio que <code>types.ts</code> (FE-07) — por ahora un solo archivo es suficiente y dividirlo sería FT-10 (bajo acoplamiento) mal aplicado a algo trivial</dd>
+</dl>
+</div>
+
+<div class="speccard">
+<div class="speccard__head"><span class="speccard__id">FE-12</span><span class="speccard__badges"><span class="tag tag--implementado">implementado</span></span></div>
+<h3>data/</h3>
+<dl>
+<dt>Responsabilidad</dt><dd>Catálogos estáticos que no ameritan una tabla de base de datos completa — <code>data/sistemas.ts</code> es el ejemplo real (los 5 Sistemas del BPS con su copy largo, iconos y colores; la tabla <code>systems</code> de Supabase, 05, es deliberadamente un catálogo liviano que referencia estos datos, no los reemplaza)</dd>
+<dt>Regla</dt><dd>Un dato entra en <code>data/</code> cuando cambiarlo no requiere una migración ni un usuario final — es contenido editorial versionado junto al código</dd>
+</dl>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../02-arquitectura-general/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 02 · Arquitectura General</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../04-backend-architecture/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">04 · Backend Architecture →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

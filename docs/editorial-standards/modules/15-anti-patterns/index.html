@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>15 · Anti-patterns — Editorial Standards</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="anti-patterns" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 15 · Gobernanza</p>
+<h1>Anti-patterns Editoriales</h1>
+<p class="lede">Doce formas de perder el gobierno del conocimiento. Se distinguen de los tres catálogos anteriores por su objeto: aquellos son errores al clasificar, etiquetar o gestionar entradas; estos son errores de <strong>gobernanza</strong>. Prefijo <code>EDA-</code>.</p>
+
+<h2 id="catalogo">Catálogo</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>ID</th><th>Anti-patrón</th><th>Severidad</th><th>Regla violada</th></tr></thead>
+<tbody>
+<tr><td><code>EDA-01</code></td><td>Modificar conocimiento sin autorización de la autoridad correspondiente</td><td><span class="severity severity--critica">crítica</span></td><td>ED-01 · P14</td></tr>
+<tr><td><code>EDA-02</code></td><td>Autorizar sin dejar rastro de la autorización</td><td><span class="severity severity--critica">crítica</span></td><td>ED-02 · P14</td></tr>
+<tr><td><code>EDA-03</code></td><td>Deriva silenciosa: código y handbook divergen sin ADR</td><td><span class="severity severity--critica">crítica</span></td><td>ED-05 · "el handbook manda"</td></tr>
+<tr><td><code>EDA-04</code></td><td>Presentar una decisión de producto como si fuera ciencia</td><td><span class="severity severity--critica">crítica</span></td><td>ED-03 — "error de integridad, no de estilo"</td></tr>
+<tr><td><code>EDA-05</code></td><td>Cambiar un <code>slug</code> para corregirlo</td><td><span class="severity severity--alta">alta</span></td><td>P15 · rompe cadenas, historial y desempate</td></tr>
+<tr><td><code>EDA-06</code></td><td>Duplicar una entrada en lugar de corregir la existente</td><td><span class="severity severity--alta">alta</span></td><td>ED-04 · sin criterio de equivalencia ni fusión</td></tr>
+<tr><td><code>EDA-07</code></td><td>Duplicar un vocabulario o una regla en dos documentos</td><td><span class="severity severity--alta">alta</span></td><td>ED-04 · no duplicación</td></tr>
+<tr><td><code>EDA-08</code></td><td>Resolver un conflicto localmente sin escalarlo</td><td><span class="severity severity--alta">alta</span></td><td>ED-07 · ED-ADR-04</td></tr>
+<tr><td><code>EDA-09</code></td><td>Cerrar una pregunta abierta con la opción razonable</td><td><span class="severity severity--alta">alta</span></td><td>ED-07 · P6 · P11</td></tr>
+<tr><td><code>EDA-10</code></td><td>Inventar una etiqueta o un valor de vocabulario al trabajar</td><td><span class="severity severity--alta">alta</span></td><td>Vocabularios cerrados · ED-06</td></tr>
+<tr><td><code>EDA-11</code></td><td>Reescribir el historial al corregir</td><td><span class="severity severity--alta">alta</span></td><td>ED-08 · P3 · R-2</td></tr>
+<tr><td><code>EDA-12</code></td><td>Que el estándar editorial opine sobre contenido</td><td><span class="severity severity--media">media</span></td><td>ED-06 · ED-ADR-02</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="detalle">Los cuatro críticos, en detalle</h2>
+
+<div class="callout callout--riesgo">
+  <div class="callout__label">EDA-01 · Modificar sin autorización</div>
+  <p><strong>Forma:</strong> ingeniería ajusta un valor de contenido "porque es evidente"; o contenido amplía un vocabulario cerrado al necesitar un valor nuevo. <strong>Por qué falla:</strong> cada tipo de decisión tiene una autoridad declarada, y cruzarlas rompe la única frontera que P14 establece. <strong>Consecuencia:</strong> conocimiento en el ecosistema que nadie con la autoridad correspondiente aprobó. <strong>Alternativa:</strong> escalar a quien corresponda — módulo <a href="../05-autoridad/index.html">05</a>.</p>
+</div>
+
+<div class="callout callout--riesgo">
+  <div class="callout__label">EDA-02 · Autorizar sin dejar rastro</div>
+  <p><strong>Forma:</strong> la decisión se toma en una conversación y se aplica; el resultado queda, la autorización no. <strong>Por qué falla:</strong> P14 exige que la responsabilidad <em>pueda rastrearse</em>; una autorización sin registro es, a efectos de auditoría, indistinguible de un cambio no autorizado. <strong>Consecuencia:</strong> imposible saber después quién aprobó qué ni sobre qué base. <strong>Alternativa:</strong> registrar — con la salvedad de que hoy <strong>no hay dónde</strong> (ED-D08), lo que convierte este anti-patrón en inevitable hasta cerrar esa deuda.</p>
+</div>
+
+<div class="callout callout--riesgo">
+  <div class="callout__label">EDA-03 · Deriva silenciosa</div>
+  <p><strong>Forma:</strong> el código implementa algo distinto de lo documentado y nadie lo detecta; con el tiempo, el código se convierte en la fuente de facto. <strong>Por qué falla:</strong> la regla es explícita — "el código está mal… nunca por deriva silenciosa". <strong>Consecuencia:</strong> los handbooks dejan de describir el sistema real y su autoridad se evapora. <strong>Alternativa:</strong> corregir el código o actualizar el handbook con un ADR — aunque <strong>ningún proceso detecta la divergencia</strong> (ED-D07), lo que hace este anti-patrón difícil de prevenir hoy.</p>
+</div>
+
+<div class="callout callout--riesgo">
+  <div class="callout__label">EDA-04 · Producto disfrazado de ciencia</div>
+  <p><strong>Forma:</strong> publicar un umbral, un peso o un default sin su badge de <em>decisión de producto</em>, dejando entender que proviene de evidencia. <strong>Por qué falla:</strong> el ecosistema lo califica como "<strong>un error de integridad, no de estilo</strong>". <strong>Consecuencia:</strong> nadie vuelve a cuestionar una cifra que parece científica, y deja de calibrarse. <strong>Alternativa:</strong> el badge correcto, y declarar el valor calibrable — módulo <a href="../06-evidencia/index.html">06</a>.</p>
+</div>
+
+<h2 id="raiz">Las dos raíces</h2>
+<div class="diagram">
+<div class="diagram-label">Casi todos los anti-patrones editoriales nacen de una de dos tentaciones</div>
+<pre class="mermaid">
+graph TD
+  R1["RAÍZ A: avanzar sin<br/>la autoridad para hacerlo"]
+  R1 --> A1["EDA-01 · modificar sin autorización"]
+  R1 --> A8["EDA-08 · resolver localmente"]
+  R1 --> A9["EDA-09 · cerrar lo abierto"]
+  R1 --> A10["EDA-10 · inventar vocabulario"]
+  R1 --> A12["EDA-12 · el estándar opina"]
+  R2["RAÍZ B: dejar de registrar<br/>lo que ocurrió"]
+  R2 --> A2["EDA-02 · autorizar sin rastro"]
+  R2 --> A3["EDA-03 · deriva silenciosa"]
+  R2 --> A4["EDA-04 · producto como ciencia"]
+  R2 --> A11["EDA-11 · reescribir el historial"]
+  A1 --> C1["Conocimiento sin<br/>responsable identificable"]
+  A2 --> C1
+  C1 --> P["⛔ P14 deja de cumplirse"]
+</pre>
+</div>
+
+<h2 id="deteccion">Detectabilidad</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Detectable por máquina</th><th>Detectable solo por revisión</th></tr></thead>
+<tbody>
+<tr><td><code>EDA-05</code> · un slug que cambia entre versiones</td><td><code>EDA-01</code> · un cambio autorizado y uno no lo son idénticos en el dato</td></tr>
+<tr><td><code>EDA-07</code> · un vocabulario que aparece en dos documentos</td><td><code>EDA-02</code> · la ausencia de rastro es indistinguible de no haberlo necesitado</td></tr>
+<tr><td><code>EDA-10</code> · valor fuera de vocabulario cerrado</td><td><code>EDA-03</code> · exige comparar código con documentación</td></tr>
+<tr><td><code>EDA-11</code> · una entrada histórica alterada</td><td><code>EDA-04</code> · falta un badge que nadie echa de menos</td></tr>
+<tr><td><code>EDA-06</code> · <em>parcialmente</em>, por colisión de nombre</td><td><code>EDA-06</code> · duplicación real, sin criterio de equivalencia</td></tr>
+<tr><td>—</td><td><code>EDA-08</code>, <code>EDA-09</code>, <code>EDA-12</code></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Los cuatro críticos son todos indetectables por máquina</div>
+  <p><code>EDA-01</code> a <code>EDA-04</code> comparten una propiedad incómoda: <strong>no dejan huella en el dato</strong>. Un cambio autorizado y uno no autorizado producen exactamente el mismo resultado; un badge ausente no rompe nada; la deriva silenciosa es, por definición, silenciosa. Es la razón por la que un proceso de revisión (módulo <a href="../10-revision/index.html">10</a>) no es un lujo de gobernanza sino la única defensa contra la clase de error que el sistema no puede ver.</p>
+</div>
+
+<h2 id="inevitables">Tres anti-patrones hoy inevitables</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Anti-patrón</th><th>Por qué es inevitable hoy</th><th>Deuda que lo causa</th></tr></thead>
+<tbody>
+<tr><td><code>EDA-02</code> · autorizar sin rastro</td><td>No existe ningún campo donde registrar la autorización</td><td>ED-D08</td></tr>
+<tr><td><code>EDA-03</code> · deriva silenciosa</td><td>Ningún proceso comprueba código contra handbook</td><td>ED-D07</td></tr>
+<tr><td><code>EDA-06</code> · duplicar entradas</td><td>No hay criterio de equivalencia ni mecanismo de fusión</td><td>ED-D11 · ED-D14</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Un anti-patrón inevitable no es una advertencia: es una deuda</div>
+  <p>Los tres se listan igualmente, porque dejarán de ser inevitables en cuanto se cierren sus deudas. Hasta entonces, señalarlos como error de quien trabaja sería injusto — el error está en el sistema que no ofrece la alternativa.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../14-adr/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 14 · ADR Editoriales</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../16-deuda-editorial/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">16 · Deuda Editorial →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

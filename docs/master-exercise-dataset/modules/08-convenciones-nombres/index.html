@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>08 · Convenciones de Nombres — Master Exercise Dataset</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="convenciones-nombres" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Sección 08 · Estabilidad</p>
+<h1>Convenciones de Nombres</h1>
+<p class="lede">Tres nombres por ejercicio, con funciones distintas y libertades distintas. El canónico desambigua, el display comunica y el corto cabe. Nombrar bien es lo que evita descubrir a la entrada 140 que existen dos fichas del mismo movimiento.</p>
+
+<h2 id="tres">Los tres nombres</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th></th><th><code>name_canonical</code></th><th><code>name_display</code></th><th><code>name_short</code></th></tr></thead>
+<tbody>
+<tr><td><strong>Función</strong></td><td>Desambiguar sin contexto</td><td>Comunicar al usuario</td><td>Caber en espacios estrechos</td></tr>
+<tr><td><strong>Longitud</strong></td><td>Sin límite; tan largo como haga falta</td><td>Tan corto como sea claro</td><td>≤ 24 caracteres</td></tr>
+<tr><td><strong>Único</strong></td><td><strong>Sí</strong> — ID-6</td><td>No — ID-7</td><td>No</td></tr>
+<tr><td><strong>Mutable</strong></td><td>Solo por revisión <code>major</code></td><td>Libremente</td><td>Libremente</td></tr>
+<tr><td><strong>Deriva el slug</strong></td><td><strong>Sí</strong></td><td>No</td><td>No</td></tr>
+<tr><td><strong>Se ve en</strong></td><td>Editor, auditoría, exportación</td><td>Sesión, ficha, buscador</td><td>Chips, tablas, resúmenes</td></tr>
+<tr><td><strong>Ejemplo</strong></td><td>Press de Banca con Barra, Agarre Medio</td><td>Press de Banca</td><td>Press Banca</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="canonico">Formación del nombre canónico</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Estructura obligatoria</div>
+  <p><code>[Movimiento] + [Implemento] + [Modificador distintivo]</code></p>
+  <p>El primer componente es obligatorio. Los otros dos se incluyen <strong>solo si son necesarios para distinguir</strong> esta entrada de otra existente o previsible. Un canónico no acumula calificativos por completitud: acumula los que hacen falta.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Componente</th><th>Qué aporta</th><th>Cuándo se incluye</th></tr></thead>
+<tbody>
+<tr><td><strong>Movimiento</strong></td><td>El gesto: press, remo, sentadilla, dominada, plancha…</td><td>Siempre</td></tr>
+<tr><td><strong>Implemento</strong></td><td>El equipo imprescindible: con barra, con mancuernas, en máquina…</td><td>Si más de un implemento admite el mismo movimiento</td></tr>
+<tr><td><strong>Modificador</strong></td><td>Agarre, ángulo, lateralidad, apoyo: agarre estrecho, inclinado, a una pierna…</td><td>Si distingue de otra entrada con igual movimiento e implemento</td></tr>
+</tbody>
+</table>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Regla</th><th>Detalle</th></tr></thead>
+<tbody>
+<tr><td>N-1</td><td>Idioma: <strong>español</strong>, salvo términos sin traducción asentada en el uso técnico</td></tr>
+<tr><td>N-2</td><td>Capitalización de título: mayúscula inicial en cada palabra significativa; minúscula en preposiciones y artículos</td></tr>
+<tr><td>N-3</td><td>Sin abreviaturas — <em>Mancuernas</em>, no <em>Manc.</em>; ese papel es de <code>name_short</code></td></tr>
+<tr><td>N-4</td><td>Sin marcas comerciales ni nombres de fabricante</td></tr>
+<tr><td>N-5</td><td>Sin números de serie, prefijos ni sufijos de orden</td></tr>
+<tr><td>N-6</td><td>El modificador va al final, separado por coma si es una precisión de ejecución</td></tr>
+<tr><td>N-7</td><td>Sin adjetivos valorativos: nada de <em>avanzado</em>, <em>completo</em>, <em>definitivo</em> — el nivel es un campo</td></tr>
+<tr><td>N-8</td><td>Sin información que ya sea un campo del modelo: ni el nivel, ni el rol, ni el sistema, ni el músculo</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">N-8 · El nombre no repite el modelo</div>
+  <p>«Press de Banca para Pecho, Nivel Intermedio» duplica en texto dos campos que ya existen enumerados. La duplicación se desincroniza en la primera reclasificación, y entonces el nombre miente. Todo lo que sea un campo pertenece al campo — DS-08.</p>
+</div>
+
+<h2 id="display">Nombre display</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Regla</th><th>Detalle</th></tr></thead>
+<tbody>
+<tr><td>D-1</td><td>Es el nombre que una persona usaría en voz alta</td></tr>
+<tr><td>D-2</td><td>Puede omitir cualquier componente que el contexto de interfaz ya deje claro</td></tr>
+<tr><td>D-3</td><td>Puede coincidir con el canónico si este ya es breve</td></tr>
+<tr><td>D-4</td><td>Puede repetirse entre entradas — la desambiguación es responsabilidad de la interfaz</td></tr>
+<tr><td>D-5</td><td>Se cambia libremente, sin revisión ni incremento de <code>rev</code> más allá de un <code>fix</code></td></tr>
+<tr><td>D-6</td><td>Nunca es el valor sobre el que se busca de forma exclusiva — para eso está <code>search_terms</code></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Por qué se permite que el display se repita</div>
+  <p>Dos entradas pueden mostrarse ambas como «Remo con Mancuernas» si su contexto de aparición las distingue —una unilateral y otra bilateral, cada una en su slot—. Forzar unicidad en el display produce nombres burocráticos que nadie usa. La unicidad se garantiza donde debe: en <code>id</code>, <code>slug</code> y <code>name_canonical</code>.</p>
+</div>
+
+<h2 id="corto">Nombre corto</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Regla</th><th>Detalle</th></tr></thead>
+<tbody>
+<tr><td>S-1</td><td>Máximo <strong>24 caracteres</strong>, contando espacios</td></tr>
+<tr><td>S-2</td><td>Se obtiene eliminando palabras del display, no truncándolo</td></tr>
+<tr><td>S-3</td><td>Sin puntos suspensivos ni truncamiento visible</td></tr>
+<tr><td>S-4</td><td>Debe seguir siendo reconocible por alguien que conozca el ejercicio</td></tr>
+<tr><td>S-5</td><td>Si el display ya cumple 24 caracteres, ambos coinciden</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">S-2 · Reducir, no truncar</div>
+  <p>El límite de 24 caracteres existe para que la interfaz <strong>nunca</strong> tenga que truncar. Un <code>name_short</code> es una decisión editorial sobre qué palabra sobra, tomada por quien conoce el ejercicio — no un corte mecánico que produce «Press de Banca con Barr…».</p>
+</div>
+
+<h2 id="flujo">Flujo de nombrado</h2>
+<div class="diagram">
+<div class="diagram-label">Del gesto a los cinco campos de identidad</div>
+<pre class="mermaid">
+flowchart TD
+  G["Gesto a documentar"] --> M["Nombrar el movimiento"]
+  M --> Q1{"¿Otro implemento admite<br/>el mismo movimiento?"}
+  Q1 -->|"Sí"| I["Añadir implemento"]
+  Q1 -->|"No"| Q2
+  I --> Q2{"¿Colisiona con una entrada<br/>existente o previsible?"}
+  Q2 -->|"Sí"| MOD["Añadir modificador distintivo"]
+  Q2 -->|"No"| CN["name_canonical fijado"]
+  MOD --> CN
+  CN --> SL["slug derivado · sección 10"]
+  CN --> ND["name_display · reducir a lo hablado"]
+  ND --> NS["name_short · ≤ 24 car."]
+  CN --> AL["search_terms · alias y sinónimos"]
+</pre>
+</div>
+
+<h2 id="ingles">Nombre en inglés</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Decisión: no existe campo de nombre en inglés en v1.0</div>
+  <p>El modelo de 38 campos <strong>no incluye</strong> un nombre traducido. Añadirlo sería un campo opcional —extensión compatible, no MAYOR— pero se difiere deliberadamente: una traducción sin un modelo de localización decidido produce un campo que envejece sin dueño.</p>
+  <p>Mientras tanto, los términos en inglés de uso corriente en el ecosistema (<em>press</em>, <em>curl</em>, <em>hip thrust</em>) se registran como entradas de <code>search_terms</code>, que ya cumple la función práctica: que alguien que busca «bench press» encuentre la entrada.</p>
+</div>
+
+<h2 id="alias">Alias y términos de búsqueda</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Regla</th><th>Detalle</th></tr></thead>
+<tbody>
+<tr><td>A-1</td><td><code>search_terms</code> admite sinónimos, nombres coloquiales, términos en inglés y variantes regionales</td></tr>
+<tr><td>A-2</td><td>Un alias <strong>no</strong> tiene que ser único entre entradas</td></tr>
+<tr><td>A-3</td><td>Un alias <strong>nunca</strong> resuelve a un ejercicio de forma determinista — regla de la sección 03</td></tr>
+<tr><td>A-4</td><td>Añadir o quitar alias es <code>type: fix</code></td></tr>
+<tr><td>A-5</td><td>Un alias no puede coincidir con el <code>name_canonical</code> de <em>otra</em> entrada</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">A-5 · La única restricción dura sobre los alias</div>
+  <p>Si el alias de <code>EX-0042</code> coincide con el canónico de <code>EX-0117</code>, una búsqueda por el nombre exacto de un ejercicio devuelve otro por delante. La regla es barata de verificar en el alta y evita una clase entera de confusión.</p>
+</div>
+
+<h2 id="colisiones">Resolución de colisiones de nombre canónico</h2>
+<p class="matrix-note">Si el canónico propuesto ya existe, se aplica el primer criterio de la lista que produzca distinción real:</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Orden</th><th>Criterio</th><th>Ejemplo de sufijo</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Implemento</td><td>«con Barra» · «con Mancuernas»</td></tr>
+<tr><td>2</td><td>Lateralidad</td><td>«a una Pierna» · «a un Brazo»</td></tr>
+<tr><td>3</td><td>Agarre o apoyo</td><td>«Agarre Estrecho» · «Agarre Supino»</td></tr>
+<tr><td>4</td><td>Ángulo o plano</td><td>«Inclinado» · «Declinado»</td></tr>
+<tr><td>5</td><td>Rango o ejecución</td><td>«Parcial» · «con Pausa» · «Isométrico»</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Prohibido desambiguar por numeración</div>
+  <p>Si tras los cinco criterios el nombre sigue colisionando, <strong>no</strong> se añade un número. Una colisión irresoluble por atributos distintivos significa que las dos entradas describen el mismo gesto — y entonces sobra una. Un «Remo con Mancuernas 2» es un error de catálogo disfrazado de nombre.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../07-compatibilidad/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 07 · Compatibilidad</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../09-ids/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">09 · Identificadores →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>09 · Identificadores — Master Exercise Dataset</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="ids" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Sección 09 · Estabilidad</p>
+<h1>Identificadores</h1>
+<p class="lede">El <code>id</code> es el único valor del dataset que no significa nada. Esa es exactamente su virtud: nada de lo que se descubra sobre un ejercicio puede obligar a cambiarlo.</p>
+
+<h2 id="formato">Formato</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Propiedad</th><th>Decisión</th></tr></thead>
+<tbody>
+<tr><td>Forma</td><td><code>EX-NNNN</code></td></tr>
+<tr><td>Prefijo</td><td><code>EX-</code> literal, siempre en mayúsculas</td></tr>
+<tr><td>Dígitos</td><td>Exactamente <strong>4</strong>, con ceros a la izquierda</td></tr>
+<tr><td>Rango</td><td><code>EX-0001</code> … <code>EX-9999</code></td></tr>
+<tr><td>Capacidad</td><td>9 999 ejercicios — 45 veces el objetivo de 220</td></tr>
+<tr><td>Primer ID</td><td><code>EX-0001</code> · el <code>0000</code> no se usa</td></tr>
+<tr><td>Longitud</td><td>Siempre 7 caracteres — ordenable como texto sin sorpresas</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">Por qué 4 dígitos fijos y no un contador libre</div>
+  <p>La longitud constante hace que el orden alfabético coincida con el orden numérico: <code>EX-0009</code> precede a <code>EX-0010</code> tanto para una persona como para cualquier ordenación por texto. Con ancho variable, <code>EX-10</code> se ordenaría antes que <code>EX-9</code> y el orden determinista de la sección 05 dejaría de ser trivial.</p>
+</div>
+
+<h2 id="asignacion">Asignación</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Regla</th><th>Estatuto</th></tr></thead>
+<tbody>
+<tr><td>IX-1</td><td>Los IDs se asignan <strong>secuencialmente</strong>, sin saltos</td><td>OBLIGATORIO</td></tr>
+<tr><td>IX-2</td><td>El siguiente ID es el máximo del índice maestro + 1</td><td>OBLIGATORIO</td></tr>
+<tr><td>IX-3</td><td>El ID se asigna al crear la entrada en <code>draft</code>, no al publicarla</td><td>OBLIGATORIO</td></tr>
+<tr><td>IX-4</td><td>Un ID asignado queda consumido aunque el borrador se abandone</td><td>OBLIGATORIO</td></tr>
+<tr><td>IX-5</td><td>Un ID nunca se reutiliza, bajo ninguna circunstancia</td><td>PROHIBIDO reutilizar · ID-2</td></tr>
+<tr><td>IX-6</td><td>Los IDs no se reservan por adelantado para lotes futuros</td><td>PROHIBIDO</td></tr>
+<tr><td>IX-7</td><td>El ID no codifica patrón, sistema, nivel ni fecha</td><td>PROHIBIDO codificar</td></tr>
+<tr><td>IX-8</td><td>El orden de los IDs refleja el orden de alta, nada más</td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">IX-4 · Los huecos son normales y deseables</div>
+  <p>Si <code>EX-0087</code> se crea en borrador y se abandona, ese número no vuelve al contador. El dataset tendrá un hueco permanente, y está bien: el ID solo tiene que ser único y estable, no denso. Rellenar huecos exigiría verificar que el número abandonado nunca salió a ningún sitio — una comprobación imposible de garantizar, a cambio de un beneficio nulo.</p>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">IX-7 · Nada de IDs con significado</div>
+  <p>Un esquema como <code>EX-PH-0042</code> —con el patrón embebido— parece útil hasta la primera reclasificación: entonces el ID contradice a la entrada, y las dos únicas salidas son mentir o romper la inmutabilidad. Por eso el ID no codifica absolutamente nada. Todo lo que se quiera saber de un ejercicio se consulta en sus campos.</p>
+</div>
+
+<h2 id="rangos">Rangos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Rango</th><th>Uso</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td><code>EX-0000</code></td><td>No se usa — evita ambigüedad con «sin valor»</td><td>Prohibido</td></tr>
+<tr><td><code>EX-0001</code> … <code>EX-8999</code></td><td>Asignación secuencial ordinaria</td><td><strong>Activo</strong></td></tr>
+<tr><td><code>EX-9000</code> … <code>EX-9899</code></td><td>Reservado — sin uso definido en v1.0</td><td>Reservado</td></tr>
+<tr><td><code>EX-9900</code> … <code>EX-9999</code></td><td>Reservado para datos de ejemplo, pruebas y documentación</td><td>Reservado</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">El rango <code>EX-99xx</code> nunca llega a producción</div>
+  <p>Se reserva para que un ejemplo de documentación o un dato de prueba tenga un ID con forma válida sin poder colisionar jamás con una entrada real. Cualquier consumidor puede rechazar de plano un ID en este rango. Los ejemplos de este documento que usan <code>EX-0042</code> son ilustrativos y no constituyen entradas del dataset.</p>
+</div>
+
+<h2 id="contador">El contador</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Propiedad</th><th>Decisión</th></tr></thead>
+<tbody>
+<tr><td>Dónde vive</td><td>Es <strong>derivado</strong>: el máximo <code>id</code> del índice maestro</td></tr>
+<tr><td>Por qué derivado</td><td>Un contador almacenado aparte puede desincronizarse; uno derivado no puede</td></tr>
+<tr><td>Cómo se lee</td><td>Máximo del índice, incluyendo entradas en cualquier estado</td></tr>
+<tr><td>Concurrencia</td><td>Dos altas simultáneas producen colisión — se resuelve en la revisión del cambio, antes de integrarlo</td></tr>
+<tr><td>Verificación</td><td>Invariante <code>ARQ-1</code>: unicidad global, comprobada en cada publicación</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">La colisión concurrente es visible, no silenciosa</div>
+  <p>Si dos personas crean una entrada a la vez, ambas proponen el mismo ID. Como el dataset vive en control de versiones, la segunda integración muestra el conflicto de forma explícita: se reasigna el ID de una de las dos y se integra. Es la propiedad que hace innecesario cualquier mecanismo de reserva de IDs — la del riesgo <code>IX-6</code>.</p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Ciclo de vida de un identificador</div>
+<pre class="mermaid">
+flowchart LR
+  N["Nuevo ejercicio"] --> C["Leer máx(id) del índice"]
+  C --> A["Asignar máx + 1"]
+  A --> D["Entrada en draft<br/><b>ID consumido</b>"]
+  D --> P["published"]
+  D --> X["borrador abandonado"]
+  P --> DP["deprecated"]
+  DP --> AR["archived"]
+  X --> H["hueco permanente"]
+  AR --> R["<b>el ID sigue resolviendo<br/>para siempre</b>"]
+  H --> R2["<b>el ID nunca se reasigna</b>"]
+</pre>
+</div>
+
+<h2 id="referencias">Referencias por ID</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Contexto</th><th>Forma</th><th>Ejemplo</th></tr></thead>
+<tbody>
+<tr><td>Campo de relación del modelo</td><td><code>EX-NNNN</code> desnudo</td><td><code>chain_next: EX-0043</code></td></tr>
+<tr><td>Referencia a una revisión concreta</td><td><code>EX-NNNN#rev</code></td><td><code>EX-0042#7</code></td></tr>
+<tr><td>Snapshot en una sesión</td><td><code>EX-NNNN</code> + los otros tres campos de <code>R6</code></td><td>—</td></tr>
+<tr><td>Prosa y discusión editorial</td><td><code>EX-NNNN</code>, opcionalmente con el nombre display</td><td><code>EX-0042</code> (Press de Banca)</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">ID-5 · Toda referencia interna usa <code>id</code></div>
+  <p>Ningún campo del modelo referencia a otro ejercicio por <code>slug</code> ni por nombre. Es la regla que hace que el grafo de relaciones sea validable de forma mecánica: comprobar que no hay referencias colgantes es comparar una lista de IDs contra el índice.</p>
+</div>
+
+<h2 id="invariantes">Invariantes de identificador</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>ID</th><th>Invariante</th></tr></thead>
+<tbody>
+<tr><td><code>IDX-1</code></td><td>Todo <code>id</code> cumple el patrón <code>EX-</code> seguido de 4 dígitos</td></tr>
+<tr><td><code>IDX-2</code></td><td>Todo <code>id</code> es único en el dataset completo</td></tr>
+<tr><td><code>IDX-3</code></td><td>Ningún <code>id</code> del dataset está en el rango <code>EX-99xx</code></td></tr>
+<tr><td><code>IDX-4</code></td><td>Ningún <code>id</code> es <code>EX-0000</code></td></tr>
+<tr><td><code>IDX-5</code></td><td>Un <code>id</code> presente en una versión publicada está presente en todas las posteriores</td></tr>
+<tr><td><code>IDX-6</code></td><td>El <code>id</code> de una entrada nunca cambia entre dos revisiones de esa entrada</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../08-convenciones-nombres/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 08 · Convenciones de Nombres</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../10-slugs/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">10 · Slugs →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>09 · Workout Player — BREY Architecture Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="workout-player" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 09 · Ejecución</p>
+<h1>Workout Player</h1>
+<p class="lede">El punto de contacto en tiempo real y la única fuente de verdad de lo que realmente ocurrió. Captura peso/reps/RPE por serie (el dato del que dependen dos motores completos), gestiona descansos, sustituciones en vivo y dolor, funciona offline con cola de eventos, y produce el log inmutable al cerrar. En vivo, la prioridad se invierte: nunca dejar colgado al usuario (P10).</p>
+
+<div class="meta-row">
+  <span class="chip">Captura por serie obligatoria</span>
+  <span class="chip">Event-sourced local</span>
+  <span class="chip">Offline-tolerante</span>
+  <span class="chip">Nunca bloquea en vivo (P10)</span>
+</div>
+
+<h2 id="objetivo">Objetivo, alcance, dependencias, invariantes</h2>
+<p><strong>Objetivo:</strong> hacer que registrar la verdad sea tan fácil que ocurra siempre. <strong>Alcance:</strong> presentación de la sesión, captura por serie, cronómetro de descanso, sustitución/omisión en vivo, reporte de dolor, edición durante la sesión, cierre, sincronización y conflictos. <strong>Fuera de alcance:</strong> generar (08), evaluar (05/06), reglas de sustitución (04 — el Player las invoca). <strong>Depende de:</strong> 04, 06 (dolor), 08. <strong>Invariantes:</strong> I-W1 el RPE por serie es obligatorio para Intermedio+ (para Inicial se captura simplificado, ver abajo); I-W2 el plan (fila de <code>workouts</code>) jamás se muta — todo lo real va al log; I-W3 tras el cierre, el log es inmutable (P3) — la corrección es un evento nuevo; I-W4 la sesión parcial se registra igual que la completa; I-W5 ninguna condición del sistema impide registrar (P10).</p>
+
+<h2 id="estados">Máquina de estados de la sesión</h2>
+<div class="diagram">
+<div class="diagram-label">Del plan al log — con offline como propiedad, no como estado aparte</div>
+<pre class="mermaid">
+stateDiagram-v2
+  [*] --> Planificada: generada (08)
+  Planificada --> EnCurso: usuario inicia
+  EnCurso --> SerieActiva: comienza serie
+  SerieActiva --> Descanso: registra {peso, reps, rpe}
+  Descanso --> SerieActiva: siguiente serie
+  Descanso --> EnCurso: ejercicio terminado
+  EnCurso --> Sustituyendo: equipo ocupado / dolor
+  Sustituyendo --> EnCurso: sustituto elegido u omitido
+  EnCurso --> Pausada: pausa explícita / app cerrada
+  Pausada --> EnCurso: reanudar (&lt; 6h)
+  Pausada --> Cerrada: expiración (≥ 6h) → cierre automático parcial
+  EnCurso --> Cerrada: usuario cierra (completa o parcial)
+  Cerrada --> Sincronizada: replay de cola de eventos OK
+  Cerrada --> Cerrada: sin conexión (cola local persiste)
+</pre>
+</div>
+
+<h2 id="eventos">Eventos — el modelo de captura</h2>
+<p>El Player es event-sourced localmente: cada acción es un evento append-only en una cola local persistente. La UI se deriva de la cola; la sincronización es el replay de la cola al servidor. Es lo que hace el offline trivial en vez de un caso especial.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Evento</th><th>Payload</th><th>Notas</th></tr></thead>
+<tbody>
+<tr><td><code>sesion_iniciada</code></td><td>workout_id, timestamp, device_id</td><td>Reclama la propiedad de la sesión (ver conflictos)</td></tr>
+<tr><td><code>serie_registrada</code></td><td>ejercicio_slug, nº serie, peso_kg, reps (o segundos si isométrico), rpe, timestamp</td><td>La unidad atómica del historial</td></tr>
+<tr><td><code>serie_corregida</code></td><td>referencia a la serie, valores nuevos</td><td>Solo con sesión abierta (I-W3); ambas versiones persisten, la última vale</td></tr>
+<tr><td><code>descanso_iniciado</code> / <code>descanso_saltado</code></td><td>segundos objetivo / reales</td><td>Alimenta la señal de duración del Recovery (06)</td></tr>
+<tr><td><code>ejercicio_sustituido</code></td><td>original, sustituto, motivo {equipo, dolor, preferencia}</td><td>Usa KB con el Track vigente</td></tr>
+<tr><td><code>ejercicio_omitido</code></td><td>ejercicio, motivo</td><td>Siempre disponible — P10</td></tr>
+<tr><td><code>dolor_reportado</code></td><td>zona, ejercicio</td><td>Dispara el flujo del 06 (distinción DOMS/dolor incluida)</td></tr>
+<tr><td><code>sesion_pausada</code> / <code>sesion_reanudada</code></td><td>timestamp</td><td>—</td></tr>
+<tr><td><code>sesion_cerrada</code></td><td>estado {completada, parcial}, duración real</td><td>Congela el log (I-W3)</td></tr>
+<tr><td><code>override_descarga</code></td><td>—</td><td>Usuario eligió la versión completa en semana de descarga (P10)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="captura">Captura por serie — la interfaz del dato</h2>
+<ul>
+  <li><strong>Peso y reps:</strong> steppers con valores pre-cargados de la prescripción — confirmar lo esperado es un toque; corregir, dos. Nunca teclado por defecto.</li>
+  <li><strong>RPE:</strong> selector 1–10 de un toque, obligatorio para Intermedio+ (I-W1). Para Nivel Inicial: escala simplificada de 3 opciones ("fácil / justo / muy duro" → mapeo interno 6/8/9.5) — la precisión RPE de novatos es baja <span class="ev ev--moderada">evidencia moderada</span> y la escala completa sería ruido con fricción. <span class="ev ev--producto">decisión de producto</span></li>
+  <li><strong>Isométricos:</strong> cronómetro en pantalla (modalidad del ejercicio, 04) — se registra duración en segundos, no reps.</li>
+  <li><strong>Descanso:</strong> cronómetro automático post-serie con el objetivo del slot; saltarlo es un toque y queda registrado.</li>
+</ul>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Riesgo — RPE por inercia</div>
+  <p>Si confirmar "8" es siempre lo más fácil, la señal se contamina (consecuencia directa en 05/06). Mitigación de diseño: el selector NO pre-selecciona valor — confirma peso/reps pre-cargados pero exige elegir RPE activamente. Costo: un toque más por serie. Aceptado: es el dato que sostiene dos motores.</p>
+</div>
+
+<h2 id="offline">Offline y sincronización</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Aspecto</th><th>Especificación</th></tr></thead>
+<tbody>
+<tr><td>Persistencia local</td><td>Cola de eventos en almacenamiento local del dispositivo, sobrevive cierres de app. La sesión es ejecutable 100% offline una vez cargada.</td></tr>
+<tr><td>Sincronización</td><td>Replay de la cola al recuperar conexión, en orden, idempotente (cada evento lleva id único de dispositivo+secuencia — reenviar no duplica).</td></tr>
+<tr><td>Qué exige conexión</td><td>Solo cargar la semana generada y cerrar el ciclo de evaluación (05/06 corren en servidor). Ejecutar y registrar, no.</td></tr>
+<tr><td>Pérdida del dispositivo antes de sincronizar</td><td>Los eventos no sincronizados se pierden — límite aceptado y declarado. El servidor cierra la sesión como <code>expirada</code> a las 24h del <code>sesion_iniciada</code> si no llegó cierre.</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="conflictos">Conflictos — reglas deterministas (P1)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Conflicto</th><th>Resolución</th></tr></thead>
+<tbody>
+<tr><td>Dos dispositivos intentan iniciar la misma sesión planificada</td><td>El <code>sesion_iniciada</code> que llega primero al servidor reclama la propiedad; el segundo dispositivo recibe "sesión en curso en otro dispositivo" y puede solo visualizar. Si ambos estaban offline: al sincronizar, gana el de timestamp de inicio menor; los eventos del perdedor se archivan como <code>sesion_duplicada</code> (visibles, nunca contados en adherencia — sin promediar ni fusionar).</td></tr>
+<tr><td>Correcciones concurrentes de la misma serie (mismo dispositivo, cola desordenada)</td><td>Imposible por diseño: la cola es secuencial por dispositivo; el orden de secuencia manda.</td></tr>
+<tr><td>Cierre offline + expiración del servidor simultáneos</td><td>El cierre real del dispositivo, al sincronizar, reemplaza el estado <code>expirada</code> con el estado real (el evento del usuario es mejor verdad que el timeout) — única transición permitida DESDE expirada, con ambos eventos conservados (P3).</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="pseudocodigo">Pseudocódigo — cierre y log</h2>
+<pre class="codeblock">
+<span class="kw">FUNCIÓN</span> cerrarSesion(cola):
+  estado <span class="kw">←</span> todosLosSlotsConSeriesRegistradas(cola) <span class="kw">? "completada" : "parcial"</span>
+  log <span class="kw">←</span> construirWorkoutLog(cola)          <span class="cm">// series reales, sustituciones, omisiones, overrides, duración</span>
+  log.volumen_total_kg <span class="kw">←</span> Σ(peso × reps) de series dinámicas registradas
+  encolar(evento(<span class="str">"sesion_cerrada"</span>, estado))
+  persistirLocal(log); sincronizarSiHayConexion()
+  <span class="kw">RETORNAR</span> log                              <span class="cm">// inmutable desde aquí (I-W3)</span>
+</pre>
+
+<h2 id="casos">Casos normales, límite e inválidos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Tipo</th><th>Comportamiento</th></tr></thead>
+<tbody>
+<tr><td>Sesión completa online</td><td>Normal</td><td>Cola sincronizada en vivo, log al cierre, señal fresca para 05/06.</td></tr>
+<tr><td>Sesión completa en un gym sin señal</td><td>Normal</td><td>Idéntica experiencia; replay al salir. El offline no es un modo — es una propiedad.</td></tr>
+<tr><td>Máquina ocupada → sustitución en vivo</td><td>Normal</td><td>KB con Track vigente, excluyendo el original; sin opción → omitir (P10, contraste deliberado con P6 pre-sesión).</td></tr>
+<tr><td>Abandono a mitad (2 de 4 ejercicios)</td><td>Límite</td><td>Pausada → a las 6h cierre automático parcial. La parcialidad ES señal de adherencia honesta (I-W4).</td></tr>
+<tr><td>Dolor agudo en serie 2</td><td>Límite</td><td>Flujo del 06: fin del ejercicio, distinción DOMS/dolor preguntada, zona restringida, evento.</td></tr>
+<tr><td>Editar una serie de ayer</td><td>Inválido</td><td>Rechazo — log cerrado (I-W3). El camino válido: evento de corrección v2 (Roadmap), no edición.</td></tr>
+<tr><td>Registrar reps negativas / RPE 15</td><td>Inválido</td><td>Rechazo de input en el borde de captura: reps ≥ 0, RPE ∈ [1,10], peso ≥ 0 — antes de encolar.</td></tr>
+<tr><td>Ejecutar una sesión de una semana invalidada</td><td>Límite</td><td>Si ya estaba cargada en el dispositivo, es ejecutable (P10) y cuenta — la invalidación solo impide NUEVAS cargas.</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="ux">Reglas de UX (normativas, no sugerencias)</h2>
+<ul>
+  <li>La sesión muestra siempre: ejercicio actual, prescripción completa (series×reps@RPE, descanso, tempo si explícito, notas), y el "por qué" a un toque (contenido educativo del ejercicio, 04).</li>
+  <li>Cero teclado en el flujo principal — steppers y selectores. El teclado es opt-in para correcciones.</li>
+  <li>En descarga: la versión reducida es el default visual; la completa existe detrás de una confirmación explícita que registra <code>override_descarga</code> (P10).</li>
+  <li>El estado vacío (sin sesión hoy) es honesto y accionable (P16) — nunca una sesión de relleno.</li>
+</ul>
+
+<h2 id="tradeoffs">Trade-offs y decisiones descartadas</h2>
+<div class="callout callout--tradeoff">
+  <div class="callout__label">RPE por serie vs. por ejercicio</div>
+  <p>Por serie: señal fina para <code>microAjuste()</code>, más fricción. Mitigada con captura de un toque; la precisión gana.</p>
+</div>
+<div class="callout callout--tradeoff">
+  <div class="callout__label">Event-sourcing local vs. estado mutable simple</div>
+  <p>La cola es más código que un formulario, pero convierte offline, reanudación y auditoría en propiedades gratis del mismo diseño. Es la versión local del P3.</p>
+</div>
+<div class="callout callout--descartado">
+  <div class="callout__label">RPE opcional</div>
+  <p>Descartado — un dato opcional del que dependen dos motores terminaría no existiendo. I-W1.</p>
+</div>
+<div class="callout callout--descartado">
+  <div class="callout__label">Bloquear sesión sin sustituto disponible</div>
+  <p>Descartado — a mitad de esfuerzo físico, omitir es siempre mejor que un muro (P10).</p>
+</div>
+<div class="callout callout--descartado">
+  <div class="callout__label">Fusión inteligente de sesiones duplicadas</div>
+  <p>Descartado — promediar dos ejecuciones concurrentes fabrica un hecho que no ocurrió (P16). Gana una, la otra se archiva visible.</p>
+</div>
+
+<h2 id="riesgos">Riesgos, deuda y extensiones</h2>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Bloqueante — nada de este módulo existe hoy</div>
+  <p>El Player es el constructor del dato que desbloquea 05 y 06. Es el candidato natural a primer sprint de implementación del handbook (Roadmap v1).</p>
+</div>
+<div class="callout callout--escala">
+  <div class="callout__label">Extensiones</div>
+  <p>Evento de corrección post-cierre (v2, manteniendo I-W3 vía evento nuevo); temporizadores de tempo audibles para skills isométricas; captura por voz (v2+, misma cola de eventos).</p>
+</div>
+
+<h2 id="preguntas">Preguntas abiertas</h2>
+<ul>
+  <li>¿El límite de reanudación (6h) y expiración (24h) son correctos para el patrón real de uso? Calibrable con datos — <span class="ev ev--producto">decisión de producto</span>.</li>
+  <li>¿La sesión duplicada archivada se muestra al usuario o solo a soporte? Propuesta: visible con etiqueta — sin decidir.</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../08-workout-generator/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 08 · Workout Generator</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../10-arquitectura-datos/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">10 · Arquitectura de Datos →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

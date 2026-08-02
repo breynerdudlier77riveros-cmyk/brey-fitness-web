@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>14 · ADR — Engineering Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="adr" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 14 · Estándares y gobernanza</p>
+<h1>Decisiones de Arquitectura (ADR)</h1>
+<p class="lede">Las decisiones técnicas transversales de este handbook. Las decisiones de dominio (MBPS-ADR-*, BCS-ADR-*, BCSD-ADR-*) viven en sus propios handbooks — aquí solo las que gobiernan el ecosistema completo.</p>
+
+<div class="adr" id="eng-adr-01">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">ENG-ADR-01</div>
+  <h3>Sin capa de Application Services hasta que se necesite</h3>
+  <p><strong>Contexto:</strong> el patrón "empresarial" clásico separa Server Actions/Controllers de una capa de Application Services que orquesta repositorios (04).</p>
+  <p><strong>Problema:</strong> introducir esa capa hoy, cuando cada Server Action real invoca exactamente un repositorio, sería una abstracción sin caso de uso que la justifique.</p>
+  <p><strong>Alternativas descartadas:</strong> crear la capa preventivamente "para cuando se necesite" — contradice FT-10/FT-11 aplicadas sin necesidad real y el patrón ya evidenciado en el propio código (Sprint 4.1 explícitamente no construyó <code>getProfileOrThrow()</code> ni funciones de coerción sin un call site real que las pidiera).</p>
+  <p><strong>Decisión:</strong> las Server Actions invocan repositorios directamente hasta que un caso de uso real orqueste ≥2 repositorios con lógica de coordinación no trivial (04, BE-02).</p>
+  <p><strong>Consecuencias:</strong> el primer Application Service real será, casi con certeza, <code>GenerarReporte</code> del BCS Handbook — se documenta como el trigger explícito a vigilar.</p>
+</div>
+
+<div class="adr" id="eng-adr-02">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">ENG-ADR-02</div>
+  <h3>String-union sobre enum nativo, en TypeScript y en Postgres</h3>
+  <p><strong>Contexto:</strong> tanto TypeScript (<code>enum</code>) como Postgres (<code>CREATE TYPE ... AS ENUM</code>) ofrecen un tipo enumerado nativo.</p>
+  <p><strong>Problema:</strong> ninguno de los dos se usa en el código real — se usa <code>type X = 'a' | 'b'</code> en TS y <code>text + CHECK</code> en Postgres consistentemente.</p>
+  <p><strong>Alternativas descartadas:</strong> adoptar los tipos nativos por "corrección académica" — el <code>enum</code> de TS tiene comportamientos de comparación/serialización menos predecibles que una unión de literales; <code>ALTER TYPE ... ADD VALUE</code> de Postgres tiene restricciones históricas de transacción que <code>CHECK</code> no tiene.</p>
+  <p><strong>Decisión:</strong> string-union/<code>text+CHECK</code> es el estándar en ambas capas — formalizado en 05 y 13.</p>
+  <p><strong>Consecuencias:</strong> añadir un valor nuevo a cualquier enumerado del sistema es una migración simple y simétrica en ambas capas, sin casos especiales.</p>
+</div>
+
+<div class="adr" id="eng-adr-03">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">ENG-ADR-03</div>
+  <h3>Una única tabla de eventos para todos los motores</h3>
+  <p><strong>Contexto:</strong> el Architecture Handbook ya especificó <code>progression_events</code> como tabla única antes de que existieran el Motor BPS Handbook y el Progression Engine Handbook (07).</p>
+  <p><strong>Problema:</strong> cada handbook de motor nuevo podría, en teoría, pedir su propia tabla de eventos.</p>
+  <p><strong>Alternativas descartadas:</strong> una tabla por motor (<code>motor_bps_events</code>, <code>progression_engine_events</code>) — fragmentaría el timeline cronológico de un usuario en múltiples tablas, forzando un <code>UNION</code> costoso para cualquier vista agregada.</p>
+  <p><strong>Decisión:</strong> <code>progression_events</code> sigue siendo la única tabla de eventos de todo el ecosistema; cada motor nuevo declara su propio valor de <code>origen</code> y extiende el CHECK de <code>tipo</code> — nunca crea una tabla paralela.</p>
+  <p><strong>Consecuencias:</strong> el CHECK de <code>tipo</code> crecerá con cada motor nuevo (ya son 25 valores consolidados, 07) — se acepta ese crecimiento a cambio de una única fuente de verdad de eventos.</p>
+</div>
+
+<div class="adr" id="eng-adr-04">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">ENG-ADR-04</div>
+  <h3>RLS es la barrera real; el proxy es solo UX</h3>
+  <p><strong>Contexto:</strong> Next.js 16 renombró <code>middleware.ts</code> a <code>proxy.ts</code> y lo documenta explícitamente como no confiable como única barrera de seguridad.</p>
+  <p><strong>Problema:</strong> es tentador tratar la redirección del proxy como si fuera suficiente protección de una ruta.</p>
+  <p><strong>Alternativas descartadas:</strong> confiar solo en el proxy y omitir RLS en tablas "protegidas por la ruta" — un bug en el proxy, o un acceso directo a la API de Supabase sin pasar por Next.js, expondría los datos sin ninguna otra barrera.</p>
+  <p><strong>Decisión:</strong> RLS (05, 08) es la única barrera de seguridad de la que este sistema depende formalmente; el proxy existe exclusivamente para una mejor experiencia de usuario (redirect limpio en vez de una página con datos vacíos).</p>
+  <p><strong>Consecuencias:</strong> toda tabla nueva debe tener RLS verificado activo antes de considerarse en producción, independientemente de si sus rutas ya están "protegidas" por el proxy.</p>
+</div>
+
+<div class="adr" id="eng-adr-05">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">ENG-ADR-05</div>
+  <h3>jsonb para datos de forma variable, nunca para lo que se filtra por campo interno</h3>
+  <p><strong>Contexto:</strong> <code>workouts.ejercicios</code> y <code>workout_logs.ejercicios</code> son jsonb, no tablas normalizadas — ya un trade-off explícito documentado en <code>schema.sql</code>.</p>
+  <p><strong>Problema:</strong> jsonb es flexible pero pierde índices/FK a nivel de campo interno.</p>
+  <p><strong>Alternativas descartadas:</strong> normalizar <code>workout_log_exercises</code> desde el inicio — alcance no solicitado en la iteración que creó estas tablas, y una migración de jsonb a relacional es una operación conocida y aislada si se necesita después.</p>
+  <p><strong>Decisión:</strong> jsonb se usa mientras nada dentro del campo necesite su propio índice o FK; el momento en que eso ocurra es la señal de normalizar (05).</p>
+  <p><strong>Consecuencias:</strong> ninguna consulta actual filtra por un campo dentro de <code>ejercicios</code> — el día que una lo necesite, es la migración pendiente ya anticipada, no una sorpresa.</p>
+</div>
+
+<div class="adr" id="eng-adr-06">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">ENG-ADR-06</div>
+  <h3>Determinismo del dominio antes que tooling de testing</h3>
+  <p><strong>Contexto:</strong> BREY no tiene test runner instalado (10), pero sus motores ya son funciones puras.</p>
+  <p><strong>Problema:</strong> instalar un test runner sin tests reales que escribir sería una dependencia sin valor inmediato.</p>
+  <p><strong>Alternativas descartadas:</strong> añadir Jest/Vitest "porque todo proyecto serio lo tiene" antes de tener el primer motor implementado en código — invertiría el orden: primero el motor puro y testeable por diseño, después las pruebas concretas.</p>
+  <p><strong>Decisión:</strong> el test runner se introduce junto con la primera implementación real de un motor de dominio (Motor BPS o Progression Engine), no antes — pero el diseño ya garantiza (FT-03/FT-08) que ese día no requerirá refactorizar nada para volverse testeable.</p>
+  <p><strong>Consecuencias:</strong> hoy, cobertura de tests = 0%, documentado sin eufemismos (10) — la deuda es real, la mitigación de diseño también.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../13-coding-standards/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 13 · Coding Standards</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../15-roadmap/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">15 · Roadmap →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

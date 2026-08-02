@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { APP_PREFIX, AUTH_ROUTES } from "@/lib/site";
+import { APP_PREFIX, AUTH_ROUTES, REPORT_PREFIX } from "@/lib/site";
 
 // ── Chrome condicional: Navbar/Footer de marketing vs. Dashboard/Auth ──────
 // BREY v1.1 (Dashboard): /app es una aplicación, no una página — no lleva
@@ -27,7 +27,9 @@ import { APP_PREFIX, AUTH_ROUTES } from "@/lib/site";
 // "Entrar/Crear cuenta" antes de que se resuelva la sesión real en
 // componentes que ya se hidrataron) es el trade-off estándar y aceptado
 // para un navbar con estado de sesión sobre un sitio mayormente estático.
-const SIN_CHROME_MARKETING = [APP_PREFIX, ...AUTH_ROUTES];
+// /reportes se suma en Sprint 3.0: es un documento clínico que el cliente
+// abre desde el enlace de su entrenador, no una página de la landing.
+const SIN_CHROME_MARKETING = [APP_PREFIX, REPORT_PREFIX, ...AUTH_ROUTES];
 
 export default function SiteChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

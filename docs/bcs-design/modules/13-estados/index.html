@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>13 · Estados — BCS Design System Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="estados" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 13 · Comportamiento</p>
+<h1>Estados</h1>
+<p class="lede">Todo lo que no es "el camino feliz" — cada uno con su propio tratamiento visual, nunca un error genérico de sistema.</p>
+
+<div class="callout callout--nota">
+  <div class="callout__label">Consolidación</div>
+  <p>El encargo lista "Offline" y "Sin internet" como dos estados separados — se tratan aquí como el mismo estado (conectividad de red ausente), documentado una sola vez para evitar dos especificaciones divergentes de lo mismo.</p>
+</div>
+
+<h2 id="tabla-estados">Los 7 estados</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Estado</th><th>Disparador</th><th>Tratamiento visual</th></tr></thead>
+<tbody>
+<tr><td><strong>Vacío</strong></td><td>Cliente sin ninguna Medición registrada (BCS Handbook, 04)</td><td>Ilustración simple + texto "Sin mediciones registradas" + botón "Registrar la primera medición"</td></tr>
+<tr><td><strong>Error</strong></td><td>Error de invocación (validación fallida, error de red al guardar)</td><td>Warning Card (BCS-C04, 06) con mensaje específico, nunca un código de error crudo — el formulario conserva los datos ya ingresados</td></tr>
+<tr><td><strong>Carga</strong></td><td>Cualquier operación asíncrona en curso &gt;150ms (16)</td><td>Skeleton (BCS-C07, 06) con la forma exacta del contenido que va a aparecer</td></tr>
+<tr><td><strong>Offline / sin internet</strong></td><td>Sin conexión de red detectada</td><td>Banner persistente en la parte superior — el panel del entrenador sigue mostrando el último estado conocido, marcado como "posiblemente desactualizado"</td></tr>
+<tr><td><strong>Sin historial</strong></td><td>Se solicita Comparación (12) o gráfico de tendencia con &lt;2 Mediciones vigentes</td><td>Esa sección específica se omite con nota — nunca toda la pantalla, solo la sección que depende de historial (BCS Handbook, 04)</td></tr>
+<tr><td><strong>Sin datos suficientes</strong></td><td>Una variable concreta ausente en la Medición actual (BCS Handbook, 03)</td><td>La Metric Card (BCS-C01) correspondiente no se renderiza — nunca aparece con un placeholder tipo "—" que podría confundirse con un valor real de cero</td></tr>
+<tr><td><strong>Sin permiso</strong></td><td>Token de EnlacePúblico inválido o revocado (BCS Handbook, 10)</td><td>Pantalla dedicada de página completa: "Este enlace ya no está disponible" — sin revelar si el token existió alguna vez (BCS Handbook, 08)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="diagrama">Jerarquía de estados en una sola pantalla</h2>
+<div class="diagram">
+<div class="diagram-label">Orden de evaluación al renderizar cualquier pantalla de datos</div>
+<pre class="mermaid">
+flowchart TD
+  A["¿Hay permiso de acceso?"] -->|"No"| S1["Sin permiso"]
+  A -->|"Sí"| B["¿Hay conexión?"]
+  B -->|"No"| S2["Offline"]
+  B -->|"Sí"| C["¿Datos aún cargando?"]
+  C -->|"Sí"| S3["Carga (Skeleton)"]
+  C -->|"No"| D{"¿Ocurrió un error?"}
+  D -->|"Sí"| S4["Error"]
+  D -->|"No"| E{"¿Hay Mediciones?"}
+  E -->|"No"| S5["Vacío"]
+  E -->|"Sí, solo 1"| S6["Sin historial (parcial)"]
+  E -->|"Sí, ≥2"| S7["Contenido completo"]
+</pre>
+</div>
+
+<h2 id="contraejemplos">Contraejemplos</h2>
+<ul>
+  <li>Ningún estado de error muestra un stack trace ni un código HTTP crudo al entrenador.</li>
+  <li>El estado Vacío nunca se confunde visualmente con el estado Error — usan componentes e iconografía distintos.</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../12-comparaciones/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 12 · Comparaciones</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../14-exportacion/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">14 · Exportación →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

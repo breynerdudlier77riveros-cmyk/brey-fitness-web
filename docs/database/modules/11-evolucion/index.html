@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>11 · Evolución — BREY Database Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="evolucion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 11 · Operación</p>
+<h1>Evolución</h1>
+<p class="lede">Cómo cambia el esquema sin romper lo que ya existe — el patrón real de migraciones, el orden ya secuenciado de las cuatro pendientes, y qué hace incompatible un cambio.</p>
+
+<h2 id="patron-migraciones">Patrón de migraciones — real, en uso</h2>
+<p>Archivos <code>migration_*.sql</code> planos e idempotentes: <code>ADD COLUMN IF NOT EXISTS</code> para columnas; para constraints (sin <code>IF NOT EXISTS</code> nativo en Postgres), un bloque <code>DO $$</code> que verifica <code>pg_constraint</code> por <code>conname</code> + <code>conrelid</code> antes de crear. Cada archivo puede aplicarse N veces sin error — la idempotencia del propio archivo de migración, no solo de la operación de negocio que describe (Architecture Handbook, 10).</p>
+<p><code>schema.sql</code> paralelo mantiene el estado completo para instalación desde cero, actualizado en el mismo cambio que cada migración real — producción solo recibe migraciones, <code>schema.sql</code> nunca se re-aplica sobre datos existentes.</p>
+
+<h2 id="orden-migraciones">Orden ya secuenciado — M1 a M4</h2>
+<div class="diagram">
+<div class="diagram-label">Seguridad antes que funcionalidad nueva (Implementation Handbook, Regla 5) — M1 nunca se salta</div>
+<pre class="mermaid">
+flowchart LR
+  M1["M1 — Endurecimiento RLS<br/>workouts/workout_logs (09, AR-018)"] --> M2["M2 — progression_events<br/>CHECK con 25 valores desde el día uno (08, DB-ADR-03)"]
+  M2 --> M3["M3 — Tablas del BCS<br/>bcs_clientes, bcs_mediciones, bcs_enlaces_publicos"]
+  M3 --> M4["M4 — Índices pendientes<br/>(06)"]
+</pre>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Migración</th><th>Precondición</th><th>Rollback</th></tr></thead>
+<tbody>
+<tr><td>M1</td><td>Ninguna — corrige una brecha ya identificada (AR-018), no depende de nada nuevo</td><td>Revertir a "CRUD propio" — posible pero desaconsejado, reintroduce la brecha</td></tr>
+<tr><td>M2</td><td>El orden de esta lista es también el de prioridad de riesgo, no una dependencia técnica de M1</td><td><code>DROP TABLE</code> — segura sin datos reales; en producción requiere exportación previa</td></tr>
+<tr><td>M3</td><td>Mapeo canónico de las 25 variables del BCS aceptado (IMP-ADR-06, 04)</td><td><code>DROP TABLE</code> en orden inverso de FK (<code>bcs_mediciones</code>/<code>bcs_enlaces_publicos</code> antes que <code>bcs_clientes</code>)</td></tr>
+<tr><td>M4</td><td>M1–M3 aplicadas — los índices cubren tablas de las tres migraciones anteriores</td><td><code>DROP INDEX</code> — siempre segura, un índice nunca cambia el resultado de una consulta, solo su costo</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="backfill">Backfill</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Sin backfill especificado — las tablas están vacías hoy</div>
+  <p>Ningún handbook especifica una estrategia de backfill porque, a la fecha, las tablas de producción están vacías o casi vacías (Architecture Handbook, 10: "irrelevante con tablas vacías"). El caso donde sí importaría — la extensión pendiente <code>profiles.zonas_riesgo</code> (04) — no tiene todavía una estrategia de backfill definida para usuarios existentes; se registra como pregunta abierta (16).</p>
+</div>
+
+<h2 id="compatibilidad">Compatibilidad — evolución aditiva</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Cambio</th><th>¿Rompe compatibilidad?</th></tr></thead>
+<tbody>
+<tr><td>Agregar una columna nueva, nullable o con default</td><td>No</td></tr>
+<tr><td>Agregar un valor nuevo a un CHECK de vocabulario cerrado (ej. un <code>tipo</code> de evento)</td><td>No — mientras sea aditivo al CHECK existente (ENG-ADR-03)</td></tr>
+<tr><td>Agregar una tabla nueva</td><td>No</td></tr>
+<tr><td>Eliminar o renombrar una columna existente</td><td>Sí — requiere migración de todos los consumidores (mappers, 04) antes de eliminar la columna vieja</td></tr>
+<tr><td>Cambiar el tipo lógico de una columna (ej. <code>text</code> → <code>numeric</code>)</td><td>Sí</td></tr>
+<tr><td>Cambiar la forma de un campo <code>jsonb</code> ya publicado</td><td>Sí, salvo que use el discriminador de versión (abajo)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="jsonb-versionado">Versionado de formas jsonb</h2>
+<div class="diagram">
+<div class="diagram-label">El discriminador <code>v</code> permite que formas viejas y nuevas convivan sin migración masiva de filas</div>
+<pre class="mermaid">
+flowchart TD
+  R["Fila con jsonb"] --> C{"¿Tiene campo v?"}
+  C -- "v=1 (forma vieja)" --> M1J["Mapper v1 — lee forma precursora"]
+  C -- "v=2 (forma nueva)" --> M2J["Mapper v2 — lee forma vigente"]
+  M1J --> DTO["DTO único, siempre vigente,<br/>hacia el consumidor"]
+  M2J --> DTO
+  W["Toda escritura nueva"] -->|"siempre v vigente"| R
+</pre>
+</div>
+<p>La evolución de formas <code>jsonb</code> (<code>workouts.ejercicios</code>, <code>workout_logs.ejercicios</code>) es aditiva con un campo discriminador <code>v</code> cuando la forma cambia — los mappers de la capa de repositorio leen todas las versiones históricas, pero escriben solo la vigente (P3: lo ya escrito no se migra en masa). La forma actual de <code>workouts.ejercicios</code> descrita en 04 es la precursora (<code>EjercicioPlan</code>); la migración a la forma completa (<code>v-Generator</code>, con Patrón×Rol) es aditiva y solo afecta filas nuevas, porque la tabla real está vacía hoy.</p>
+
+<h2 id="versionado-catalogo">Versionado del catálogo</h2>
+<p>El catálogo rico (Sistemas ricos, Ejercicios, plantillas) vive en código, versionado por git — nunca en la base transaccional (Architecture Handbook, ADR-009; Domain Model Handbook, 13). El evento <code>semana_generada</code> (08) registra qué versión de catálogo se usó para generar cada semana — es lo que hace una generación pasada reproducible (determinismo, P1) sin necesidad de un snapshot de base de datos.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../10-consistencia/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 10 · Consistencia</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../12-performance/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">12 · Performance →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

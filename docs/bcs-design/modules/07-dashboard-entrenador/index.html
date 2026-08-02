@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>07 · Dashboard del entrenador — BCS Design System Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="dashboard-entrenador" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 07 · Componentes y pantallas</p>
+<h1>Dashboard del entrenador</h1>
+<p class="lede">La pantalla completa donde el entrenador pasa la mayoría de su tiempo: distribución, prioridad visual, y qué nunca puede quedar oculto.</p>
+
+<h2 id="distribucion">Distribución de la pantalla</h2>
+<div class="diagram">
+<div class="diagram-label">Zonas del Dashboard, de arriba hacia abajo</div>
+<pre class="mermaid">
+graph TD
+  H["Header heredado (búsqueda global, usuario)"] --> Z1["Zona 1 — Resumen: total de clientes activos, mediciones esta semana"]
+  Z1 --> Z2["Zona 2 — Acción primaria: botón 'Nuevo Cliente' + buscador de clientes"]
+  Z2 --> Z3["Zona 3 — Grid de clientes recientes (History Cards BCS-C03, de cliente no de medición)"]
+  Z3 --> Z4["Zona 4 — Lista completa de clientes (paginada, 12 Escalabilidad del BCS Handbook)"]
+</pre>
+</div>
+
+<h2 id="que-primero">Qué se ve primero</h2>
+<p>Los clientes con actividad reciente (Medición registrada en los últimos 30 días) — no un orden alfabético ni de fecha de alta. Un entrenador que atiende a 5 clientes por día necesita ver esos 5 antes que un cliente inactivo de hace 8 meses (01, Escaneabilidad).</p>
+
+<h2 id="jamas-esconder">Qué jamás debe esconderse</h2>
+<ul>
+  <li>El botón de "Nueva medición" para el cliente seleccionado — siempre visible, nunca dentro de un menú de tres puntos.</li>
+  <li>El indicador de si un cliente tiene un EnlacePúblico activo (09/10 del BCS Handbook) — visible en cada tarjeta de cliente sin necesidad de entrar a su ficha.</li>
+  <li>Cualquier Warning Card (06) asociada a la medición más reciente de un cliente — nunca colapsada por defecto.</li>
+</ul>
+
+<h2 id="puede-colapsar">Qué puede colapsarse</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Elemento</th><th>Condición de colapso</th></tr></thead>
+<tbody>
+<tr><td>Sidebar de navegación</td><td>Colapsable manualmente por el entrenador (heredado, <code>AppShell.tsx</code>) — persiste en <code>localStorage</code></td></tr>
+<tr><td>Lista completa de clientes (Zona 4)</td><td>Colapsa a un enlace "Ver todos" en mobile — la Zona 3 (recientes) siempre es suficiente para el flujo principal</td></tr>
+<tr><td>Detalles secundarios de una tarjeta de cliente (última fecha exacta, número total de mediciones)</td><td>Colapsan en mobile, visibles en tablet/desktop</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="acciones">Acciones primarias vs. secundarias</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Acción</th><th>Prioridad</th><th>Componente</th></tr></thead>
+<tbody>
+<tr><td>Registrar nueva medición</td><td>Primaria</td><td>Button variant="primary" (06)</td></tr>
+<tr><td>Crear nuevo cliente</td><td>Primaria</td><td>Button variant="primary"</td></tr>
+<tr><td>Generar/compartir enlace público</td><td>Secundaria (dentro de la ficha de cliente, no en el Dashboard raíz)</td><td>Button variant="outline"</td></tr>
+<tr><td>Archivar cliente</td><td>Secundaria, requiere confirmación (Dialog, 06)</td><td>Button variant="outline" + Dialog</td></tr>
+<tr><td>Eliminar cliente permanentemente</td><td>Terciaria, deliberadamente de bajo perfil visual — acción irreversible (BCS Handbook, UC-04, 11)</td><td>Enlace de texto dentro de un menú de configuración del cliente, nunca un botón prominente</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="contraejemplos">Contraejemplos</h2>
+<ul>
+  <li>El Dashboard NUNCA pone "Eliminar cliente permanentemente" al mismo nivel visual que "Registrar medición" — la asimetría de riesgo debe ser visible en la asimetría del diseño.</li>
+  <li>El Dashboard NUNCA oculta una Warning Card detrás de un clic adicional.</li>
+</ul>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../06-componentes/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 06 · Componentes</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../08-vista-publica-cliente/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">08 · Vista pública del cliente →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

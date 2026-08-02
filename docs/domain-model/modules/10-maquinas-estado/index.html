@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10 · Máquinas de Estado — Domain Model Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="maquinas-estado" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 10 · Estructura</p>
+<h1>Máquinas de Estado</h1>
+<p class="lede">Cinco entidades con estados reales — sus transiciones válidas, las que están explícitamente prohibidas, y cómo se recupera el sistema si aparece un estado corrupto.</p>
+
+<h2 id="diagnostico">Diagnóstico</h2>
+<div class="diagram">
+<pre class="mermaid">
+stateDiagram-v2
+  [*] --> en_curso
+  en_curso --> completado
+  completado --> [*]
+</pre>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th></th><th>Detalle</th></tr></thead>
+<tbody>
+<tr><td>Transiciones válidas</td><td><code>en_curso → completado</code>, disparada al responder la última pregunta (DX-01)</td></tr>
+<tr><td>Transiciones inválidas</td><td><code>completado → en_curso</code> — un Diagnóstico terminado nunca se reabre; retomar significa crear un Diagnóstico nuevo (P3)</td></tr>
+<tr><td>Recuperación ante estado corrupto</td><td>Un Diagnóstico <code>completado</code> sin ResultadoDiagnóstico asociado es un estado corrupto (viola IN-12 en 12) — la recuperación correcta es tratarlo como si nunca hubiese llegado a <code>completado</code>, nunca inventar un ResultadoDiagnóstico a posteriori (rompería FT-03, determinismo)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="programa">Programa</h2>
+<div class="diagram">
+<pre class="mermaid">
+stateDiagram-v2
+  [*] --> sin_diagnostico
+  sin_diagnostico --> pendiente_perfil : Diagnóstico completado
+  pendiente_perfil --> activo : gate superado
+  pendiente_perfil --> gate_fallado : campos de gate ausentes
+  gate_fallado --> pendiente_perfil : perfil corregido
+  activo --> sistema_completado
+  sistema_completado --> [*]
+</pre>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th></th><th>Detalle</th></tr></thead>
+<tbody>
+<tr><td>Transiciones válidas</td><td>Secuencia completa según Motor BPS Handbook T3–T7, T14 — un Programa siempre nace de un Diagnóstico completado, nunca directamente <code>activo</code></td></tr>
+<tr><td>Transiciones inválidas</td><td><code>sin_diagnostico → activo</code> (salto directo) — viola IN-05 en 12; <code>sistema_completado → activo</code> — un Sistema completado no se reactiva, un nuevo ciclo es un Programa conceptualmente distinto (nueva combinación Usuario+Sistema+fecha, CT-01)</td></tr>
+<tr><td>Recuperación ante estado corrupto</td><td>Un Programa "activo" cuyo Usuario no tiene <code>sistema_actual</code> apuntando a él es corrupto por definición — dado que Programa no tiene fila propia (13), su único estado real vive en <code>profiles.sistema_actual</code>/<code>nivel_actual</code>; la recuperación es siempre re-derivar desde esas columnas, nunca desde un caché o vista materializada</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="workout">Workout</h2>
+<div class="diagram">
+<pre class="mermaid">
+stateDiagram-v2
+  [*] --> planificado
+  planificado --> completado
+  planificado --> perdido
+  completado --> [*]
+  perdido --> [*]
+</pre>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th></th><th>Detalle</th></tr></thead>
+<tbody>
+<tr><td>Transiciones válidas</td><td><code>planificado → completado</code> al registrarse un WorkoutLog vinculado; <code>planificado → perdido</code> al vencer su fecha planificada sin ejecución</td></tr>
+<tr><td>Transiciones inválidas</td><td><code>completado → planificado</code> y <code>perdido → planificado</code> — ambos son estados finales (CT-05); corregir una ejecución nunca reabre el Workout, crea un WorkoutLog nuevo (FT-09)</td></tr>
+<tr><td>Recuperación ante estado corrupto</td><td>Un Workout <code>completado</code> sin ningún WorkoutLog que lo referencie (<code>workout_id</code>) es corrupto — se trata como <code>perdido</code> para efectos de Progression Engine (nunca se asume cumplimiento sin evidencia, P8)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="medicion">Medición</h2>
+<div class="diagram">
+<pre class="mermaid">
+stateDiagram-v2
+  [*] --> vigente
+  vigente --> anulada
+  anulada --> [*]
+</pre>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th></th><th>Detalle</th></tr></thead>
+<tbody>
+<tr><td>Transiciones válidas</td><td><code>vigente → anulada</code>, disparada exclusivamente por una corrección (UC-06 del BCS Handbook) — la corrección crea una Medición <code>vigente</code> nueva en el mismo movimiento</td></tr>
+<tr><td>Transiciones inválidas</td><td>Cualquier edición en sitio de una Medición <code>vigente</code> — prohibida sin excepción (FT-09); <code>anulada → vigente</code> — una Medición anulada nunca vuelve a estar vigente</td></tr>
+<tr><td>Recuperación ante estado corrupto</td><td>Dos Mediciones <code>vigente</code> para el mismo Cliente en la misma fecha exacta violan IN-D del BCS Handbook — la recuperación es anular la más antigua de las dos, nunca ambas, y nunca elegir arbitrariamente sin dejar rastro de cuál se anuló y por qué</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="enlace">EnlacePúblico</h2>
+<div class="diagram">
+<pre class="mermaid">
+stateDiagram-v2
+  [*] --> activo
+  activo --> revocado
+  revocado --> [*]
+</pre>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th></th><th>Detalle</th></tr></thead>
+<tbody>
+<tr><td>Transiciones válidas</td><td><code>activo → revocado</code>, disparada por el Entrenador o por la creación de un nuevo enlace para el mismo Cliente (IN-D4 del BCS Handbook)</td></tr>
+<tr><td>Transiciones inválidas</td><td><code>revocado → activo</code> — un token revocado jamás se reactiva; compartir de nuevo siempre emite un token nuevo (BCS-ADR-02)</td></tr>
+<tr><td>Recuperación ante estado corrupto</td><td>Dos EnlacesPúblicos <code>activo</code> simultáneos para el mismo Cliente violan 09-IN-1 del BCS Handbook — la recuperación es revocar todos menos el más reciente, nunca dejar la ambigüedad sin resolver</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../09-relaciones-dominio/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 09 · Relaciones del Dominio</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../11-eventos-dominio/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">11 · Eventos del Dominio →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

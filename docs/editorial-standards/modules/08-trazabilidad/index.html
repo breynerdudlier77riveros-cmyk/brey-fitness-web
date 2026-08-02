@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>08 · Trazabilidad — Editorial Standards</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="trazabilidad" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 08 · Garantías</p>
+<h1>Trazabilidad</h1>
+<p class="lede">El módulo más crítico del handbook. P14 exige que la responsabilidad "pueda rastrearse a una decisión humana"; de los <strong>seis datos</strong> que esa exigencia implica, <strong>uno se registra y cinco no tienen dónde</strong>.</p>
+
+<h2 id="exigencia">La exigencia</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">P14 · Motivación</div>
+  <p>"La responsabilidad sobre lo que un cuerpo humano ejecuta debe poder <strong>rastrearse a una decisión humana</strong>."</p>
+</div>
+<p>El ecosistema aplica esta disciplina con rigor en su propio dominio: P2 y P3 exigen que toda transición de estado emita un evento con razón, que "razones" sea NOT NULL, y que el historial permanezca. La trazabilidad no es un valor abstracto en BREY — es un mecanismo implementado. Pero lo está para los <strong>eventos del usuario</strong>, no para las <strong>decisiones editoriales</strong>.</p>
+
+<h2 id="seis">Los seis datos de trazabilidad</h2>
+<p class="matrix-note">Los que el brief solicita, cada uno contrastado contra el modelo de datos real.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Dato</th><th>¿Dónde se registraría?</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td><strong>Autor</strong> — quién tomó la decisión</td><td>Ningún atributo del modelo de Exercise lo contempla</td><td><span class="tag tag--futuro">sin campo</span></td></tr>
+<tr><td><strong>Fecha</strong> — cuándo se tomó</td><td>Ídem. La versión de catálogo tiene identificador, la entrada no tiene fecha</td><td><span class="tag tag--futuro">sin campo</span></td></tr>
+<tr><td><strong>Motivo</strong> — por qué se cambió</td><td>Ídem</td><td><span class="tag tag--futuro">sin campo</span></td></tr>
+<tr><td><strong>Justificación</strong> — en qué se basó</td><td>El sistema de badges cubre las <em>reglas</em> de handbook, no los <em>datos</em> del catálogo</td><td><span class="tag tag--futuro">sin campo</span></td></tr>
+<tr><td><strong>Fuente</strong> — de dónde procede la afirmación</td><td>Ídem — los badges no llevan referencia</td><td><span class="tag tag--futuro">sin campo</span></td></tr>
+<tr><td><strong>Estado</strong> — en qué situación quedó la entrada</td><td>No existe ciclo de vida (ED-D01)</td><td><span class="tag tag--futuro">sin campo</span></td></tr>
+<tr><td><em>Versión de catálogo</em></td><td>Campo obligatorio del evento <code>semana_generada</code></td><td><span class="tag tag--implementado">registrado</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Deuda ED-D08 — la trazabilidad editorial no tiene soporte</div>
+  <p>De los seis datos, <strong>cero</strong> tienen campo en el modelo. El único dato de trazabilidad que el ecosistema registra —la versión de catálogo— responde "el catálogo cambió", no "esta persona decidió esto por esta razón". P14 se cumple hoy en el acto y es indemostrable después.</p>
+</div>
+
+<h2 id="contraste">El contraste que hace visible la brecha</h2>
+<p class="matrix-note">El ecosistema ya tiene un sistema de trazabilidad completo y funcionando — para el otro lado del producto.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th></th><th>Decisiones de <strong>motor</strong> (usuario)</th><th>Decisiones <strong>editoriales</strong> (catálogo)</th></tr></thead>
+<tbody>
+<tr><td>¿Emite evento?</td><td>✅ Sí — toda transición emite exactamente uno</td><td>❌ No</td></tr>
+<tr><td>¿Registra razón?</td><td>✅ Sí — <code>razones</code> es NOT NULL</td><td>❌ No</td></tr>
+<tr><td>¿Registra contexto?</td><td>✅ Sí — métricas y umbrales vigentes al decidir</td><td>❌ No</td></tr>
+<tr><td>¿Es reconstruible?</td><td>✅ Sí — replay determinista desde eventos</td><td>❌ No</td></tr>
+<tr><td>¿Se conserva el historial?</td><td>✅ Sí — "jamás borrar" (P3)</td><td>⚠️ Solo por versión de catálogo</td></tr>
+<tr><td>¿Identifica al decisor?</td><td>✅ Sí — campo <code>origen</code> con 6 valores</td><td>❌ No</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">El ecosistema sabe hacer esto</div>
+  <p>El campo <code>origen</code> de los eventos distingue seis productores de decisión —<code>motor_bps</code>, <code>progression_engine</code>, <code>recovery_engine</code>, <code>workout_generator</code>, <code>usuario</code>, <code>coach</code>— precisamente para saber <em>quién</em> decidió cada cosa. La capacidad existe, está implementada y se aplica a las decisiones automáticas. <strong>Las decisiones humanas, que son las que P14 declara más importantes, son las únicas sin ese registro.</strong></p>
+</div>
+<div class="diagram">
+<div class="diagram-label">Dos clases de decisión, dos niveles de trazabilidad</div>
+<pre class="mermaid">
+graph TD
+  subgraph AUTO["Decisiones automáticas · TRAZADAS"]
+    M["Motor decide"] --> EV["Evento con tipo,<br/>origen, razones, contexto"]
+    EV --> RE["Replay determinista"]
+  end
+  subgraph HUM["Decisiones humanas · NO TRAZADAS"]
+    P["Persona autoriza<br/>una clasificación"] --> N["❌ ningún registro"]
+    N --> X["No reconstruible"]
+  end
+  P14["P14: la responsabilidad<br/>debe rastrearse"] -.->|"exige"| HUM
+</pre>
+</div>
+
+<h2 id="que-si">Lo que sí es trazable hoy</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Objeto</th><th>Trazabilidad disponible</th><th>Mecanismo</th></tr></thead>
+<tbody>
+<tr><td>Una generación de semana</td><td>Con qué versión de catálogo se produjo</td><td>Campo obligatorio del evento</td></tr>
+<tr><td>Un cambio de regla en un handbook</td><td>Razón y alternativas consideradas</td><td>El ADR</td></tr>
+<tr><td>Un cambio de contrato</td><td>Razón, fecha de deprecación, migración</td><td>El ADR</td></tr>
+<tr><td>Un conflicto de etiquetado escalado</td><td>Caso, opciones consideradas, decisión</td><td>Protocolo de escalado — <span class="tag tag--especificado">sin soporte de datos</span></td></tr>
+<tr><td>Un defecto de catálogo detectado</td><td>La combinación exacta que falló</td><td>Cola editorial vía <code>CATALOGO_INSUFICIENTE</code></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">El ADR es el único registro editorial que funciona</div>
+  <p>Todas las trazabilidades que sí existen para decisiones humanas pasan por un <strong>ADR</strong>: registra la razón, las alternativas consideradas y las consecuencias. Es el mecanismo que el ecosistema ya usa y el que este handbook adopta como modelo — con una limitación evidente: un ADR por cada asignación de patrón de cada ejercicio no escala a 100, y mucho menos a 1000 entradas. Ver módulo <a href="../17-roadmap/index.html">17</a>.</p>
+</div>
+
+<h2 id="requisitos">Qué haría falta</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Elemento</th><th>Quién debe definirlo</th><th>Depende de</th></tr></thead>
+<tbody>
+<tr><td>Campos de autoría, fecha y motivo en la entrada</td><td>Decisión documental + modelo de datos</td><td>—</td></tr>
+<tr><td>Estado de la entrada</td><td>Domain Model 10</td><td>ED-D01</td></tr>
+<tr><td>Versionado por entrada</td><td>Decisión documental</td><td>ED-D10</td></tr>
+<tr><td>Justificación y fuente por dato de catálogo</td><td>Extensión del sistema de badges</td><td>ED-D09</td></tr>
+<tr><td>Registro de conflictos escalados</td><td>Decisión documental</td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Cuatro de los cinco requisitos son decisiones documentales</div>
+  <p>Solo el primero exige tocar el modelo de datos; los demás son acuerdos que alguien debe tomar. La trazabilidad editorial no está bloqueada por dificultad técnica: está bloqueada por decisiones pendientes.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../07-versionado/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 07 · Versionado</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../09-control-calidad/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">09 · Control de Calidad →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

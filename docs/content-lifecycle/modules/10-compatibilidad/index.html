@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10 · Compatibilidad Histórica — Content Lifecycle</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="compatibilidad" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 10 · Estados y versiones</p>
+<h1>Compatibilidad Histórica</h1>
+<p class="lede">Pregunta 11. La <strong>única garantía del ciclo de vida que está completamente resuelta</strong>: lo generado sobrevive intacto a cualquier cambio de catálogo, por tres mecanismos independientes que se refuerzan entre sí.</p>
+
+<h2 id="regla">La regla</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">R-2 · Regla de Inmutabilidad</div>
+  <p>"Editar plantillas nunca altera instancias generadas (P5). <strong>El cambio de catálogo aplica desde la siguiente generación.</strong>"</p>
+</div>
+
+<h2 id="tres">Los tres mecanismos</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Mecanismo</th><th>Qué garantiza</th><th>Fuente</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><strong>Desnormalización de la instancia</strong></td><td>El Workout copia lo que necesita — slug, nombre, modalidad — y "jamás referencia plantillas en lectura posterior"</td><td>I-G2 · Architecture Handbook 08</td></tr>
+<tr><td>2</td><td><strong>Inmutabilidad de la instancia</strong></td><td>Tras generarse, la fila de <code>workouts</code> no se muta nunca; el log tampoco tras su cierre</td><td>P5 · I-W2 · I-W3</td></tr>
+<tr><td>3</td><td><strong>Versión de catálogo en el evento</strong></td><td>Permite saber con qué taxonomía se produjo cada generación pasada</td><td>BPS-023 · ADR-009</td></tr>
+</tbody>
+</table>
+</div>
+<div class="diagram">
+<div class="diagram-label">Tres mecanismos independientes protegiendo lo mismo</div>
+<pre class="mermaid">
+sequenceDiagram
+  participant C as Catálogo v1
+  participant G as Generator
+  participant W as Workout (fila)
+  participant E as Evento
+  C->>G: ficha completa del ejercicio
+  G->>W: copia desnormalizada<br/>(slug + nombre + modalidad)
+  G->>E: semana_generada + versión v1
+  Note over W: Inmutable desde aquí (P5 / I-W2)
+  C-->>C: se corrige una entrada → v2
+  C--xW: NO se propaga (R-2)
+  Note over E,W: El evento conserva v1:<br/>la generación sigue siendo reconstruible
+</pre>
+</div>
+
+<h2 id="por-que">Por qué la no-propagación es correcta</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Reescribir el pasado falsificaría el registro</div>
+  <p>Un Workout ya ejecutado es historia. Actualizarlo con la clasificación corregida haría que el registro dijera que el usuario hizo algo distinto de lo que realmente se le prescribió. P3 lo protege ("el historial permanece") y P5 lo hace estructural: la instancia es inmutable por diseño, no por omisión.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Escenario</th><th>Comportamiento documentado</th></tr></thead>
+<tbody>
+<tr><td>Se corrige el patrón de un ejercicio</td><td>Los Workouts generados conservan la resolución anterior; el cambio aplica desde la siguiente generación</td></tr>
+<tr><td>Se corrige una zona de riesgo</td><td>Ídem — ningún Workout histórico se revisa ni se marca</td></tr>
+<tr><td>Se reordena una cadena</td><td>Ídem; el eslabón vigente del usuario no se recalcula retroactivamente</td></tr>
+<tr><td>Se cambia el nombre de un ejercicio</td><td>El Workout muestra el nombre copiado en su momento; el <code>slug</code> permite reconstruir la ficha actual</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="slug">El papel del slug</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">La identidad es lo que hace posible la compatibilidad</div>
+  <p>El Workout guarda el <code>slug</code>, no una referencia viva. Como el slug es inmutable de por vida (P15), una generación de hace meses puede reconstruir la ficha completa del ejercicio consultando el catálogo actual — o compararla con la versión con la que se generó. Renombrar un slug rompería <strong>todas</strong> las generaciones históricas a la vez, y es exactamente por eso que está prohibido.</p>
+</div>
+
+<h2 id="limites">Los dos límites de la garantía</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Límite</th><th>Consecuencia</th><th>Severidad</th></tr></thead>
+<tbody>
+<tr><td><strong>Un error de contenido no se corrige hacia atrás</strong></td><td>Si una zona de riesgo estaba mal etiquetada, los Workouts que la usaron conservan la prescripción errónea. La inmutabilidad protege la integridad del registro, no la seguridad retrospectiva del usuario</td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td><strong>No hay forma de identificar generaciones afectadas</strong></td><td>Sin versionado por entrada, tras corregir un ejercicio no se puede listar qué Workouts lo usaron con la versión defectuosa</td><td><span class="severity severity--alta">alta</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">Deuda CL-D08 — la compatibilidad histórica no contempla el error</div>
+  <p>R-2 está diseñada para el caso de <em>evolución</em> del catálogo: la clasificación cambia porque el criterio mejora, y lo generado antes sigue siendo válido respecto de su versión. No está diseñada para el caso de <em>error</em>: cuando lo anterior era incorrecto, "sigue siendo correcto respecto de su versión" es una verdad formal sin valor práctico.</p>
+  <p>Ninguna fuente distingue ambos casos ni define qué hacer en el segundo. No se propone aquí ningún mecanismo — se registra la distinción.</p>
+</div>
+
+<h2 id="reproducibilidad">Reproducibilidad</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Capacidad</th><th>Disponible</th><th>Gracias a</th></tr></thead>
+<tbody>
+<tr><td>Saber con qué versión de catálogo se generó una semana</td><td>✅</td><td>Campo obligatorio del evento</td></tr>
+<tr><td>Reconstruir qué ejercicio se prescribió</td><td>✅</td><td>Slug desnormalizado + P15</td></tr>
+<tr><td>Reconstruir la ficha tal como era entonces</td><td>❌</td><td>Falta versionado por entrada</td></tr>
+<tr><td>Saber si esa ficha ha cambiado desde entonces</td><td>⚠️</td><td>Solo comparando identificadores de catálogo</td></tr>
+<tr><td>Listar generaciones afectadas por un cambio concreto</td><td>❌</td><td>Falta versionado por entrada</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">La garantía mejor resuelta del ciclo, con un techo claro</div>
+  <p>La compatibilidad histórica es la única pregunta del ciclo de vida cuya respuesta es <strong>completa y con tres mecanismos independientes respaldándola</strong>. Su techo lo pone la misma deuda que atraviesa el resto del handbook: sin granularidad por entrada, la historia se conserva pero no se puede interrogar con precisión.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../09-versionado/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 09 · Versionado</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../11-trazabilidad/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">11 · Trazabilidad y Auditoría →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>01 · Filosofía — Content Lifecycle</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="filosofia" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 01 · Empezar</p>
+<h1>Filosofía de la reconstrucción</h1>
+<p class="lede">Ocho principios. El primero los gobierna a todos: <strong>este handbook describe el ciclo de vida que existe, no el que debería existir</strong>. Prefijo <code>CL-</code>.</p>
+
+<h2 id="principios">Los ocho principios</h2>
+
+<div class="callout callout--regla">
+  <div class="callout__label">CL-01 · Reconstruir, nunca diseñar</div>
+  <p>Cada afirmación de este handbook procede de una cita localizable. Cuando el ciclo de vida tiene un hueco, el hueco se describe con precisión — no se rellena con el proceso que cualquier sistema documental razonable tendría.<br><strong>Deriva de:</strong> la instrucción explícita del encargo y de P11 (honestidad de evidencia).</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">CL-02 · Palabra completa, no subcadena</div>
+  <p>Un barrido que cuenta coincidencias parciales produce conclusiones falsas. <code>autor</code> devuelve decenas de archivos si se acepta la subcadena de <em>autoriza</em>; cero si se exige la palabra. Todo recuento de este handbook distingue ambas cosas y declara los falsos positivos encontrados.<br><strong>Deriva de:</strong> la instrucción explícita del encargo; aplicado en el módulo <a href="../02-barrido/index.html">02</a>.</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">CL-03 · Un término existente en otro dominio no es un término existente</div>
+  <p><code>archivado</code> aparece en 31 archivos y todos se refieren al Cliente del BCS. <code>rollback</code> aparece en 4 y todos a migraciones de base de datos. Que una palabra exista en el repositorio no significa que exista <em>para el ciclo de vida de una entrada de catálogo</em>. Cada coincidencia se verifica en contexto.<br><strong>Deriva de:</strong> CL-02 llevado a su consecuencia; y de P12 (un concepto, un término canónico).</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">CL-04 · La ausencia se declara; nunca se completa</div>
+  <p>Cuando un estado, proceso, rol o permiso no existe, se registra como deuda con el resultado exacto del barrido. Un ciclo de vida inventado en el documento que se titula "Source of Truth del gobierno del contenido" se cumpliría sin que nadie lo hubiera acordado.<br><strong>Deriva de:</strong> P6 (sin defaults silenciosos) y de la política ya establecida en los cuatro handbooks previos de la serie.</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">CL-05 · El historial es inmutable y sobrevive a los cambios de catálogo</div>
+  <p>Lo generado con una versión de catálogo sigue siendo correcto respecto de aquella versión. Ningún cambio posterior lo altera, lo repara ni lo invalida.<br><strong>Deriva de:</strong> R-2 (Regla de Inmutabilidad) — "el cambio de catálogo aplica desde la siguiente generación"; P5 y P3.</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">CL-06 · La identidad sobrevive a todo el ciclo</div>
+  <p>El <code>slug</code> nace con la entrada y no cambia nunca: ni al corregirla, ni al reclasificarla, ni al dejar de ofrecerla. Es el único punto fijo del ciclo de vida y lo que hace posible reconstruir cualquier estado pasado.<br><strong>Deriva de:</strong> P15 — "slug estable desde el nacimiento".</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">CL-07 · Toda transición de estado emite un evento con razón</div>
+  <p>Es la disciplina que el ecosistema ya aplica a las decisiones de sus motores: transición y evento son atómicos, <code>razones</code> es obligatorio, y el estado es recomputable desde los eventos.<br><strong>Deriva de:</strong> P2/P3 · BPS-010 ("toda transición emite exactamente un evento con razón") · BPS-011 (replay determinista).<br><span class="tag tag--futuro">⚠ No aplicado al catálogo</span> — ninguna transición de una entrada emite evento, porque no hay transiciones definidas.</p>
+</div>
+
+<div class="callout callout--regla">
+  <div class="callout__label">CL-08 · Un cambio de documento se supersede; no se edita en silencio</div>
+  <p>Revertir o modificar una decisión publicada exige un registro nuevo que la reemplace explícitamente. La edición silenciosa está prohibida por nombre.<br><strong>Deriva de:</strong> la disciplina de ADR — "revertir una requiere un ADR nuevo que la supersede, <strong>nunca edición silenciosa</strong>"; y de "el handbook manda… nunca por deriva silenciosa".</p>
+</div>
+
+<h2 id="derivacion">Mapa de derivación</h2>
+<div class="diagram">
+<div class="diagram-label">Ningún principio es original — todos cuelgan de una regla vigente</div>
+<pre class="mermaid">
+graph LR
+  P11["P11 · Honestidad<br/>de evidencia"] --> CL01["CL-01 Reconstruir"]
+  ENC["Instrucción del encargo"] --> CL02["CL-02 Palabra completa"]
+  P12["P12 · Un concepto,<br/>un término"] --> CL03["CL-03 Otro dominio<br/>no cuenta"]
+  P6["P6 · Sin defaults<br/>silenciosos"] --> CL04["CL-04 Ausencia declarada"]
+  R2["R-2 · Inmutabilidad"] --> CL05["CL-05 Historial inmutable"]
+  P5["P5 · Instancia<br/>inmutable"] --> CL05
+  P15["P15 · Slug estable"] --> CL06["CL-06 Identidad<br/>sobrevive"]
+  BPS010["BPS-010 · Transición<br/>+ evento"] --> CL07["CL-07 Evento con razón"]
+  ADR["Disciplina de ADR ·<br/>supersede"] --> CL08["CL-08 Sin edición<br/>silenciosa"]
+</pre>
+</div>
+
+<h2 id="metodo">Método de reconstrucción</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Paso</th><th>Qué se hizo</th><th>Resultado</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Barrido de 48 términos con límites de palabra sobre los 15 directorios documentales</td><td>Módulo <a href="../02-barrido/index.html">02</a></td></tr>
+<tr><td>2</td><td>Verificación en contexto de cada coincidencia — ¿se refiere a una entrada de catálogo?</td><td>4 falsos positivos mayores identificados</td></tr>
+<tr><td>3</td><td>Separación del recuento entre ecosistema base y los 4 handbooks de la serie</td><td>Evita contar consolidación como evidencia</td></tr>
+<tr><td>4</td><td>Mapeo de cada uno de los 12 pasos del ciclo contra Proceso, Autoridad y Registro</td><td>Módulo <a href="../15-matriz/index.html">15</a></td></tr>
+<tr><td>5</td><td>Registro de contradicciones y deudas sin resolverlas</td><td>Módulos <a href="../16-adr-antipatterns/index.html">16</a> y <a href="../17-deudas-roadmap/index.html">17</a></td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="tensiones">Tensiones aceptadas</h2>
+<div class="callout callout--tradeoff">
+  <div class="callout__label">Un handbook cuyo contenido principal son ausencias</div>
+  <p>Buena parte de este documento describe lo que no existe. Podría parecer poco útil; es lo contrario: la diferencia entre "el ciclo de vida no está definido" y "estos 12 pasos, con esta autoridad y este registro, están definidos al 38,9 %, y estos siete concretos no lo están" es la diferencia entre una intuición y un plan de trabajo.</p>
+</div>
+<div class="callout callout--descartado">
+  <div class="callout__label">Descartado — proponer el ciclo de vida que falta</div>
+  <p>El ecosistema tiene cinco máquinas de estado publicadas de las que podrían derivarse estados para una entrada de catálogo, y una disciplina de deprecación de contratos directamente análoga. Componer con ellas un ciclo de vida plausible habría sido trivial. Descartado por CL-01 y CL-04: sería crear una sexta FSM fuera del módulo que las centraliza, sin pasar por la jerarquía documental y sin que ninguna autoridad la hubiera acordado.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../00-introduccion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 00 · Introducción</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../02-barrido/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">02 · Barrido Documental →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

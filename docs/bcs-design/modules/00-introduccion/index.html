@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>00 · Introducción — BCS Design System Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="introduccion" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 00 · Fundamentos</p>
+<h1>Introducción</h1>
+<p class="lede">El sistema de diseño completo de la interfaz del Body Composition System (BCS): cada decisión visual, de layout, de componente y de comportamiento, especificada para que ningún desarrollador tenga que decidir nada por su cuenta. Si una implementación futura contradice este documento, el documento tiene prioridad.</p>
+
+<div class="meta-row">
+  <span class="chip">Autoridad: handbook &gt; código</span>
+  <span class="chip">Extiende el sistema de diseño real de BREY, no lo reemplaza</span>
+  <span class="chip">Sin código, sin CSS, sin componentes React</span>
+</div>
+
+<h2 id="objetivo">Objetivo</h2>
+<p>Especificar la interfaz completa del BCS (dashboard del entrenador y vista pública del cliente) con el mismo rigor de dominio que el BCS Handbook (arquitectura de datos) ya aplicó al negocio. Este documento resuelve la pregunta "¿cómo se ve y se siente?" con la misma precisión con la que aquel resolvió "¿qué hace?".</p>
+
+<h2 id="hallazgo">Hallazgo de partida — este sistema ya existe, parcialmente</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Grounding real, no inventado</div>
+  <p>Antes de escribir una sola regla, se auditó el código real de BREY (<code>src/app/globals.css</code>, <code>src/components/brand/*.tsx</code>). BREY ya tiene: una paleta de marca fijada (fondo <code>#020617</code>, acento <code>#f97316</code>), una librería de 18 componentes reutilizables (Card, Button, Tabs, Badge, Progress, Dialog, Accordion, Tooltip, Input, Select y más), tipografía Inter, y un ritmo de movimiento propio (300–500ms, con <code>prefers-reduced-motion</code> centralizado). También existen, citadas en comentarios de código pero nunca formalizadas como documento, dos leyes de una "Constitución de Diseño" no escrita: <strong>Ley 2</strong> — "un color, un significado" — y <strong>Ley 7</strong> — "primitivas antes que páginas, nunca SVG inline". Este handbook no inventa un sistema paralelo: extiende el real, formaliza esas dos leyes por primera vez, y las hace cumplir sin excepción en todo el dominio de composición corporal. Decisión formal en BCSD-ADR-01 (20).</p>
+</div>
+
+<h2 id="filosofia">Filosofía</h2>
+<p>Se desarrolla en profundidad en el módulo 01. En una frase: cada pantalla del BCS debe sentirse como una extensión natural de BREY, nunca como una herramienta distinta pegada al costado — y debe comunicar datos de salud con la misma seriedad clínica-sin-ser-clínica que el BCS Handbook exige en su contenido.</p>
+
+<h2 id="problema">Qué problema resuelve este documento</h2>
+<ul>
+  <li>Elimina la ambigüedad visual: ningún desarrollador decide "qué color usar aquí" o "cuánto espacio dejar" — ya está decidido.</li>
+  <li>Da a cada uno de los 25 datos del catálogo del BCS Handbook (03) una representación visual definida: tipo de gráfico, color, escala, unidad.</li>
+  <li>Especifica dos experiencias completas (dashboard del entrenador, vista pública del cliente) a nivel de pantalla, no solo de componente suelto.</li>
+  <li>Fija el comportamiento del sistema ante datos incompletos, errores, y volúmenes grandes de historial — sin dejarlo a la improvisación.</li>
+</ul>
+
+<h2 id="no-pretende">Qué NO pretende resolver</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Fuera de este documento</th><th>Dónde vive</th></tr></thead>
+<tbody>
+<tr><td>Qué datos existen, cómo se validan, quién los ve</td><td>BCS Handbook (dominio) — este documento presupone ese modelo, no lo redefine</td></tr>
+<tr><td>Código de componentes React, CSS, tokens en formato de variable de código</td><td>Implementación futura — este documento especifica el valor, no la sintaxis</td></tr>
+<tr><td>El sistema de diseño del resto de BREY (marketing, Core Product) más allá de lo que ya existe y se hereda</td><td>Fuera de alcance — este handbook es específico del módulo BCS</td></tr>
+<tr><td>Contenido de copy/microcopy exacto de cada pantalla</td><td>Se especifica tono y estructura, no el texto literal final</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="relacion">Relación con el resto del ecosistema BREY</h2>
+<div class="diagram">
+<div class="diagram-label">Este handbook hereda, extiende y formaliza — nunca reemplaza</div>
+<pre class="mermaid">
+graph TD
+  REAL["Sistema de diseño real de BREY<br/>(globals.css + components/brand/*)"] -->|"hereda paleta, tipografía, componentes base"| BCSD["BCS Design System Handbook<br/>(este documento)"]
+  DOM["BCS Handbook<br/>(dominio: qué datos, qué reglas)"] -->|"presupone su modelo"| BCSD
+  BCSD -->|"formaliza por primera vez"| LEY["Ley 2 y Ley 7<br/>de la Constitución de Diseño (no escrita)"]
+  BCSD -.->|"futuro: base para formalizar el resto"| CONST["Constitución de Diseño completa<br/>(pendiente, fuera de alcance)"]
+</pre>
+</div>
+
+<h2 id="convenciones">Convenciones de este documento</h2>
+<ul>
+  <li><span class="tag tag--heredado">heredado</span> — ya existe en el código real de BREY, este documento solo lo cita.</li>
+  <li><span class="tag tag--nuevo">nuevo</span> — introducido por este handbook, específico del dominio de composición corporal.</li>
+  <li><span class="tag tag--v2">v2</span> — candidato de una versión futura, no de v1 (19).</li>
+</ul>
+
+<div class="pagenav">
+  <div></div>
+  <a class="pagenav__item pagenav__item--next" href="../01-filosofia-visual/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">01 · Filosofía visual →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

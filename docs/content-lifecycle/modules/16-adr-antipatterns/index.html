@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>16 · ADR y Anti-patterns — Content Lifecycle</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="adr-antipatterns" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 16 · Gobernanza</p>
+<h1>ADR, Anti-patterns y Contradicciones</h1>
+<p class="lede">Siete decisiones de reconstrucción, doce anti-patrones del ciclo de vida y siete contradicciones registradas sin resolver. Prefijos <code>CL-ADR-</code> y <code>CLA-</code>.</p>
+
+<h2 id="adr">Decisiones de arquitectura</h2>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">CL-ADR-01</div>
+  <h3>El recuento distingue palabra completa de subcadena</h3>
+  <p><strong>Contexto:</strong> el barrido inicial de <code>autor</code> devolvía 59 archivos. Con límite de palabra: cero — las 59 eran subcadenas de <em>autoriza</em> y <em>autoridad</em>.</p>
+  <p><strong>Decisión:</strong> todo recuento usa <code>\bTÉRMINO\b</code> y toda coincidencia mayor que cero se verifica en contexto antes de considerarse evidencia.</p>
+  <p><strong>Consecuencias:</strong> ocho falsos positivos identificados. Sin esta disciplina, el handbook habría concluido que existen revisiones (30 archivos), estados (17) e historial de entradas (113) — y ninguno existe.</p>
+</div>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">CL-ADR-02</div>
+  <h3>El recuento base excluye los cuatro handbooks de la serie</h3>
+  <p><strong>Contexto:</strong> Taxonomy, Tagging, Catalog y Editorial Standards consolidan las mismas fuentes que este handbook barre. Sus menciones de <code>draft</code>, <code>approved</code> o <code>deprecated</code> son <em>declaraciones de ausencia</em>, no evidencia de existencia.</p>
+  <p><strong>Decisión:</strong> la columna de evidencia es la del ecosistema base. La diferencia entre ambas columnas se reporta como texto de consolidación.</p>
+  <p><strong>Consecuencias:</strong> evita el circuito cerrado de citar la propia serie como prueba de lo que la serie observó.</p>
+</div>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">CL-ADR-03</div>
+  <h3>Un término existente en otro dominio no cuenta como existente</h3>
+  <p><strong>Contexto:</strong> <code>archivado</code> (31 archivos) es el Cliente del BCS; <code>deprecación</code> (4) son contratos de API; <code>historial</code> (113) es el historial de entrenamiento; <code>vigente</code> (82) es la prescripción.</p>
+  <p><strong>Decisión:</strong> cada término se evalúa respecto del objeto "entrada de catálogo". Los demás usos se registran como precedentes disponibles, no como evidencia.</p>
+  <p><strong>Consecuencias:</strong> es la razón por la que este handbook concluye que el ciclo de vida no existe, pese a que sus palabras sí aparecen.</p>
+</div>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">CL-ADR-04</div>
+  <h3>Los precedentes de otros dominios se registran, no se adoptan</h3>
+  <p><strong>Contexto:</strong> el ecosistema resolvió el ciclo de vida cuatro veces —Cliente del BCS, contratos de API, caducidad del Diagnóstico, estados de Workout— con diseños directamente análogos a lo que falta.</p>
+  <p><strong>Alternativas:</strong> (a) componer con ellos el ciclo que falta; (b) registrarlos señalando qué resolverían.</p>
+  <p><strong>Decisión:</strong> se adopta (b). Componer un ciclo con piezas de otros dominios crearía una sexta FSM fuera del módulo que las centraliza, sin pasar por la jerarquía documental.</p>
+  <p><strong>Consecuencias:</strong> quien cierre la deuda encuentra el análisis hecho y la decisión intacta.</p>
+</div>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">CL-ADR-05</div>
+  <h3>Los dos estados implícitos no se formalizan</h3>
+  <p><strong>Contexto:</strong> una entrada solo puede ser "candidato" u "oficial", y ambas situaciones se derivan de la completitud de atributos.</p>
+  <p><strong>Problema:</strong> nombrarlos los convertiría en un vocabulario de estados que ninguna autoridad ha acordado.</p>
+  <p><strong>Decisión:</strong> se describen como <strong>lecturas de completitud</strong>, no como estados. El recuento oficial de estados de una entrada es <strong>cero</strong>.</p>
+  <p><strong>Consecuencias:</strong> la matriz del módulo 15 refleja la ausencia con precisión en lugar de disimularla con dos estados de conveniencia.</p>
+</div>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">CL-ADR-06</div>
+  <h3>Las contradicciones se registran; no se resuelven</h3>
+  <p><strong>Contexto:</strong> siete contradicciones encontradas, dos críticas — incluida la que impide cumplir P14.</p>
+  <p><strong>Decisión:</strong> se registran con severidad, fuentes implicadas y consecuencia. Resolver una contradicción entre fuentes de rango superior situaría este handbook por encima de ellas, que es lo contrario de su posición en la jerarquía.</p>
+</div>
+
+<div class="adr">
+  <span class="adr__estado">Aceptada</span>
+  <div class="adr__id">CL-ADR-07</div>
+  <h3>Las fuentes solicitadas que no existen se reportan como hallazgo</h3>
+  <p><strong>Contexto:</strong> de los dieciséis handbooks nombrados como fuente, cuatro no existen como documento: Recovery Engine (ausencia ya registrada por AR-006), Workout Generator, Training Framework y Knowledge Base (los tres son módulos del Architecture Handbook).</p>
+  <p><strong>Decisión:</strong> los tres que son módulos se barrieron en su ubicación real; la ausencia del cuarto se reporta. No se asume que existieran ni se suple su contenido.</p>
+  <p><strong>Consecuencias:</strong> el barrido cubre 15 directorios reales, y queda constancia de que un handbook de dominio referenciado sigue sin escribirse.</p>
+</div>
+
+<h2 id="antipatterns">Anti-patterns del ciclo de vida</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>ID</th><th>Anti-patrón</th><th>Severidad</th><th>Regla violada</th></tr></thead>
+<tbody>
+<tr><td><code>CLA-01</code></td><td>Borrar una entrada para retirarla</td><td><span class="severity severity--critica">crítica</span></td><td>P3 · rompe cadenas, Workouts históricos y eventos</td></tr>
+<tr><td><code>CLA-02</code></td><td>Cambiar un <code>slug</code></td><td><span class="severity severity--critica">crítica</span></td><td>P15 · CL-06 — rompe todas las generaciones históricas a la vez</td></tr>
+<tr><td><code>CLA-03</code></td><td>Propagar una corrección a lo ya generado</td><td><span class="severity severity--critica">crítica</span></td><td>R-2 · P5 — falsifica el registro de lo que el usuario hizo</td></tr>
+<tr><td><code>CLA-04</code></td><td>Editar una entrada en sitio sin generar versión de catálogo</td><td><span class="severity severity--alta">alta</span></td><td>BPS-023 · CL-08</td></tr>
+<tr><td><code>CLA-05</code></td><td>Vaciar un atributo obligatorio para "despublicar"</td><td><span class="severity severity--alta">alta</span></td><td>Indistinguible de un defecto; ninguna fuente lo contempla como operación</td></tr>
+<tr><td><code>CLA-06</code></td><td>Tratar la completitud como aprobación</td><td><span class="severity severity--critica">crítica</span></td><td>P14 · invierte causa y efecto: la autorización debe ser la causa</td></tr>
+<tr><td><code>CLA-07</code></td><td>Modificar sin la autoridad correspondiente</td><td><span class="severity severity--alta">alta</span></td><td>P14 · cruzar la frontera Contenido / Ingeniería / Documentación</td></tr>
+<tr><td><code>CLA-08</code></td><td>Deriva silenciosa entre código y handbook</td><td><span class="severity severity--alta">alta</span></td><td>"El handbook manda… nunca por deriva silenciosa"</td></tr>
+<tr><td><code>CLA-09</code></td><td>Cambiar el badge de evidencia sin ADR</td><td><span class="severity severity--alta">alta</span></td><td>CL-08 · "nunca edición silenciosa"</td></tr>
+<tr><td><code>CLA-10</code></td><td>Presentar una decisión de producto como ciencia</td><td><span class="severity severity--critica">crítica</span></td><td>"Error de integridad, no de estilo"</td></tr>
+<tr><td><code>CLA-11</code></td><td>Asumir que una entrada válida sigue siendo correcta con el tiempo</td><td><span class="severity severity--media">media</span></td><td>No hay caducidad ni revisión — la validez no implica vigencia</td></tr>
+<tr><td><code>CLA-12</code></td><td>Formalizar los dos estados implícitos como si fueran estados</td><td><span class="severity severity--media">media</span></td><td>CL-ADR-05 · CL-04 — crearía vocabulario no acordado</td></tr>
+</tbody>
+</table>
+</div>
+<div class="diagram">
+<div class="diagram-label">Dos raíces comunes</div>
+<pre class="mermaid">
+graph TD
+  R1["RAÍZ A: tratar el catálogo<br/>como datos mutables"]
+  R1 --> A1["CLA-01 · borrar"]
+  R1 --> A2["CLA-02 · cambiar slug"]
+  R1 --> A3["CLA-03 · propagar al pasado"]
+  R1 --> A4["CLA-04 · editar sin versión"]
+  R2["RAÍZ B: confundir efecto<br/>con decisión"]
+  R2 --> A6["CLA-06 · completitud = aprobación"]
+  R2 --> A5["CLA-05 · vaciar para despublicar"]
+  R2 --> A11["CLA-11 · válido = vigente"]
+  A1 --> C["Historial irreconstruible"]
+  A6 --> D["⛔ P14 deja de cumplirse"]
+</pre>
+</div>
+
+<h2 id="contradicciones">Contradicciones registradas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Contradicción</th><th>Entre</th><th>Severidad</th></tr></thead>
+<tbody>
+<tr><td>KL-01</td><td>P14 exige que la autorización sea la <strong>causa</strong> de que una entrada exista; con el modelo actual la existencia es un <strong>efecto</strong> de la completitud</td><td>P14 ↔ contrato de catálogo</td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td>KL-02</td><td>P14 exige rastrear la responsabilidad a una decisión humana; ningún campo del modelo permite registrarla</td><td>P14 ↔ modelo de datos</td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td>KL-03</td><td>Se prohíbe borrar una entrada y no existe estado de retirada: la regla es correcta e inejecutable</td><td>P3 ↔ ausencia de estados</td><td><span class="severity severity--critica">crítica</span></td></tr>
+<tr><td>KL-04</td><td>El patrón del ecosistema es "corregir nunca destruye lo anterior" (enunciado tres veces); la entrada de catálogo se corrige editándose en sitio</td><td>Medición / Log / ADR ↔ catálogo</td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td>KL-05</td><td>BPS-010 exige que toda transición emita un evento con razón; la transición candidato→oficial no emite ninguno</td><td>BPS-010 ↔ ciclo del catálogo</td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td>KL-06</td><td>El sistema de badges exige declarar el origen de toda afirmación fisiológica; los datos del catálogo —incluidas las zonas de riesgo— no lo declaran</td><td>Architecture Handbook 00 ↔ modelo de Exercise</td><td><span class="severity severity--alta">alta</span></td></tr>
+<tr><td>KL-07</td><td>"Nunca por deriva silenciosa" — pero ningún proceso detecta la deriva</td><td>Architecture Handbook 00, interna</td><td><span class="severity severity--alta">alta</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Ninguna se resuelve aquí</div>
+  <p>Las siete se registran con sus fuentes, conforme a CL-ADR-06 y a la instrucción explícita del encargo. Cinco de ellas (KL-01 a KL-05) tienen la misma raíz: <strong>la ausencia de un ciclo de vida formal de la entrada</strong>.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../15-matriz/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 15 · Matriz del Ciclo</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../17-deudas-roadmap/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">17 · Deudas y Roadmap →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>14 · Regresiones — Master Exercise Dataset</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="regresiones" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Sección 14 · Relaciones</p>
+<h1>Regresiones</h1>
+<p class="lede">La regresión no es una relación aparte: es <strong>la misma cadena recorrida hacia atrás</strong>. Esta sección explica por qué esa decisión es la correcta, y qué exige a cambio.</p>
+
+<h2 id="reciprocidad">La regla de reciprocidad</h2>
+<div class="callout callout--regla">
+  <div class="callout__label">Regresión = cadena invertida</div>
+  <p>Si <code>A.chain_next = B</code>, entonces <code>B.chain_previous = A</code>, y <strong>A es la regresión de B</strong>. No existe un campo de regresión independiente ni un grafo descendente propio.</p>
+  <p>Consecuencia: no puede existir una progresión sin su regresión correspondiente. Toda arista de cadena es navegable en ambos sentidos por construcción.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Modelo evaluado</th><th>Por qué se descartó</th></tr></thead>
+<tbody>
+<tr><td>Campo <code>regression</code> independiente de <code>chain_previous</code></td><td>Dos verdades sobre lo mismo que pueden contradecirse; nada garantiza que <code>A.regression</code> y <code>B.chain_next</code> coincidan</td></tr>
+<tr><td>Lista de regresiones múltiples</td><td>Obliga al motor a elegir a cuál retroceder, y ese criterio no existe</td></tr>
+<tr><td>Regresión hacia una variante</td><td>Cambiar de variante no reduce la exigencia — VR-3</td></tr>
+<tr><td>Regresión hacia otro patrón</td><td>Viola RL-4 y produce un retroceso que no entrena la misma capacidad</td></tr>
+<tr><td><strong>Cadena invertida</strong></td><td><strong>Adoptado</strong> — una sola verdad, imposible de contradecir</td></tr>
+</tbody>
+</table>
+</div>
+<div class="diagram">
+<div class="diagram-label">Una sola cadena, dos sentidos de lectura</div>
+<pre class="mermaid">
+graph LR
+  A["eslabón 1"] -->|"progresión<br/>chain_next"| B["eslabón 2"]
+  B -->|"progresión<br/>chain_next"| C["eslabón 3"]
+  C -->|"REGRESIÓN<br/>chain_previous"| B
+  B -->|"REGRESIÓN<br/>chain_previous"| A
+  A --> X["chain_previous: null<br/><b>no hay regresión posible</b>"]
+</pre>
+</div>
+
+<h2 id="implicaciones">Qué exige esta decisión</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Exigencia</th><th>Motivo</th></tr></thead>
+<tbody>
+<tr><td>RG-1</td><td>Cada paso debe ser <strong>reversible</strong>: si B es un avance razonable desde A, A debe ser un retroceso razonable desde B</td><td>La misma arista sirve para ambas cosas</td></tr>
+<tr><td>RG-2</td><td>El salto de exigencia debe ser <strong>simétricamente</strong> abordable</td><td>Un salto que solo funciona en un sentido rompe uno de los dos usos</td></tr>
+<tr><td>RG-3</td><td>Insertar un eslabón intermedio mejora la progresión <strong>y</strong> la regresión a la vez</td><td>Propiedad favorable de la reciprocidad</td></tr>
+<tr><td>RG-4</td><td>Una cadena mal construida falla en ambos sentidos</td><td>Contrapartida de RG-3</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">RG-1 · El criterio de reversibilidad al construir cadenas</div>
+  <p>Al declarar un paso, la pregunta correcta no es solo «¿es B un avance razonable desde A?», sino también <strong>«si alguien no puede con B, ¿es A el sitio donde debería estar?»</strong>. Si la respuesta a la segunda es no, falta un eslabón entre ambos.</p>
+  <p>Esta doble pregunta detecta en el momento del diseño los saltos excesivos que, de otro modo, aparecerían meses después como estancamientos inexplicables.</p>
+</div>
+
+<h2 id="extremos">Los extremos de la cadena</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Situación</th><th>Estado</th><th>Qué significa para el motor</th></tr></thead>
+<tbody>
+<tr><td>Entrada con <code>chain_previous: null</code></td><td>Inicio de cadena</td><td><strong>No hay regresión disponible</strong> — el retroceso debe resolverse por otro medio</td></tr>
+<tr><td>Entrada con <code>chain_next: null</code></td><td>Fin de cadena</td><td>No hay avance por cadena — ver <code>accepts_added_load</code></td></tr>
+<tr><td>Entrada sin ninguna de las dos</td><td>Aislada</td><td>Ni progresión ni regresión por catálogo</td></tr>
+<tr><td>Regresión apunta a entrada <code>deprecated</code></td><td>Cadena cortada</td><td><strong>Se trata como si no hubiera regresión</strong> — RL-9 y sección 11</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--regla">
+  <div class="callout__label">El dataset no inventa un fondo de cadena</div>
+  <p>Cuando alguien está en el primer eslabón y necesita retroceder, el catálogo <strong>declara honestamente que no hay a dónde</strong>. No devuelve una variante, ni un ejercicio de otro patrón, ni el mismo ejercicio marcado como «más fácil».</p>
+  <p>Qué hacer entonces —reducir volumen, reducir rango, aplicar descarga, derivar— es una decisión del motor de progresión y del criterio de entrenamiento. El dataset responde a «¿existe un eslabón anterior?» y la respuesta puede ser no. DS-09: la ausencia es explícita.</p>
+</div>
+
+<h2 id="uso">Usos de la regresión</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Situación</th><th>Quién la detecta</th><th>Qué aporta el dataset</th></tr></thead>
+<tbody>
+<tr><td>Estancamiento sostenido</td><td>Motor de progresión</td><td>El <code>id</code> del eslabón anterior, si existe</td></tr>
+<tr><td>Reincorporación tras pausa</td><td>Motor de progresión</td><td>El <code>id</code> del eslabón anterior, si existe</td></tr>
+<tr><td>Zona de riesgo declarada sobrevenida</td><td>Resolutor / motor de recuperación</td><td>La clasificación de todos los candidatos, no solo del anterior</td></tr>
+<tr><td>Equipo dejó de estar disponible</td><td>Resolutor</td><td>Las <strong>variantes</strong>, no la regresión — VR-3</td></tr>
+<tr><td>Fallo técnico en la ejecución</td><td>Criterio humano</td><td>El eslabón anterior como referencia</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--riesgo">
+  <div class="callout__label">La cuarta fila es la confusión frecuente</div>
+  <p>Perder acceso a un implemento <strong>no</strong> es motivo para retroceder en la cadena. Quien entrenaba con barra y ahora solo tiene mancuernas no ha perdido capacidad: ha cambiado de contexto. Se resuelve cambiando de <a href="../12-variantes/index.html">variante</a>, no de eslabón. Retroceder en la cadena por un cambio de equipo penaliza a la persona por algo que no tiene que ver con su progreso.</p>
+</div>
+
+<h2 id="deprecacion">Deprecación y regresión</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Caso</th><th>Efecto sobre la regresión</th><th>Reparación</th></tr></thead>
+<tbody>
+<tr><td>Se deprecia el primer eslabón</td><td>El segundo pasa a no tener regresión</td><td>Ninguna obligatoria — o promover un sustituto a inicio</td></tr>
+<tr><td>Se deprecia un eslabón intermedio</td><td>La cadena queda cortada en ambos sentidos</td><td><strong>Reconectar</strong> los vecinos por revisión <code>major</code> en ambos</td></tr>
+<tr><td>Se deprecia el último eslabón</td><td>El penúltimo pasa a ser el final</td><td>Revisar su <code>accepts_added_load</code> — PG-7</td></tr>
+<tr><td>Se archiva cualquier eslabón</td><td>RL-9 obliga a retirar sus aristas <strong>antes</strong></td><td>Reconectar o cerrar la cadena antes de archivar</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--nota">
+  <div class="callout__label">Reconectar no es automático</div>
+  <p>Al deprecar B en A → B → C, el dataset <strong>no</strong> une A → C por su cuenta. Unirlos significa afirmar que el salto A → C es abordable, y esa afirmación solo la puede hacer una persona: puede que B existiera precisamente porque el salto directo era excesivo. Hasta que alguien decida, la cadena queda cortada — que es un estado honesto, no un fallo.</p>
+</div>
+
+<h2 id="invariantes">Invariantes de regresión</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>ID</th><th>Invariante</th></tr></thead>
+<tbody>
+<tr><td><code>REG-1</code></td><td>Toda regresión es un <code>chain_previous</code> — no existe otro campo que la exprese</td></tr>
+<tr><td><code>REG-2</code></td><td>Si A tiene regresión B, entonces B tiene progresión A — reciprocidad total</td></tr>
+<tr><td><code>REG-3</code></td><td>Una entrada tiene como máximo una regresión</td></tr>
+<tr><td><code>REG-4</code></td><td>La regresión comparte <code>pattern_primary</code> con su origen</td></tr>
+<tr><td><code>REG-5</code></td><td>La regresión tiene <code>level</code> menor o igual que su origen</td></tr>
+<tr><td><code>REG-6</code></td><td>Recorrer regresiones desde cualquier entrada termina siempre en un inicio de cadena</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../13-progresiones/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 13 · Progresiones</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../15-mantenimiento/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">15 · Mantenimiento →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

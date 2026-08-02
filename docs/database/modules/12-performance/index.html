@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>12 · Performance — BREY Database Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="performance" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 12 · Operación</p>
+<h1>Performance</h1>
+<p class="lede">Cardinalidad esperada, hot paths ya identificados, y la única materialización real del ecosistema — el puntero de estado del Usuario.</p>
+
+<h2 id="cardinalidad">Cardinalidad esperada</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tabla</th><th>Crecimiento esperado</th><th>Origen de la proyección</th></tr></thead>
+<tbody>
+<tr><td><code>workouts</code></td><td>~1 fila por sesión planificada por semana por Usuario activo — orden de decenas por Usuario por Sistema completo</td><td>Architecture Handbook, 10 (Regla de Frecuencia)</td></tr>
+<tr><td><code>workout_logs</code></td><td>Igual magnitud que <code>workouts</code>, más sesiones ad-hoc sin plan</td><td>Architecture Handbook, 10</td></tr>
+<tr><td><code>progression_events</code></td><td>Varias filas por ciclo semanal por Usuario (activación, evaluación, transiciones) — la tabla de mayor cardinalidad relativa por Usuario activo</td><td>Motor BPS Handbook, 12 (ciclo semanal batch)</td></tr>
+<tr><td><code>diagnoses</code></td><td>Baja — un puñado por Usuario a lo largo de su vida (retomas ocasionales, DM-ADR-07)</td><td>Domain Model Handbook, 13</td></tr>
+<tr><td><code>bcs_mediciones</code></td><td><strong>"Cientos de Mediciones" por Cliente</strong> — proyección explícita del propio BCS Handbook</td><td>BCS Handbook, 12 — el único handbook que da una cifra concreta de volumen</td></tr>
+<tr><td><code>bcs_clientes</code>, <code>bcs_enlaces_publicos</code></td><td>Baja por Entrenador — decenas a cientos de Clientes, 0-2 EnlacesPúblicos activos por Cliente en cualquier momento (09-IN-1)</td><td>BCS Handbook, 00, 09</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="consultas">Consultas — ya identificadas por otros handbooks</h2>
+<ul>
+  <li><code>GET</code> del Workout del día — por <code>(user_id, fecha_planificada)</code>, servida por el índice obligatorio de 06.</li>
+  <li>Ventana de historial de Progression Engine — <code>workout_logs</code> por <code>(user_id, fecha desc)</code>, acotada a un mínimo de 4 apariciones (Progression Engine Handbook, IN-P3).</li>
+  <li>Timeline de <code>progression_events</code> — por <code>(user_id, created_at desc)</code>, y filtrado por <code>tipo</code> para restricciones de zona activas.</li>
+  <li>Historial de Mediciones de un Cliente — por <code>(cliente_id, fecha desc)</code>, paginado sobre el umbral de 50 (BCS Handbook, 12).</li>
+</ul>
+
+<h2 id="hot-paths">Hot paths</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Ruta caliente</th><th>Por qué</th></tr></thead>
+<tbody>
+<tr><td><code>GET /workouts/hoy</code> (API Contract Handbook, 07)</td><td>Se consulta en cada apertura de la app por cada Usuario activo — el índice <code>(user_id, fecha_planificada)</code> existe exactamente para esto</td></tr>
+<tr><td><code>GET /motor-bps/estado</code></td><td>Determina qué UI mostrar (gates, generación pendiente) — lectura del puntero materializado, nunca replay completo en el camino caliente</td></tr>
+<tr><td>Ventana de historial reciente de <code>workout_logs</code></td><td>Se lee en cada cierre de Microciclo, para cada Usuario activo — Progression Engine la consume en el ciclo batch semanal</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="cold-paths">Cold paths</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Ruta fría</th><th>Por qué</th></tr></thead>
+<tbody>
+<tr><td>Historial completo de <code>diagnoses</code> de un Usuario</td><td>Se consulta solo al retomar el cuestionario o auditar — baja frecuencia por diseño (DM-ADR-07)</td></tr>
+<tr><td>Mediciones más allá de la página 1 (&gt;50, BCS Handbook 12)</td><td>El Reporte muestra tendencias recientes por defecto — el histórico profundo es exploración ocasional del Entrenador</td></tr>
+<tr><td>Clientes <code>archivado</code>s</td><td>Fuera del listado activo por defecto (query param <code>estado</code>, API Contract Handbook 07) — se consultan solo bajo demanda explícita</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="diagram">
+<div class="diagram-label">Hot paths (leídos en cada request) vs. cold paths (exploración ocasional)</div>
+<pre class="mermaid">
+graph LR
+  subgraph Hot["Hot paths"]
+    H1["GET /workouts/hoy"]
+    H2["GET /motor-bps/estado"]
+    H3["Ventana reciente workout_logs"]
+  end
+  subgraph Cold["Cold paths"]
+    C1["Historial completo de diagnoses"]
+    C2["Mediciones página 2+"]
+    C3["Clientes archivados"]
+  end
+</pre>
+</div>
+
+<h2 id="cache">Cache</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Sin cache en ningún punto del sistema — confirmado</div>
+  <p>Cero ISR, cero <code>revalidate</code>, cero memoización (Performance Handbook, Engineering 09). El caso de mayor riesgo de crecimiento sin mitigación es el Reporte del BCS: se recomputa on-demand sobre el historial completo cada vez (IN-D3) — el propio BCS Handbook (12) proyecta "cientos de Mediciones" por Cliente, y el Engineering Handbook confirma cero estrategia de cache. Cachear el cálculo del Reporte, con invalidación al registrar una nueva Medición, es la mitigación más directa — pero no se implementa aquí, ni se decide en este documento cuándo activarla (16).</p>
+</div>
+
+<h2 id="materializacion">Materialización — el único caso real del ecosistema</h2>
+<p><code>profiles.sistema_actual</code> y <code>profiles.nivel_actual</code> son la única materialización real de un cálculo derivable en todo el ecosistema — un puntero de estado mantenido para que cada lectura de "¿en qué Sistema/Nivel está este Usuario?" sea una lectura de una sola fila, nunca un replay completo de <code>progression_events</code> (01, MBPS-ADR-01). Ningún otro dato derivado (Programa, Bloque, Mesociclo, Reporte, EstadoRecuperación) se materializa — todos se calculan en el momento de la lectura (Domain Model Handbook, 13). La diferencia entre el Usuario (sí se materializa) y el Reporte (no se materializa) es la frecuencia de lectura frente al costo de invalidación: el puntero de Usuario se lee en cada request; el Reporte, solo cuando alguien lo visualiza.</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../11-evolucion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 11 · Evolución</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../13-seguridad/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">13 · Seguridad →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

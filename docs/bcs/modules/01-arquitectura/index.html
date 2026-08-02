@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>01 · Arquitectura — BCS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="arquitectura" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 01 · Fundamentos</p>
+<h1>Arquitectura</h1>
+<p class="lede">Las capas del sistema, su bounded context, el flujo completo de un ciclo de uso real, sus dependencias y sus invariantes. Observabilidad/auditoría/eventos se resumen aquí y se detallan en 08 (Seguridad) y 13 (API Interna) — este documento no tiene un módulo dedicado de observabilidad, por diseño explícito del alcance pedido.</p>
+
+<h2 id="capas">Capas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Capa</th><th>Responsabilidad</th></tr></thead>
+<tbody>
+<tr><td><strong>Presentación</strong></td><td>Panel del entrenador (privado, autenticado) y vista de reporte público (anónima, de solo lectura) — dos superficies completamente distintas que nunca comparten componente ni endpoint (10)</td></tr>
+<tr><td><strong>Aplicación</strong></td><td>Casos de uso: CrearCliente, RegistrarMedición, GenerarReporte, CrearEnlacePúblico, etc. (02, 13) — orquestan el dominio, no contienen reglas de negocio propias</td></tr>
+<tr><td><strong>Dominio</strong></td><td>Entidades, agregados, value objects, invariantes (02) — el núcleo que no sabe nada de HTTP, base de datos ni UI</td></tr>
+<tr><td><strong>Infraestructura</strong></td><td>Repositorios concretos, almacenamiento de fotografías, generación de tokens públicos (13, 15)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="bounded-context">Bounded context</h2>
+<p>El BCS es su propio bounded context, separado del bounded context del Core Product (perfil, Motor BPS, Progression Engine). Comparte, como mucho, la noción de "Entrenador" como identidad autenticada — pero el BCS no importa ni depende de ningún modelo de dominio de esos otros sistemas. Un <strong>Cliente</strong> del BCS es una entidad propia de este contexto: no es lo mismo que un <code>profile</code> de usuario del Core Product, aunque en el futuro puedan vincularse (14, 17).</p>
+
+<h2 id="diagrama">Diagrama de arquitectura</h2>
+<div class="diagram">
+<div class="diagram-label">Capas y flujo de dependencia — siempre hacia adentro</div>
+<pre class="mermaid">
+graph TD
+  subgraph PRES["Presentación"]
+    PANEL["Panel del entrenador"]
+    PUB["Vista de reporte público"]
+  end
+  subgraph APP["Aplicación — casos de uso"]
+    UC["CrearCliente · RegistrarMedición · GenerarReporte · CrearEnlacePúblico · ..."]
+  end
+  subgraph DOM["Dominio"]
+    ENT["Cliente · Medición · Reporte · EnlacePúblico"]
+  end
+  subgraph INFRA["Infraestructura"]
+    REPO["Repositorios"]
+    STORE["Almacenamiento de fotografías"]
+    TOKEN["Generador de tokens públicos"]
+  end
+  PANEL --> UC
+  PUB --> UC
+  UC --> ENT
+  UC --> REPO
+  REPO --> ENT
+  UC --> STORE
+  UC --> TOKEN
+</pre>
+</div>
+
+<h2 id="flujo">Flujo end-to-end de un ciclo real</h2>
+<div class="diagram">
+<div class="diagram-label">Del alta del cliente al reporte visto por el cliente</div>
+<pre class="mermaid">
+sequenceDiagram
+  participant E as Entrenador
+  participant S as BCS (panel)
+  participant D as Dominio
+  participant C as Cliente
+  E->>S: crea cliente
+  S->>D: Cliente nuevo (activo)
+  E->>S: registra medición (fecha, valores)
+  S->>D: valida + persiste Medición
+  E->>S: genera enlace público
+  S->>D: crea EnlacePúblico (token aleatorio)
+  S-->>E: URL de solo lectura
+  E-->>C: comparte el enlace manualmente
+  C->>S: abre el enlace (sin login)
+  S->>D: resuelve token → Cliente
+  D-->>S: historial + reporte generado
+  S-->>C: reporte de solo lectura
+</pre>
+</div>
+
+<h2 id="dependencias">Dependencias</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Depende de</th><th>Para qué</th></tr></thead>
+<tbody>
+<tr><td>Identidad del entrenador (autenticación ya existente en BREY)</td><td>El BCS reutiliza el mecanismo de login del Core Product para el panel — no implementa su propio sistema de cuentas (08)</td></tr>
+<tr><td>Almacenamiento de archivos</td><td>Fotografías opcionales por medición (03, 11)</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Quién depende del BCS:</strong> nadie, en v1 — es una hoja del árbol de dependencias de BREY, no un servicio consumido por otros sistemas.</p>
+
+<h2 id="invariantes">Invariantes de arquitectura</h2>
+<ul>
+  <li><strong>IN-A1:</strong> el panel del entrenador y la vista pública nunca comparten el mismo endpoint ni el mismo componente de presentación — están separados por diseño (10).</li>
+  <li><strong>IN-A2:</strong> el dominio nunca conoce el token del enlace público — la resolución token→cliente ocurre en la capa de aplicación (13).</li>
+  <li><strong>IN-A3:</strong> ninguna capa superior (presentación, aplicación) contiene reglas de validación de variables de composición corporal — esas reglas viven exclusivamente en el dominio (02, 03).</li>
+  <li><strong>IN-A4:</strong> toda escritura (crear/editar/eliminar cliente, registrar/corregir medición, generar/revocar enlace) queda auditada — detalle completo en 08.</li>
+</ul>
+
+<h2 id="observabilidad-resumen">Observabilidad, auditoría y eventos — resumen</h2>
+<div class="callout callout--nota">
+  <div class="callout__label">Nota de alcance</div>
+  <p>El listado de secciones que este handbook debía cubrir pedía documentar "auditoría, observabilidad, eventos" dentro de la arquitectura, pero la tabla de contenidos de 18 módulos que el propio encargo especificó no incluye un módulo dedicado de Observabilidad. Se resuelve así: la auditoría (quién hizo qué y cuándo) se documenta en 08 (Seguridad), junto a permisos y RLS, por ser inseparable de esos controles de acceso. Los eventos de dominio (qué emite cada caso de uso) se documentan en 13 (API Interna), junto a los contratos de los propios casos de uso. Ningún contenido se omite — se ubica donde es más consultable.</p>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../00-introduccion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 00 · Introducción</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../02-modelo-dominio/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">02 · Modelo del Dominio →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

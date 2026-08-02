@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>07 · Pipeline interno — Motor BPS Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="pipeline" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 07 · Comportamiento</p>
+<h1>Pipeline interno</h1>
+<p class="lede">El recorrido completo, paso a paso, desde que entra un usuario nuevo hasta que su siguiente semana de entrenamiento existe — cada decisión, cada validación, cada fallo posible. Dos tramos: onboarding (una vez) y ciclo semanal (recurrente).</p>
+
+<h2 id="onboarding">Tramo 1 — Onboarding: del registro a la primera semana</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>Paso</th><th>Decisión/validación</th><th>Fallo posible → resultado</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Registro (Auth + Perfil base creado por trigger)</td><td>—</td><td>Fallo de trigger → respaldo defensivo de creación (marco, módulo 10)</td></tr>
+<tr><td>2</td><td>Diagnóstico: 7 preguntas guionadas</td><td>Motor guionado determinista; validación de cada respuesta contra el guion</td><td>Respuesta desconocida → error del guion (bug), no del usuario</td></tr>
+<tr><td>3</td><td>Resultado emitido {sistema, nivelEntrada, razones}</td><td>V-1 del módulo 03</td><td>Sistema no disponible → resultado honesto + alternativa (lo maneja el Diagnóstico, no este Motor)</td></tr>
+<tr><td>4</td><td>Compra</td><td>Fuera del dominio — el Motor espera el evento</td><td>Abandono → permanece <code>diagnosticado</code>; sin efecto</td></tr>
+<tr><td>5</td><td>Activación (módulo 06)</td><td>Idempotencia por transaccionId; guards T3/T4</td><td>Ver tabla de casos del módulo 06</td></tr>
+<tr><td>6</td><td>Gate de Diagnóstico</td><td>¿nivelEntrada existe y vigente?</td><td>No → <code>pendiente_diagnostico</code> / <code>resultado_expirado</code></td></tr>
+<tr><td>7</td><td>Gate de Perfil deportivo</td><td>días + lugar + zonas declaradas presentes</td><td>Falta alguno → <code>pendiente_perfil</code> + <code>PERFIL_INCOMPLETO</code> con lista exacta (BPS-020)</td></tr>
+<tr><td>8</td><td>Primer ciclo semanal (tramo 2, semana 1 del Mesociclo 1 del Bloque habilitado por el Nivel)</td><td>Ver tramo 2 — con la particularidad: sin historial, Recovery y Progression devuelven "sin señal" y la semana 1 sale tal como la plantilla la define</td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="ciclo">Tramo 2 — Ciclo semanal (el corazón del Motor)</h2>
+<div class="diagram">
+<div class="diagram-label">Ejecutado al cierre de cada Microciclo — orden fijo, sin ramas alternativas (IN-7)</div>
+<pre class="mermaid">
+graph TD
+  S0["0 · Entradas del ciclo:<br/>fecha explícita + versión de catálogo"] --> S1
+  S1{"1 · ¿Estado generativo?<br/>(activo | en_descarga) — BPS-013"} -->|no| FIN0["Termina sin efectos<br/>(evento solo si hubo intento externo)"]
+  S1 -->|sí| S2["2 · Leer Perfil FRESCO (IN-6)"]
+  S2 --> S3{"3 · ¿Gates OK?"}
+  S3 -->|no| T7["T7 → pendiente_perfil<br/>+ PERFIL_INCOMPLETO"]
+  S3 -->|sí| S4{"4 · ¿Inactividad ≥21 días?<br/>(BPS-025)"}
+  S4 -->|sí| T11["T11 → en_pausa<br/>motivo: inactividad"]
+  S4 -->|no| S5["5 · Leer ventana de historial<br/>(vía repositorio — lectura, no interpretación)"]
+  S5 --> S6["6 · Recovery Engine → veredicto"]
+  S6 --> S7{"7 · ¿Exige descarga?"}
+  S7 -->|sí| S8["8 · T8 → en_descarga<br/>Progression NO se consulta (IN-7)"]
+  S7 -->|no| S9["9 · Progression Engine → decisión"]
+  S9 --> S10["10 · Aplicar transición<br/>(avanza/sostiene/retrocede + evento)"]
+  S8 --> S11
+  S10 --> S11{"11 · ¿Fin del último Bloque?"}
+  S11 -->|sí| T14["T14 → sistema_completado"]
+  S11 -->|no| S12{"12 · ¿Semana ya generada?<br/>(idempotencia)"}
+  S12 -->|sí| FIN1["Devolver la existente<br/>(SEMANA_YA_GENERADA)"]
+  S12 -->|no| S13["13 · Invocar Generator<br/>(microciclo, perfil, prescripción, veredicto, versión)"]
+  S13 -->|ok| S14["14 · Evento semana_generada<br/>(BPS-023) → FIN"]
+  S13 -->|CATALOGO_INSUFICIENTE| ERR["Propagar con detalle<br/>→ cola editorial"]
+</pre>
+</div>
+
+<h2 id="pasos-detalle">Detalle normativo de los pasos críticos</h2>
+<ul>
+  <li><strong>Paso 0:</strong> fecha y versión son parámetros del ciclo (BPS-022/023). Un ciclo sin ellos es ininvocable — no hay defaults.</li>
+  <li><strong>Paso 1:</strong> los estados no generativos terminan el ciclo inmediatamente. No es error: es el comportamiento definido. <code>en_pausa</code> tiene una excepción parcial: el paso de detección de reanudación es externo (el usuario reanuda, no el ciclo).</li>
+  <li><strong>Paso 4 antes que 5-6:</strong> la auto-pausa se evalúa ANTES de consultar a los motores — con 21 días sin logs, la ventana de Recovery/Progression estaría vacía y sus veredictos serían ruido. Orden deliberado.</li>
+  <li><strong>Paso 5:</strong> el Motor lee la ventana como datos crudos y la PASA — no la interpreta (BPS-019). La lectura vive en el Motor solo porque los motores son funciones puras sin I/O (convención del marco, módulo 11).</li>
+  <li><strong>Paso 8:</strong> cuando Recovery exige descarga, la decisión de Progression de ese ciclo NO existe (no se calcula y se ignora: no se calcula en absoluto) — la ausencia del evento de progresión esa semana es en sí misma información auditable.</li>
+  <li><strong>Paso 12→13:</strong> la ventana entre el check de idempotencia y la inserción se cierra con unicidad a nivel de datos (usuario + microciclo únicos) — dos ciclos concurrentes no pueden duplicar la semana; el segundo recibe <code>SEMANA_YA_GENERADA</code> de la propia base.</li>
+</ul>
+
+<h2 id="fallos">Mapa de fallos del pipeline</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Fallo</th><th>Paso</th><th>Recuperación</th></tr></thead>
+<tbody>
+<tr><td>Perfil ilegible (fallo de datos)</td><td>2</td><td>Reintento del ciclo; si persiste, alerta de ingeniería — NUNCA generar con Perfil viejo cacheado (IN-6)</td></tr>
+<tr><td>Recovery/Progression lanzan error interno</td><td>6/9</td><td>Ciclo aborta sin transición (estado íntegro); evento <code>anomalia</code>; reintento en la próxima invocación</td></tr>
+<tr><td>Generator falla a mitad del batch semanal</td><td>13</td><td>El batch es transaccional (todo o nada — marco, insertWorkouts): sin semanas parciales; reintento seguro por idempotencia</td></tr>
+<tr><td>Doble ejecución del ciclo (scheduler duplicado)</td><td>todo</td><td>Idempotencia extremo a extremo: transiciones con guard sobre estado actual + unicidad de semana → la segunda ejecución es un no-op auditable</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../06-regla-activacion/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 06 · Regla de Activación</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../08-conflictos/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">08 · Resolución de conflictos →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>

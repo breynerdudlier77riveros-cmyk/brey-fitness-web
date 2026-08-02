@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>13 · Coverage — BREY Testing Handbook</title>
+<link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body data-page="coverage" data-depth="../../">
+<div id="topbar-mount"></div>
+<div class="shell">
+<div id="sidebar-mount"></div>
+<main class="content-wrap">
+<article class="content" id="content">
+<div id="breadcrumbs-mount"></div>
+
+<p class="eyebrow">Módulo 13 · Gobernanza</p>
+<h1>Coverage</h1>
+<p class="lede">Sin objetivo numérico de cobertura de código — no existe código que cubrir todavía. La cobertura real y medible hoy es de <em>especificación</em>: qué fracción de cada catálogo de reglas ya tiene un caso de prueba trazado en este documento.</p>
+
+<div class="callout callout--nota">
+  <div class="callout__label">Por qué no hay un porcentaje de cobertura de código</div>
+  <p>Engineering Handbook (10) ya lo especifica: "un 100% en <code>lib/utils.ts</code> vale menos que un 60% bien dirigido a los motores de decisión". Este documento no fija un número global — lo que sí puede medirse, hoy, es la <strong>cobertura de especificación</strong>: cuántas de las reglas/transiciones/endpoints ya documentados en el ecosistema tienen, en este documento, al menos un caso de prueba trazado.</p>
+</div>
+
+<h2 id="cobertura-especificacion">Cobertura de especificación — por catálogo fuente</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Catálogo fuente</th><th>Total documentado</th><th>Con caso trazado en este handbook</th><th>Módulo</th></tr></thead>
+<tbody>
+<tr><td>Reglas de Progression Engine (PE-001–039)</td><td>39</td><td>39 — por categoría (5/5 categorías, cada una con patrón de test); PE-012/016/018 con tratamiento individual por su nota de la Architecture Review</td><td>06</td></tr>
+<tr><td>Transiciones de Motor BPS (T1–T15)</td><td>15</td><td>15/15 — individual, con caso válido e inválido cada una</td><td>07</td></tr>
+<tr><td>Casos de uso del BCS (UC-01–09)</td><td>9</td><td>9/9 — individual</td><td>06</td></tr>
+<tr><td>Máquinas de estado del BCS</td><td>3 (Cliente, Medición, EnlacePúblico)</td><td>3/3 — individual, transición por transición</td><td>07</td></tr>
+<tr><td>Endpoints del catálogo de API</td><td>45</td><td>45/45 — individual</td><td>10</td></tr>
+<tr><td>Constraints de base de datos</td><td>41</td><td>9/9 tablas con al menos un caso de violación — no las 41 individualmente listadas (serían transcripción directa de 07 del Database Handbook, no especificación de testing nueva)</td><td>09</td></tr>
+<tr><td>Tipos de evento de <code>progression_events</code></td><td>25 (consolidados) / 14 (reales hoy)</td><td>6/6 productores cubiertos por categoría; 11 de los 25 marcados <span class="level level--bloqueado">bloqueado</span> por el gap de CHECK (08)</td><td>08</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="que-significa-100">Qué significa "100%" en este documento</h2>
+<p>No significa "código ejecutado" — significa que ningún caso límite, transición o endpoint ya documentado por un handbook de origen carece de un caso de prueba especificado en algún lugar de 04-12. Un catálogo con casos marcados <span class="level level--bloqueado">bloqueado</span> (08) sigue contando como "cubierto" en este sentido — el caso está especificado, aunque no pueda ejecutarse todavía por una brecha ajena a este documento.</p>
+
+<h2 id="matriz-regla-test-consolidada">Regla → Test como matriz de cobertura permanente</h2>
+<p>La forma correcta de mantener esta cobertura al día no es recalcular un porcentaje periódicamente — es que <strong>ninguna regla nueva se acepte en un handbook de dominio sin su fila correspondiente en el módulo de testing que le corresponde</strong> (04-12). Esa disciplina, no un número, es lo que evita que la cobertura de especificación se degrade con el tiempo (14, TEST-ADR-01).</p>
+
+<div class="pagenav">
+  <a class="pagenav__item" href="../12-regression-testing/index.html">
+    <div class="pagenav__dir">Anterior</div>
+    <div class="pagenav__title">← 12 · Regression Testing</div>
+  </a>
+  <a class="pagenav__item pagenav__item--next" href="../14-testing-adr/index.html">
+    <div class="pagenav__dir">Siguiente</div>
+    <div class="pagenav__title">14 · Testing ADR →</div>
+  </a>
+</div>
+
+</article>
+<aside class="toc" id="toc-mount"></aside>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="../../assets/js/nav-data.js"></script>
+<script src="../../assets/js/search-index.js"></script>
+<script src="../../assets/js/layout.js"></script>
+</body>
+</html>
