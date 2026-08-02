@@ -1,0 +1,190 @@
+# ── Registro de referencias verificadas · CKB v1.0 ──────────────────────────
+#
+# SSoT de la base. Ninguna ficha escribe una cita a mano: todas apuntan aquí
+# por clave.
+#
+# POLÍTICA: cada entrada fue localizada y comprobada antes de registrarse. Los
+# campos que no se pudieron confirmar se OMITEN, nunca se completan por
+# plausibilidad. Por eso varias entradas carecen de `autores`: la publicación
+# se verificó por título, revista, año y localizador, pero la autoría no, y
+# escribir un apellido probable sería exactamente lo que esta base prohíbe.
+#
+# `verificado_el` es la fecha de comprobación de la referencia, no la de
+# publicación.
+
+espen_bia_1:
+  titulo: "Bioelectrical impedance analysis—part I: review of principles and methods"
+  autor_corporativo: "ESPEN Working Group / Composition of the ESPEN Working Group"
+  publicacion: "Clinical Nutrition"
+  anio: 2004
+  tipo: guia_sociedad_cientifica
+  organizacion: ESPEN
+  url: "https://espen.org/documents/BIA1.pdf"
+  verificado_el: 2026-08-01
+  nota: "Guía oficial ESPEN. Fundamentos y métodos de la BIA."
+
+espen_bia_2:
+  titulo: "Bioelectrical impedance analysis—part II: utilization in clinical practice"
+  autor_corporativo: "ESPEN Working Group"
+  publicacion: "Clinical Nutrition"
+  anio: 2004
+  volumen: 23
+  paginas: "1430-1453"
+  tipo: guia_sociedad_cientifica
+  organizacion: ESPEN
+  url: "https://espen.org/documents/BIA2.pdf"
+  pubmed: "15556267"
+  verificado_el: 2026-08-01
+  nota: >-
+    Fuente central de esta base para BIA. Establece las condiciones de validez
+    (IMC 16-34, balance hidroelectrolítico estable, ecuación validada por edad,
+    sexo y raza) y desaconseja el uso rutinario en extremos de IMC o hidratación
+    anormal.
+
+ewgsop2_sarcopenia:
+  titulo: "Sarcopenia: revised European consensus on definition and diagnosis"
+  autores: "Cruz-Jentoft AJ, et al."
+  publicacion: "Age and Ageing"
+  anio: 2019
+  volumen: 48
+  numero: 1
+  paginas: "16-31"
+  doi: "10.1093/ageing/afy169"
+  pubmed: "31081853"
+  tipo: consensus_statement
+  organizacion: EWGSOP2
+  verificado_el: 2026-08-01
+  nota: >-
+    Consenso europeo. Sitúa la fuerza muscular baja como característica
+    principal y la cantidad/calidad muscular como confirmación diagnóstica.
+
+who_waist_2008:
+  titulo: "Waist circumference and waist–hip ratio: report of a WHO expert consultation"
+  autor_corporativo: "World Health Organization"
+  anio: 2011
+  fecha_consulta_experta: "2008-12-08/2008-12-11"
+  lugar: "Ginebra"
+  tipo: consensus_statement
+  organizacion: WHO
+  url: "https://who.int/publications/i/item/9789241501491"
+  verificado_el: 2026-08-01
+  nota: >-
+    Fuente de los puntos de corte de perímetro de cintura y WHR. El propio
+    informe distingue usos clínicos de usos de cribado poblacional.
+
+barakat_recomposicion_2020:
+  titulo: "Body Recomposition: Can Trained Individuals Build Muscle and Lose Fat at the Same Time?"
+  autores: "Barakat C, Pearson J, et al."
+  publicacion: "Strength and Conditioning Journal"
+  anio: 2020
+  volumen: 42
+  numero: 5
+  paginas: "7-21"
+  tipo: revision_narrativa
+  verificado_el: 2026-08-01
+  nota: >-
+    Revisión sobre recomposición corporal. Documenta el fenómeno de forma más
+    robusta en no entrenados y en personas con mayor porcentaje graso inicial.
+
+proximidad_fallo_hipertrofia_2023:
+  titulo: >-
+    Influence of Resistance Training Proximity-to-Failure on Skeletal Muscle
+    Hypertrophy: A Systematic Review with Meta-analysis
+  publicacion: "Sports Medicine"
+  anio: 2023
+  doi: "10.1007/s40279-022-01784-y"
+  pmc: "PMC9935748"
+  tipo: revision_sistematica_metaanalisis
+  verificado_el: 2026-08-01
+  nota: "Autoría no confirmada en la verificación; se cita por título y DOI."
+
+rmr_atletas_2023:
+  titulo: >-
+    Accuracy of Resting Metabolic Rate Prediction Equations in Athletes:
+    A Systematic Review with Meta-analysis
+  publicacion: "Sports Medicine"
+  anio: 2023
+  doi: "10.1007/s40279-023-01896-z"
+  pmc: "PMC10687135"
+  tipo: revision_sistematica_metaanalisis
+  verificado_el: 2026-08-01
+  nota: >-
+    Documenta que la exactitud de las ecuaciones predictivas de metabolismo
+    basal varía marcadamente según la población.
+
+angulo_fase_criticos_metaanalisis:
+  titulo: >-
+    Prognostic role of bioelectrical impedance phase angle for critically ill
+    patients: a systematic review and meta-analysis
+  tipo: revision_sistematica_metaanalisis
+  pmc: "PMC9868673"
+  verificado_el: 2026-08-01
+  nota: >-
+    Población de pacientes críticos. NO extrapolable a personas sanas
+    entrenadas; ver módulo 12.
+
+ecw_tbw_hemodialisis_2023:
+  titulo: >-
+    Association of extracellular water/total body water ratio with
+    protein-energy wasting and mortality in patients on hemodialysis
+  publicacion: "Scientific Reports"
+  anio: 2023
+  doi: "10.1038/s41598-023-41131-3"
+  tipo: estudio_observacional
+  verificado_el: 2026-08-01
+  nota: >-
+    Población en hemodiálisis. Se registra por ser una de las fuentes más
+    citadas del cociente ECW/TBW, con la advertencia de población incorporada.
+
+bia_dxa_longitudinal_ninos_2024:
+  titulo: >-
+    Compared to dual-energy X-ray absorptiometry, bioelectrical impedance
+    effectively monitors longitudinal changes in body composition in children
+    and adolescents with obesity during a lifestyle intervention
+  publicacion: "Nutrition Research"
+  anio: 2024
+  url: "https://www.sciencedirect.com/science/article/pii/S0271531724001489"
+  tipo: estudio_observacional
+  verificado_el: 2026-08-01
+  nota: >-
+    Población pediátrica con obesidad. Respalda el seguimiento longitudinal,
+    no la exactitud transversal.
+
+bia_dxa_ukbiobank:
+  titulo: >-
+    Comparison of body composition measures assessed by bioelectrical impedance
+    analysis versus dual-energy X-ray absorptiometry in UK Biobank
+  publicacion: "medRxiv (preprint)"
+  anio: 2023
+  url: "https://www.medrxiv.org/content/10.1101/2023.11.01.23297916v1.full"
+  tipo: preprint
+  verificado_el: 2026-08-01
+  nota: >-
+    PREPRINT sin revisión por pares en el momento de la verificación. Se
+    registra con esa etiqueta y su nivel de evidencia se degrada en consecuencia.
+
+edad_metabolica_caidas_2025:
+  titulo: >-
+    Bioimpedance-Estimated Metabolic Age in a Falls Clinic: Associations with
+    Multimorbidity and Physical Frailty
+  anio: 2025
+  pubmed: "40487147"
+  tipo: estudio_observacional
+  verificado_el: 2026-08-01
+  nota: >-
+    Concluye que la edad metabólica estimada por bioimpedancia refleja
+    principalmente la edad cronológica y las propias estimaciones de composición
+    del dispositivo. Sostiene el vacío documentado en el módulo 12.
+
+isak_estandares:
+  titulo: "International Standards for Anthropometric Assessment"
+  autor_corporativo: "International Society for the Advancement of Kinanthropometry (ISAK)"
+  tipo: estandar_sociedad_cientifica
+  organizacion: ISAK
+  url: "https://www.isak.global/"
+  verificado_el: 2026-08-01
+  nota: >-
+    Estándar internacional de medición antropométrica y esquema de acreditación
+    en cuatro niveles, con error técnico de medida (TEM) como control de calidad.
+    Documento normativo de pago; verificada la existencia del estándar y del
+    esquema, no consultado el texto íntegro.
