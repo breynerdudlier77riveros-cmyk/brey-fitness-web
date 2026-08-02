@@ -248,3 +248,60 @@ export async function revocarEnlace(
   if (error || !data) return null;
   return mapEnlacePublico(data);
 }
+
+// ── Lecturas agregadas para el Dashboard (Sprint BCS-5.0) ──────────────────
+// Añadidas, no modificadas: ninguna función anterior cambia de firma ni de
+// comportamiento. Son de SOLO LECTURA y existen porque el panel del entrenador
+// necesita el consultorio completo, no un agregado por cliente.
+//
+// Sin ellas, el dashboard tendría que llamar a listarMedicionesVigentesPorCliente
+// una vez por cliente —el N+1 que la página de Composición Corporal ya acepta
+// como coste puntual— y además no podría contar mediciones anuladas ni enlaces
+// revocados, porque esas funciones filtran por estado a propósito.
+//
+// El filtro va por `bcs_clientes!inner(entrenador_id)`: la RLS ya acota estas
+// tablas a los clientes del entrenador autenticado, pero declararlo explícito
+// deja la intención en el código y no solo en la política.
+
+/**
+ * TODAS las mediciones de los clientes de un Entrenador, incluidas las
+ * `anuladas` — a diferencia de listarMedicionesVigentesPorCliente, que filtra a
+ * vigentes por contrato. El Dashboard necesita las anuladas para poder
+ * contarlas como actividad administrativa.
+ */
+export async function listarMedicionesPorEntrenador(
+  supabase: SupabaseClient,
+  entrenadorId: string,
+  opts?: { limit?: number }
+): Promise<Medicion[]> {
+  const { data, error } = await supabase
+    .from('bcs_mediciones')
+    .select('*, bcs_clientes!inner(entrenador_id)')
+    .eq('bcs_clientes.entrenador_id', entrenadorId)
+    .order('fecha', { ascending: false })
+    .limit(opts?.limit ?? 1000);
+
+  registrarFallo('listarMedicionesPorEntrenador', error);
+  return (data ?? []).map(mapMedicion);
+}
+
+/**
+ * TODOS los EnlacePúblico de los clientes de un Entrenador, incluidos los
+ * `revocados` — a diferencia de obtenerEnlaceActivoPorCliente, que devuelve
+ * como mucho el activo de un solo cliente.
+ */
+export async function listarEnlacesPorEntrenador(
+  supabase: SupabaseClient,
+  entrenadorId: string,
+  opts?: { limit?: number }
+): Promise<EnlacePublico[]> {
+  const { data, error } = await supabase
+    .from('bcs_enlaces_publicos')
+    .select('*, bcs_clientes!inner(entrenador_id)')
+    .eq('bcs_clientes.entrenador_id', entrenadorId)
+    .order('created_at', { ascending: false })
+    .limit(opts?.limit ?? 1000);
+
+  registrarFallo('listarEnlacesPorEntrenador', error);
+  return (data ?? []).map(mapEnlacePublico);
+}

@@ -375,3 +375,73 @@ body {
 .print-solo {
   display: none;
 }
+
+/* ── Impresión de la Analítica del consultorio (Sprint BCS-5.0) ─────────────
+   Reutiliza el tema de papel del reporte clínico. Se declara aparte porque su
+   contenido es distinto —recuentos y gráficos, no observaciones— y porque un
+   cambio en el reporte no debe alterar en silencio la impresión del panel. ── */
+@media print {
+  .dashboard-print,
+  .dashboard-print * {
+    color: #0f172a !important;
+    background-image: none !important;
+    box-shadow: none !important;
+  }
+
+  .dashboard-print [class*="bg-white"],
+  .dashboard-print [class*="bg-slate"] {
+    background-color: transparent !important;
+  }
+
+  .dashboard-print [class*="text-white/4"],
+  .dashboard-print [class*="text-white/3"] {
+    color: #475569 !important;
+  }
+
+  .dashboard-print [class*="border-white"] {
+    border-color: #cbd5e1 !important;
+  }
+
+  .dashboard-print [class*="rounded-2xl"],
+  .dashboard-print [class*="rounded-xl"] {
+    border-radius: 4px !important;
+  }
+
+  /* Los gráficos son SVG con fill/stroke: sin esto el navegador los omite y
+     las barras salen vacías. Los recuentos perderían su representación. */
+  .dashboard-print svg,
+  .dashboard-print svg * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Ni una tarjeta, gráfico o fila partida entre páginas. */
+  .dashboard-print section,
+  .dashboard-print article,
+  .dashboard-print figure,
+  .dashboard-print svg,
+  .dashboard-print li,
+  .dashboard-print tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .dashboard-print h1,
+  .dashboard-print h2,
+  .dashboard-print h3 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  /* Controles fuera del papel: filtros, exportación y botones de acción. */
+  .dashboard-print button,
+  .dashboard-print input,
+  .dashboard-print select {
+    display: none !important;
+  }
+
+  .dashboard-print [class*="overflow-x-auto"],
+  .dashboard-print [class*="overflow-auto"] {
+    overflow: visible !important;
+  }
+}

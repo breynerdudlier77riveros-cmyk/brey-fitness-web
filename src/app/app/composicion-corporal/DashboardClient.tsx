@@ -42,7 +42,14 @@ export default function DashboardClient({ totalActivos, medicionesEstaSemana, re
       <PageHeader
         title="Composición Corporal"
         description="Mediciones, evolución y reportes de tus clientes."
-        actions={<Button onClick={() => setDialogoAbierto(true)}>Nuevo Cliente</Button>}
+        actions={
+          <div className="flex items-center gap-2">
+            <Button href="/app/composicion-corporal/analitica" variant="outline" size="md">
+              Analítica
+            </Button>
+            <Button onClick={() => setDialogoAbierto(true)}>Nuevo Cliente</Button>
+          </div>
+        }
       />
 
       {/* Zona 1 · Resumen — nunca oculto */}
