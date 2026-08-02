@@ -19,6 +19,7 @@ import type { Cliente, Medicion, EnlacePublico } from "@/lib/bcs/tipos";
 import type { Reporte } from "@/lib/bcs/reporte";
 import type { BodyCompositionAnalysis } from "@/lib/bcs/analysis";
 import type { RecommendationReport } from "@/lib/bcs/recommendations";
+import type { ClinicalObservationReport } from "@/lib/bcs/observation";
 
 type Dialogo = "ninguno" | "medicion" | "editar-cliente" | "compartir" | "confirmar-archivar" | "confirmar-eliminar";
 
@@ -29,6 +30,8 @@ interface Props {
   analisis: BodyCompositionAnalysis | null;
   /** Computadas en el Server Component junto al análisis. */
   recomendaciones: RecommendationReport | null;
+  /** Redactadas por el COG en el Server Component. */
+  observaciones: ClinicalObservationReport | null;
   enlaceActivo: EnlacePublico | null;
   /** Fecha de emisión (yyyy-mm-dd) para la portada y el pie del reporte impreso. */
   generadoEl: string;
@@ -41,6 +44,7 @@ export default function ClienteDetailClient({
   reporte,
   analisis,
   recomendaciones,
+  observaciones,
   enlaceActivo: enlaceInicial,
   generadoEl,
   entrenador,
@@ -177,11 +181,12 @@ export default function ClienteDetailClient({
         }
       />
 
-      {reporte && analisis && recomendaciones ? (
+      {reporte && analisis && recomendaciones && observaciones ? (
         <ReportView
           reporte={reporte}
           analisis={analisis}
           recomendaciones={recomendaciones}
+          observaciones={observaciones}
           generadoEl={generadoEl}
           entrenador={entrenador}
           onCorregirMedicion={abrirCorregir}

@@ -1,9 +1,11 @@
 import SectionCard from "@/features/composicion-corporal/components/SectionCard";
 import ProfessionalInterpretation from "./ProfessionalInterpretation";
+import ObservationSection from "./ObservationSection";
 import RecommendationSection from "./RecommendationSection";
 import { FindingsBlock, InsightsBlock } from "./AnalysisBlocks";
 import type { BodyCompositionAnalysis } from "@/lib/bcs/analysis";
 import type { RecommendationReport } from "@/lib/bcs/recommendations";
+import type { ClinicalObservationReport } from "@/lib/bcs/observation";
 
 // ── Bloque interpretativo del informe (Sprint BCS-4.0) ─────────────────────
 // Las cuatro secciones que traducen el análisis a lectura profesional, en el
@@ -16,11 +18,16 @@ import type { RecommendationReport } from "@/lib/bcs/recommendations";
 interface Props {
   analisis: BodyCompositionAnalysis;
   recomendaciones: RecommendationReport;
+  observaciones: ClinicalObservationReport;
 }
 
-export default function ReportInterpretation({ analisis, recomendaciones }: Props) {
+export default function ReportInterpretation({ analisis, recomendaciones, observaciones }: Props) {
   return (
     <>
+      <SectionCard titulo="Observaciones clínicas">
+        <ObservationSection informe={observaciones} />
+      </SectionCard>
+
       <SectionCard titulo="Interpretación profesional">
         <ProfessionalInterpretation analisis={analisis} />
       </SectionCard>

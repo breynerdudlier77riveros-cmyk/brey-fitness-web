@@ -7,6 +7,7 @@ import { getProfile } from "@/lib/profile/repository";
 import { construirReporte } from "@/lib/bcs/reporte";
 import { analizarComposicionCorporal } from "@/lib/bcs/analysis";
 import { generarRecomendaciones } from "@/lib/bcs/recommendations";
+import { generarObservaciones } from "@/lib/bcs/observation";
 import { fechaISOLocal } from "@/lib/utils";
 import ClienteDetailClient from "./ClienteDetailClient";
 
@@ -46,6 +47,8 @@ export default async function ClienteDetailPage({ params }: Props) {
   const hoyISO = fechaISOLocal();
   const analisis = reporte ? analizarComposicionCorporal(historico, { hoyISO }) : null;
   const recomendaciones = analisis ? generarRecomendaciones(analisis) : null;
+  const observaciones =
+    analisis && recomendaciones ? generarObservaciones({ analisis, recomendaciones }) : null;
 
   // Nombre del profesional para la portada del reporte impreso. Es identidad
   // del propio entrenador (su fila de `profiles`), no un dato de Core
@@ -59,6 +62,7 @@ export default async function ClienteDetailPage({ params }: Props) {
       reporte={reporte}
       analisis={analisis}
       recomendaciones={recomendaciones}
+      observaciones={observaciones}
       enlaceActivo={enlaceActivo}
       generadoEl={hoyISO}
       entrenador={entrenador}

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { obtenerReportePublico } from "@/lib/bcs/actions-publico";
 import { analizarComposicionCorporal } from "@/lib/bcs/analysis";
 import { generarRecomendaciones } from "@/lib/bcs/recommendations";
+import { generarObservaciones } from "@/lib/bcs/observation";
 import ReportView from "@/features/composicion-corporal/components/ReportView";
 import { EstadoSinPermiso } from "@/features/composicion-corporal/components/EstadosVacios";
 import { fechaISOLocal } from "@/lib/utils";
@@ -60,6 +61,7 @@ export default async function ReportePublicoPage({ params }: Props) {
   const hoyISO = fechaISOLocal(hoy);
   const analisis = analizarComposicionCorporal(reporte.historico, { hoyISO });
   const recomendaciones = generarRecomendaciones(analisis);
+  const observaciones = generarObservaciones({ analisis, recomendaciones });
   const generadoEl = hoy.toLocaleDateString("es", { day: "2-digit", month: "long", year: "numeric" });
 
   return (
@@ -79,6 +81,7 @@ export default async function ReportePublicoPage({ params }: Props) {
           reporte={reporte}
           analisis={analisis}
           recomendaciones={recomendaciones}
+          observaciones={observaciones}
           generadoEl={hoyISO}
         />
 

@@ -18,6 +18,7 @@ import { AlertsBlock } from "@/features/composicion-corporal/components/report/A
 import type { Reporte } from "@/lib/bcs/reporte";
 import type { BodyCompositionAnalysis } from "@/lib/bcs/analysis";
 import type { RecommendationReport } from "@/lib/bcs/recommendations";
+import type { ClinicalObservationReport } from "@/lib/bcs/observation";
 import type { Medicion } from "@/lib/bcs/tipos";
 
 // ── Vista del Reporte — ÚNICA implementación (BCS-ADR-05) ──────────────────
@@ -44,6 +45,11 @@ interface Props {
    */
   recomendaciones: RecommendationReport;
   /**
+   * Observaciones clínicas redactadas por el COG a partir de los dos DTO
+   * anteriores. Llegan resueltas: este componente no redacta ninguna frase.
+   */
+  observaciones: ClinicalObservationReport;
+  /**
    * Fecha de emisión (yyyy-mm-dd). Llega desde la página: este componente no
    * lee el reloj, para que portada y pie no puedan discrepar entre sí.
    */
@@ -62,6 +68,7 @@ export default function ReportView({
   reporte,
   analisis,
   recomendaciones,
+  observaciones,
   generadoEl,
   entrenador,
   onCorregirMedicion,
@@ -118,7 +125,11 @@ export default function ReportView({
         <TrendOverview tendencias={analisis.tendencias} />
       </SectionCard>
 
-      <ReportInterpretation analisis={analisis} recomendaciones={recomendaciones} />
+      <ReportInterpretation
+        analisis={analisis}
+        recomendaciones={recomendaciones}
+        observaciones={observaciones}
+      />
 
       <SectionCard titulo="Historial de mediciones">
         <MeasurementTimeline historico={historico} onCorregir={onCorregirMedicion} />
