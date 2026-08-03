@@ -15,6 +15,7 @@ import {
   ArrowLeft,
   ArrowRight,
   Scale,
+  Target,
 } from "@/components/brand/icons";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/brand/Drawer";
 import { signOut } from "@/lib/supabase/actions";
@@ -43,6 +44,10 @@ const navItems = [
   { href: "/app/progreso", label: "Progreso", icon: TrendingUp },
   { href: "/app/biblioteca", label: "Biblioteca", icon: Book },
   { href: "/app/composicion-corporal", label: "Composición Corporal", icon: Scale },
+  // Módulo independiente (Sprint PAS-7.0). Se añade junto a Composición
+  // Corporal por ser el otro espacio de trabajo profesional; las entradas del
+  // BCS quedan intactas.
+  { href: "/app/rendimiento", label: "Performance Assessment", icon: Target },
   { href: "/app/perfil", label: "Perfil", icon: UserIcon },
   { href: "/app/configuracion", label: "Configuración", icon: Settings },
 ] as const;

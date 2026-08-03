@@ -1,0 +1,314 @@
+# ── Registro de referencias verificadas · PKB v1.0 ──────────────────────────
+#
+# SSoT de la base. Ninguna ficha escribe una cita a mano: todas apuntan aquí
+# por clave.
+#
+# POLÍTICA (heredada de la CKB): cada entrada fue localizada y comprobada antes
+# de registrarse. Los campos que no se pudieron confirmar se OMITEN, nunca se
+# completan por plausibilidad. Por eso varias entradas carecen de `autores`: la
+# publicación se verificó por título, revista, año y localizador, pero la
+# autoría completa no, y escribir un apellido probable sería exactamente lo que
+# esta base prohíbe.
+#
+# `verificado_el` es la fecha de comprobación de la referencia, no la de
+# publicación.
+
+# ── Fuentes normativas ─────────────────────────────────────────────────────
+
+acsm_guidelines_11:
+  titulo: "ACSM's Guidelines for Exercise Testing and Prescription"
+  autor_corporativo: "American College of Sports Medicine"
+  edicion: "11.ª"
+  anio: 2021
+  editorial: "Wolters Kluwer / Lippincott Williams & Wilkins"
+  isbn: "9781975150181"
+  tipo: guia_sociedad_cientifica
+  organizacion: ACSM
+  url: "https://acsm.org/education-resources/books/guidelines-exercise-testing-prescription/"
+  verificado_el: 2026-08-02
+  nota: >-
+    Referencia normativa de procedimientos de evaluación de la aptitud física
+    (composición corporal, aptitud cardiorrespiratoria, aptitud muscular y
+    flexibilidad). Obra de pago: verificadas edición, año, editorial e ISBN;
+    no consultado el texto íntegro.
+
+isak_estandares:
+  titulo: "International Standards for Anthropometric Assessment"
+  autor_corporativo: "International Society for the Advancement of Kinanthropometry (ISAK)"
+  tipo: estandar_sociedad_cientifica
+  organizacion: ISAK
+  url: "https://www.isak.global/"
+  verificado_el: 2026-08-01
+  nota: >-
+    Estándar internacional de medición antropométrica y esquema de acreditación
+    en cuatro niveles, con error técnico de medida (TEM) como control de
+    calidad. Documento normativo de pago; verificada la existencia del estándar
+    y del esquema, no consultado el texto íntegro. Compartida con la CKB.
+
+# ── Fuerza y producción de tensión ─────────────────────────────────────────
+
+grgic_1rm_2020:
+  titulo: >-
+    Test–Retest Reliability of the One-Repetition Maximum (1RM) Strength
+    Assessment: a Systematic Review
+  autores: "Grgic J, Lazinica B, Schoenfeld BJ, Pedisic Z"
+  publicacion: "Sports Medicine - Open"
+  anio: 2020
+  volumen: 6
+  numero: 1
+  articulo: 31
+  tipo: revision_sistematica
+  doi: "10.1186/s40798-020-00260-z"
+  pubmed: "32681399"
+  url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC7367986/"
+  verificado_el: 2026-08-02
+  nota: >-
+    32 estudios, 1.595 participantes. ICC 0,64-0,99 (mediana 0,97); 92% de los
+    ICC ≥ 0,90. CV 0,5-12,1% (mediana 4,2%). Fiabilidad buena a excelente con
+    independencia de experiencia previa, familiarización, ejercicio, región
+    corporal, sexo y edad.
+
+grgic_imtp_2022:
+  titulo: >-
+    Test-retest reliability of isometric mid-thigh pull maximum strength
+    assessment: a systematic review
+  autores: "Grgic J, Scapec B, Mikulic P, Pedisic Z"
+  publicacion: "Biology of Sport"
+  anio: 2022
+  volumen: 39
+  numero: 2
+  paginas: "407-414"
+  tipo: revision_sistematica
+  doi: "10.5114/biolsport.2022.106149"
+  pubmed: "35309521"
+  url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC8919882/"
+  verificado_el: 2026-08-02
+  nota: >-
+    16 estudios de calidad buena a excelente. ICC 0,73-0,99 (mediana 0,96);
+    78% ≥ 0,90. CV 0,7-11,1% (mediana 4,9%). Fiabilidad buena a excelente en
+    formato bilateral y unilateral.
+
+bohannon_grip_2019:
+  titulo: "Grip Strength: An Indispensable Biomarker For Older Adults"
+  autores: "Bohannon RW"
+  publicacion: "Clinical Interventions in Aging"
+  anio: 2019
+  volumen: 14
+  paginas: "1681-1691"
+  tipo: revision
+  doi: "10.2147/CIA.S194543"
+  pubmed: "31631989"
+  verificado_el: 2026-08-02
+  nota: >-
+    Revisión sobre la dinamometría de agarre como marcador de estado general
+    en adultos mayores. Población: adultos mayores. NO respalda su uso como
+    índice de fuerza de otras regiones corporales.
+
+soysal_hgs_2021:
+  titulo: >-
+    Handgrip strength and health outcomes: Umbrella review of systematic
+    reviews with meta-analyses of observational studies
+  autores: >-
+    Soysal P, Hurst C, Demurtas J, Firth J, Howden R, Yang L, Tully MA,
+    Koyanagi A, Ilie PC, López-Sánchez GF, Schwingshackl L, Veronese N, Smith L
+  publicacion: "Journal of Sport and Health Science"
+  anio: 2021
+  volumen: 10
+  numero: 3
+  paginas: "290-295"
+  tipo: revision_paraguas
+  doi: "10.1016/j.jshs.2020.06.009"
+  pubmed: "32565244"
+  verificado_el: 2026-08-02
+  nota: >-
+    Revisión paraguas. Tres asociaciones alcanzan evidencia Clase II
+    (altamente sugestiva): mortalidad por cualquier causa, mortalidad
+    cardiovascular e incidencia de discapacidad. NINGÚN desenlace alcanza
+    evidencia «convincente». Son asociaciones observacionales, no causalidad.
+
+hgs_normas_internacionales:
+  titulo: >-
+    International norms for adult handgrip strength: A systematic review of
+    data on 2.4 million adults aged 20 to 100+ years from 69 countries and
+    regions
+  tipo: revision_sistematica
+  url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC11863340/"
+  verificado_el: 2026-08-02
+  nota: >-
+    Verificados título y localizador PMC. NO verificados autoría, revista, año
+    ni paginación, y por eso se omiten. Se registra por su utilidad como fuente
+    de valores normativos por país, edad y sexo.
+
+# ── Salto y fuerza reactiva ────────────────────────────────────────────────
+
+rsi_metaanalisis_2021:
+  titulo: >-
+    Reactive Strength Index and its Associations with Measures of Physical and
+    Sports Performance: A Systematic Review with Meta-Analysis
+  publicacion: "Sports Medicine"
+  anio: 2021
+  tipo: revision_sistematica_metaanalisis
+  doi: "10.1007/s40279-021-01566-y"
+  url: "https://link.springer.com/article/10.1007/s40279-021-01566-y"
+  verificado_el: 2026-08-02
+  nota: >-
+    Verificados título, revista, año y DOI. NO verificada la autoría, que se
+    omite. Recomienda informar el RSI junto con sus componentes (altura de
+    salto y tiempo de contacto): el índice aislado no permite saber cuál de los
+    dos cambió.
+
+# ── Movilidad y flexibilidad ───────────────────────────────────────────────
+
+mayorga_sit_reach_2014:
+  titulo: >-
+    Criterion-Related Validity of Sit-and-Reach Tests for Estimating Hamstring
+    and Lumbar Extensibility: a Meta-Analysis
+  autores: "Mayorga-Vega D, Merino-Marban R, Viciana J"
+  publicacion: "Journal of Sports Science and Medicine"
+  anio: 2014
+  volumen: 13
+  numero: 1
+  paginas: "1-14"
+  tipo: metaanalisis
+  verificado_el: 2026-08-02
+  nota: >-
+    Validez de criterio MODERADA para extensibilidad isquiosural
+    (r ≈ 0,46-0,67) y BAJA para extensibilidad lumbar. Es la referencia que
+    sostiene la prohibición de leer el sit-and-reach como medida de movilidad
+    lumbar.
+
+# ── Capacidad metabólica ───────────────────────────────────────────────────
+
+mayorga_20msr_2015:
+  titulo: >-
+    Criterion-Related Validity of the 20-M Shuttle Run Test for Estimating
+    Cardiorespiratory Fitness: A Meta-Analysis
+  publicacion: "Journal of Sports Science and Medicine"
+  anio: 2015
+  volumen: 14
+  numero: 3
+  paginas: "536-547"
+  tipo: metaanalisis
+  pubmed: "26336340"
+  url: "https://www.jssm.org/hfpdf.php?volume=14&issue=3&page=536"
+  verificado_el: 2026-08-02
+  nota: >-
+    Verificados título, revista, volumen, número, paginación y PMID. La autoría
+    no se confirmó de forma directa y se omite. La validez depende del
+    protocolo y de la ecuación de predicción: el resultado es una ESTIMACIÓN
+    de VO2máx, nunca una medición.
+
+# ── Coordinación, agilidad y cambio de dirección ───────────────────────────
+
+sheppard_agility_2006:
+  titulo: "Agility literature review: classifications, training and testing"
+  autores: "Sheppard JM, Young WB"
+  publicacion: "Journal of Sports Sciences"
+  anio: 2006
+  volumen: 24
+  numero: 9
+  paginas: "919-932"
+  tipo: revision
+  doi: "10.1080/02640410500457109"
+  pubmed: "16882626"
+  verificado_el: 2026-08-02
+  nota: >-
+    Fuente de la distinción entre AGILIDAD —movimiento rápido de todo el cuerpo
+    con cambio de velocidad o dirección EN RESPUESTA A UN ESTÍMULO— y VELOCIDAD
+    DE CAMBIO DE DIRECCIÓN, que es preplanificada. Los tests de cambio de
+    dirección al uso no evalúan el componente perceptivo-decisional.
+
+# ── Equilibrio y control postural ──────────────────────────────────────────
+
+plisky_ybt_2021:
+  titulo: >-
+    Systematic Review and Meta-Analysis of the Y-Balance Test Lower Quarter:
+    Reliability, Discriminant Validity, and Predictive Validity
+  autores: "Plisky P, Schwartkopf-Phifer K, Huebner B, Garner MB, Bullock G"
+  publicacion: "International Journal of Sports Physical Therapy"
+  anio: 2021
+  volumen: 16
+  numero: 5
+  paginas: "1190-1209"
+  tipo: revision_sistematica_metaanalisis
+  doi: "10.26603/001c.27634"
+  pubmed: "34631241"
+  verificado_el: 2026-08-02
+  nota: >-
+    Fiabilidad intraevaluador alta (0,85-0,91). Validez predictiva de lesión
+    LIMITADA: solo 3 de 13 estudios hallaron asociación con la asimetría
+    anterior, 3 de 10 con la posteromedial/posterolateral y 1 de 13 con la
+    asimetría del compuesto. Desaconseja los puntos de corte generales.
+
+sebt_ybt_fiabilidad_2019:
+  titulo: >-
+    The reliability of the Star Excursion Balance Test and Lower Quarter
+    Y-Balance Test in healthy adults: a systematic review
+  publicacion: "International Journal of Sports Physical Therapy"
+  anio: 2019
+  tipo: revision_sistematica
+  pubmed: "31598406"
+  verificado_el: 2026-08-02
+  nota: >-
+    Verificados título, revista, año y PMID. Autoría y paginación no
+    confirmadas y por eso omitidas. Fiabilidad de moderada a alta en adultos
+    sanos.
+
+# ── Cribado de movimiento ──────────────────────────────────────────────────
+
+moran_fms_2017:
+  titulo: >-
+    Do Functional Movement Screen (FMS) composite scores predict subsequent
+    injury? A systematic review with meta-analysis
+  autores: "Moran RW, Schneiders AG, Mason J, Sullivan SJ"
+  publicacion: "British Journal of Sports Medicine"
+  anio: 2017
+  volumen: 51
+  numero: 23
+  paginas: "1661-1669"
+  tipo: revision_sistematica_metaanalisis
+  doi: "10.1136/bjsports-2016-096938"
+  pubmed: "28360142"
+  verificado_el: 2026-08-02
+  nota: >-
+    Conclusión literal de los autores: la fuerza de asociación entre la
+    puntuación compuesta del FMS y la lesión posterior NO respalda su uso como
+    herramienta de predicción de lesiones. Es la referencia central de
+    `08-interpretaciones-prohibidas.md`.
+
+moore_fms_2019:
+  titulo: >-
+    Factors Influencing the Relationship Between the Functional Movement Screen
+    and Injury Risk in Sporting Populations: A Systematic Review and
+    Meta-analysis
+  autores: "Moore E, Chalmers S, Milanese S, Fuller JT"
+  publicacion: "Sports Medicine"
+  anio: 2019
+  volumen: 49
+  numero: 9
+  paginas: "1449-1463"
+  tipo: revision_sistematica_metaanalisis
+  doi: "10.1007/s40279-019-01126-5"
+  verificado_el: 2026-08-02
+  nota: >-
+    Examina por qué los resultados sobre FMS y lesión son inconsistentes
+    (edad, sexo, tipo de deporte, definición de lesión, mecanismo). Registrada
+    como fuente de la HETEROGENEIDAD, no como respaldo de la predicción.
+
+bunn_fms_2019:
+  titulo: >-
+    The association between the functional movement screen outcome and the
+    incidence of musculoskeletal injuries: A systematic review with
+    meta-analysis
+  autor_principal: "Dos Santos Bunn P"
+  publicacion: "Physical Therapy in Sport"
+  anio: 2019
+  volumen: 35
+  paginas: "146-158"
+  tipo: revision_sistematica_metaanalisis
+  pubmed: "30566898"
+  verificado_el: 2026-08-02
+  nota: >-
+    Verificados título, revista, año, volumen, paginación y PMID; la autoría
+    completa no se confirmó y se registra solo el autor principal. Tercera
+    revisión independiente sobre FMS y lesión, coincidente con moran_fms_2017.

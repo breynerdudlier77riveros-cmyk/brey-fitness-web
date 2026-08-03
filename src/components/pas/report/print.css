@@ -1,0 +1,133 @@
+/* ── Impresión del Performance Report System (Sprint PAS-5.0) ──────────────
+   Hoja propia, NO añadida a globals.css: este sprint tiene prohibido tocar
+   módulos anteriores, y las reglas del Clinical Report del BCS viven allí bajo
+   `.reporte-print`. Ambas coexisten sin pisarse porque cada una cuelga de su
+   propia clase raíz.
+
+   La página que monte el informe (sprint futuro, con token de compartición)
+   importa este archivo. Mientras no exista esa página, el informe no está
+   montado en ninguna ruta y estas reglas no se aplican a nada — es el estado
+   esperado al cerrar este sprint.
+
+   Criterio heredado del BCS: el tema oscuro no se imprime. Sobre papel, el
+   texto blanco translúcido desaparece y los fondos consumen tóner sin aportar
+   información. Lo que SÍ sobrevive es el color semántico, que es dato. */
+
+@media print {
+  @page {
+    size: A4;
+    margin: 18mm 16mm;
+  }
+
+  /* Nada de la aplicación llega al papel salvo el informe. */
+  nav,
+  aside,
+  [role="dialog"],
+  [data-sonner-toaster] {
+    display: none !important;
+  }
+
+  /* ── Tema claro dentro del informe ───────────────────────────────────── */
+  .reporte-pas-print,
+  .reporte-pas-print * {
+    color: #0f172a !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  .reporte-pas-print [class*="bg-white"],
+  .reporte-pas-print [class*="bg-slate"] {
+    background-color: transparent !important;
+  }
+
+  /* Jerarquía en gris, no en blanco translúcido: sobre papel el segundo
+     desaparece y el informe pierde todos sus rótulos secundarios. */
+  .reporte-pas-print [class*="text-white/5"],
+  .reporte-pas-print [class*="text-white/4"],
+  .reporte-pas-print [class*="text-white/3"] {
+    color: #475569 !important;
+  }
+
+  .reporte-pas-print [class*="border-white"] {
+    border-color: #cbd5e1 !important;
+  }
+
+  .reporte-pas-print [class*="rounded-2xl"],
+  .reporte-pas-print [class*="rounded-xl"] {
+    border-radius: 4px !important;
+  }
+
+  /* ── Color semántico preservado ──────────────────────────────────────────
+     Los badges de estado distinguen «caracterizada» de «desconocida». Sin
+     print-color-adjust el navegador los degrada y esa distinción —que es toda
+     la información de la columna— se pierde. */
+  .reporte-pas-print [class*="text-emerald"],
+  .reporte-pas-print [class*="text-sky"],
+  .reporte-pas-print [class*="text-amber"],
+  .reporte-pas-print [class*="bg-emerald"],
+  .reporte-pas-print [class*="bg-sky"],
+  .reporte-pas-print [class*="bg-amber"] {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .reporte-pas-print [class*="text-emerald"] { color: #047857 !important; }
+  .reporte-pas-print [class*="text-sky"]     { color: #0369a1 !important; }
+  .reporte-pas-print [class*="text-amber"]   { color: #a16207 !important; }
+
+  /* La barra de proporción de cada dominio es un div con fondo pleno: sin
+     esto sale en blanco y el gráfico deja de existir. */
+  .reporte-pas-print svg,
+  .reporte-pas-print svg *,
+  .reporte-pas-print [role="img"],
+  .reporte-pas-print [role="img"] * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* ── Saltos de página ────────────────────────────────────────────────────
+     Nada se parte por la mitad: ni una sección, ni un bloque, ni una fila de
+     tabla, ni una interpretación con su línea de procedencia. */
+  .reporte-pas-print .prs-seccion,
+  .reporte-pas-print .prs-bloque,
+  .reporte-pas-print .prs-cifra,
+  .reporte-pas-print .prs-item,
+  .reporte-pas-print .prs-fila,
+  .reporte-pas-print .prs-tabla tr,
+  .reporte-pas-print figure,
+  .reporte-pas-print li {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* La portada ocupa su propia página: el resumen ejecutivo empieza limpio. */
+  .reporte-pas-print .prs-portada {
+    break-after: page;
+    page-break-after: always;
+  }
+
+  /* El apéndice también, por ser material de referencia y no de lectura. */
+  .reporte-pas-print #prs-apendice {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  /* Las cabeceras de tabla se repiten en cada página. */
+  .reporte-pas-print thead {
+    display: table-header-group;
+  }
+
+  /* Un título nunca queda solo al final de una página. */
+  .reporte-pas-print h1,
+  .reporte-pas-print h2,
+  .reporte-pas-print h3 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  /* Sin sombras ni bordes redondeados: papel, no pantalla. */
+  .reporte-pas-print .prs-seccion > div {
+    border: 1px solid #cbd5e1 !important;
+  }
+}
