@@ -14,7 +14,7 @@ import type { NavUser } from "@/lib/supabase/user";
 
 const navLinks = [
   { href: "/bps", label: "El Método" },
-  { href: "/Sistemas", label: "Sistemas" },
+  { href: "/sistemas", label: "Sistemas" },
   { href: "/ejercicios", label: "Ejercicios" },
   { href: "/blog", label: "Blog" },
   { href: "/calculadoras", label: "Calculadoras" },
