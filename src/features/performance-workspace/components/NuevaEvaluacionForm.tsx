@@ -61,13 +61,16 @@ export default function NuevaEvaluacionForm({ atletaId, fechaPorDefecto }: Props
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <label className="block">
           <span className="mb-1 block text-xs font-semibold text-white/60">Tipo</span>
+          {/* Fondo opaco y `color-scheme: dark`: ver la nota en
+              RegistroPruebaForm. Un select translúcido deja el desplegable
+              nativo en blanco sobre blanco. */}
           <select
             name="tipo"
             defaultValue="T-01"
-            className="h-10 w-full rounded-lg border border-white/15 bg-white/[0.03] px-3 text-sm"
+            className="h-10 w-full rounded-lg border border-white/15 bg-slate-900 px-3 text-sm text-white outline-none focus:border-orange-500/40 [color-scheme:dark]"
           >
             {TIPOS.map((tipo) => (
-              <option key={tipo.id} value={tipo.id}>
+              <option key={tipo.id} value={tipo.id} className="bg-slate-900 text-white">
                 {tipo.id} · {tipo.nombre}
               </option>
             ))}

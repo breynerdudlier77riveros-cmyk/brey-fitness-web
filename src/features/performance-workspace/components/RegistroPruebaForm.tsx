@@ -78,14 +78,19 @@ export default function RegistroPruebaForm({ evaluacionId, fechaEvaluacion }: Pr
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <label className="block sm:col-span-2">
           <span className="mb-1 block text-xs font-semibold text-white/60">Prueba</span>
+          {/* Fondo OPACO, no `bg-white/[0.03]`: el desplegable de un select
+              nativo lo dibuja el navegador y no puede componer una capa
+              translúcida, así que caía al blanco del sistema mientras el texto
+              heredaba el blanco de la página. `color-scheme: dark` hace que el
+              propio sistema operativo lo pinte en oscuro. */}
           <select
             name="pruebaId"
             value={pruebaId}
             onChange={(e) => setPruebaId(e.target.value)}
-            className="h-10 w-full rounded-lg border border-white/15 bg-white/[0.03] px-3 text-sm"
+            className="h-10 w-full rounded-lg border border-white/15 bg-slate-900 px-3 text-sm text-white outline-none focus:border-orange-500/40 [color-scheme:dark]"
           >
             {PRUEBAS.map((p) => (
-              <option key={p.id} value={p.id}>
+              <option key={p.id} value={p.id} className="bg-slate-900 text-white">
                 {p.id} · {p.nombre}
               </option>
             ))}
