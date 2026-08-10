@@ -129,7 +129,7 @@ export const posts: Post[] = [
       "Casi nadie entrena la planche pensando en el bíceps, y sin embargo aparece en segundo lugar, muy por encima de lo que la intuición sugiere. Con el codo bloqueado en extensión, el bíceps trabaja como **estabilizador anterior del hombro y del codo**, impidiendo que la articulación colapse hacia atrás.",
       "#### El serrato anterior es el que casi nadie entrena",
       "El tercer músculo más activo es el que sostiene la **protracción escapular**: mantiene la escápula pegada y adelantada contra la caja torácica. La normativa técnica del elemento exige explícitamente «abducción escapular» [2]. Si tu serrato no aguanta, la escápula se retrae, el hombro pierde su base y la posición se cae aunque tu deltoides tuviera fuerza de sobra.",
-      "[IMG:/blog/planche/full-parallettes.jpg|El **serrato anterior** es el que mantiene la escápula pegada y adelantada contra la caja torácica. En esta posición se ve trabajando: es la musculatura dentada que recorre el costado sobre las costillas, justo por debajo de la axila. Sin él, la escápula se retrae y el hombro pierde su base.]",
+      "[IMG:/blog/planche/serrato.jpg|El **serrato anterior**, en rojo. Nace en las costillas y se inserta en el borde interno de la escápula: al contraerse tira de ella hacia delante y la mantiene pegada a la caja torácica. Eso es la protracción escapular que el elemento exige. Ilustración de [Anatomography](https://commons.wikimedia.org/wiki/File:Serratus_anterior_muscles_lateral.png), [CC BY-SA 2.1 JP](https://creativecommons.org/licenses/by-sa/2.1/jp/deed.es).]",
 
       "### 6. La lección de especificidad que ya está demostrada",
       "Esta es, para mí, la parte más útil de toda la evidencia disponible, y va directa a cómo entrenas.",
@@ -164,7 +164,7 @@ export const posts: Post[] = [
       "[IMG:/blog/planche/straddle.jpg|Straddle planche: piernas extendidas y separadas, cadera a la altura de los hombros. **Este atleta la sostiene apoyado en dos dedos por mano**, una variante extrema que no forma parte de la progresión: fíjate en la posición del cuerpo, no en las manos. Foto de [CmdCourgette](https://commons.wikimedia.org/wiki/File:Straddle_planche_2_doigts.jpg), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/deed.es).]",
       "#### Fase 5 · Full planche — 100%",
       "Cuerpo recto, piernas juntas, cadera a la altura de los hombros.",
-      "[IMG:/blog/planche/full-parallettes.jpg|Full planche completa: cuerpo recto, piernas juntas, cadera a la altura de los hombros y codos bloqueados. Esta es la posición que exige los 286 N·m.]",
+      "[IMG:/blog/planche/full-bn.jpg|Full planche completa: cuerpo recto, piernas juntas, cadera a la altura de los hombros y codos bloqueados. Esta es la posición que exige los 286 N·m. Foto de [Jonathanfv](https://commons.wikimedia.org/wiki/File:Planche.jpg), [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/deed.es).]",
 
       "### 8. Lo que la evidencia todavía no puede decirte",
       "Un artículo honesto tiene que marcar sus propios límites. Estos son los de este:",
