@@ -2,11 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { posts, categoryBadge, typeBadge } from "@/lib/content";
 import ArticleBody from "@/components/ArticleBody";
-import {
-  DiagramaPalanca,
-  DiagramaProgresiones,
-  DiagramaAnatomia,
-} from "@/components/blog/PlancheDiagrams";
 import { ArrowLeft } from "@/components/brand/icons";
 import Button from "@/components/brand/Button";
 import type { Metadata } from "next";
@@ -15,14 +10,11 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
-/** Diagramas propios, por artículo. Se referencian desde el cuerpo con [FIG:id]. */
-const FIGURAS: Record<string, Record<string, React.ReactNode>> = {
-  "full-planche-biomecanica-torque-progresiones": {
-    palanca: <DiagramaPalanca />,
-    progresiones: <DiagramaProgresiones />,
-    anatomia: <DiagramaAnatomia />,
-  },
-};
+/**
+ * Diagramas propios por artículo, referenciados desde el cuerpo con [FIG:id].
+ * Ninguno en uso ahora mismo; el renderizador sigue admitiéndolos.
+ */
+const FIGURAS: Record<string, Record<string, React.ReactNode>> = {};
 
 export async function generateStaticParams() {
   return posts.map((p) => ({ slug: p.slug }));
