@@ -160,10 +160,10 @@ export const posts: Post[] = [
       "[IMG:|Half lay planche. Muslos en línea con el tronco y rodillas flexionadas: el 92% del torque de la full.]",
       "#### Fase 4 · Straddle planche — 85 a 91%",
       "Piernas extendidas y abiertas. Nótese que **una straddle abierta exige menos que una half planche cerrada**. No es el paso siguiente obligatorio: es una rama paralela, útil si tienes buena movilidad de cadera.",
-      "[IMG:|Straddle planche. Piernas extendidas y separadas.]",
+      "[IMG:/blog/planche/straddle.jpg|Straddle planche: piernas extendidas y separadas, cadera a la altura de los hombros. **Este atleta la sostiene apoyado en dos dedos por mano**, una variante extrema que no forma parte de la progresión: fíjate en la posición del cuerpo, no en las manos. Foto de [CmdCourgette](https://commons.wikimedia.org/wiki/File:Straddle_planche_2_doigts.jpg), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/deed.es).]",
       "#### Fase 5 · Full planche — 100%",
       "Cuerpo recto, piernas juntas, cadera a la altura de los hombros.",
-      "[IMG:|Full planche completa.]",
+      "[IMG:/blog/planche/full.jpg|Full planche completa: cuerpo recto, piernas juntas, cadera a la altura de los hombros y codos bloqueados. Esta es la posición que exige los 286 N·m. Foto de [Jonathanfv](https://commons.wikimedia.org/wiki/File:Planche.jpg), [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/deed.es).]",
 
       "### 8. Lo que la evidencia todavía no puede decirte",
       "Un artículo honesto tiene que marcar sus propios límites. Estos son los de este:",

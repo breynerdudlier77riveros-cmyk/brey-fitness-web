@@ -65,6 +65,16 @@ function inline(text: string, key: string): React.ReactNode[] {
   return out;
 }
 
+/** Texto sin marcas, para atributos como `alt` que no admiten formato. */
+function plain(text: string): string {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, "$1")
+    .replace(/\[\d+\]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 // ─── Figura ──────────────────────────────────────────────────────────────────
 function Figure({ src, caption, k }: { src: string; caption: string; k: string }) {
   return (
@@ -73,7 +83,7 @@ function Figure({ src, caption, k }: { src: string; caption: string; k: string }
         <div className="relative w-full overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02]">
           <Image
             src={src}
-            alt={caption}
+            alt={plain(caption)}
             width={1200}
             height={800}
             className="h-auto w-full object-cover"
@@ -84,7 +94,7 @@ function Figure({ src, caption, k }: { src: string; caption: string; k: string }
         <div className="flex min-h-[13rem] items-center justify-center rounded-2xl border border-dashed border-white/[0.14] bg-white/[0.02] px-6 py-10 text-center">
           <span className="text-sm leading-relaxed text-white/40">
             Imagen pendiente
-            <span className="mt-1 block text-white/30">{caption}</span>
+            <span className="mt-1 block text-white/30">{plain(caption)}</span>
           </span>
         </div>
       )}
