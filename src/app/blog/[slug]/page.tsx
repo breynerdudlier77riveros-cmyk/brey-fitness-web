@@ -2,6 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { posts, categoryBadge, typeBadge } from "@/lib/content";
 import ArticleBody from "@/components/ArticleBody";
+import {
+  DiagramaPalanca,
+  DiagramaProgresiones,
+  DiagramaAnatomia,
+} from "@/components/blog/PlancheDiagrams";
 import { ArrowLeft } from "@/components/brand/icons";
 import Button from "@/components/brand/Button";
 import type { Metadata } from "next";
@@ -9,6 +14,15 @@ import type { Metadata } from "next";
 interface Props {
   params: Promise<{ slug: string }>;
 }
+
+/** Diagramas propios, por artículo. Se referencian desde el cuerpo con [FIG:id]. */
+const FIGURAS: Record<string, Record<string, React.ReactNode>> = {
+  "full-planche-biomecanica-torque-progresiones": {
+    palanca: <DiagramaPalanca />,
+    progresiones: <DiagramaProgresiones />,
+    anatomia: <DiagramaAnatomia />,
+  },
+};
 
 export async function generateStaticParams() {
   return posts.map((p) => ({ slug: p.slug }));
@@ -82,7 +96,11 @@ export default async function BlogPost({ params }: Props) {
       <hr className="border-white/[0.06] mb-10" />
 
       {/* Body */}
-      <ArticleBody body={post.body} references={post.references} />
+      <ArticleBody
+        body={post.body}
+        references={post.references}
+        figures={FIGURAS[post.slug]}
+      />
 
       {/* Footer CTA */}
       <div className="mt-14 p-6 bg-white/[0.02] border border-white/[0.07] rounded-2xl text-center">

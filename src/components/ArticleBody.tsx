@@ -13,6 +13,7 @@ import type { Reference } from "@/lib/content";
  *   - Item              → lista (líneas consecutivas se agrupan)
  *   | a | b |           → tabla (líneas consecutivas; la primera es cabecera)
  *   [IMG:ruta|pie]      → figura; si `ruta` está vacía se pinta un hueco marcado
+ *   [FIG:id|pie]        → diagrama propio, resuelto contra el mapa `figures`
  *   [DATO:valor|texto]  → dato destacado
  *
  * En línea: **negrita**, [texto](url) y marcadores de cita [1], [2]…
@@ -98,9 +99,12 @@ function Figure({ src, caption, k }: { src: string; caption: string; k: string }
 export default function ArticleBody({
   body,
   references,
+  figures,
 }: {
   body: string[];
   references?: Reference[];
+  /** Diagramas propios del artículo, referenciados desde el cuerpo con [FIG:id]. */
+  figures?: Record<string, React.ReactNode>;
 }) {
   const nodes: React.ReactNode[] = [];
   let i = 0;
@@ -168,15 +172,39 @@ export default function ArticleBody({
 
     i++;
 
-    // Figura
-    const img = line.match(/^\[IMG:([^|\]]*)\|?([^\]]*)\]$/);
+    // Figura. El pie puede contener corchetes: lleva marcadores de cita [n].
+    const img = line.match(/^\[IMG:([^|\]]*)(?:\|([\s\S]*))?\]$/);
     if (img) {
-      nodes.push(<Figure key={`im-${i}`} src={img[1].trim()} caption={img[2].trim()} k={String(i)} />);
+      nodes.push(
+        <Figure key={`im-${i}`} src={img[1].trim()} caption={(img[2] ?? "").trim()} k={String(i)} />
+      );
+      continue;
+    }
+
+    // Diagrama propio
+    const fig = line.match(/^\[FIG:([^|\]]+)(?:\|([\s\S]*))?\]$/);
+    if (fig) {
+      const nodo = figures?.[fig[1].trim()];
+      if (nodo) {
+        const pie = (fig[2] ?? "").trim();
+        nodes.push(
+          <figure key={`fg-${i}`} className="my-10">
+            <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] px-4 py-6 sm:px-6">
+              {nodo}
+            </div>
+            {pie && (
+              <figcaption className="mt-3 text-center text-sm leading-relaxed text-white/45">
+                {inline(pie, `fgc-${i}`)}
+              </figcaption>
+            )}
+          </figure>
+        );
+      }
       continue;
     }
 
     // Dato destacado
-    const dato = line.match(/^\[DATO:([^|\]]+)\|([^\]]+)\]$/);
+    const dato = line.match(/^\[DATO:([^|\]]+)\|([\s\S]+)\]$/);
     if (dato) {
       nodes.push(
         <div

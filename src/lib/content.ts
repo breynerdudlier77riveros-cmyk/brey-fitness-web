@@ -76,7 +76,7 @@ export const posts: Post[] = [
       "> **Torque = Peso del segmento × distancia horizontal hasta el hombro**",
       "La palabra clave es **horizontal**. No importa cuánto pesas: importa **a qué distancia del hombro está repartido ese peso**. Y como la distancia multiplica, alejar masa del hombro es brutalmente más caro que añadir masa cerca de él.",
       "Por eso una persona de 60 kg puede fallar la planche y sostener sin problema un pino a pulso: en el pino, todo tu cuerpo está apilado **encima** del hombro, la distancia horizontal es casi cero y el torque también.",
-      "[IMG:|Diagrama del brazo de palanca: en el pino la masa está apilada sobre el hombro (torque ≈ 0); en la planche está proyectada horizontalmente (torque máximo).]",
+      "[FIG:palanca|En el pino la masa se apila sobre el hombro y la distancia horizontal es casi cero. En la planche esa misma masa se proyecta 46 cm por delante, y el torque se dispara.]",
 
       "### 2. Cuánto torque exige realmente una full planche",
       "Para ponerle número hay que saber cuánto pesa cada segmento del cuerpo y dónde está su centro de masas. Eso está resuelto desde hace décadas: los parámetros inerciales de segmento de **de Leva** [1] son el estándar en biomecánica y son los que se usan aquí.",
@@ -111,7 +111,7 @@ export const posts: Post[] = [
       "[DATO:92%|Del torque de la full planche es lo que exige una half planche con rodillas a 90°. Es la progresión que más fielmente reproduce su demanda mecánica.]",
       "Compáralo con el advanced tuck, que se queda en el 70%. La diferencia entre ambos no es el ángulo de la rodilla: es **dónde acaba el muslo**. En el advanced tuck el muslo se pone vertical y saca de la palanca el segmento pesado. En la half planche el muslo se queda dentro.",
       "> Esa es la razón mecánica por la que la half planche es el mejor simulador de la full planche: **conserva el segmento que más pesa en la posición que más torque genera.**",
-      "[IMG:|Comparativa a escala de las progresiones con su brazo de palanca. El muslo, marcado en color, permanece horizontal en la half planche y se verticaliza en el advanced tuck.]",
+      "[FIG:progresiones|Las progresiones ordenadas por el torque que realmente exigen. Obsérvese el salto entre tuck y advanced tuck —11 puntos— frente al que separa la half lay de la full: solo 8.]",
 
       "### 5. Qué músculos sostienen realmente la planche",
       "Aquí dejamos la física y pasamos a lo que se ha medido en laboratorio.",
@@ -128,7 +128,7 @@ export const posts: Post[] = [
       "Casi nadie entrena la planche pensando en el bíceps, y sin embargo aparece en segundo lugar, muy por encima de lo que la intuición sugiere. Con el codo bloqueado en extensión, el bíceps trabaja como **estabilizador anterior del hombro y del codo**, impidiendo que la articulación colapse hacia atrás.",
       "#### El serrato anterior es el que casi nadie entrena",
       "El tercer músculo más activo es el que sostiene la **protracción escapular**: mantiene la escápula pegada y adelantada contra la caja torácica. La normativa técnica del elemento exige explícitamente «abducción escapular» [2]. Si tu serrato no aguanta, la escápula se retrae, el hombro pierde su base y la posición se cae aunque tu deltoides tuviera fuerza de sobra.",
-      "[IMG:|Mapa anatómico: deltoides anterior, bíceps braquial y serrato anterior, con su nivel de activación medido durante el elemento.]",
+      "[FIG:anatomia|Los tres músculos con mayor excitación durante el elemento, medidos con electromiografía de superficie en gimnastas especialistas en anillas [2]. La intensidad del color corresponde al nivel de activación.]",
 
       "### 6. La lección de especificidad que ya está demostrada",
       "Esta es, para mí, la parte más útil de toda la evidencia disponible, y va directa a cómo entrenas.",
