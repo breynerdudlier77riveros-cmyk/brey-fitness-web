@@ -1,6 +1,18 @@
 export type Category = "Nutrición" | "Entrenamiento" | "Mentalidad";
 export type ContentType = "Lectura" | "Video";
 
+/** Referencia bibliográfica verificada. Se cita en el cuerpo como [1], [2]… */
+export interface Reference {
+  id: number;
+  authors: string;
+  title: string;
+  /** Revista, año, volumen(número):páginas */
+  source: string;
+  doi?: string;
+  /** Aclaración sobre qué aporta o qué límite tiene. */
+  note?: string;
+}
+
 export interface Post {
   slug: string;
   title: string;
@@ -10,6 +22,7 @@ export interface Post {
   type: ContentType;
   readTime: string;
   body: string[];
+  references?: Reference[];
 }
 
 export interface Video {
@@ -43,6 +56,179 @@ export const typeBadge: Record<ContentType, { label: string; className: string }
 // ─── BLOG POSTS ──────────────────────────────────────────────────────────────
 // Para añadir un nuevo artículo, copia un objeto del array y edita los campos.
 export const posts: Post[] = [
+  {
+    slug: "full-planche-biomecanica-torque-progresiones",
+    title: "Full Planche: la guía biomecánica. Torque, palancas y por qué la half planche es la progresión que más se le acerca",
+    excerpt:
+      "Qué hace difícil la planche no es la fuerza, es el torque. Análisis del brazo de palanca de cada progresión, la anatomía real medida con electromiografía y por qué la half planche exige el 92% de la full.",
+    date: "2026-08-09",
+    category: "Entrenamiento",
+    type: "Lectura",
+    readTime: "14 min",
+    body: [
+      "La full planche es el elemento de fuerza estática más malinterpretado de la calistenia. Se entrena como si fuera un problema de fuerza bruta —más repeticiones, más aguante, más ganas— cuando en realidad es un problema de **física de palancas**.",
+      "Esta guía desarma el movimiento desde la biomecánica: cuánto torque exige, dónde se genera, qué músculos lo sostienen según los estudios que lo han medido con electromiografía, y por qué la **half planche** es la progresión que mejor reproduce la exigencia real de la full.",
+      "> Aviso de honestidad: en gimnasia artística la planche se llama *support scale*, y ahí sí existe literatura científica. En calistenia, casi nada de la metodología de progresiones ha sido validada en estudios. En esta guía se distingue en todo momento **qué está medido** y **qué es práctica de entrenamiento**.",
+
+      "### 1. El problema no es tu fuerza. Es el brazo de palanca",
+      "Cuando sostienes una planche, tus hombros no están «levantando tu peso». Están resistiendo un **momento de fuerza**: la tendencia de tu cuerpo a rotar hacia abajo alrededor del hombro.",
+      "Ese momento —el torque— se calcula así:",
+      "> **Torque = Peso del segmento × distancia horizontal hasta el hombro**",
+      "La palabra clave es **horizontal**. No importa cuánto pesas: importa **a qué distancia del hombro está repartido ese peso**. Y como la distancia multiplica, alejar masa del hombro es brutalmente más caro que añadir masa cerca de él.",
+      "Por eso una persona de 60 kg puede fallar la planche y sostener sin problema un pino a pulso: en el pino, todo tu cuerpo está apilado **encima** del hombro, la distancia horizontal es casi cero y el torque también.",
+      "[IMG:|Diagrama del brazo de palanca: en el pino la masa está apilada sobre el hombro (torque ≈ 0); en la planche está proyectada horizontalmente (torque máximo).]",
+
+      "### 2. Cuánto torque exige realmente una full planche",
+      "Para ponerle número hay que saber cuánto pesa cada segmento del cuerpo y dónde está su centro de masas. Eso está resuelto desde hace décadas: los parámetros inerciales de segmento de **de Leva** [1] son el estándar en biomecánica y son los que se usan aquí.",
+      "Con un atleta modelo de **70 kg y 1,75 m**, sumando el momento de cabeza, tronco, muslos, piernas y pies respecto a la articulación del hombro:",
+      "[DATO:286 N·m|Torque que deben resistir los hombros en una full planche. Equivale a sostener una barra de 29 kg a un metro de distancia.]",
+      "El brazo de palanca efectivo sale a **46 cm**: es como si toda la masa suspendida —63 kg— colgara de un punto situado a medio metro por delante del hombro.",
+      "Ese número explica por qué la planche no se consigue «aguantando más». Si tu hombro no produce ~286 N·m, la posición es físicamente imposible, por mucha voluntad que le pongas.",
+
+      "### 3. La tabla que ordena todas las progresiones",
+      "Aplicando el mismo cálculo a cada progresión clásica se obtiene, por fin, una jerarquía objetiva. Todos los valores son para el mismo atleta modelo:",
+      "| Progresión | Torque | Brazo de palanca | % de la full |",
+      "| --- | --- | --- | --- |",
+      "| **Full planche** | 286 N·m | 46 cm | **100%** |",
+      "| **Half lay planche** (rodillas 90°) | 265 N·m | 43 cm | **92%** |",
+      "| Straddle planche (45°/lado) | 260 N·m | 42 cm | 91% |",
+      "| **Half lay planche** (talones a glúteos) | 249 N·m | 40 cm | 87% |",
+      "| Straddle planche (60°/lado) | 242 N·m | 39 cm | 85% |",
+      "| Advanced tuck planche | 201 N·m | 33 cm | 70% |",
+      "| Tuck planche | 168 N·m | 27 cm | 59% |",
+      "Léela despacio, porque hay dos cosas que rompen la intuición.",
+      "#### El salto grande está abajo, no arriba",
+      "Entre tuck y advanced tuck hay **11 puntos** de diferencia. Entre half planche y full hay **8**. La gente asume que lo duro es el último tramo; los números dicen que el escalón más caro de toda la progresión está al principio, cuando pasas de rodillas al pecho a muslos verticales.",
+      "#### El straddle no es tan fácil como parece",
+      "Abrir las piernas 45° por lado solo descuenta un 9% del torque. Para bajar de verdad la exigencia hay que abrir muchísimo (60° por lado, y aun así te quedas en el 85%). El straddle **no es un atajo**: es prácticamente una full planche con las piernas separadas.",
+
+      "### 4. Por qué la half planche es la progresión más cercana a la full",
+      "Aquí está el hallazgo importante, y es puramente anatómico.",
+      "En la half planche —o *half lay planche*, como se la conoce habitualmente— flexionas las rodillas manteniendo los muslos en línea con el tronco. Y ahí ocurre algo que la vista no capta: **no retiras masa de la palanca, retiras solo la masa equivocada**.",
+      "- El **muslo** pesa 14,2% de tu masa corporal por pierna [1] y, en la half planche, **sigue entero, horizontal y proyectado hacia delante**.",
+      "- La **pierna y el pie** juntos pesan 5,7% por lado, y son los únicos que se pliegan hacia atrás.",
+      "Es decir: doblas las rodillas, la posición se ve mucho más fácil, y sin embargo has quitado menos del 6% de la masa corporal de la parte lejana de la palanca. De ahí el 92%.",
+      "[DATO:92%|Del torque de la full planche es lo que exige una half planche con rodillas a 90°. Es la progresión que más fielmente reproduce su demanda mecánica.]",
+      "Compáralo con el advanced tuck, que se queda en el 70%. La diferencia entre ambos no es el ángulo de la rodilla: es **dónde acaba el muslo**. En el advanced tuck el muslo se pone vertical y saca de la palanca el segmento pesado. En la half planche el muslo se queda dentro.",
+      "> Esa es la razón mecánica por la que la half planche es el mejor simulador de la full planche: **conserva el segmento que más pesa en la posición que más torque genera.**",
+      "[IMG:|Comparativa a escala de las progresiones con su brazo de palanca. El muslo, marcado en color, permanece horizontal en la half planche y se verticaliza en el advanced tuck.]",
+
+      "### 5. Qué músculos sostienen realmente la planche",
+      "Aquí dejamos la física y pasamos a lo que se ha medido en laboratorio.",
+      "En 2025, Rosaci y colaboradores publicaron el análisis electromiográfico más específico que existe sobre este elemento [2]. Estudiaron a **siete gimnastas especialistas en anillas** (23,9 ± 4,0 años; 65,6 ± 3,1 kg; 13 años de experiencia) sosteniendo el *support scale* —el nombre técnico de la planche— y midieron la excitación de cada músculo.",
+      "El orden de activación fue este:",
+      "| Músculo | Excitación (µV) |",
+      "| --- | --- |",
+      "| **Deltoides anterior** | 2043,2 ± 763,1 |",
+      "| **Bíceps braquial** | 1737,7 ± 668,5 |",
+      "| **Serrato anterior** | 1442,1 ± 443,4 |",
+      "#### El deltoides anterior es el motor",
+      "Sin sorpresa: es el flexor de hombro, y la planche es una lucha contra la extensión del hombro. Es el músculo que paga los 286 N·m.",
+      "#### El bíceps es el segundo, y esto sí sorprende",
+      "Casi nadie entrena la planche pensando en el bíceps, y sin embargo aparece en segundo lugar, muy por encima de lo que la intuición sugiere. Con el codo bloqueado en extensión, el bíceps trabaja como **estabilizador anterior del hombro y del codo**, impidiendo que la articulación colapse hacia atrás.",
+      "#### El serrato anterior es el que casi nadie entrena",
+      "El tercer músculo más activo es el que sostiene la **protracción escapular**: mantiene la escápula pegada y adelantada contra la caja torácica. La normativa técnica del elemento exige explícitamente «abducción escapular» [2]. Si tu serrato no aguanta, la escápula se retrae, el hombro pierde su base y la posición se cae aunque tu deltoides tuviera fuerza de sobra.",
+      "[IMG:|Mapa anatómico: deltoides anterior, bíceps braquial y serrato anterior, con su nivel de activación medido durante el elemento.]",
+
+      "### 6. La lección de especificidad que ya está demostrada",
+      "Esta es, para mí, la parte más útil de toda la evidencia disponible, y va directa a cómo entrenas.",
+      "Rosaci comparó la planche con **cinco ejercicios preparatorios** distintos [2]. El resultado fue claro y desigual:",
+      "- El que mejor reprodujo el patrón muscular fue la **planche asistida en polea**, que mantiene la posición y la línea de carga reales.",
+      "- El que peor lo reprodujo fue el trabajo con **bandas elásticas en decúbito prono**, que redujo la participación del bíceps un **80%**.",
+      "Trece años antes, Bernasconi y colaboradores habían llegado a la misma conclusión estudiando ocho músculos del hombro [3]: el contrapeso conservaba mejor el pectoral mayor, las mancuernas sobreactivaban el deltoides y la barra reducía la participación del serrato. Su conclusión sigue vigente:",
+      "> «Los ejercicios de entrenamiento deben elegirse conociendo la coordinación muscular específica que induce cada uno.» [3]",
+      "La revisión sistemática de Malíř y colaboradores, sobre **37 estudios y 263 gimnastas de élite**, cierra el argumento: los elementos estáticos de anillas exigen una **altísima especificidad de entrenamiento** [4].",
+      "#### Qué significa esto en la práctica",
+      "Que un ejercicio «trabaje los mismos músculos» no basta. Si cambia la posición del cuerpo, cambia la línea de carga, y con ella cambia el patrón de coordinación. Un ejercicio que quita el bíceps de la ecuación **no te está preparando para la planche**, por muy duro que resulte.",
+      "Y por eso la half planche es tan valiosa: no es un ejercicio parecido, es **la misma posición con menos palanca**. Conserva la línea de carga, la protracción escapular, la extensión de codo y la lucha del deltoides. Solo baja el torque un 8%.",
+
+      "### 7. La progresión, ordenada por torque",
+      "Esta es la secuencia que se desprende del análisis. **Aquí ya no estamos en terreno científico**: el orden se apoya en la mecánica calculada arriba, pero ninguna progresión de calistenia ha sido validada en un ensayo. Trátalo como lo que es: una guía razonada, no un protocolo demostrado.",
+      "#### Fase 1 · Tuck planche — 59%",
+      "Rodillas al pecho, espalda redondeada, escápulas protraídas. El objetivo aquí **no es aguantar**: es aprender a empujar el suelo lejos de ti y a mantener el codo bloqueado.",
+      "[IMG:|Tuck planche. Rodillas al pecho y protracción escapular activa.]",
+      "#### Fase 2 · Advanced tuck planche — 70%",
+      "Muslos verticales, espalda **plana**, cadera a la altura de los hombros. Es el mayor salto de exigencia de toda la progresión. Si la espalda se redondea, has vuelto a la fase 1 sin darte cuenta.",
+      "[IMG:|Advanced tuck planche. Espalda plana y muslos verticales.]",
+      "#### Fase 3 · Half planche o *half lay planche* — 87 a 92%",
+      "Piernas juntas, **muslos alineados con el tronco** y rodillas flexionadas, con las tibias apuntando hacia arriba y atrás. **Aquí es donde se construye realmente la full planche.**",
+      "Los tres puntos que definen la posición y que hay que vigilar:",
+      "- **El muslo no baja ni sube:** continúa la línea del tronco. Si la cadera se eleva, estás pikeando y perdiendo torque sin darte cuenta.",
+      "- **Las rodillas se flexionan, no la cadera.** Es la diferencia exacta con el advanced tuck, y es la que separa el 92% del 70%.",
+      "- **Escápulas protraídas y codos bloqueados**, igual que en la full.",
+      "El ángulo de rodilla es tu dial de intensidad, y es un dial fino: de talones en glúteos (87%) a rodillas a 90° (92%) hay un margen estrecho y muy aprovechable para progresar semana a semana sin cambiar de ejercicio.",
+      "[IMG:|Half lay planche. Muslos en línea con el tronco y rodillas flexionadas: el 92% del torque de la full.]",
+      "#### Fase 4 · Straddle planche — 85 a 91%",
+      "Piernas extendidas y abiertas. Nótese que **una straddle abierta exige menos que una half planche cerrada**. No es el paso siguiente obligatorio: es una rama paralela, útil si tienes buena movilidad de cadera.",
+      "[IMG:|Straddle planche. Piernas extendidas y separadas.]",
+      "#### Fase 5 · Full planche — 100%",
+      "Cuerpo recto, piernas juntas, cadera a la altura de los hombros.",
+      "[IMG:|Full planche completa.]",
+
+      "### 8. Lo que la evidencia todavía no puede decirte",
+      "Un artículo honesto tiene que marcar sus propios límites. Estos son los de este:",
+      "- **Los estudios son de gimnastas de anillas, no de calistenia.** Las anillas son inestables y eso aumenta la demanda de estabilizadores. La planche en suelo o paralelas es un entorno más rígido y los valores de activación no son directamente transferibles.",
+      "- **Las muestras son pequeñas.** Siete gimnastas [2], ocho [5]. Son atletas de altísimo nivel y los estudios lo son de calidad, pero con esos tamaños no se puede afirmar cuánto varía la respuesta entre personas.",
+      "- **Ningún estudio ha comparado progresiones de calistenia entre sí.** La tabla de torque de esta guía es un **cálculo mecánico**, no un experimento: describe la física de la posición, no cómo responde tu cuerpo al entrenarla.",
+      "- **No existe evidencia sobre series, repeticiones ni frecuencia óptimas para la planche.** Lo único cercano es un estudio de cuatro semanas de trabajo excéntrico en gimnastas de élite que mejoró la estabilidad del patrón muscular en el *support scale* [5], pero es un protocolo de anillas con isocinético, no una receta de calistenia.",
+      "> Si alguien te da un número exacto de series y repeticiones para conseguir la planche «según la ciencia», está inventando. Ese estudio no existe.",
+
+      "### 9. Resumen operativo",
+      "- La planche es un problema de **torque**, no de fuerza absoluta. Tu enemigo es la distancia horizontal al hombro.",
+      "- Una full planche exige unos **286 N·m** en un atleta de 70 kg, con un brazo de palanca efectivo de **46 cm**.",
+      "- La **half planche con rodillas flexionadas alcanza el 92%** de esa exigencia, porque el muslo —el segmento pesado— permanece dentro de la palanca.",
+      "- El salto más duro de la progresión no es el último, es **tuck → advanced tuck**.",
+      "- Los músculos que sostienen el elemento, medidos con EMG, son **deltoides anterior, bíceps braquial y serrato anterior**, por ese orden [2].",
+      "- La especificidad está demostrada: los ejercicios que cambian la línea de carga **no reproducen** el patrón muscular del elemento [2][3][4].",
+    ],
+    references: [
+      {
+        id: 1,
+        authors: "de Leva P.",
+        title: "Adjustments to Zatsiorsky-Seluyanov's segment inertia parameters.",
+        source: "Journal of Biomechanics. 1996;29(9):1223-1230",
+        doi: "10.1016/0021-9290(95)00178-6",
+        note: "Base antropométrica de todos los cálculos de torque de esta guía: masas relativas de segmento y posición de sus centros de masas.",
+      },
+      {
+        id: 2,
+        authors: "Rosaci G, Nigro F, Cortesi M, Ciacci S, Bartolomei S, Fantozzi S.",
+        title:
+          "Electromyographic Analysis of the Support Scale in Gymnastics and Its Related Preconditioning Strengthening Exercises.",
+        source: "Journal of Strength and Conditioning Research. 2025;39(6):680-686",
+        doi: "10.1519/JSC.0000000000005074",
+        note: "Fuente principal. El propio artículo denomina al support scale «planche». n = 7 gimnastas especialistas en anillas.",
+      },
+      {
+        id: 3,
+        authors: "Bernasconi SM, Tordi NR, Parratte BM, Rouillon JDR.",
+        title:
+          "Can shoulder muscle coordination during the support scale at ring height be replicated during training exercises in gymnastics?",
+        source: "Journal of Strength and Conditioning Research. 2009;23(8):2381-2388",
+        doi: "10.1519/JSC.0b013e3181bac69f",
+        note: "Comparó contrapeso, mancuernas y barra frente al elemento real, midiendo ocho músculos del hombro.",
+      },
+      {
+        id: 4,
+        authors: "Malíř R, Chrudimský J, Šteffl M, Stastny P.",
+        title:
+          "A Systematic Review of Dynamic, Kinematic, and Muscle Activity during Gymnastic Still Rings Elements.",
+        source: "Sports. 2023;11(3):50",
+        doi: "10.3390/sports11030050",
+        note: "Revisión sistemática de 37 estudios y 263 gimnastas de élite.",
+      },
+      {
+        id: 5,
+        authors: "Göpfert B, Schärer C, Tacchelli L, Gross M, Lüthy F, Hübner K.",
+        title:
+          "Frequency Shifts in Muscle Activation during Static Strength Elements on the Rings before and after an Eccentric Training Intervention in Male Gymnasts.",
+        source: "Journal of Functional Morphology and Kinesiology. 2022;7(1):28",
+        doi: "10.3390/jfmk7010028",
+        note: "Intervención de cuatro semanas de trabajo excéntrico isocinético en ocho gimnastas de élite.",
+      },
+    ],
+  },
+
   {
     slug: "ciencia-metodo-calistenia",
     title: "La Ciencia Detrás del Método: Sobrecarga Progresiva y Control de Fatiga",

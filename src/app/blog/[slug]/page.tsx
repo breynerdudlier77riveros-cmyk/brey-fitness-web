@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { posts, categoryBadge, typeBadge } from "@/lib/content";
+import ArticleBody from "@/components/ArticleBody";
 import { ArrowLeft } from "@/components/brand/icons";
 import Button from "@/components/brand/Button";
 import type { Metadata } from "next";
@@ -81,19 +82,7 @@ export default async function BlogPost({ params }: Props) {
       <hr className="border-white/[0.06] mb-10" />
 
       {/* Body */}
-      <article className="space-y-6">
-        {post.body.map((paragraph, i) =>
-          paragraph.startsWith("### ") ? (
-            <h2 key={i} className="font-black text-xl text-white pt-4">
-              {paragraph.slice(4)}
-            </h2>
-          ) : (
-            <p key={i} className="text-white/70 leading-relaxed text-[1.05rem]">
-              {paragraph}
-            </p>
-          )
-        )}
-      </article>
+      <ArticleBody body={post.body} references={post.references} />
 
       {/* Footer CTA */}
       <div className="mt-14 p-6 bg-white/[0.02] border border-white/[0.07] rounded-2xl text-center">
