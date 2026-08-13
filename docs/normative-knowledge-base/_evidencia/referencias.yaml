@@ -1,0 +1,455 @@
+# ── Registro de referencias verificadas · NKB ──────────────────────────────
+#
+# SSoT de la base normativa. Ninguna ficha escribe una cita a mano: todas
+# apuntan aquí por clave.
+#
+# POLÍTICA (NKB-2, módulo 04 e I-10): cada entrada se localizó y comprobó antes
+# de registrarse. Los campos que no se pudieron confirmar se OMITEN, nunca se
+# completan por plausibilidad. Nunca se inventa un identificador persistente.
+#
+# `verificado_el` es la fecha de comprobación, no la de publicación.
+# `nivel_embudo` es el máximo alcanzado por esta fuente (módulo 13).
+
+# ── Fuentes verificadas hasta sus valores (E-5) ────────────────────────────
+
+steiber_hgs_alemania_2016:
+  titulo: >-
+    Strong or Weak Handgrip? Normative Reference Values for the German
+    Population across the Life Course Stratified by Sex, Age, and Body Height
+  autores: "Steiber N"
+  publicacion: "PLOS ONE"
+  anio: 2016
+  volumen: 11
+  numero: 10
+  articulo: "e0163917"
+  doi: "10.1371/journal.pone.0163917"
+  url: "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0163917"
+  acceso: abierto
+  clase: estudio_original
+  papel: primaria
+  nivel_embudo: E-5
+  verificado_el: 2026-08-08
+  verificacion:
+    metadatos: "Título, autoría, revista, año, volumen, número, artículo y DOI leídos en el propio documento."
+    contenido: "Leídas Tabla 1, Tabla 2 y Tabla suplementaria S3, incluidos sus encabezados, notas al pie y valores."
+  nota: >-
+    Panel de hogares nacionalmente representativo de Alemania. La Tabla S3
+    publica media, desviación típica y mediana de fuerza de prensión por sexo y
+    grupo de edad, con N por celda. Las Tablas 1 y 2 publican medias por edad y
+    altura junto a un «risk threshold» definido en su nota al pie como la media
+    del grupo menos una desviación típica del grupo de edad.
+
+reichenheim_hgs_brasil_2021:
+  titulo: >-
+    Normative reference values of handgrip strength for Brazilian older people
+    aged 65 to 90 years: Evidence from the multicenter Fibra-BR study
+  autor_principal: "Reichenheim ME"
+  coautores_verificados: "Lourenço RA, Nascimento JS"
+  publicacion: "PLOS ONE"
+  anio: 2021
+  volumen: 16
+  numero: 5
+  articulo: "e0250925"
+  doi: "10.1371/journal.pone.0250925"
+  url: "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0250925"
+  acceso: abierto
+  clase: estudio_original
+  papel: primaria
+  nivel_embudo: E-5
+  verificado_el: 2026-08-09
+  verificacion:
+    metadatos: "Título, autoría principal, revista, año, volumen, número, artículo y DOI leídos en el documento."
+    contenido: "Leídos protocolo, criterios de población y la Tabla suplementaria S1 completa, extraída de su fichero original."
+  nota: >-
+    Estudio poblacional transversal multicéntrico con muestreo probabilístico
+    estratificado. Publica percentiles proyectados por edad para seis estratos
+    de sexo y estatura en las tablas S1 a S6. En este sprint solo se leyó y
+    transcribió la S1.
+  autoria_incompleta: >-
+    La fuente lista más coautores de los verificados. No se completan por
+    inferencia (I-10).
+
+martinez_torres_hgs_colombia_2022:
+  titulo: >-
+    Normative values for handgrip strength in Colombian children and
+    adolescents from 6 to 17 years of age: estimation using quantile regression
+  autores: "Martínez-Torres J, Gallo-Villegas JA, Aguirre-Acevedo DC"
+  publicacion: "Jornal de Pediatria (Rio de Janeiro)"
+  anio: 2022
+  volumen: 98
+  paginas: "590-598"
+  doi: "10.1016/j.jped.2022.02.004"
+  url: "https://www.jped.com.br/en-normative-values-for-handgrip-strength-articulo-S0021755722000420"
+  acceso: abierto
+  clase: estudio_original
+  papel: primaria
+  nivel_embudo: E-5
+  verificado_el: 2026-08-09
+  verificacion:
+    metadatos: "Título, autoría, revista, año, volumen, paginación y DOI leídos en el documento."
+    contenido: "Leídos protocolo, instrumento, criterios de población y las 24 filas completas de la Tabla 2, ambos sexos."
+  nota: >-
+    Análisis secundario de la Encuesta Nacional de la Situación Nutricional de
+    Colombia de 2015. Estima percentiles por regresión cuantílica, sin suponer
+    forma de la distribución. Dinamómetro digital Takei TKK 5101.
+
+gomez_campos_hgs_chile_2018:
+  titulo: >-
+    Normative data for handgrip strength in children and adolescents in the
+    Maule Region, Chile: Evaluation based on chronological and biological age
+  autores: >-
+    Gómez-Campos R, Andruske CL, de Arruda M, Sulla-Torres J,
+    Pacheco-Carrillo J, Urra-Albornoz C, Cossio-Bolaños M
+  publicacion: "PLOS ONE"
+  anio: 2018
+  volumen: 13
+  numero: 8
+  articulo: "e0201033"
+  doi: "10.1371/journal.pone.0201033"
+  url: "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0201033"
+  acceso: abierto
+  clase: estudio_original
+  papel: primaria
+  nivel_embudo: E-5
+  verificado_el: 2026-08-09
+  verificacion:
+    metadatos: "Título, los siete autores, revista, año, volumen, número, artículo y DOI leídos en el fichero XML original del artículo."
+    contenido: >-
+      Leídas íntegras las secciones de diseño muestral, procedimiento de
+      recogida y análisis estadístico, y extraída la Tabla 3 completa —24 filas,
+      manos derecha e izquierda— del mismo fichero.
+  nota: >-
+    Estudio transversal diseñado para producir valores normativos. Percentiles
+    suavizados por el método LMS de Cole con transformación de Box-Cox. Publica
+    L, M y S por celda. Dinamómetro hidráulico JAMAR PC-5030 J1, en sedestación.
+    **Unidad: libras-fuerza.** Publica además una Tabla 4 con percentiles por
+    edad biológica que **no se ha transcrito** en este sprint.
+
+vivas_diaz_hgs_universitarios_2016:
+  titulo: "Handgrip strength of Colombian university students"
+  titulo_es: "Valores de fuerza prensil por dinamometría manual en universitarios de Colombia"
+  autores: "Vivas-Díaz JA, Ramírez-Vélez R, Correa-Bautista JE, Izquierdo M"
+  publicacion: "Nutrición Hospitalaria"
+  anio: 2016
+  volumen: 33
+  numero: 2
+  paginas: "330-336"
+  doi: "10.20960/nh.113"
+  url: "https://scielo.isciii.es/pdf/nh/v33n2/24_original22.pdf"
+  acceso: abierto
+  clase: estudio_original
+  papel: primaria
+  nivel_embudo: E-5
+  verificado_el: 2026-08-09
+  verificacion:
+    metadatos: "Título, los cuatro autores, revista, año, volumen, número, paginación y DOI leídos en el documento."
+    contenido: >-
+      Leídos criterios de inclusión y exclusión, instrumento con modelo y
+      fabricante, protocolo completo, análisis estadístico y las 24 filas de la
+      Tabla II, con media, desviación típica y siete percentiles.
+  nota: >-
+    Colombia, 5 647 estudiantes universitarios de Bogotá y Cali, de 18 a 29
+    años. Dinamómetro analógico Takei T-18 TKK SMEDLY III. Percentiles
+    suavizados por el método LMS.
+  historia_de_estado: >-
+    Detenida en **E-2** durante NKB-3.3: la única copia localizada entonces era
+    un PDF de imagen escaneada, ilegible por extracción de texto. En NKB-3.4 la
+    consulta a Unpaywall mostró que la publicación es de acceso abierto y
+    condujo a una copia con texto recuperable. **Era deuda de acceso y se
+    cerró**; la fuente nunca fue el problema.
+
+# ── Fuentes verificadas y NO admitidas (E-3/E-4) ───────────────────────────
+
+bustos_viviescas_hgs_cucuta_2019:
+  titulo: >-
+    Valores de fuerza prensil de mano en sujetos aparentemente sanos de la
+    ciudad de Cúcuta, Colombia
+  autores: "Bustos-Viviescas BJ, Acevedo-Mindiola AA, Lozano-Zapata RE"
+  publicacion: "MedUNAB"
+  anio: 2019
+  volumen: 21
+  numero: 3
+  paginas: "363-377"
+  doi: "10.29375/01237047.2791"
+  url: "https://revistas.unab.edu.co/index.php/medunab/article/download/2791/3054"
+  acceso: abierto
+  clase: estudio_original
+  papel: primaria
+  nivel_embudo: E-5
+  verificado_el: 2026-08-09
+  verificacion:
+    metadatos: "Título, los tres autores, revista, año, volumen, número, paginación y DOI leídos en el documento."
+    contenido: >-
+      Leídos muestreo, criterios de inclusión y exclusión, instrumento con
+      fabricante y precisión, protocolo, limitaciones declaradas y las Tablas 5
+      y 6 completas.
+  nota: >-
+    Colombia, 390 personas de 10 a 69 años de la ciudad de Cúcuta. Dinamómetro
+    digital Camry. Percentiles por sexo, década y dominancia de la mano.
+    **Muestreo no probabilístico intencional**, motivo por el que sus normas
+    son de calidad Baja.
+  advertencia: >-
+    Las Tablas 7 y 8 aplican a estos percentiles seis categorías nombradas
+    —de «deficiente» a «excelente»— tomadas de una propuesta hecha para niños
+    de 6 a 12 años de Arequipa, Perú. **No se admiten**: caso RN-04 en `34`.
+
+ramirez_velez_hgs_fuprecol_2017:
+  titulo: >-
+    Normative Reference Values for Handgrip Strength in Colombian
+    Schoolchildren: The FUPRECOL Study
+  publicacion: "Journal of Strength and Conditioning Research"
+  anio: 2016
+  doi: "10.1519/JSC.0000000000001459"
+  pubmed: "27135472"
+  clase: estudio_original
+  papel: primaria
+  nivel_embudo: E-2
+  criterio_fallido: CA-07
+  verificado_el: 2026-08-09
+  nota: >-
+    Colombia, 7 268 escolares de 10 a 17,9 años. Publica percentiles P3 a P97
+    por el método LMS. Introduce además cinco «Health Benefit Zones» nombradas
+    por los autores.
+  motivo_no_admision: >-
+    **Deuda de acceso.** Unpaywall declara `is_oa: true` con una única copia
+    abierta, la versión enviada por los autores en el repositorio de la
+    Universidad del Rosario. Ese repositorio no respondió en ninguno de los
+    intentos de este sprint. La publicación de la editorial es de suscripción.
+    Su autoría completa no se ha verificado y por eso se omite.
+  advertencia: >-
+    Sus cinco zonas nombradas son una clasificación creada por los autores. Si
+    esta fuente se admitiera en el futuro, serían una norma TN-7 aparte, con su
+    criterio de definición, y NUNCA una relectura de sus percentiles (I-11).
+
+ramirez_velez_hgs_colombia_6_64_2021:
+  titulo: >-
+    Handgrip strength: Normative reference values in males and females aged
+    6–64 Years old in a Colombian population
+  autores: >-
+    Ramírez-Vélez R, Rincón-Pabón D, Correa-Bautista JE, García-Hermoso A,
+    Izquierdo M
+  publicacion: "Clinical Nutrition ESPEN"
+  anio: 2021
+  volumen: 44
+  paginas: "379-386"
+  doi: "10.1016/j.clnesp.2021.05.009"
+  pubmed: "34330493"
+  clase: estudio_original
+  papel: primaria
+  nivel_embudo: E-2
+  criterio_fallido: CA-07
+  verificado_el: 2026-08-09
+  verificacion:
+    metadatos: "Título, los cinco autores, revista, año, volumen, paginación, DOI y PMID leídos en el registro de PubMed."
+    contenido: "Solo el resumen. **Las tablas no son accesibles.**"
+  nota: >-
+    Colombia, 3 803 personas de 6 a 64 años. **Análisis secundario de la misma
+    Encuesta Nacional de la Situación Nutricional de 2015** que
+    `martinez_torres_hgs_colombia_2022`. Percentiles P3 a P97 por el método LMS.
+  motivo_no_admision: >-
+    **Deuda de acceso.** Sin las tablas no puede comprobarse CA-07.
+  acceso_verificado_el: 2026-08-10
+  acceso_comprobado_en:
+    - "Unpaywall · is_oa false · has_repository_copy false · best_oa_location null"
+    - "OpenAlex · is_oa false · oa_status closed · solo editorial y PubMed"
+    - "Crossref · licencia Elsevier TDM · «All rights reserved»"
+    - "Semantic Scholar · isOpenAccess false · openAccessPdf vacío"
+    - "Europe PMC · isOpenAccess N · inPMC N · hasPDF N · sin PMCID"
+    - "OpenAIRE · sin copia en repositorio institucional"
+    - "ScienceDirect y clinicalnutritionespen.com · HTTP 403"
+    - "Observatorio de Investigación de la UPNA · solo metadatos"
+  nota_acceso: >-
+    Seis índices independientes de acceso abierto coinciden: **no existe ninguna
+    copia legible**. La determinación está comprobada, no supuesta.
+  coordenadas_no_determinables:
+    - "Instrumento: el resumen dice «a hand dynamometer with an adjustable grip», descripción compatible con varios modelos y que no identifica ninguno"
+    - "Posición corporal: no accesible"
+    - "Definición operacional: no accesible"
+  importancia: >-
+    Es la **candidata a primer conflicto normativo real** de la NKB: comparte
+    encuesta, país, variable y franja etaria con una norma ya publicada. Ver
+    `34`.
+  advertencia: >-
+    Su resumen declara un punto de corte definido como 2 desviaciones típicas
+    por debajo de la media máxima del ciclo vital, específica por sexo. Ese
+    origen es **distributivo, no de desenlace**: si la fuente se admitiera, sus
+    percentiles entrarían como TN-1 y ese umbral **no** entraría como TN-5. Es
+    la misma decisión que RN-02 (`28`).
+
+hgs_adultos_mayores_colombia_regresion_cuantilica:
+  titulo_aproximado: >-
+    Valores normativos para la fuerza prensil manual en adultos mayores
+    colombianos estimados mediante regresión cuantílica
+  publicacion: "Medicina de Familia. SEMERGEN"
+  anio: 2023
+  pubmed: "37939524"
+  clase: estudio_original
+  papel: primaria
+  nivel_embudo: E-1
+  localizado_el: 2026-08-09
+  nota: >-
+    Colombia, 5 377 adultos mayores de 60 años; percentiles P5, P10, P25, P50,
+    P75, P90 y P95 por sexo. Cubriría la única franja adulta colombiana que
+    sigue sin norma. Revista de acceso restringido: no se han verificado autoría
+    ni contenido. **Deuda de acceso.**
+
+tomkinson_normas_internacionales_2024:
+  titulo: >-
+    International norms for adult handgrip strength: A systematic review of
+    data on 2.4 million adults aged 20 to 100+ years from 69 countries and
+    regions
+  autores: >-
+    Tomkinson GR, Lang JJ, Rubín L, McGrath R, Gower B, Boyle T, Klug MG,
+    Mayhew AJ, Blake HT, Ortega FB, Cadenas-Sanchez C, Magnussen CG,
+    Fraser BJ, Kidokoro T, Liu Y, Christensen K, Leong DP; iGRIPS Group
+  publicacion: "Journal of Sport and Health Science"
+  anio: 2024
+  volumen: 14
+  articulo: "101014"
+  doi: "10.1016/j.jshs.2024.101014"
+  pubmed: "39647778"
+  clase: revision_sistematica
+  papel: primaria_para_su_agregado
+  nivel_embudo: E-4
+  criterio_fallido: CA-05
+  verificado_el: 2026-08-09
+  nota: >-
+    Agrega 100 estudios observacionales y publica percentiles del 5 al 95 por
+    sexo y edad. Para armonizar los estudios aplica factores de ajuste de entre
+    el 1% y el 17% sobre mediciones obtenidas con dinamómetros hidráulicos,
+    electrónicos y mecánicos y con protocolos distintos.
+  motivo_no_admision: >-
+    El método resultante no es un procedimiento de medición reproducible sino
+    una armonización posterior: no puede determinarse qué medición concreta de
+    un sujeto correspondería a esta norma sin conocer y aplicar el factor de
+    ajuste de su propio protocolo. Ver módulo 29.
+
+# ── Fuentes localizadas y NO verificadas (E-1) ─────────────────────────────
+# Se registran para que no vuelvan a buscarse desde cero y para dejar
+# constancia de que existen. NO son ausencia de evidencia: son trabajo
+# pendiente (I-14, I-21).
+
+pendiente_hgs_reino_unido:
+  titulo_aproximado: "Valores normativos de fuerza de prensión en una cohorte poblacional del Reino Unido"
+  clase: no_determinada
+  papel: no_determinado
+  nivel_embudo: E-1
+  localizado_el: 2026-08-08
+  nota: >-
+    Localizada por mención en resultados de búsqueda. NO verificada: no se
+    comprobó autoría, publicación ni contenido. No se registra referencia
+    porque no se ha confirmado ninguna.
+
+pendiente_hgs_estados_unidos:
+  titulo_aproximado: "Valores normativos y ecuaciones de fuerza de prensión para población adulta de Estados Unidos"
+  clase: estudio_original
+  papel: no_determinado
+  nivel_embudo: E-1
+  localizado_el: 2026-08-08
+  nota: >-
+    Localizada en revista de acceso restringido. NO verificada: las tablas no
+    son legibles sin suscripción, de modo que no puede comprobarse si contiene
+    norma admisible (CA-07).
+
+
+pendiente_hgs_adolescentes:
+  titulo_aproximado: "Valores de referencia de fuerza de prensión en adolescentes"
+  clase: estudio_original
+  papel: no_determinado
+  nivel_embudo: E-1
+  localizado_el: 2026-08-08
+  nota: "Localizada en repositorio abierto. NO verificada en este sprint."
+
+# ── Localizadas en NKB-3.3 · Latinoamérica ─────────────────────────────────
+
+hgs_escolares_chile_8_12_lms:
+  titulo_aproximado: >-
+    Normative Reference Values for Handgrip Strength in Chilean Children at
+    8-12 Years Old Using the Empirical Distribution and the Lambda, Mu, and
+    Sigma Statistical Methods
+  publicacion: "Journal of Strength and Conditioning Research"
+  clase: estudio_original
+  papel: primaria
+  nivel_embudo: E-1
+  localizado_el: 2026-08-09
+  nota: >-
+    Chile, 2 026 escolares de 8 a 12 años. Publica nueve centiles (10 a 90) por
+    el método LMS. **Solapa parcialmente** con `gomez_campos_hgs_chile_2018` en
+    país, variable y franja etaria: es la primera candidata real a conflicto de
+    toda la base y por eso su verificación es prioritaria (`32`). Revista de
+    acceso restringido. **Deuda de acceso.**
+
+hgs_ninos_peru_altitud_moderada:
+  titulo_aproximado: >-
+    Regulatory classifications of handgrip strength in children and adolescents
+    living in a moderate altitude region of Peru
+  publicacion: "BMC Pediatrics"
+  anio: 2025
+  clase: estudio_original
+  papel: primaria
+  nivel_embudo: E-1
+  localizado_el: 2026-08-09
+  nota: >-
+    Perú, niños y adolescentes de una región de altitud moderada. Localizada en
+    editorial de acceso abierto y **no verificada en este sprint**: deuda de
+    búsqueda, no de acceso. La altitud como criterio de población la hace
+    especialmente interesante para `17`.
+
+hgs_adultos_chile_estandarizacion:
+  titulo_aproximado: >-
+    Estandarización de la fuerza de prensión manual en adultos chilenos sanos
+    mayores de 20 años
+  publicacion: "Revista Médica de Chile"
+  anio: 2019
+  clase: estudio_original
+  papel: primaria
+  nivel_embudo: E-1
+  localizado_el: 2026-08-09
+  nota: >-
+    Chile, adultos de más de 20 años. Sería la primera norma latinoamericana de
+    adulto de la base y cubriría el hueco más grande de `31`. Alojada en un
+    repositorio de acceso abierto que **devolvió 403 a la recuperación
+    automática**. **Deuda de acceso**, resoluble: la publicación es abierta.
+
+hgs_escolares_chile_discapacidad_intelectual:
+  titulo_aproximado: >-
+    Reference Values of Absolute and Relative Handgrip Strength in Chilean
+    Schoolchildren with Intellectual Disabilities
+  clase: estudio_original
+  papel: primaria
+  nivel_embudo: E-1
+  localizado_el: 2026-08-09
+  nota: >-
+    Chile, escolares con discapacidad intelectual. Población distinta de la de
+    `gomez_campos_hgs_chile_2018`, no un subgrupo suyo: si se admitiera, sería
+    una norma aparte y **nunca** una comparación con la de población general.
+    No verificada en este sprint.
+
+hgs_pure_21_paises:
+  titulo_aproximado: >-
+    Reference ranges of handgrip strength from 125 462 healthy adults in 21
+    countries: a prospective urban rural epidemiologic (PURE) study
+  clase: estudio_original
+  papel: primaria
+  nivel_embudo: E-1
+  localizado_el: 2026-08-09
+  nota: >-
+    Estudio multipaís que incluye países latinoamericanos y cubre adultos.
+    Localizada, **no verificada**. Su estructura multipaís obliga a comprobar si
+    publica normas por país o solo agregadas: si fueran agregadas, el riesgo es
+    el mismo que hizo caer a `tomkinson_normas_internacionales_2024` (CA-05).
+
+
+# ── Fuentes rechazadas por naturaleza (E-1, CA-02) ─────────────────────────
+
+rechazada_sitio_divulgacion_hgs:
+  descripcion: "Sitio web de divulgación deportiva que publica tablas de fuerza de prensión por edad y sexo"
+  clase: sitio_web
+  papel: ninguno
+  nivel_embudo: E-1
+  criterio_fallido: CA-02
+  evaluado_el: 2026-08-08
+  nota: >-
+    Publica tablas sin autoría, sin método, sin población y sin fuente
+    atribuible. Corresponde al caso CR-01. No volverá a evaluarse salvo que
+    aparezca publicación que la respalde.
