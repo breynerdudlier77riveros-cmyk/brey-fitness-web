@@ -35,7 +35,12 @@ export default function ComparabilityPanel({ panel }: Props) {
               ✓
             </span>
             <span className="sr-only">Comparable: </span>
-            <span className="text-white/80">{c.identidad}</span>
+            <span className="text-white/80">
+              {c.identidad}
+              {/* El tipo distingue dos candidatas de la misma poblacion: sin el,
+                  una TN-1 y una TN-2 se leen como la misma norma repetida. */}
+              <span className="ml-1.5 text-white/40">· {c.tipo}</span>
+            </span>
           </li>
         ))}
 
@@ -50,9 +55,12 @@ export default function ComparabilityPanel({ panel }: Props) {
             <span aria-hidden="true" className="text-white/35">
               ✕
             </span>
-            <span className="sr-only">No comparables: </span>
+            <span className="sr-only">Descartadas: </span>
             <span className="text-white/50">
-              {d.total} descartadas <span className="text-white/35">({d.motivoCorto})</span>
+              {/* «no comparables» / «no aplicables» / «sin determinar»: son
+                  estados de comparabilidad, NO juicios de calidad. Escribir
+                  solo «descartadas» invitaba a leerlas como normas malas. */}
+              {d.total} {d.naturaleza} <span className="text-white/35">· {d.motivoCorto}</span>
               {d.ejemplos.length > 0 ? (
                 <span className="block text-[11px] text-white/35">
                   {d.ejemplos.join(" · ")}

@@ -8,6 +8,11 @@
 // camino real ya no necesita inyectar un sujeto: se declara en el expediente.
 
 import { describe, expect, it } from 'vitest';
+import { MAPEOS } from '@/lib/pas/normativo';
+
+/** El id real que declara el mapeo. Nunca se teclea a mano. */
+const PRUEBA_PRENSION = MAPEOS[0].pruebaId;
+
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { readFileSync, readdirSync } from 'node:fs';
@@ -74,7 +79,7 @@ function registro(
   valor: number,
   unidad: string,
   condiciones: Record<string, string>,
-  pruebaId = 'HGS-01',
+  pruebaId = PRUEBA_PRENSION,
 ): RegistroWorkspace {
   return {
     id,
@@ -280,7 +285,7 @@ describe('casos obligatorios', () => {
       CO20,
     );
     const panel = i.comparabilidad.r;
-    const eq3 = panel.descartes.find((d) => d.motivoCorto === 'EQ-3')!;
+    const eq3 = panel.descartes.find((d) => d.motivoCorto === 'método EQ-3')!;
     expect(eq3).toBeDefined();
     expect(eq3.motivo).toContain('EQ-3');
     // Las universitarias, medidas con otro dinamómetro, no se comparan.

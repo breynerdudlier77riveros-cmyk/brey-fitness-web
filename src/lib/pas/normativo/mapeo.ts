@@ -16,10 +16,16 @@ import type { MapeoNormativo } from './tipos';
  * Hoy la NKB solo admite una variable: fuerza de prensión manual. Las otras
  * diecinueve capacidades del PAS no tienen norma admisible, y eso no es una
  * carencia de este mapeo sino el estado real de la evidencia (`41`).
+ *
+ * `P-03` es «Dinamometría de agarre» en el catálogo del Workspace, la única
+ * prueba registrable que mide esta variable. El identificador NO se inventa:
+ * tiene que existir en `CATALOGO_PAS`, y hay un test que lo comprueba. La
+ * primera versión de este mapeo usaba un `HGS-01` que no existía en ninguna
+ * parte, y el fallo solo apareció al intentar registrar una medición real.
  */
 export const MAPEOS: readonly MapeoNormativo[] = [
   {
-    pruebaId: 'HGS-01',
+    pruebaId: 'P-03',
     variable: 'fuerza_prension_manual',
     claves: {
       instrumento: 'dinamometro',

@@ -184,9 +184,15 @@ describe('TN-2 · media y dispersión', () => {
     expect(JSON.stringify(tn2.escala)).not.toMatch(/percentil/i);
     expect(JSON.stringify(tn2.evidencia)).not.toMatch(/percentil/i);
     expect(tn2.situacion).not.toMatch(/percentil/i);
-    expect(tn2.aria).not.toMatch(/percentil/i);
-    // Y el texto transportado sí la lleva, para negarla. Se comprueba aparte.
+    expect(tn2.resumenResultado).toMatch(/^z = [+−]/);
+
+    // El texto SÍ nombra el percentil, para negarlo — en la explicación, en el
+    // motivo del NIE y en el rótulo accesible. Se comprueba que la negación
+    // está, no que la palabra falte: buscarla a ciegas convertiría la
+    // prohibición en la infracción (H-02).
     expect(tn2.motivo).toMatch(/no es un percentil/i);
+    expect(tn2.explicacion).toMatch(/no representa un percentil/i);
+    expect(tn2.aria).toMatch(/no representa un percentil/i);
   });
 });
 
@@ -291,10 +297,25 @@ describe('comparabilidad', () => {
   });
 
   it('EQ-3 aparece como motivo propio', () => {
-    const eq3 = panel.descartes.find((d) => d.motivoCorto === 'EQ-3')!;
+    const eq3 = panel.descartes.find((d) => d.motivoCorto === 'método EQ-3')!;
     expect(eq3).toBeDefined();
     expect(eq3.total).toBeGreaterThan(0);
     expect(eq3.motivo).toContain('EQ-3');
+    // Y se declara como estado de comparabilidad, no como juicio de calidad.
+    expect(eq3.naturaleza).toBe('no comparables');
+  });
+
+  it('cada grupo declara su naturaleza, que no es un juicio', () => {
+    const JUICIO = /\b(mala|peor|deficiente|baja calidad|descartada por calidad)\b/i;
+    for (const d of panel.descartes) {
+      expect(['no comparables', 'no aplicables', 'sin determinar']).toContain(d.naturaleza);
+      expect(`${d.naturaleza} ${d.motivoCorto}`).not.toMatch(JUICIO);
+    }
+    expect('descartada por calidad').toMatch(JUICIO);
+  });
+
+  it('las comparables llevan su tipo, para no parecer la misma norma repetida', () => {
+    expect(panel.comparables.map((c) => c.tipo).sort()).toEqual(['TN-1', 'TN-2']);
   });
 
   it('cada grupo trae ejemplos, sin superar el tope', () => {

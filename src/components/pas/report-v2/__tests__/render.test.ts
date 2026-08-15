@@ -258,7 +258,7 @@ describe('la objeción científica llega al marcado', () => {
   });
 
   it('las descartadas llevan su motivo íntegro para lector de pantalla', () => {
-    expect(HTML).toContain('No comparables:');
+    expect(HTML).toContain('Descartadas:');
   });
 });
 
@@ -325,14 +325,24 @@ describe('componentes aislados', () => {
       createElement(ComparabilityPanel, {
         panel: {
           evaluadas: 10,
-          comparables: [{ normaId: 'N1', identidad: 'Colombia · 20 años' }],
-          descartes: [{ motivoCorto: 'EQ-3', motivo: 'Métodos en EQ-3', total: 9, ejemplos: ['Brasil'] }],
+          comparables: [{ normaId: 'N1', identidad: 'Colombia · 20 años', tipo: 'TN-1' }],
+          descartes: [
+            {
+              naturaleza: 'no comparables',
+              motivoCorto: 'método EQ-3',
+              motivo: 'Métodos en EQ-3',
+              total: 9,
+              ejemplos: ['Brasil'],
+            },
+          ],
         },
       }),
     );
     expect(html).toContain('aria-hidden="true"');
     expect(html).toContain('Comparable:');
-    expect(html).toContain('No comparables:');
+    expect(html).toContain('Descartadas:');
+    expect(html).toContain('no comparables');
+    expect(html).toContain('TN-1');
     expect(html).toContain('Métodos en EQ-3');
   });
 

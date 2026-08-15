@@ -48,7 +48,14 @@ export default function NormativeCard({ tarjeta, panel }: Props) {
             {tarjeta.valor}
             <span className="ml-1 text-base font-normal text-white/50">{tarjeta.unidad}</span>
           </p>
-          <p className="mt-1.5 text-sm text-white/80">{tarjeta.situacion}</p>
+          <p className="mt-1.5 text-sm text-white/80">
+            {tarjeta.situacion}
+            {tarjeta.resumenResultado ? (
+              <span className="ml-2 font-semibold tabular-nums text-white">
+                {tarjeta.resumenResultado}
+              </span>
+            ) : null}
+          </p>
           <p className="mt-0.5 text-[11px] text-white/40">{tarjeta.poblacion}</p>
         </div>
 
@@ -65,6 +72,14 @@ export default function NormativeCard({ tarjeta, panel }: Props) {
             La fuente no publica una escala representable para esta celda.
           </p>
         )}
+
+        {/* La lectura del resultado en una frase. Describe dónde cae el valor;
+            no dice qué significa, porque eso sería clasificar. */}
+        {tarjeta.explicacion ? (
+          <p className="prs2-explicacion text-sm leading-relaxed text-white/70">
+            {tarjeta.explicacion}
+          </p>
+        ) : null}
 
         {/* El motivo literal del NIE. Es lo que impide leer la barra de más. */}
         <p className="prs2-motivo text-[11px] leading-relaxed text-white/45">{tarjeta.motivo}</p>

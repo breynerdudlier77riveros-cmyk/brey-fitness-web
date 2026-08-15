@@ -14,7 +14,9 @@ export const ETIQUETA_INTERPRETACION: Readonly<Record<EstadoInterpretacion, stri
   ENTRE_PERCENTILES_PUBLICADOS: 'Entre dos percentiles publicados',
   POR_DEBAJO_DEL_MENOR_PUBLICADO: 'Fuera del intervalo publicado, por el extremo inferior',
   POR_ENCIMA_DEL_MAYOR_PUBLICADO: 'Fuera del intervalo publicado, por el extremo superior',
-  CALCULADA: 'Puntuación tipificada calculada',
+  // «Puntuación» se lee como nota, y de ahí a percentil y a clasificación hay
+  // un paso. Lo que TN-2 produce es una distancia a la media, y así se nombra.
+  CALCULADA: 'Distancia respecto a la media',
   OPERACION_NO_AUTORIZADA: 'La norma no autoriza esa operación',
   DATOS_INSUFICIENTES: 'La norma no publica lo que la operación necesita',
   NORMA_NO_APLICABLE: 'La norma no corresponde a este caso',

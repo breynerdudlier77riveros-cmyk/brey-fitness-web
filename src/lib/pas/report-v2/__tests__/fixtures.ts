@@ -1,3 +1,8 @@
+import { MAPEOS } from '@/lib/pas/normativo';
+
+/** El id real que declara el mapeo. Nunca se teclea a mano. */
+const PRUEBA_PRENSION = MAPEOS[0].pruebaId;
+
 // ── Fixtures del informe v2 (PRS v2.0) ─────────────────────────────────────
 //
 // Todas parten de normas REALES de la NKB, cargadas por el adaptador. No hay
@@ -53,7 +58,7 @@ export const SUJETO_SIN_DATOS: SujetoNormativo = {
 };
 
 const BASE: Omit<RegistroPrueba, 'id' | 'valor' | 'condiciones'> = {
-  pruebaId: 'HGS-01',
+  pruebaId: PRUEBA_PRENSION,
   fecha: '2026-08-14',
   estado: 'vigente',
   precondicionesCumplidas: true,

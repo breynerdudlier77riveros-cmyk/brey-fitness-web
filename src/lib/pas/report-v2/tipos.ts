@@ -50,7 +50,15 @@ export interface FilaEvidencia {
  * que el lector necesita, y los ejemplos le dan el detalle sin la avalancha.
  */
 export interface GrupoDescarte {
-  /** Rótulo corto: `EQ-3`, `Unidad`, `No aplica`. */
+  /**
+   * Qué le pasó al grupo, en plural: «no comparables», «no aplicables»…
+   *
+   * Va separado del motivo porque **no son juicios de calidad**: una norma en
+   * EQ-3 no es peor, es incomparable con este método. Escribir solo
+   * «308 descartadas» invitaba a leerlas como 308 normas malas.
+   */
+  naturaleza: string;
+  /** Por qué: `método EQ-3`, `identidad/población`, `unidad`. */
   motivoCorto: string;
   /** El motivo íntegro que redactó el NIE para un caso del grupo. */
   motivo: string;
@@ -62,7 +70,14 @@ export interface GrupoDescarte {
 export interface PanelComparabilidad {
   /** Todas las normas que el NIE evaluó para esta medición. */
   evaluadas: number;
-  comparables: readonly { normaId: string; identidad: string }[];
+  /**
+   * Las comparables, con su id y su tipo.
+   *
+   * El tipo es necesario en pantalla: dos candidatas de la misma población
+   * —una TN-1 y una TN-2— se ven idénticas si solo se muestra «Colombia ·
+   * Varones · 22 años», y parece que el sistema encontró dos veces la misma.
+   */
+  comparables: readonly { normaId: string; identidad: string; tipo: string }[];
   descartes: readonly GrupoDescarte[];
 }
 
@@ -77,6 +92,20 @@ export interface TarjetaNormativa {
   unidad: string;
   /** Lo que el NIE dice de él, ya rotulado. */
   situacion: string;
+  /**
+   * El resultado en una línea, ya formateado: `P50`, `entre P90 y P97`,
+   * `z = +1,25`. Es una lectura del resultado que produjo el NIE, no un
+   * cálculo nuevo. `null` cuando no hay resultado que resumir.
+   */
+  resumenResultado: string | null;
+  /**
+   * La misma lectura en una frase, para quien no interprete la barra.
+   *
+   * Describe **dónde cae el valor**, nunca qué significa: «está a 1,25
+   * desviaciones típicas sobre la media» es una distancia medida; «es alto»
+   * sería una categoría, y no se emite ninguna.
+   */
+  explicacion: string | null;
   /** El motivo literal del NIE. No se reescribe. */
   motivo: string;
   /** `Colombia · 15 años · Varones`. */

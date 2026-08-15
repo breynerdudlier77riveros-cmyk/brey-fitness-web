@@ -4,6 +4,11 @@
 // `Atleta` como el que devuelve el repositorio: nada se inyecta.
 
 import { describe, expect, it } from 'vitest';
+import { MAPEOS } from '@/lib/pas/normativo';
+
+/** El id real que declara el mapeo. Nunca se teclea a mano. */
+const PRUEBA_PRENSION = MAPEOS[0].pruebaId;
+
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -61,7 +66,7 @@ const COND_UNI = {
 const registro = (): RegistroWorkspace => ({
   id: 'r1',
   evaluacionId: 'e1',
-  pruebaId: 'HGS-01',
+  pruebaId: PRUEBA_PRENSION,
   fecha: HOY,
   valor: { tipo: 'continuo', valor: 37.5, unidad: 'kg' },
   estado: 'vigente',
