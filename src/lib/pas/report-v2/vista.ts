@@ -185,9 +185,14 @@ function leerResultado(
   return {
     resumen: `z = ${conSigno(res.z)}`,
     explicacion:
+      // «por encima / por debajo», no «sobre / bajo»: `bajo` es preposición
+      // aquí, pero es también una de las categorías que la doctrina prohíbe, y
+      // una frase que necesita explicarse para no parecer un juicio está mal
+      // escrita. La perífrasis no deja lugar a la lectura equivocada.
       `El valor está a ${num(Math.abs(res.z))} desviaciones típicas ` +
-      `${res.z >= 0 ? 'sobre' : 'bajo'} la media publicada (${num(res.media)} ${unidad}, ` +
-      `desviación ${num(res.desviacionTipica)}). No representa un percentil.`,
+      `${res.z >= 0 ? 'por encima de' : 'por debajo de'} la media publicada ` +
+      `(${num(res.media)} ${unidad}, desviación ${num(res.desviacionTipica)}). ` +
+      'No representa un percentil.',
   };
 }
 

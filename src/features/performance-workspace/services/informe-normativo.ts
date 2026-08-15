@@ -40,8 +40,35 @@ export function normasNKB(): readonly NormaNKB[] {
   return cache;
 }
 
+/**
+ * Solo para pruebas: olvida la NKB cacheada.
+ *
+ * Sin esto, un test que simule la ausencia de las fichas seguiría viendo las
+ * normas que cargó otro test antes, y comprobaría lo contrario de lo que cree.
+ */
+export function olvidarNormas(): void {
+  cache = null;
+}
+
 export type ResultadoInformeNormativo =
   | { estado: 'DISPONIBLE'; informe: InformeNormativoV2 }
+  | {
+      /**
+       * Algo falló en la infraestructura: no se pudieron leer las fichas de la
+       * NKB, o la base no devolvió los registros.
+       *
+       * **Es un estado TÉCNICO y jamás debe leerse como uno científico.** Que
+       * el sistema no haya podido consultar las normas no significa que no
+       * existan, ni que no correspondan, ni que el atleta no tenga mediciones.
+       * Devolver aquí `SIN_NORMA_APLICABLE` o `SIN_MEDICIONES` convertiría un
+       * fallo de despliegue en una afirmación sobre la evidencia.
+       */
+      estado: 'ERROR_TECNICO';
+      origen: 'NKB' | 'REGISTROS';
+      detalle: string;
+      /** El error real, para el registro del servidor. No se muestra en crudo. */
+      causa: string;
+    }
   | {
       /**
        * El expediente del atleta no permite construir el sujeto normativo.
@@ -61,7 +88,17 @@ export type ResultadoInformeNormativo =
 
 export interface EntradaInformeNormativo {
   atleta: Atleta;
-  registros: readonly RegistroWorkspace[];
+  /**
+   * Los registros, o el fallo al leerlos.
+   *
+   * Acepta la lista directamente por comodidad de quien ya la tenga, pero la
+   * ruta pasa el resultado de `leerRegistros` para que un fallo de la base no
+   * se confunda con una evaluación vacía.
+   */
+  registros:
+    | readonly RegistroWorkspace[]
+    | { estado: 'OK'; registros: readonly RegistroWorkspace[] }
+    | { estado: 'ERROR'; mensaje: string; codigo: string | null };
   /** Fecha de referencia. Se recibe: ninguna capa pura lee el reloj. */
   hoyISO: string;
   portada: DatosPortada;
@@ -69,20 +106,53 @@ export interface EntradaInformeNormativo {
   normas?: readonly NormaNKB[];
 }
 
+const DETALLE_NKB =
+  'No se pudieron leer las fichas normativas. Es un fallo de la instalación, no una ' +
+  'conclusión sobre la evidencia: las normas existen, y este informe no ha podido consultarlas.';
+
+const DETALLE_REGISTROS =
+  'No se pudieron leer las pruebas registradas en esta evaluación. Es un fallo al consultar los ' +
+  'datos, no una afirmación de que no haya mediciones.';
+
 /**
  * Construye el informe normativo de una evaluación.
  *
  * Orden de comprobación, y detenerse es el resultado correcto:
  *
+ *   0. Fallo al leer los registros → estado TÉCNICO.
  *   1. Sin mediciones → no hay nada que situar.
  *   2. Sujeto incompleto → no se fabrica uno parcial ni se toman datos
  *      prestados del profesional.
- *   3. Con ambos → se consulta y se compone, sin tocar el resultado.
+ *   3. Fallo al leer la NKB → estado TÉCNICO.
+ *   4. Con todo → se consulta y se compone, sin tocar el resultado.
+ *
+ * Los pasos 0 y 3 son técnicos y los demás científicos. La separación es la
+ * razón de ser de este orden: un fallo de infraestructura nunca puede caer en
+ * un estado que hable de la evidencia.
  */
 export function construirInformeNormativo(
   entrada: EntradaInformeNormativo,
 ): ResultadoInformeNormativo {
-  if (entrada.registros.length === 0) {
+  // 0 · Fallo al leer los registros. Se comprueba lo PRIMERO: sin saber si hay
+  // mediciones no puede afirmarse que no las haya.
+  //
+  // El estrechamiento va por `'estado' in`, no por `Array.isArray`: este último
+  // no distingue un `readonly T[]` dentro de una unión, y el compilador dejaría
+  // pasar el caso de error sin verlo.
+  const entregado = entrada.registros;
+  if ('estado' in entregado && entregado.estado === 'ERROR') {
+    return {
+      estado: 'ERROR_TECNICO',
+      origen: 'REGISTROS',
+      detalle: DETALLE_REGISTROS,
+      causa: entregado.mensaje,
+    };
+  }
+
+  const registros: readonly RegistroWorkspace[] =
+    'estado' in entregado ? entregado.registros : entregado;
+
+  if (registros.length === 0) {
     return {
       estado: 'SIN_MEDICIONES',
       detalle:
@@ -96,11 +166,23 @@ export function construirInformeNormativo(
     return { estado: 'SUJETO_INCOMPLETO', ausentes: sujeto.ausentes, detalle: sujeto.detalle };
   }
 
-  const consultas = consultarEvaluacion(
-    entrada.registros.map(aRegistroPAE),
-    sujeto.sujeto,
-    entrada.normas ?? normasNKB(),
-  );
+  // La NKB se lee del disco: si las fichas no llegaron al artefacto de
+  // producción, esto lanza ENOENT. Se captura AQUÍ y solo aquí, para
+  // convertirlo en un estado técnico con nombre — nunca en una lista vacía,
+  // que aguas abajo se leería como «ninguna norma aplicable».
+  let normas: readonly NormaNKB[];
+  try {
+    normas = entrada.normas ?? normasNKB();
+  } catch (e) {
+    return {
+      estado: 'ERROR_TECNICO',
+      origen: 'NKB',
+      detalle: DETALLE_NKB,
+      causa: e instanceof Error ? e.message : String(e),
+    };
+  }
+
+  const consultas = consultarEvaluacion(registros.map(aRegistroPAE), sujeto.sujeto, normas);
 
   return { estado: 'DISPONIBLE', informe: componerInformeNormativo(consultas, entrada.portada) };
 }

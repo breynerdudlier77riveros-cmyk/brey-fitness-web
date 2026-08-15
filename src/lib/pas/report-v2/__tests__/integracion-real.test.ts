@@ -152,7 +152,10 @@ describe('fallo 4 · la lectura de TN-2 no empuja hacia el percentil', () => {
   it('la explicación dice la distancia y niega el percentil', () => {
     const e = tn2().explicacion!;
     expect(e).toMatch(/desviaciones típicas/);
-    expect(e).toMatch(/sobre la media publicada/);
+    // «por encima de», no «sobre»: la reescritura evita `bajo` en el caso
+    // negativo, que es una de las categorías prohibidas aunque ahí fuera
+    // preposición.
+    expect(e).toMatch(/por encima de la media publicada/);
     expect(e).toMatch(/No representa un percentil/);
   });
 

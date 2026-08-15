@@ -12,8 +12,12 @@ import type { Calidad, EstadoInterpretacion, EstadoNorma, EstadoUnidad } from '@
 export const ETIQUETA_INTERPRETACION: Readonly<Record<EstadoInterpretacion, string>> = {
   COINCIDE_CON_PERCENTIL: 'Coincide con un percentil publicado',
   ENTRE_PERCENTILES_PUBLICADOS: 'Entre dos percentiles publicados',
-  POR_DEBAJO_DEL_MENOR_PUBLICADO: 'Fuera del intervalo publicado, por el extremo inferior',
-  POR_ENCIMA_DEL_MAYOR_PUBLICADO: 'Fuera del intervalo publicado, por el extremo superior',
+  // «inferior» y «superior» describen aquí el extremo del intervalo, no a la
+  // persona — pero son dos de las palabras que la doctrina prohíbe, y una
+  // etiqueta que exige explicar por qué no es lo que parece está mal escrita.
+  // Se nombra el valor publicado, que es de lo que se habla.
+  POR_DEBAJO_DEL_MENOR_PUBLICADO: 'Por debajo del menor valor publicado',
+  POR_ENCIMA_DEL_MAYOR_PUBLICADO: 'Por encima del mayor valor publicado',
   // «Puntuación» se lee como nota, y de ahí a percentil y a clasificación hay
   // un paso. Lo que TN-2 produce es una distancia a la media, y así se nombra.
   CALCULADA: 'Distancia respecto a la media',

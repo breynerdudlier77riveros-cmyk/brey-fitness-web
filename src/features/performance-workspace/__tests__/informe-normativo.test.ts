@@ -427,7 +427,7 @@ describe('guardas de arquitectura', () => {
     s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
 
   it('el inventario de componentes está completo', () => {
-    expect(COMPONENTES).toHaveLength(10);
+    expect(COMPONENTES).toHaveLength(11);
   });
 
   it.each(COMPONENTES)('%s no importa la NKB, fs ni Supabase', (_f, src) => {

@@ -215,6 +215,38 @@ export async function listarRegistros(
   return (data ?? []).map(mapRegistro);
 }
 
+/**
+ * Los registros, distinguiendo «no hay» de «no se pudieron leer» (PRS-2.4).
+ *
+ * `listarRegistros` devuelve `[]` en los dos casos, y aguas abajo eso se
+ * convierte en «esta evaluación no tiene pruebas registradas» — una afirmación
+ * sobre el trabajo del profesional que un fallo de red no autoriza a hacer.
+ *
+ * Esta variante no reemplaza a la anterior: la tabla de registros puede seguir
+ * mostrando una lista vacía sin más. La usa el informe normativo, que sí tiene
+ * que separar el estado técnico del estado de dominio.
+ */
+export async function leerRegistros(
+  supabase: SupabaseClient,
+  evaluacionId: string
+): Promise<
+  | { estado: 'OK'; registros: RegistroWorkspace[] }
+  | { estado: 'ERROR'; mensaje: string; codigo: string | null }
+> {
+  const { data, error } = await supabase
+    .from('pas_registros')
+    .select('*')
+    .eq('evaluacion_id', evaluacionId)
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    registrarFallo('leerRegistros', error);
+    return { estado: 'ERROR', mensaje: error.message, codigo: error.code ?? null };
+  }
+
+  return { estado: 'OK', registros: (data ?? []).map(mapRegistro) };
+}
+
 export async function crearRegistro(
   supabase: SupabaseClient,
   entrada: EntradaRegistro

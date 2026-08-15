@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getUser } from "@/lib/supabase/user";
 import { fechaISOLocal } from "@/lib/utils";
 import {
+  leerRegistros,
   listarRegistros,
   obtenerAtleta,
   obtenerEvaluacion,
@@ -17,6 +18,7 @@ import AccionesEvaluacion from "@/features/performance-workspace/components/Acci
 import ReportView from "@/components/pas/report/ReportView";
 import ReportViewV2 from "@/components/pas/report-v2/ReportViewV2";
 import IncompleteSubject from "@/components/pas/report-v2/IncompleteSubject";
+import TechnicalError from "@/components/pas/report-v2/TechnicalError";
 import { construirInformeNormativo } from "@/features/performance-workspace/services/informe-normativo";
 import "@/components/pas/report/print.css";
 import "@/components/pas/report-v2/print.css";
@@ -52,6 +54,11 @@ export default async function EvaluacionPage({ params }: Props) {
 
   const registros = await listarRegistros(supabase, evaluacionId);
 
+  // Para el informe normativo se lee aparte, distinguiendo «no hay registros»
+  // de «no se pudieron leer»: un fallo de la base no autoriza a afirmar que el
+  // profesional no midió nada.
+  const lectura = await leerRegistros(supabase, evaluacionId);
+
   const hoyISO = fechaISOLocal();
 
   // PAE → PIE → PPRE, una sola vez.
@@ -61,7 +68,7 @@ export default async function EvaluacionPage({ params }: Props) {
   // un estado explícito cuando el expediente no da para construir el sujeto.
   const normativo = construirInformeNormativo({
     atleta,
-    registros,
+    registros: lectura,
     hoyISO,
     portada: {
       atleta: atleta.nombre,
@@ -99,6 +106,8 @@ export default async function EvaluacionPage({ params }: Props) {
           <Section label="Perfil normativo">
             {normativo.estado === "DISPONIBLE" ? (
               <ReportViewV2 informe={normativo.informe} />
+            ) : normativo.estado === "ERROR_TECNICO" ? (
+              <TechnicalError origen={normativo.origen} detalle={normativo.detalle} />
             ) : normativo.estado === "SUJETO_INCOMPLETO" ? (
               <IncompleteSubject ausentes={normativo.ausentes} detalle={normativo.detalle} />
             ) : (
