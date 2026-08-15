@@ -1,0 +1,175 @@
+/* ── Impresión del Performance Clinical Report v2 (PRS v2.0) ───────────────
+   Hoja propia, colgada de `.reporte-prs2-print`. No toca la del informe v1
+   (`.reporte-pas-print`) ni la del BCS (`.reporte-print`): las tres coexisten
+   porque cada una cuelga de su raíz.
+
+   Criterio heredado del v1: el tema oscuro no se imprime. Sobre papel el texto
+   blanco translúcido desaparece y los fondos gastan tóner sin aportar nada.
+
+   Lo que este sprint añade y el v1 no tenía: barras vectoriales. El SVG de
+   `NormativeRangeBar` sobrevive a la impresión con trazo nítido a cualquier
+   resolución, y sus rótulos —P5, P50, μ+1σ— tienen que seguir siendo legibles
+   en papel, donde nadie puede pasar el cursor por encima. */
+
+@media print {
+  @page {
+    size: A4;
+    margin: 18mm 16mm;
+  }
+
+  nav,
+  aside,
+  [role="dialog"],
+  [data-sonner-toaster] {
+    display: none !important;
+  }
+
+  /* ── Tema claro dentro del informe ──────────────────────────────────── */
+  .reporte-prs2-print,
+  .reporte-prs2-print * {
+    color: #0f172a !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  .reporte-prs2-print [class*="bg-white"],
+  .reporte-prs2-print [class*="bg-slate"] {
+    background-color: transparent !important;
+  }
+
+  .reporte-prs2-print [class*="border-white"] {
+    border-color: #cbd5e1 !important;
+  }
+
+  /* ── Barras vectoriales ─────────────────────────────────────────────── */
+
+  /* `currentColor` gobierna todo el SVG: al forzar el color del texto arriba,
+     el trazo, las marcas y el punto viajan con él sin reglas por elemento. */
+  .reporte-prs2-print .prs2-barra svg {
+    color: #0f172a !important;
+    /* El navegador no debe simplificar el trazo al rasterizar. */
+    shape-rendering: geometricPrecision;
+    /* Una barra nunca se parte entre dos páginas: media barra no dice nada. */
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Los rótulos del eje son el dato, no decoración: se suben a opacidad plena
+     porque sobre papel el 50 % de gris se pierde. */
+  .reporte-prs2-print .prs2-barra text {
+    fill: #0f172a !important;
+    fill-opacity: 1 !important;
+  }
+
+  .reporte-prs2-print .prs2-marca line {
+    stroke: #475569 !important;
+    stroke-opacity: 1 !important;
+  }
+
+  .reporte-prs2-print .prs2-marca[data-principal="true"] line {
+    stroke: #0f172a !important;
+    stroke-width: 1 !important;
+  }
+
+  .reporte-prs2-print .prs2-eje {
+    stroke: #94a3b8 !important;
+    stroke-opacity: 1 !important;
+  }
+
+  /* El punto del atleta se distingue por FORMA, no por color: anillo relleno
+     con halo. En blanco y negro sigue siendo el único elemento circular. */
+  .reporte-prs2-print .prs2-punto {
+    fill: #0f172a !important;
+  }
+
+  .reporte-prs2-print .prs2-punto-halo {
+    fill: #0f172a !important;
+    fill-opacity: 0.15 !important;
+  }
+
+  /* ── Distintivos y colores informativos ─────────────────────────────── */
+
+  /* Los `Badge` llevan color de origen, no de mérito. Se preservan porque un
+     ES-2 impreso en gris plano deja de distinguirse de un ES-1. */
+  .reporte-prs2-print .prs2-badge {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    border-color: #94a3b8 !important;
+  }
+
+  /* ── Saltos de página ───────────────────────────────────────────────── */
+
+  .reporte-prs2-print [data-seccion-v2] {
+    break-inside: avoid-page;
+  }
+
+  /* Una tarjeta normativa es la unidad de lectura: valor, barra, evidencia y
+     advertencias van juntos o no se entienden. */
+  .reporte-prs2-print .prs2-tarjeta,
+  .reporte-prs2-print .prs2-metrica,
+  .reporte-prs2-print .prs2-sin-norma {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Y una advertencia jamás se separa de la norma que la emitió. */
+  .reporte-prs2-print .prs2-advertencias,
+  .reporte-prs2-print .prs2-evidencia,
+  .reporte-prs2-print .prs2-comparabilidad {
+    break-inside: avoid;
+  }
+
+  .reporte-prs2-print h2 {
+    break-after: avoid;
+  }
+
+  /* ── Portada independiente ──────────────────────────────────────────── */
+  .reporte-prs2-print .prs2-portada {
+    break-after: page;
+    page-break-after: always;
+  }
+
+  /* ── Rejilla sobre papel ────────────────────────────────────────────── */
+
+  /* A4 con márgenes admite dos columnas de tarjeta normativa; el resumen y las
+     tarjetas grises admiten tres. Se fija aquí porque los breakpoints de
+     Tailwind dependen del ancho de ventana, que al imprimir no describe la
+     hoja. */
+  .reporte-prs2-print [data-seccion-v2="perfil"] > div {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .reporte-prs2-print [data-seccion-v2="resumen"] > div,
+  .reporte-prs2-print [data-seccion-v2="sin-norma"] > div {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr 1fr !important;
+  }
+
+  /* ── Leyendas visibles ──────────────────────────────────────────────── */
+
+  /* En pantalla el motivo del NIE es texto secundario; en papel es la única
+     defensa contra leer la barra de más. Se imprime a plena opacidad. */
+  .reporte-prs2-print .prs2-motivo,
+  .reporte-prs2-print .prs2-fuera,
+  .reporte-prs2-print figcaption {
+    color: #334155 !important;
+    opacity: 1 !important;
+  }
+
+  /* El `sr-only` de las leyendas de barra vuelve a ser visible en papel: quien
+     lee impreso no tiene lector de pantalla que se lo cuente. */
+  .reporte-prs2-print .prs2-barra figcaption {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    clip: auto !important;
+    clip-path: none !important;
+    overflow: visible !important;
+    white-space: normal !important;
+    display: block;
+    margin-top: 2mm;
+    font-size: 8pt;
+  }
+}
