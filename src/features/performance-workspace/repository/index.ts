@@ -77,6 +77,9 @@ export async function crearAtleta(
       codigo_interno: entrada.codigoInterno?.trim() || null,
       deporte: entrada.deporte?.trim() || null,
       fecha_nacimiento: entrada.fechaNacimiento || null,
+      sexo: entrada.sexo ?? null,
+      pais: entrada.pais?.trim() || null,
+      estatura_cm: entrada.estaturaCm ?? null,
       notas: entrada.notas || null,
     })
     .select()
@@ -99,6 +102,9 @@ export async function actualizarAtleta(
       codigo_interno: entrada.codigoInterno?.trim() || null,
       deporte: entrada.deporte?.trim() || null,
       fecha_nacimiento: entrada.fechaNacimiento || null,
+      sexo: entrada.sexo ?? null,
+      pais: entrada.pais?.trim() || null,
+      estatura_cm: entrada.estaturaCm ?? null,
       notas: entrada.notas || null,
       updated_at: new Date().toISOString(),
     })

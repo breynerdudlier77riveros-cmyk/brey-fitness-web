@@ -1,8 +1,11 @@
-// ── Integración Atleta → NIE → informe v2 (Sprint PRS-2.1) ─────────────────
+// ── Integración Atleta → NIE → informe v2 (PRS-2.1 · PRS-2.2) ──────────────
 //
 // Flujo COMPLETO, sin mocks de las funciones intermedias: se parte de un
 // `Atleta` como el que devuelve el repositorio y se llega al HTML renderizado.
 // Las normas son las reales de la NKB.
+//
+// Desde PRS-2.2 el atleta lleva sus propias coordenadas normativas, así que el
+// camino real ya no necesita inyectar un sujeto: se declara en el expediente.
 
 import { describe, expect, it } from 'vitest';
 import { createElement } from 'react';
@@ -13,15 +16,13 @@ import { join } from 'node:path';
 import ReportViewV2 from '@/components/pas/report-v2/ReportViewV2';
 import IncompleteSubject from '@/components/pas/report-v2/IncompleteSubject';
 import { cargarNormas } from '@/lib/nie/nkb/cargador';
-import { consultarEvaluacion } from '@/lib/pas/normativo';
-import { componerInformeNormativo, ETIQUETA_INTERPRETACION } from '@/lib/pas/report-v2';
+import { ETIQUETA_INTERPRETACION } from '@/lib/pas/report-v2';
 import type { DatosPortada } from '@/lib/pas/report-v2';
 
 import {
   construirInformeNormativo,
   type ResultadoInformeNormativo,
 } from '../services/informe-normativo';
-import { aRegistroPAE } from '../services/mapeo';
 import { edadEnAnios, resolverSujeto } from '../services/sujeto';
 import type { Atleta, RegistroWorkspace } from '../schemas/tipos';
 
@@ -37,7 +38,7 @@ const PORTADA: DatosPortada = {
   codigo: 'EVAL-0001',
 };
 
-function atleta(fechaNacimiento: string | null): Atleta {
+function atleta(fechaNacimiento: string | null, over: Partial<Atleta> = {}): Atleta {
   return {
     id: 'a1',
     profesionalId: 'p1',
@@ -46,12 +47,20 @@ function atleta(fechaNacimiento: string | null): Atleta {
     codigoInterno: null,
     deporte: null,
     fechaNacimiento,
+    sexo: null,
+    pais: null,
+    estaturaCm: null,
     notas: null,
     estado: 'activo',
     createdAt: HOY,
     updatedAt: HOY,
+    ...over,
   };
 }
+
+/** Atleta con todas las coordenadas obligatorias declaradas. */
+const completo = (over: Partial<Atleta> = {}): Atleta =>
+  atleta('2006-01-01', { sexo: 'M', pais: 'CO', ...over });
 
 const COND_UNI = {
   dinamometro: 'takei-t18',
@@ -83,21 +92,28 @@ function registro(
 }
 
 /**
- * El flujo real, con el sujeto ya completo.
+ * El flujo real, entero, desde el expediente.
  *
- * `pas_atletas` no registra sexo ni país (ver `sujeto.ts`), así que sin esto
- * ningún caso normativo sería alcanzable desde el Workspace. Se inyecta aquí,
- * en el test, para poder comprobar que el resto de la cadena funciona el día
- * que el expediente los tenga. **No se inyecta en producción.**
+ * Ya no inyecta nada: construye un `Atleta` con la fecha de nacimiento que
+ * produce la edad pedida y recorre `construirInformeNormativo`, igual que la
+ * ruta. Si algún día `resolverSujeto` dejara de leer una coordenada, estos
+ * casos caerían — que es justo lo que un test de integración debe hacer.
  */
 function conSujeto(
   registros: readonly RegistroWorkspace[],
-  sujeto: { edad: number | null; sexo: 'M' | 'F' | null; estaturaM: number | null; pais: 'CO' | 'BR' | null },
+  sujeto: { edad: number; sexo: 'M' | 'F'; estaturaCm?: number; pais: string },
 ) {
-  return componerInformeNormativo(
-    consultarEvaluacion(registros.map(aRegistroPAE), sujeto, NORMAS),
-    PORTADA,
+  const nacimiento = `${2026 - sujeto.edad}-01-01`;
+  const r = informe(
+    atleta(nacimiento, {
+      sexo: sujeto.sexo,
+      pais: sujeto.pais,
+      estaturaCm: sujeto.estaturaCm ?? null,
+    }),
+    registros,
   );
+  if (r.estado !== 'DISPONIBLE') throw new Error(`esperaba DISPONIBLE, llegó ${r.estado}`);
+  return r.informe;
 }
 
 const informe = (
@@ -125,7 +141,7 @@ describe('Atleta → SujetoNormativo', () => {
     expect(edadEnAnios('2030-01-01', HOY)).toBeNull();
   });
 
-  it('el sujeto sale incompleto: falta sexo y país', () => {
+  it('un expediente sin coordenadas sale incompleto, nombrando las dos', () => {
     const r = resolverSujeto(atleta('2006-01-01'), HOY);
     expect(r.estado).toBe('INCOMPLETO');
     if (r.estado !== 'INCOMPLETO') throw new Error('estado inesperado');
@@ -139,9 +155,8 @@ describe('Atleta → SujetoNormativo', () => {
   });
 
   it('la estatura no se exige: solo la estratifican las fichas brasileñas', () => {
-    const r = resolverSujeto(atleta('2006-01-01'), HOY);
-    if (r.estado !== 'INCOMPLETO') throw new Error('estado inesperado');
-    expect(r.ausentes).not.toContain('estatura');
+    const r = resolverSujeto(completo(), HOY);
+    expect(r.estado).toBe('COMPLETO');
   });
 
   it('nunca toma el sexo ni la altura del profesional', () => {
@@ -169,6 +184,11 @@ describe('estados explícitos', () => {
   it('sin registros: no hay nada que situar', () => {
     const r = informe(atleta('2006-01-01'), []);
     expect(r.estado).toBe('SIN_MEDICIONES');
+  });
+
+  it('con expediente completo, el informe se produce', () => {
+    const r = informe(completo(), [registro('r', 37.5, 'kg', COND_UNI)]);
+    expect(r.estado).toBe('DISPONIBLE');
   });
 
   it('con registros pero sujeto incompleto: se dice qué falta', () => {
@@ -204,9 +224,9 @@ describe('estados explícitos', () => {
 // ════════════════════════════════════════════════════════════════════════════
 
 describe('casos obligatorios', () => {
-  const CO20 = { edad: 20, sexo: 'M' as const, estaturaM: null, pais: 'CO' as const };
-  const CO45 = { edad: 45, sexo: 'M' as const, estaturaM: null, pais: 'CO' as const };
-  const CO75 = { edad: 75, sexo: 'M' as const, estaturaM: null, pais: 'CO' as const };
+  const CO20 = { edad: 20, sexo: 'M' as const, pais: 'CO' };
+  const CO45 = { edad: 45, sexo: 'M' as const, pais: 'CO' };
+  const CO75 = { edad: 75, sexo: 'M' as const, pais: 'CO' };
 
   it('CASO 1 · sujeto con norma aplicable renderiza el informe', () => {
     const i = conSujeto([registro('r', 37.5, 'kg', COND_UNI)], CO20);
@@ -284,7 +304,7 @@ describe('casos obligatorios', () => {
           mano: 'ambas',
         }),
       ],
-      { edad: 15, sexo: 'M', estaturaM: null, pais: 'CO' },
+      { edad: 15, sexo: 'M', pais: 'CO' },
     );
     const t = i.tarjetas.find((x) => x.normaId === 'HGS-CO-M-15')!;
     expect(t).toBeDefined();
@@ -328,7 +348,7 @@ describe('casos obligatorios', () => {
 // ════════════════════════════════════════════════════════════════════════════
 
 describe('el resultado del NIE llega intacto hasta el render', () => {
-  const CO20 = { edad: 20, sexo: 'M' as const, estaturaM: null, pais: 'CO' as const };
+  const CO20 = { edad: 20, sexo: 'M' as const, pais: 'CO' };
   const i = conSujeto([registro('r', 37.5, 'kg', COND_UNI)], CO20);
   const html = renderToStaticMarkup(createElement(ReportViewV2, { informe: i }));
 

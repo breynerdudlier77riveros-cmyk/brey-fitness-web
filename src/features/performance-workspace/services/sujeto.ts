@@ -3,20 +3,21 @@
 // Capa de APLICACIÓN. Traduce lo que el Workspace sabe del atleta a las
 // coordenadas que el NIE necesita, y **declara lo que no sabe**.
 //
-// LA INCOMPATIBILIDAD QUE ESTE MÓDULO NO OCULTA:
+// DE DÓNDE SALE CADA COORDENADA (auditado en PRS-2.2):
 //
-//   `pas_atletas` guarda `fecha_nacimiento`, y nada más de la identidad del
-//   sujeto. No guarda sexo, ni país, ni estatura. El NIE exige sexo y país como
-//   coordenadas obligatorias, porque todas las normas de prensión de la NKB
-//   estratifican por sexo y ninguna cubre a una población que no sea la suya.
+//   edad      ← `pas_atletas.fecha_nacimiento`, derivada con `hoyISO`
+//   sexo      ← `pas_atletas.sexo`, en el vocabulario del NIE
+//   pais      ← `pas_atletas.pais`, ISO-3166-1 alfa-2
+//   estatura  ← `pas_atletas.estatura_cm`, convertida a metros
 //
-//   `Profile` sí tiene sexo y altura, pero describe al PROFESIONAL que evalúa,
-//   no al atleta evaluado. Tomarlos de ahí normalizaría la fuerza de un atleta
-//   de veinte años contra las normas del sexo y la edad de quien lo mide.
+// Ninguna sale de `Profile`, y es deliberado: `Profile` describe al PROFESIONAL
+// que evalúa, no al atleta evaluado. Tomar de ahí el sexo o la altura
+// normalizaría la fuerza de un atleta de veinte años contra las normas del
+// sexo y la edad de quien lo mide. La firma de `resolverSujeto` ni siquiera lo
+// recibe, para que la tentación no exista.
 //
-// Por eso este módulo NO rellena esos campos desde ninguna parte. Devuelve un
-// sujeto incompleto que nombra lo que falta, y la pantalla lo dice. El día que
-// `pas_atletas` declare el sexo, cambia la lectura, no el contrato.
+// Lo que no consta viaja como `null`, nunca como valor por defecto: el NIE
+// responde `NO_DETERMINABLE`, que es la verdad.
 
 import type { SujetoNormativo } from '@/lib/pas/normativo';
 import type { Atleta } from '../schemas/tipos';
@@ -81,9 +82,16 @@ export function resolverSujeto(atleta: Atleta, hoyISO: string): ResolucionSujeto
   const edad =
     atleta.fechaNacimiento === null ? null : edadEnAnios(atleta.fechaNacimiento, hoyISO);
 
-  // Ni `sexo`, ni `pais`, ni `estaturaM` tienen origen en el Workspace. Van a
-  // `null` porque no se saben, no porque no importen.
-  const sujeto: SujetoNormativo = { edad, sexo: null, estaturaM: null, pais: null };
+  const sujeto: SujetoNormativo = {
+    edad,
+    sexo: atleta.sexo,
+    // Centímetros en la base, metros en el NIE. Es un cambio de escala dentro
+    // de la MISMA magnitud, no una conversión entre unidades de las que el NIE
+    // prohíbe: ahí lo prohibido es equiparar masa con fuerza (kg ↔ kgf), no
+    // dividir una longitud por cien.
+    estaturaM: atleta.estaturaCm === null ? null : atleta.estaturaCm / 100,
+    pais: atleta.pais as SujetoNormativo['pais'],
+  };
 
   const ausentes = IMPRESCINDIBLES.filter((c) => {
     if (c === 'edad') return sujeto.edad === null;

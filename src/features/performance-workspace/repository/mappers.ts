@@ -23,6 +23,13 @@ const texto = (valor: unknown): string => (typeof valor === 'string' ? valor : '
 const textoONulo = (valor: unknown): string | null =>
   typeof valor === 'string' && valor !== '' ? valor : null;
 
+/** `numeric` nullable: distingue «no consta» de un número ilegible. */
+function numeroONulo(valor: unknown): number | null {
+  if (valor === null || valor === undefined || valor === '') return null;
+  const n = typeof valor === 'number' ? valor : Number(valor);
+  return Number.isFinite(n) ? n : null;
+}
+
 /** `numeric` de Postgres llega como cadena. */
 function numero(valor: unknown): number {
   if (typeof valor === 'number') return valor;
@@ -39,6 +46,12 @@ export function mapAtleta(fila: Fila): Atleta {
     codigoInterno: textoONulo(fila.codigo_interno),
     deporte: textoONulo(fila.deporte),
     fechaNacimiento: textoONulo(fila.fecha_nacimiento),
+    // El dominio lo impone la base con un CHECK. Aquí se comprueba igualmente:
+    // una fila que llegara con otro valor es dato corrupto, no un tercer sexo,
+    // y se lee como ausencia antes que como estrato inexistente.
+    sexo: fila.sexo === 'M' || fila.sexo === 'F' ? fila.sexo : null,
+    pais: textoONulo(fila.pais),
+    estaturaCm: numeroONulo(fila.estatura_cm),
     notas: textoONulo(fila.notas),
     estado: texto(fila.estado) as EstadoAtleta,
     createdAt: texto(fila.created_at),

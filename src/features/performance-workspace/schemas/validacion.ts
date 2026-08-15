@@ -22,6 +22,9 @@ export type CodigoError =
   | 'PRUEBA_NO_CATALOGADA'
   | 'VALOR_INCOMPATIBLE'
   | 'VALOR_NO_FINITO'
+  | 'SEXO_INVALIDO'
+  | 'PAIS_INVALIDO'
+  | 'ESTATURA_INVALIDA'
   | 'VALOR_VACIO'
   | 'PATRON_REQUERIDO';
 
@@ -57,6 +60,25 @@ export function validarAtleta(entrada: EntradaAtleta): Validacion {
 
   if (entrada.fechaNacimiento && !esFechaISO(entrada.fechaNacimiento)) {
     errores.push('FECHA_INVALIDA');
+  }
+
+  // Las tres coordenadas normativas son OPCIONALES: un atleta sin ellas se
+  // registra igual, y su informe normativo lo dirá. Lo que no se admite es un
+  // valor fuera de dominio, que la base rechazaría con su CHECK y aquí se
+  // detiene antes, con un error legible.
+  if (entrada.sexo != null && entrada.sexo !== 'M' && entrada.sexo !== 'F') {
+    errores.push('SEXO_INVALIDO');
+  }
+
+  if (entrada.pais != null && entrada.pais !== '' && !/^[A-Z]{2}$/.test(entrada.pais)) {
+    errores.push('PAIS_INVALIDO');
+  }
+
+  if (
+    entrada.estaturaCm != null &&
+    (!Number.isFinite(entrada.estaturaCm) || entrada.estaturaCm <= 80 || entrada.estaturaCm >= 260)
+  ) {
+    errores.push('ESTATURA_INVALIDA');
   }
 
   return errores.length === 0 ? OK : { ok: false, errores };
