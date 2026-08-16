@@ -9,10 +9,14 @@ import {
   listarRegistros,
   obtenerAtleta,
 } from "@/features/performance-workspace/repository";
-import { construirHistorial } from "@/features/performance-workspace/services/consultas";
+import {
+  construirHistorial,
+  filtrarEvaluaciones,
+} from "@/features/performance-workspace/services/consultas";
 import { informeDeEvaluacion } from "@/features/performance-workspace/services/informe";
 import HistorialEvaluaciones from "@/features/performance-workspace/components/HistorialEvaluaciones";
 import NuevaEvaluacionForm from "@/features/performance-workspace/components/NuevaEvaluacionForm";
+import FiltrosEvaluaciones from "@/features/performance-workspace/components/FiltrosEvaluaciones";
 import { VERSION_MOTOR } from "@/lib/pas";
 
 // ── Detalle de atleta e historial (Sprint PAS-7.0) ─────────────────────────
@@ -25,9 +29,10 @@ import { VERSION_MOTOR } from "@/lib/pas";
 
 interface Props {
   params: Promise<{ atletaId: string }>;
+  searchParams: Promise<{ estado?: string; tipo?: string; desde?: string; hasta?: string }>;
 }
 
-export default async function AtletaPage({ params }: Props) {
+export default async function AtletaPage({ params, searchParams }: Props) {
   const user = await getUser();
   if (!user) redirect("/login");
 
@@ -37,8 +42,18 @@ export default async function AtletaPage({ params }: Props) {
   const atleta = await obtenerAtleta(supabase, atletaId);
   if (!atleta || atleta.estado === "eliminado") notFound();
 
-  const evaluaciones = await listarEvaluaciones(supabase, atletaId);
+  const todas = await listarEvaluaciones(supabase, atletaId);
   const hoy = fechaISOLocal();
+
+  // Se filtra ANTES de derivar los informes: cada uno cuesta un PAE completo,
+  // y derivar los que no se van a mostrar sería trabajo tirado.
+  const { estado, tipo, desde, hasta } = await searchParams;
+  const evaluaciones = filtrarEvaluaciones(todas, {
+    estado: estado as never,
+    tipo: tipo as never,
+    desde,
+    hasta,
+  });
 
   const recuentos = await Promise.all(
     evaluaciones.map(async (evaluacion) => {
@@ -66,6 +81,15 @@ export default async function AtletaPage({ params }: Props) {
       />
 
       <Section label="Historial de evaluaciones">
+        <div className="mb-5">
+          <FiltrosEvaluaciones
+            valores={{ estado, tipo, desde, hasta }}
+            rutaLimpia={`/app/rendimiento/${atletaId}`}
+            total={todas.length}
+            visibles={evaluaciones.length}
+          />
+        </div>
+
         <HistorialEvaluaciones entradas={historial} />
       </Section>
 

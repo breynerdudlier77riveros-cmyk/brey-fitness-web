@@ -6,9 +6,13 @@ import { Target } from "@/components/brand/icons";
 import { createClient } from "@/lib/supabase/server";
 import { getUser } from "@/lib/supabase/user";
 import { listarAtletas } from "@/features/performance-workspace/repository";
-import { filtrarAtletas } from "@/features/performance-workspace/services/consultas";
+import {
+  deportesDisponibles,
+  filtrarAtletas,
+} from "@/features/performance-workspace/services/consultas";
 import AtletaCard from "@/features/performance-workspace/components/AtletaCard";
 import AtletaForm from "@/features/performance-workspace/components/AtletaForm";
+import FiltrosAtletas from "@/features/performance-workspace/components/FiltrosAtletas";
 
 // ── Performance Assessment · listado de atletas (Sprint PAS-7.0) ───────────
 // Server Component: la lectura ocurre aquí, una vez. La búsqueda y los filtros
@@ -42,6 +46,18 @@ export default async function RendimientoPage({ searchParams }: Props) {
       />
 
       <Section label="Atletas">
+        {/* Los filtros van ANTES de la lista y siempre se muestran, también
+            cuando no hay coincidencias: si desaparecieran al filtrar de más,
+            no habría forma de deshacerlo sin editar la URL. */}
+        <div className="mb-5">
+          <FiltrosAtletas
+            valores={{ q, estado, deporte }}
+            deportes={deportesDisponibles(todos)}
+            total={todos.length}
+            visibles={atletas.length}
+          />
+        </div>
+
         {atletas.length === 0 ? (
           <EmptyState
             icon={Target}
