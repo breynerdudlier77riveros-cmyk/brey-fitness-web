@@ -10,6 +10,7 @@ import { PRUEBAS, pruebaRegistrable } from "../schemas/catalogo";
 // él todo el motor NIE, que este componente de cliente no necesita para leer
 // una tabla declarativa.
 import { mapeoDe } from "@/lib/pas/normativo/mapeo";
+import { condicionesDe } from "../schemas/condiciones";
 import type { ValorRegistro } from "@/lib/pas";
 
 // ── Registro de una prueba (Sprint PAS-7.0) ────────────────────────────────
@@ -33,6 +34,19 @@ import type { ValorRegistro } from "@/lib/pas";
 // Todas son opcionales: una medición sin método declarado se registra igual, y
 // el informe normativo dirá que no puede compararla. Es preferible a inventar
 // un instrumento por defecto.
+//
+// ── LAS OTRAS DIEZ PRUEBAS (PAS-10E §15) ───────────────────────────────────
+// El bloque anterior solo aparecía cuando la prueba tenía mapeo normativo, y
+// solo P-03 lo tiene. Para las otras diez no se registraba NADA sobre cómo se
+// había medido, con dos consecuencias silenciosas: la regla de compatibilidad
+// no podía evaluarse, y la serie longitudinal nunca detectaba un cambio de
+// método porque comparaba diccionarios siempre vacíos.
+//
+// Ahora las once declaran sus condiciones en `schemas/condiciones.ts`, con
+// vocabulario cerrado. Las REQUERIDAS son las que distinguen protocolos que la
+// literatura trata como pruebas distintas —un 5-0-5 no es un Illinois, un
+// esprint de 10 m no es uno de 30—; sin ellas el registro se guarda igual, pero
+// el sistema dirá que no puede compararlo con nada.
 
 /** Los cuatro ejes del método, en el orden en que se declaran al medir. */
 const CAMPOS_METODO = [
@@ -97,6 +111,13 @@ export default function RegistroPruebaForm({ evaluacionId, fechaEvaluacion }: Pr
   const prueba = pruebaRegistrable(pruebaId);
   const mapeo = mapeoDe(pruebaId);
 
+  // Las condiciones propias de la prueba. P-03 las recibe del mapeo normativo
+  // —que es quien manda, porque su vocabulario tiene que coincidir con el del
+  // NIE— y por eso su entrada en `condiciones.ts` está vacía a propósito.
+  const propias = condicionesDe(pruebaId);
+  const camposPropios = propias ? [...propias.requeridas, ...propias.opcionales] : [];
+  const clavesRequeridas = new Set(propias?.requeridas.map((c) => c.clave) ?? []);
+
   function enviar(datos: FormData) {
     const bruto = String(datos.get("valor") ?? "");
     const naturaleza = prueba?.naturaleza ?? "continuo";
@@ -122,6 +143,10 @@ export default function RegistroPruebaForm({ evaluacionId, fechaEvaluacion }: Pr
         const valorCond = String(datos.get(clave) ?? "");
         if (valorCond) condiciones[clave] = valorCond;
       }
+    }
+    for (const campo of camposPropios) {
+      const valorCond = String(datos.get(campo.clave) ?? "");
+      if (valorCond) condiciones[campo.clave] = valorCond;
     }
 
     iniciar(async () => {
@@ -238,6 +263,51 @@ export default function RegistroPruebaForm({ evaluacionId, fechaEvaluacion }: Pr
             media de intentos. Sin estos datos la medición se registra igual, pero el informe no
             podrá situarla en ninguna norma.
           </p>
+        </fieldset>
+      ) : null}
+
+      {/* ── Condiciones propias de la prueba (PAS-10E §15) ────────────────
+          Las declara `schemas/condiciones.ts`, con vocabulario cerrado: un
+          campo libre produciría veinte formas de escribir «fotocélulas» y
+          ninguna comparable con las demás. */}
+      {camposPropios.length > 0 ? (
+        <fieldset className="space-y-3 border-t border-white/[0.06] pt-5">
+          <legend className="text-xs font-semibold text-white/60">
+            Condiciones de medición
+            <span className="ml-2 font-normal text-white/35">
+              Definen con qué puede compararse este resultado.
+            </span>
+          </legend>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {camposPropios.map((campo) => (
+              <label key={campo.clave} className="block">
+                <span className="mb-1 block text-xs font-semibold text-white/60">
+                  {campo.etiqueta}
+                  {clavesRequeridas.has(campo.clave) ? (
+                    <span className="ml-1.5 font-normal text-orange-400/70">necesaria</span>
+                  ) : null}
+                </span>
+                <select
+                  name={campo.clave}
+                  defaultValue=""
+                  className="h-10 w-full rounded-lg border border-white/15 bg-slate-900 px-3 text-sm text-white outline-none focus:border-orange-500/40 [color-scheme:dark]"
+                >
+                  <option value="" className="bg-slate-900 text-white">
+                    Sin declarar
+                  </option>
+                  {campo.vocabulario.map((v) => (
+                    <option key={v} value={v} className="bg-slate-900 text-white">
+                      {campo.etiquetas[v] ?? v}
+                    </option>
+                  ))}
+                </select>
+                <span className="mt-1 block text-[11px] leading-snug text-white/30">
+                  {campo.porQue}
+                </span>
+              </label>
+            ))}
+          </div>
         </fieldset>
       ) : null}
 

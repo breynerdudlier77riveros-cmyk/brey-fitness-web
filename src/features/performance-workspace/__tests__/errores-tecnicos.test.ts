@@ -72,6 +72,7 @@ const registro = (): RegistroWorkspace => ({
     posicion: 'bipedestacion',
     mano: 'ambas',
   },
+  componentes: {},
   precondicionesCumplidas: true,
   patron: null,
   observaciones: null,

@@ -19,6 +19,19 @@ import type { CapacidadId, CatalogoPruebas, Contribucion, DefinicionPrueba, Fami
 
 export const VERSION_CATALOGO = 'pas-catalogo-1.0.0';
 
+/**
+ * Hacia dónde crece el atributo que la prueba mide (PAS-10).
+ *
+ * NO es un juicio sobre la persona: es una propiedad del instrumento. En una
+ * prueba cronometrada, menos tiempo significa más velocidad; en una de carga,
+ * más kilos significan más fuerza. Eso lo dice el protocolo, no una opinión.
+ *
+ * `null` = **NO_DETERMINADO**, y es una respuesta legítima. Hay pruebas donde
+ * «más» no significa inequívocamente «más de lo que se busca», y declararlo
+ * igualmente sería inventar la semántica que este campo existe para documentar.
+ */
+export type DireccionMejora = 'mayor_mejor' | 'menor_mejor';
+
 export interface PruebaRegistrable {
   id: string;
   nombre: string;
@@ -27,21 +40,49 @@ export interface PruebaRegistrable {
   /** Unidad sugerida al profesional. Solo para naturaleza continua. */
   unidad: string | null;
   requierePatron: boolean;
+  /**
+   * Dirección del atributo medido. `null` cuando el protocolo no la sostiene.
+   *
+   * Sin ella no se calcula progreso hacia un objetivo: la fórmula necesita
+   * saber qué lado del recorrido es avance, y suponerlo produciría un
+   * porcentaje que puede estar exactamente invertido.
+   */
+  direccion: DireccionMejora | null;
 }
 
-/** Las 11 pruebas documentadas en la PKB, con su escala de medida. */
+/**
+ * Las 11 pruebas documentadas en la PKB, con su escala de medida y su dirección.
+ *
+ * TRES QUEDAN EN `direccion: null`, y no por descuido:
+ *
+ *   · **P-06 · Sit-and-reach** — mide distancia alcanzada. Más distancia es más
+ *     rango, pero más rango no es inequívocamente mejor: la hipermovilidad
+ *     existe y el protocolo no fija un óptimo. Declarar `mayor_mejor` haría que
+ *     el sistema celebrara un aumento que puede no serlo.
+ *
+ *   · **P-08 · Y-Balance** — el valor absoluto informa menos que la asimetría
+ *     entre lados, y el catálogo registra un solo número. Sin el par, la
+ *     dirección de una pierna aislada no significa lo que parece.
+ *
+ *   · **P-09 · FMS** — puntuación ordinal compuesta y sin unidad. Sumar o restar
+ *     sus puntos no equivale a sumar o restar kilos, y el PAS ya la excluye del
+ *     seguimiento continuo por eso mismo.
+ *
+ * Las ocho restantes sí la declaran, y en todas sale del protocolo: una prueba
+ * de carga mide cuánto se levanta, una cronometrada mide cuánto se tarda.
+ */
 export const PRUEBAS: readonly PruebaRegistrable[] = [
-  { id: 'P-01', nombre: '1RM (una repetición máxima)', familia: 'F-A', naturaleza: 'continuo', unidad: 'kg', requierePatron: true },
-  { id: 'P-02', nombre: 'Tracción isométrica a media altura del muslo', familia: 'F-A', naturaleza: 'continuo', unidad: 'N', requierePatron: false },
-  { id: 'P-03', nombre: 'Dinamometría de agarre', familia: 'F-C', naturaleza: 'continuo', unidad: 'kg', requierePatron: false },
-  { id: 'P-04', nombre: 'Salto con contramovimiento', familia: 'F-B', naturaleza: 'continuo', unidad: 'cm', requierePatron: false },
-  { id: 'P-05', nombre: 'Drop jump · índice de fuerza reactiva', familia: 'F-B', naturaleza: 'continuo', unidad: 'ratio', requierePatron: false },
-  { id: 'P-06', nombre: 'Sit-and-reach', familia: 'F-E', naturaleza: 'continuo', unidad: 'cm', requierePatron: false },
-  { id: 'P-07', nombre: 'Course-navette (20 m)', familia: 'F-D', naturaleza: 'continuo', unidad: 'estadios', requierePatron: false },
-  { id: 'P-08', nombre: 'Y-Balance Test (cuadrante inferior)', familia: 'F-F', naturaleza: 'continuo', unidad: '% long. pierna', requierePatron: false },
-  { id: 'P-09', nombre: 'Functional Movement Screen', familia: 'F-G', naturaleza: 'ordinal', unidad: null, requierePatron: false },
-  { id: 'P-10', nombre: 'Test de cambio de dirección', familia: 'F-D', naturaleza: 'continuo', unidad: 's', requierePatron: false },
-  { id: 'P-11', nombre: 'Esprint lineal', familia: 'F-D', naturaleza: 'continuo', unidad: 's', requierePatron: false },
+  { id: 'P-01', nombre: '1RM (una repetición máxima)', familia: 'F-A', naturaleza: 'continuo', unidad: 'kg', requierePatron: true, direccion: 'mayor_mejor' },
+  { id: 'P-02', nombre: 'Tracción isométrica a media altura del muslo', familia: 'F-A', naturaleza: 'continuo', unidad: 'N', requierePatron: false, direccion: 'mayor_mejor' },
+  { id: 'P-03', nombre: 'Dinamometría de agarre', familia: 'F-C', naturaleza: 'continuo', unidad: 'kg', requierePatron: false, direccion: 'mayor_mejor' },
+  { id: 'P-04', nombre: 'Salto con contramovimiento', familia: 'F-B', naturaleza: 'continuo', unidad: 'cm', requierePatron: false, direccion: 'mayor_mejor' },
+  { id: 'P-05', nombre: 'Drop jump · índice de fuerza reactiva', familia: 'F-B', naturaleza: 'continuo', unidad: 'ratio', requierePatron: false, direccion: 'mayor_mejor' },
+  { id: 'P-06', nombre: 'Sit-and-reach', familia: 'F-E', naturaleza: 'continuo', unidad: 'cm', requierePatron: false, direccion: null },
+  { id: 'P-07', nombre: 'Course-navette (20 m)', familia: 'F-D', naturaleza: 'continuo', unidad: 'estadios', requierePatron: false, direccion: 'mayor_mejor' },
+  { id: 'P-08', nombre: 'Y-Balance Test (cuadrante inferior)', familia: 'F-F', naturaleza: 'continuo', unidad: '% long. pierna', requierePatron: false, direccion: null },
+  { id: 'P-09', nombre: 'Functional Movement Screen', familia: 'F-G', naturaleza: 'ordinal', unidad: null, requierePatron: false, direccion: null },
+  { id: 'P-10', nombre: 'Test de cambio de dirección', familia: 'F-D', naturaleza: 'continuo', unidad: 's', requierePatron: false, direccion: 'menor_mejor' },
+  { id: 'P-11', nombre: 'Esprint lineal', familia: 'F-D', naturaleza: 'continuo', unidad: 's', requierePatron: false, direccion: 'menor_mejor' },
 ];
 
 /**

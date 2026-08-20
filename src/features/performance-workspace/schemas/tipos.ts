@@ -56,6 +56,16 @@ export interface Evaluacion {
   atletaId: string;
   tipo: TipoEvaluacion;
   fecha: string;
+  /**
+   * Masa corporal EN LA FECHA DE ESTA EVALUACION, en kg (G-01).
+   *
+   * Vive aqui y no en `Atleta` porque el peso cambia entre evaluaciones, y
+   * usar el de hoy para interpretar una medicion de hace meses produce una
+   * fuerza relativa falsa con aspecto de correcta.
+   *
+   * `null` = no consta. Nunca se rellena con el de otra fecha.
+   */
+  pesoKg: number | null;
   estado: EstadoEvaluacion;
   observaciones: string | null;
   createdAt: string;
@@ -70,6 +80,17 @@ export interface RegistroWorkspace {
   valor: ValorRegistro;
   estado: EstadoRegistro;
   condiciones: Record<string, string>;
+  /**
+   * Componentes medidos de un resultado compuesto (G-04).
+   *
+   * El caso que lo motiva es el RSI, que es un cociente: la fuente registrada
+   * en la NKB desaconseja informarlo sin la altura de salto y el tiempo de
+   * contacto, porque el indice los oculta.
+   *
+   * `{}` = no constan. **Jamas se reconstruyen desde el resultado**: un RSI de
+   * 1,8 admite infinitas combinaciones de sus dos componentes.
+   */
+  componentes: Record<string, number>;
   precondicionesCumplidas: boolean | null;
   patron: string | null;
   observaciones: string | null;
@@ -128,7 +149,7 @@ export type EntradaAtleta = Pick<Atleta, 'nombre'> &
   >;
 
 export type EntradaEvaluacion = Pick<Evaluacion, 'atletaId' | 'tipo' | 'fecha'> &
-  Partial<Pick<Evaluacion, 'observaciones'>>;
+  Partial<Pick<Evaluacion, 'observaciones' | 'pesoKg'>>;
 
 export type EntradaRegistro = Pick<RegistroWorkspace, 'evaluacionId' | 'pruebaId' | 'fecha' | 'valor'> &
   Partial<Pick<RegistroWorkspace, 'condiciones' | 'precondicionesCumplidas' | 'patron' | 'observaciones'>>;

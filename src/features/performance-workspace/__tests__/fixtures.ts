@@ -35,6 +35,9 @@ export function evaluacion(over: Partial<Evaluacion> & { id: string }): Evaluaci
     atletaId: 'a1',
     tipo: 'T-01',
     fecha: HOY,
+    // Por defecto sin peso: es el estado real de las evaluaciones históricas, y
+    // conviene que sea el caso base de los tests.
+    pesoKg: null,
     estado: 'borrador',
     observaciones: null,
     createdAt: '2026-08-02T10:00:00Z',
@@ -53,6 +56,7 @@ export function registro(
     valor: { tipo: 'continuo', valor: 100, unidad: 'kg' },
     estado: 'vigente',
     condiciones: {},
+    componentes: {},
     precondicionesCumplidas: null,
     patron: 'sentadilla',
     observaciones: null,

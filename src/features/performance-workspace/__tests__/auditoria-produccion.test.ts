@@ -162,9 +162,30 @@ const PROHIBICIONES: readonly {
     muestra: "const pais = atleta.pais || 'CO';",
   },
   {
+    // PAS-12 AFLOJÓ ESTE PATRÓN, y conviene dejar dicho por qué.
+    //
+    // Antes bastaba con nombrar `peso_kg`: cuando se escribió, esa columna solo
+    // existía en `profiles`, así que la palabra sola delataba la infracción.
+    // Desde PAS-12 existe también `pas_evaluaciones.peso_kg`, que es el peso
+    // DEL ATLETA en la fecha de su evaluación — exactamente lo que el sistema
+    // debe usar para la fuerza relativa.
+    //
+    // La prohibición NO ha cambiado: sigue prohibido tomar las coordenadas del
+    // atleta del perfil de quien lo mide. Lo que cambia es que ahora se
+    // persigue el ORIGEN y no el nombre de la columna.
+    //
+    // `altura_cm` sigue prohibida a secas: `pas_atletas` usa `estatura_cm`, así
+    // que quien escriba `altura_cm` está leyendo el perfil sí o sí.
     nombre: 'lectura del perfil del profesional',
-    patron: /\baltura_cm\b|\bpeso_kg\b|profile\.sexo/,
+    patron: /\baltura_cm\b|(profile|perfil)\.(peso_kg|pesoKg|sexo|altura_cm)|from\(['"]profiles['"]\)/,
     muestra: 'const alt = profile.altura_cm;',
+  },
+  {
+    // El caso concreto que el patrón anterior cubría por accidente y este
+    // cubre a propósito.
+    nombre: 'peso del profesional en vez del de la evaluación',
+    patron: /(profile|perfil)\.(peso_kg|pesoKg)/,
+    muestra: 'const kg = profile.peso_kg;',
   },
   {
     nombre: 'escritura sobre la NKB',

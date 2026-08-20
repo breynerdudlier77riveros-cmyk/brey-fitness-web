@@ -89,6 +89,7 @@ function registro(
     valor: { tipo: 'continuo', valor, unidad },
     estado: 'vigente',
     condiciones,
+    componentes: {},
     precondicionesCumplidas: true,
     patron: null,
     observaciones: null,

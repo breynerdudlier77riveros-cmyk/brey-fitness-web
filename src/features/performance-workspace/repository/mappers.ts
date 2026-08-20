@@ -65,6 +65,9 @@ export function mapEvaluacion(fila: Fila): Evaluacion {
     atletaId: texto(fila.atleta_id),
     tipo: texto(fila.tipo) as TipoEvaluacion,
     fecha: texto(fila.fecha),
+    // Aqui se perdia el peso: la consulta ya lo traia con `select('*')` y el
+    // mapeador no lo copiaba, asi que nunca llegaba al motor.
+    pesoKg: typeof fila.peso_kg === 'number' ? fila.peso_kg : null,
     estado: texto(fila.estado) as EstadoEvaluacion,
     observaciones: textoONulo(fila.observaciones),
     createdAt: texto(fila.created_at),
@@ -95,6 +98,7 @@ export function mapRegistro(fila: Fila): RegistroWorkspace {
     valor: mapValor(fila),
     estado: texto(fila.estado) === 'anulada' ? 'anulada' : 'vigente',
     condiciones: (fila.condiciones as Record<string, string>) ?? {},
+    componentes: (fila.componentes as Record<string, number>) ?? {},
     precondicionesCumplidas:
       typeof fila.precondiciones_cumplidas === 'boolean' ? fila.precondiciones_cumplidas : null,
     patron: textoONulo(fila.patron),

@@ -174,6 +174,9 @@ export async function crearEvaluacion(
       atleta_id: entrada.atletaId,
       tipo: entrada.tipo,
       fecha: entrada.fecha,
+      // El peso de ESTA evaluación (G-01). `undefined` y `null` acaban ambos en
+      // NULL, que es «no consta» — nunca se hereda de otra evaluación.
+      peso_kg: entrada.pesoKg ?? null,
       observaciones: entrada.observaciones || null,
     })
     .select()

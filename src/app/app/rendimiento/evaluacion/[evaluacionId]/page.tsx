@@ -6,6 +6,7 @@ import { getUser } from "@/lib/supabase/user";
 import { fechaISOLocal } from "@/lib/utils";
 import {
   leerRegistros,
+  listarEvaluaciones,
   listarRegistros,
   obtenerAtleta,
   obtenerEvaluacion,
@@ -19,6 +20,9 @@ import ReportView from "@/components/pas/report/ReportView";
 import ReportViewV2 from "@/components/pas/report-v2/ReportViewV2";
 import IncompleteSubject from "@/components/pas/report-v2/IncompleteSubject";
 import TechnicalError from "@/components/pas/report-v2/TechnicalError";
+import PerformanceReport from "@/components/pas/informe/PerformanceReport";
+import { construirInformeAtleta } from "@/features/performance-workspace/services/informe-atleta";
+import { resolverSujeto } from "@/features/performance-workspace/services/sujeto";
 import { construirInformeNormativo } from "@/features/performance-workspace/services/informe-normativo";
 import "@/components/pas/report/print.css";
 import "@/components/pas/report-v2/print.css";
@@ -58,8 +62,57 @@ export default async function EvaluacionPage({ params }: Props) {
   // de «no se pudieron leer»: un fallo de la base no autoriza a afirmar que el
   // profesional no midió nada.
   const lectura = await leerRegistros(supabase, evaluacionId);
-
   const hoyISO = fechaISOLocal();
+
+  // ── PAS-8 · las mediciones anteriores del atleta ────────────────────────
+  // El eje longitudinal necesita el histórico, y solo el histórico: se excluye
+  // la evaluación actual o el resultado se compararía consigo mismo.
+  const otrasEvaluaciones = (await listarEvaluaciones(supabase, evaluacion.atletaId)).filter(
+    (e) => e.id !== evaluacionId && e.estado !== "anulada",
+  );
+  const previas = (
+    await Promise.all(
+      otrasEvaluaciones.map(async (e) => {
+        const regs = await listarRegistros(supabase, e.id);
+        return regs
+          .filter((r) => r.estado === "vigente" && r.valor.tipo === "continuo")
+          .map((r) => {
+            const v = r.valor as Extract<typeof r.valor, { tipo: "continuo" }>;
+            return {
+              pruebaId: r.pruebaId,
+              valor: v.valor,
+              unidad: v.unidad,
+              fecha: r.fecha,
+              condiciones: r.condiciones,
+            };
+          });
+      }),
+    )
+  ).flat();
+
+  // Los objetivos llegan vacíos: `pas_objetivos` existe como migración escrita
+  // y sin aplicar (PAS-8). El contrato ya los soporta; el día que la tabla
+  // exista, cambia esta lectura y nada más.
+  const objetivos: never[] = [];
+
+  // La edad se deriva de la FECHA DE LA EVALUACION, no de hoy (PAS-12 §10).
+  // Con `hoyISO` una medición del año pasado se comparaba contra las normas de
+  // la edad que el atleta tiene ahora, y las fichas de dinamometría de la NKB
+  // estratifican por años de uno en uno.
+  const sujeto = resolverSujeto(atleta, evaluacion.fecha);
+
+  const informeAtleta = construirInformeAtleta({
+    atleta,
+    registros: lectura,
+    previas,
+    objetivos,
+    hoyISO,
+    fecha: evaluacion.fecha,
+    codigo: evaluacion.id,
+    edad: sujeto.sujeto.edad,
+    sexo: atleta.sexo,
+    pesoKg: evaluacion.pesoKg,
+  });
 
   // PAE → PIE → PPRE, una sola vez.
   const informe = informeDeEvaluacion(evaluacion.atletaId, evaluacion, registros, hoyISO);
@@ -103,6 +156,14 @@ export default async function EvaluacionPage({ params }: Props) {
 
       {admiteInforme(evaluacion.estado) ? (
         <>
+          {/* ── PAS-8 · el informe del atleta, primero ──────────────────
+              Responde «¿cómo estoy?» antes que «¿por qué?». El perfil
+              normativo y el funcional siguen debajo, intactos: la información
+              científica no se elimina, se reubica. */}
+          {informeAtleta.estado === "DISPONIBLE" ? (
+            <PerformanceReport informe={informeAtleta.informe} />
+          ) : null}
+
           <Section label="Perfil normativo">
             {normativo.estado === "DISPONIBLE" ? (
               <ReportViewV2 informe={normativo.informe} />

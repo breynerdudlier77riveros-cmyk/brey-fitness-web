@@ -5,7 +5,8 @@
 //
 // DE DÓNDE SALE CADA COORDENADA (auditado en PRS-2.2):
 //
-//   edad      ← `pas_atletas.fecha_nacimiento`, derivada con `hoyISO`
+//   edad      ← `pas_atletas.fecha_nacimiento`, derivada con la FECHA DE LA
+//               EVALUACION (PAS-12), no con la de hoy
 //   sexo      ← `pas_atletas.sexo`, en el vocabulario del NIE
 //   pais      ← `pas_atletas.pais`, ISO-3166-1 alfa-2
 //   estatura  ← `pas_atletas.estatura_cm`, convertida a metros
@@ -78,9 +79,20 @@ export function edadEnAnios(fechaNacimiento: string, hoyISO: string): number | n
  * No recibe el `Profile` del profesional, y es deliberado: si no lo tiene, no
  * puede caer en la tentación de usarlo. La firma es la garantía.
  */
-export function resolverSujeto(atleta: Atleta, hoyISO: string): ResolucionSujeto {
+export function resolverSujeto(atleta: Atleta, fechaReferencia: string): ResolucionSujeto {
+  // LA FECHA DE REFERENCIA ES LA DE LA EVALUACION, NO LA DE HOY (PAS-12 §10).
+  //
+  // Antes llegaba `hoyISO`, y eso comparaba una medicion antigua contra las
+  // normas de la edad que el atleta tiene AHORA. Las fichas de dinamometria de
+  // la NKB estratifican por anios de uno en uno, asi que cumplir anios movia el
+  // resultado a otra celda sin que nadie tocara el dato.
+  //
+  // Es el mismo error que G-01 con el peso: un dato del presente reinterpretando
+  // una medicion del pasado.
   const edad =
-    atleta.fechaNacimiento === null ? null : edadEnAnios(atleta.fechaNacimiento, hoyISO);
+    atleta.fechaNacimiento === null
+      ? null
+      : edadEnAnios(atleta.fechaNacimiento, fechaReferencia);
 
   const sujeto: SujetoNormativo = {
     edad,

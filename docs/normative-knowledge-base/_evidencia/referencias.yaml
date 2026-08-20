@@ -453,3 +453,86 @@ rechazada_sitio_divulgacion_hgs:
     Publica tablas sin autoría, sin método, sin población y sin fuente
     atribuible. Corresponde al caso CR-01. No volverá a evaluarse salvo que
     aparezca publicación que la respalde.
+
+# ── Aptitud física · normas poblacionales (PAS-12) ─────────────────────────
+# Las dos primeras fuentes de la base que NO son de dinamometría.
+
+hoffmann_chms_2019:
+  titulo: "Normative-referenced percentile values for physical fitness among Canadians"
+  titulo_es: "Valores percentilares de referencia normativa de aptitud física en canadienses"
+  autores: "Hoffmann MD, Colley RC, Doyon CY, Wong SL, Tomkinson GR, Lang JJ"
+  publicacion: "Health Reports"
+  anio: 2019
+  volumen: 30
+  numero: 10
+  catalogo: "Statistics Canada, 82-003-X"
+  doi: "10.25318/82-003-x201901000002-eng"
+  pubmed: "31617933"
+  url: "https://www150.statcan.gc.ca/n1/pub/82-003-x/2019010/article/00002-eng.pdf"
+  acceso: abierto
+  clase: estudio_original
+  papel: primaria
+  nivel_embudo: E-5
+  verificado_el: 2026-08-18
+  verificacion:
+    metadatos: "Titulo, los seis autores, revista, volumen, numero, ano, numero de catalogo, DOI y PMID leidos en el PDF publicado por Statistics Canada."
+    contenido: >-
+      Extraido el texto del PDF. Leidos el diseno muestral, el protocolo
+      completo de cada prueba con instrumento, modelo y fabricante, el orden de
+      administracion y las tablas de percentiles de altura de salto y de
+      sit-and-reach integras, 17 y 16 grupos de edad por sexo.
+  nota: >-
+    Canada, 5 188 participantes (50,1 % mujeres) de 6 a 69 anos, del Canadian
+    Health Measures Survey ciclo 5 (2016-2017). **Muestreo probabilistico y
+    ponderado**, a diferencia de todas las demas fuentes de esta base. Publica
+    once percentiles (P5 a P95) para cinco pruebas; se han transcrito dos:
+    altura de salto y sit-and-reach. Las de mCAFT, prension manual y potencia de
+    salto **no se han transcrito**.
+  limitacion_declarada: >-
+    Los autores advierten expresamente que una norma no esta vinculada a un
+    desenlace de salud como si lo estaria un punto de corte: rendir por encima
+    de un percentil no implica un nivel saludable.
+
+ramirez_velez_fuprecol_2017:
+  titulo: >-
+    Normative reference values for the 20 m shuttle-run test in a
+    population-based sample of school-aged youth in Bogota, Colombia: the
+    FUPRECOL study
+  titulo_es: >-
+    Valores normativos de referencia del test de course-navette de 20 m en una
+    muestra poblacional de escolares de Bogota
+  autores: >-
+    Ramirez-Velez R, Palacios-Lopez A, Prieto-Benavides DH, Correa-Bautista JE,
+    Izquierdo M, Alonso-Martinez A, Lobelo F
+  publicacion: "American Journal of Human Biology"
+  anio: 2017
+  volumen: 29
+  numero: 1
+  paginas: "e22902"
+  doi: "10.1002/ajhb.22902"
+  pubmed: "27500986"
+  url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC5298048/"
+  acceso: abierto
+  clase: estudio_original
+  papel: primaria
+  nivel_embudo: E-5
+  verificado_el: 2026-08-18
+  verificacion:
+    metadatos: "Titulo, los siete autores, revista, volumen, numero, paginacion, DOI y PMID leidos en la copia de PubMed Central."
+    contenido: >-
+      Leidos poblacion, altitud, ecuacion de estimacion, limitaciones
+      declaradas por los autores y la Tabla 3 integra: 18 celdas con N y siete
+      percentiles. La suma de los N por sexo (3 211 varones y 4 033 mujeres)
+      reproduce exactamente el total de 7 244 que declara el articulo.
+  nota: >-
+    Colombia, 7 244 escolares de colegios publicos de Bogota de 9 a 17,9 anos,
+    medidos a 2 625 m de altitud. **Segunda fuente colombiana de la base.** Se
+    admite la Tabla 3, de estadios completados. La Tabla 4, de VO2pico, **no se
+    admite**: es una estimacion mediante la ecuacion de Leger (1988), no una
+    medicion.
+  limitacion_declarada: >-
+    Los autores declaran variables no recogidas (actividad fisica, hormonas
+    sexuales, antecedentes familiares, lugar de nacimiento, tiempo residiendo en
+    Bogota), que la estimacion de VO2pico varia segun la ecuacion y puede
+    infraestimar hasta un 12 %, y que la muestra es de una sola ciudad y solo de
+    colegios publicos, no representativa del conjunto de Colombia.

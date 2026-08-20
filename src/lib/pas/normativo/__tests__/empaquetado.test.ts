@@ -5,7 +5,7 @@
 //   `cargarNormas()` lee las fichas Markdown con `readdirSync` sobre una ruta
 //   compuesta en tiempo de ejecución. `@vercel/nft` —el trazador de `next
 //   build`— analiza el uso de `fs` de forma ESTÁTICA, y hoy consigue resolver
-//   esa lectura: la traza incluye las quince fichas.
+//   esa lectura: la traza incluye las dieciocho fichas.
 //
 //   Depender de esa heurística es la trampa. Un refactor de cómo se compone la
 //   ruta la haría fallar, el build seguiría pasando, y las fichas
@@ -42,6 +42,17 @@ function artefacto(): string {
   return raiz;
 }
 
+/**
+ * El recuento va FIJO a propósito: es un disparador.
+ *
+ * Cualquiera que añada o quite una ficha de la NKB tiene que pasar por aquí y
+ * actualizarlo, y al hacerlo comprueba que la nueva viaja al artefacto. Si el
+ * test contara `readdirSync().length` contra sí mismo no comprobaría nada.
+ *
+ * 15 en PRS-2.4 · 18 desde PAS-12 (+SAR-CA, +CMJ-CA, +SRT-CO-FUP).
+ */
+const FICHAS_ESPERADAS = 18;
+
 describe('la NKB se carga desde fuera del árbol fuente', () => {
   it('un artefacto con solo las fichas produce las 356 normas', () => {
     const raiz = artefacto();
@@ -63,12 +74,12 @@ describe('la NKB se carga desde fuera del árbol fuente', () => {
     }
   });
 
-  it('las quince fichas viajan enteras, byte a byte', () => {
+  it('las dieciocho fichas viajan enteras, byte a byte', () => {
     const raiz = artefacto();
     try {
       const destino = join(raiz, RUTA_FICHAS);
       const ficheros = readdirSync(FUENTE);
-      expect(ficheros).toHaveLength(15);
+      expect(ficheros).toHaveLength(FICHAS_ESPERADAS);
       for (const f of ficheros) {
         expect(readFileSync(join(destino, f), 'utf-8'), f).toBe(
           readFileSync(join(FUENTE, f), 'utf-8'),
@@ -117,12 +128,12 @@ describe('la configuración de build declara el transporte', () => {
     expect(CODIGO).toContain('/app/rendimiento/evaluacion/[evaluacionId]');
   });
 
-  it('el glob declarado cubre las quince fichas reales', () => {
+  it('el glob declarado cubre las dieciocho fichas reales', () => {
     // El patrón dice `**/*.md`; se comprueba que todo lo que `cargarNormas`
     // lee son ficheros `.md`, o el glob dejaría alguno fuera.
     const ficheros = readdirSync(FUENTE);
     expect(ficheros.every((f) => f.endsWith('.md'))).toBe(true);
-    expect(ficheros).toHaveLength(15);
+    expect(ficheros).toHaveLength(FICHAS_ESPERADAS);
   });
 
   it('la ruta declarada en el config es la que el cargador usa de verdad', () => {

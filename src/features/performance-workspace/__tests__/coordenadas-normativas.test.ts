@@ -71,6 +71,7 @@ const registro = (): RegistroWorkspace => ({
   valor: { tipo: 'continuo', valor: 37.5, unidad: 'kg' },
   estado: 'vigente',
   condiciones: COND_UNI,
+  componentes: {},
   precondicionesCumplidas: true,
   patron: null,
   observaciones: null,

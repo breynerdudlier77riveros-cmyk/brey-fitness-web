@@ -76,6 +76,7 @@ const registro = (
   valor: { tipo: 'continuo', valor, unidad: 'kg' },
   estado: 'vigente',
   condiciones,
+  componentes: {},
   precondicionesCumplidas: true,
   patron: null,
   observaciones: null,
