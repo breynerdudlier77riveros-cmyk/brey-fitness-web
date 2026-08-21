@@ -30,7 +30,32 @@ export interface FraseEvidencia {
 /** Coma decimal. Solo presentación. */
 const num = (v: number): string => v.toFixed(2).replace(/\.?0+$/, '').replace('.', ',');
 
-/** Cómo se nombra la población de una referencia, en lenguaje corriente. */
+/**
+ * El país, escrito como lo escribiría una persona.
+ *
+ * `CA` es un código de catálogo, no español. Enseñárselo al atleta es el mismo
+ * error que enseñarle un ICC: correcto por dentro, ilegible por fuera.
+ */
+const PAISES: Readonly<Record<string, string>> = {
+  CA: 'Canadá',
+  CO: 'Colombia',
+};
+
+const paisDe = (iso: string): string => PAISES[iso] ?? iso;
+
+/**
+ * Cómo se nombra la población de una referencia, en lenguaje corriente.
+ *
+ * Exportada desde PAS-13: la tarjeta necesita meterla dentro de una frase
+ * («…de cada 100 varones de 20 a 24 años…»), y la alternativa era que se
+ * fabricara la suya a partir del ámbito. Dos redacciones de la misma población
+ * acabarían diciendo cosas distintas del mismo grupo.
+ */
+export function poblacionEnPalabras(ref: ReferenciaEvidencia): string {
+  const base = poblacionDe(ref);
+  return ref.ambito.pais === null ? base : `${base} de ${paisDe(ref.ambito.pais)}`;
+}
+
 function poblacionDe(ref: ReferenciaEvidencia): string {
   const partes: string[] = [];
   if (ref.ambito.sexo !== null) partes.push(ref.ambito.sexo === 'M' ? 'varones' : 'mujeres');
@@ -115,7 +140,7 @@ function procedenciaDe(ref: ReferenciaEvidencia): string | null {
 export function redactar(lectura: LecturaEvidencia): FraseEvidencia {
   switch (lectura.estado) {
     case 'EVIDENCIA_COMPATIBLE': {
-      const { referencia, posicion } = lectura.compatibles[0];
+      const { referencia, posicion, poblacionAjena } = lectura.compatibles[0];
       if (posicion === null) {
         return {
           texto: 'Existe una referencia compatible, pero no permite situar este valor en una escala.',
@@ -127,8 +152,18 @@ export function redactar(lectura: LecturaEvidencia): FraseEvidencia {
         lectura.compatibles.length > 1
           ? ` Hay ${lectura.compatibles.length} referencias compatibles y no se elige entre ellas.`
           : '';
+
+      // Cuando la norma es de otra población, decirlo NO es una nota al pie:
+      // es parte de la afirmación. Un percentil canadiense presentado a secas
+      // se lee como colombiano.
+      const ajena =
+        poblacionAjena && referencia.ambito.pais !== null
+          ? ` La referencia es de ${paisDe(referencia.ambito.pais)}, no de tu país: es la norma ` +
+            'publicada disponible para esta prueba, medida con el mismo protocolo.'
+          : '';
+
       return {
-        texto: `Tu resultado ${situacionDe(posicion, referencia)}.${varias}`,
+        texto: `Tu resultado ${situacionDe(posicion, referencia)}.${varias}${ajena}`,
         limite: limiteDe(posicion, referencia) || null,
         procedencia: procedenciaDe(referencia),
       };

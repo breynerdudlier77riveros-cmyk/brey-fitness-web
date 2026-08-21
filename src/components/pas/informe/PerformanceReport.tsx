@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/brand/Card";
-import type { InformeHumano } from "@/lib/pas/informe-humano";
+import { lecturaLlanaDe, type InformeHumano } from "@/lib/pas/informe-humano";
 
 import AthleteSummary from "./AthleteSummary";
 import GoalCard from "./GoalCard";
@@ -121,7 +121,11 @@ export default function PerformanceReport({ informe }: Props) {
             {resultados.map((r, i) => (
               <div key={`${r.pruebaId}-${r.detalles.normaId ?? i}`} className="space-y-2">
                 <ResultCard resultado={r} />
-                <TechnicalDetails detalles={r.detalles} />
+                <TechnicalDetails
+                  detalles={r.detalles}
+                  evidencia={r.evidencia}
+                  posicionTecnica={lecturaLlanaDe(r)?.tecnico ?? null}
+                />
               </div>
             ))}
           </div>

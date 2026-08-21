@@ -104,8 +104,11 @@ function claseDe(t: TarjetaNormativa): ClaseReferencia {
 const SIN: Omit<ReferenciaNormativa, 'estado' | 'explicacion'> = {
   clase: null,
   resumen: null,
+  posicion: null,
   poblacion: null,
   metodo: null,
+  escala: null,
+  aria: null,
 };
 
 /**
@@ -177,9 +180,12 @@ function referenciaDe(t: TarjetaNormativa): ReferenciaNormativa {
     estado: 'DISPONIBLE',
     clase: claseDe(t),
     resumen: t.resumenResultado,
+    posicion: t.posicion,
     explicacion: t.explicacion,
     poblacion: t.poblacion,
     metodo: t.metodo,
+    escala: t.escala,
+    aria: t.aria,
   };
 }
 

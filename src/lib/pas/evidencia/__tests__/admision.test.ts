@@ -24,7 +24,7 @@ const FLEX = { pruebaId: 'P-06', valor: 26, unidad: 'cm', condiciones: { version
 // G-06 · DECIDIDO POR VARIABLE, CON FUENTE
 // ════════════════════════════════════════════════════════════════════════════
 
-describe('G-06 · el país se mantiene, y ahora con evidencia detrás', () => {
+describe('G-06 · el país ya no bloquea, y la fuente sigue acotando lo decible', () => {
   it('la fuente que justifica la decisión está registrada y verificada', () => {
     const f = fuenteDe('rouis_etnia_salto_2016')!;
     expect(f.estado).toBe('propuesta');
@@ -51,13 +51,19 @@ describe('G-06 · el país se mantiene, y ahora con evidencia detrás', () => {
     expect(leerEvidencia(SALTO, CA).estado).toBe('EVIDENCIA_COMPATIBLE');
   });
 
-  it('salto: y no sitúa a un colombiano', () => {
-    expect(leerEvidencia(SALTO, CO).compatibles).toEqual([]);
+  it('salto: y también a un colombiano, marcando de quién es la norma', () => {
+    // PAS-13 invierte G-06. Rouis 2016 documenta que la ascendencia se asocia
+    // con diferencias de salto, y eso es exactamente lo que obliga a NOMBRAR
+    // la población de origen; no a esconder la única norma que existe.
+    const l = leerEvidencia(SALTO, CO);
+    expect(l.estado).toBe('EVIDENCIA_COMPATIBLE');
+    expect(l.compatibles[0].poblacionAjena).toBe(true);
   });
 
   it('sit-and-reach: misma decisión, mismo comportamiento', () => {
     expect(leerEvidencia(FLEX, CA).estado).toBe('EVIDENCIA_COMPATIBLE');
-    expect(leerEvidencia(FLEX, CO).compatibles).toEqual([]);
+    expect(leerEvidencia(FLEX, CA).compatibles[0].poblacionAjena).toBe(false);
+    expect(leerEvidencia(FLEX, CO).compatibles[0].poblacionAjena).toBe(true);
   });
 
   it('la decisión se tomó por variable, no en bloque', () => {

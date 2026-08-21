@@ -7,6 +7,7 @@
 // del NIE, traducidos a texto; los textos largos son literales del NIE o de la
 // NKB, transportados sin reescribir.
 
+import type { Posicion } from '@/lib/pas/evidencia';
 import type { ConflictoDeclarado, EstadoEvidencia } from '@/lib/nie';
 
 import type { Escala } from './escala';
@@ -98,6 +99,19 @@ export interface TarjetaNormativa {
    * cálculo nuevo. `null` cuando no hay resultado que resumir.
    */
   resumenResultado: string | null;
+  /**
+   * La misma lectura, estructurada (PAS-13).
+   *
+   * `resumenResultado` es su rótulo; esto es el dato. Existe porque la capa de
+   * presentación necesita redactar la posición en lenguaje llano, y deducirla
+   * releyendo la cadena «entre P90 y P97» ataría el significado a la
+   * puntuación de una frase.
+   *
+   * Comparte tipo con la capa de evidencia a propósito: «dónde cae un valor»
+   * es una sola pregunta, la conteste la NKB o el registro de evidencia, y dos
+   * vocabularios para la misma respuesta acabarían divergiendo.
+   */
+  posicion: Posicion | null;
   /**
    * La misma lectura en una frase, para quien no interprete la barra.
    *

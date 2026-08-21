@@ -5,7 +5,7 @@
 
 export { leerEvidencia, type MedicionEvaluada, type SujetoEvidencia } from './compatibilidad';
 export { leerCambio, situar, type LecturaDeCambio } from './posicion';
-export { redactar, type FraseEvidencia } from './redaccion';
+export { poblacionEnPalabras, redactar, type FraseEvidencia } from './redaccion';
 export {
   admiteRelativa,
   calcularRelativa,

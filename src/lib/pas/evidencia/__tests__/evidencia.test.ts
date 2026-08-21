@@ -470,6 +470,7 @@ describe('ninguna frase clasifica al atleta', () => {
         {
           referencia: REFERENCIAS.find((r) => r.id === 'P-01/powerlifting/p90')!,
           posicion: { clase: 'entre_percentiles', inferior: 50, superior: 90 },
+          poblacionAjena: false,
         },
       ],
       descartadas: [],

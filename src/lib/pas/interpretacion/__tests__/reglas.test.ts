@@ -83,10 +83,13 @@ function resultado(over: Partial<ResultadoHumano> = {}): ResultadoHumano {
     referencia: {
       estado: 'SIN_REFERENCIA',
       clase: null,
+      posicion: null,
       resumen: null,
       explicacion: null,
       poblacion: null,
       metodo: null,
+      escala: null,
+      aria: null,
     },
     tendencia: {
       disponible: false,
@@ -142,10 +145,13 @@ const conReferencia = (
     referencia: {
       estado: 'DISPONIBLE',
       clase,
+      posicion: null,
       resumen,
       explicacion: null,
       poblacion: 'Colombia · Varones · 22 años',
       metodo: 'takei-t18-tkk-smedley-iii',
+      escala: null,
+      aria: null,
     },
   });
 
@@ -495,10 +501,13 @@ describe('separación de ejes', () => {
     referencia: {
       estado: 'DISPONIBLE',
       clase: 'intervalo',
+      posicion: null,
       resumen: 'entre P90 y P97',
       explicacion: null,
       poblacion: 'Colombia · Varones · 22 años',
       metodo: 'takei-t18-tkk-smedley-iii',
+      escala: null,
+      aria: null,
     },
     tendencia: {
       disponible: true,
@@ -670,10 +679,13 @@ describe('determinismo', () => {
       referencia: {
         estado: 'DISPONIBLE',
         clase: 'intervalo',
+        posicion: null,
         resumen: 'entre P90 y P97',
         explicacion: null,
         poblacion: 'Colombia',
         metodo: 'x',
+        escala: null,
+        aria: null,
       },
       tendencia: {
         ...resultado().tendencia,

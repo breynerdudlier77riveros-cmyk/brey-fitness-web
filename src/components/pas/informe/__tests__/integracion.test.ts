@@ -21,6 +21,7 @@ import EvidenceBlock from '../EvidenceBlock';
 import EvidenceScale from '@/components/pas/evidencia/EvidenceScale';
 import PerformanceProfile from '../PerformanceProfile';
 import ResultCard from '../ResultCard';
+import TechnicalDetails from '../TechnicalDetails';
 
 const SIN_EVIDENCIA: LecturaEvidencia = {
   pruebaId: 'P-03',
@@ -42,10 +43,13 @@ function resultado(over: Partial<ResultadoHumano> = {}): ResultadoHumano {
     referencia: {
       estado: 'SIN_REFERENCIA',
       clase: null,
+      posicion: null,
       resumen: null,
       explicacion: 'No existe actualmente una referencia normativa compatible.',
       poblacion: null,
       metodo: null,
+      escala: null,
+      aria: null,
     },
     tendencia: {
       disponible: false,
@@ -81,7 +85,7 @@ function resultado(over: Partial<ResultadoHumano> = {}): ResultadoHumano {
 
 const bloque = (evidencia: LecturaEvidencia, normativaCubierta = false) =>
   renderToStaticMarkup(
-    createElement(EvidenceBlock, { evidencia, observado: 46, unidad: 'kg', normativaCubierta }),
+    createElement(EvidenceBlock, { evidencia, normativaCubierta }),
   );
 
 /** Lecturas reales, calculadas por la capa. Nada se fabrica en el test. */
@@ -185,10 +189,34 @@ describe('cada estado de evidencia se ve distinto', () => {
     expect(bloque(SIN_EVIDENCIA, true)).toBe('');
   });
 
-  it('pero sí añade la fiabilidad cuando la NKB no la cubre', () => {
-    const html = bloque(LECTURAS.parcialFiabilidad, true);
-    expect(html).toContain('Evidencia complementaria');
-    expect(html).toContain('Fiabilidad de la prueba');
+  it('la fiabilidad ya NO se le enseña al atleta, y no se ha perdido', () => {
+    // PAS-13. El ICC describe cuánto se repite el instrumento; puesto junto al
+    // resultado, un 0,97 se lee como un 0,97 de nota. Sale de la tarjeta y
+    // entra entera en los detalles técnicos, que es donde el profesional puede
+    // usarla.
+    expect(bloque(LECTURAS.parcialFiabilidad, true)).toBe('');
+    expect(bloque(LECTURAS.parcialFiabilidad, false)).not.toContain('ICC');
+
+    const detalles = renderToStaticMarkup(
+      createElement(TechnicalDetails, {
+        detalles: resultado().detalles,
+        evidencia: LECTURAS.parcialFiabilidad,
+      }),
+    );
+    expect(detalles).toContain('Fiabilidad de la prueba');
+    expect(detalles).toContain('ICC publicado');
+  });
+
+  it('CONTROL POSITIVO · sin evidencia de fiabilidad, la sección no se inventa', () => {
+    // Sin esto, el test anterior pasaría igual si los detalles imprimieran el
+    // rótulo siempre, con la rejilla vacía debajo.
+    const detalles = renderToStaticMarkup(
+      createElement(TechnicalDetails, {
+        detalles: resultado().detalles,
+        evidencia: SIN_EVIDENCIA,
+      }),
+    );
+    expect(detalles).not.toContain('Fiabilidad de la prueba');
   });
 });
 
@@ -197,9 +225,9 @@ describe('cada estado de evidencia se ve distinto', () => {
 // ════════════════════════════════════════════════════════════════════════════
 
 describe('la escala no fabrica datos', () => {
-  const escala = (representacion: Parameters<typeof EvidenceScale>[0]['representacion'], posicion = null) =>
+  const escala = (representacion: Parameters<typeof EvidenceScale>[0]['representacion']) =>
     renderToStaticMarkup(
-      createElement(EvidenceScale, { representacion, posicion, observado: 46, unidad: 'kg' }),
+      createElement(EvidenceScale, { representacion, observado: 46, unidad: 'kg' }),
     );
 
   it('con percentiles dibuja SOLO los publicados', () => {
@@ -426,5 +454,85 @@ describe('la presentación no calcula ciencia', () => {
     expect("import {x} from '@/lib/nie'").toMatch(/from ['"]@\/lib\/nie/);
     expect('const l = leerEvidencia(a, b);').toMatch(/leerEvidencia\(/);
     expect('await supabase.from("x")').toMatch(/(?<![-\w])supabase(?![-\w])/i);
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// LA TARJETA QUE MOTIVÓ PAS-13
+// ════════════════════════════════════════════════════════════════════════════
+//
+// La queja era concreta y verificable: «no hay interpretación ni gráficos ni
+// nada en ninguna de las pruebas, y una persona no sabe qué es un ICC».
+//
+// Estos tests renderizan la tarjeta de un colombiano con un salto real y
+// comprueban las cuatro cosas: que hay gráfico, que hay una frase que se
+// entiende, que NO hay jerga, y que la norma extranjera se nombra.
+
+describe('la tarjeta del salto, para un colombiano, dice algo que se entiende', () => {
+  const SALTO = leerEvidencia(
+    { pruebaId: 'P-04', valor: 44, unidad: 'cm', condiciones: { brazos: 'libres' } },
+    ADULTO,
+  );
+
+  const html = renderToStaticMarkup(
+    createElement(ResultCard, {
+      resultado: resultado({
+        pruebaId: 'P-04',
+        nombre: 'Salto con contramovimiento',
+        valorObservado: 44,
+        unidad: 'cm',
+        evidencia: SALTO,
+        fuenteNormativa: 'evidencia',
+        serie: construirSerie('P-04', [
+          { pruebaId: 'P-04', valor: 44, unidad: 'cm', fecha: '2026-08-15', condiciones: {} },
+        ]),
+      }),
+    }),
+  );
+
+  it('hay gráfico: la escala se dibuja con los percentiles publicados', () => {
+    expect(html).toContain('pas10e-escala');
+    expect(html).toContain('data-clase="percentiles"');
+  });
+
+  it('hay una frase que se entiende sin saber qué es un percentil', () => {
+    expect(html).toMatch(/de cada 100/);
+    expect(html).toContain('quedan por debajo de tu marca');
+  });
+
+  it('y dice hacia qué lado se mejora, que es la otra mitad de la lectura', () => {
+    expect(html).toContain('un número mayor es mejor resultado');
+  });
+
+  it('el eje del gráfico explica qué es una marca, en vez de suponerlo sabido', () => {
+    // «P20» sigue rotulando el eje, y debe: sin rótulo el eje no dice nada.
+    // Lo que cambia es que ahora se dice qué significa esa marca.
+    expect(html).toContain('Cada marca del eje es un percentil publicado');
+    expect(html).toContain('quedan por debajo de ese valor');
+  });
+
+  it('NO le enseña al atleta el ICC ni el CV: eso describe al aparato', () => {
+    // Los dos siguen existiendo: viven en los detalles técnicos, y hay un test
+    // más arriba que lo comprueba. Lo que no pueden es estar aquí.
+    expect(html).not.toContain('ICC');
+    expect(html).not.toContain('CV publicado');
+  });
+
+  it('CONTROL POSITIVO · el auditor reconoce un ICC cuando está', () => {
+    // Sin esto, la comprobación anterior pasaría aunque `html` fuera ''.
+    expect(html.length).toBeGreaterThan(500);
+    expect('ICC publicado 0,91 – 0,97').toContain('ICC');
+  });
+
+  it('y nombra de quién es la norma, porque no es de su país', () => {
+    expect(html).toContain('pas13-poblacion-ajena');
+    expect(html).toContain('No existe una tabla publicada para tu país');
+    expect(html).toContain('Canadá');
+  });
+
+  it('sin clasificar: sigue sin haber una categoría de mérito en la tarjeta', () => {
+    expect(html).not.toMatch(
+      /(?<![-\w])(bueno|malo|excelente|deficiente|normal|adecuado)(?![-\w])/i,
+    );
   });
 });

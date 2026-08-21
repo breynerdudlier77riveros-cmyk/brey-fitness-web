@@ -3,13 +3,23 @@
 // LO QUE ESTOS TESTS PROTEGEN:
 //
 //   Que la referencia canadiense recién incorporada haga exactamente lo que
-//   debe —situar a quien pertenece a esa población y NEGARSE con quien no— y
-//   que ninguna de las dos respuestas se degrade a «no hay evidencia».
+//   debe: situar el resultado, y decir SIEMPRE de qué población es la norma
+//   cuando no es la del atleta.
 //
-// La decisión científica que blindan: **el país es una coordenada de identidad**,
-// igual que en las fichas de dinamometría de la NKB. Una norma nacional
-// canadiense no describe a un atleta colombiano, y aplicarla «porque es lo que
-// hay» sería inventar una equivalencia poblacional que nadie ha publicado.
+// ── ESTE FICHERO DEFENDÍA LO CONTRARIO (PAS-13) ────────────────────────────
+//
+//   Hasta este sprint el país descartaba la norma: un colombiano no se
+//   comparaba con la tabla canadiense y se quedaba sin escala. La razón era
+//   buena —no inventar una equivalencia poblacional que nadie ha publicado—
+//   pero el resultado era peor que el problema: tirar la única referencia
+//   publicada que existe para una prueba estandarizada, medida con el mismo
+//   protocolo, sobre los mismos seres humanos.
+//
+//   La decisión que ahora se blinda no es más laxa, es más exigente: **situar
+//   sí, pero nombrando la población de origen**. Un percentil presentado a
+//   secas se lee como propio. Y el test que lo protege no es que la frase diga
+//   «Canadá» —eso pasaría aunque lo dijera siempre— sino que NO lo diga cuando
+//   el atleta sí es canadiense.
 
 import { describe, expect, it } from 'vitest';
 
@@ -84,38 +94,47 @@ describe('la norma poblacional canadiense sitúa a un adulto canadiense', () => 
 });
 
 // ════════════════════════════════════════════════════════════════════════════
-// Y SE NIEGA CON QUIEN NO LE CORRESPONDE
+// Y CON QUIEN NO PERTENECE A ESA POBLACIÓN, LO DICE
 // ════════════════════════════════════════════════════════════════════════════
 
-describe('el país es una coordenada de identidad, no un adorno', () => {
-  it('un atleta colombiano NO se compara con la norma canadiense', () => {
+describe('el país deja de bloquear, pero nunca deja de nombrarse', () => {
+  it('un atleta colombiano SÍ se sitúa en la norma canadiense', () => {
     const l = leerEvidencia(SALTO, COLOMBIANO);
-    // Lo que importa es que NO se le sitúe. El estado global es
-    // EVIDENCIA_PARCIAL porque la fiabilidad de la prueba sí le aplica, y
-    // decir eso informa más que limitarse a «no compatible».
-    expect(l.compatibles).toEqual([]);
-    expect(l.estado).not.toBe('EVIDENCIA_COMPATIBLE');
-    expect(l.descartadas.length).toBeGreaterThan(0);
+    expect(l.estado).toBe('EVIDENCIA_COMPATIBLE');
+    expect(l.compatibles.length).toBeGreaterThan(0);
+    expect(l.compatibles[0].posicion).not.toBeNull();
   });
 
-  it('pero el motivo nombra el país, en vez de callar', () => {
-    const l = leerEvidencia(SALTO, COLOMBIANO);
-    const d = l.descartadas.find((x) => x.motivo.includes('CA'));
-    expect(d).toBeDefined();
-    expect(d!.motivo).toMatch(/población de CA/);
+  it('y la lectura marca que la población de origen no es la suya', () => {
+    expect(leerEvidencia(SALTO, COLOMBIANO).compatibles[0].poblacionAjena).toBe(true);
+    expect(leerEvidencia(SALTO, CANADIENSE).compatibles[0].poblacionAjena).toBe(false);
   });
 
-  it('y la frase NO dice que no exista evidencia', () => {
+  it('la frase nombra el país, en español y sin código de catálogo', () => {
     const f = redactar(leerEvidencia(SALTO, COLOMBIANO));
-    expect(f.texto).toMatch(/tiene evidencia publicada/);
-    expect(f.texto).not.toMatch(/No se ha localizado evidencia/);
+    expect(f.texto).toMatch(/entre el percentil 20 y el 30/);
+    expect(f.texto).toMatch(/de Canadá, no de tu país/);
+    // «CA» es un código ISO, no una palabra. Al atleta se le habla en español.
+    expect(f.texto).not.toMatch(/(?<![-\w])CA(?![-\w])/);
   });
 
-  it('la norma descartada sigue constando, para que el profesional la vea', () => {
-    // Descartarla no es borrarla: existe, está verificada, y algún día el
-    // producto puede decidir que una norma internacional es admisible.
+  it('CONTROL POSITIVO · a un canadiense NO se le advierte de su propia norma', () => {
+    // Sin esto, el test anterior pasaría aunque la advertencia se imprimiera
+    // siempre, y una advertencia que sale siempre no advierte de nada.
+    expect(redactar(leerEvidencia(SALTO, CANADIENSE)).texto).not.toMatch(/no de tu país/);
+  });
+
+  it('situar en otra población no autoriza a clasificar', () => {
+    const f = redactar(leerEvidencia(SALTO, COLOMBIANO));
+    expect(f.texto).not.toMatch(/(?<![-\w])(bueno|malo|alto|bajo|normal|excelente)(?![-\w])/i);
+  });
+
+  it('lo que el país NO arrastra: el sexo y la edad siguen descartando', () => {
+    // Abrir la puerta al país no la abre a todo lo demás. La tabla de mujeres
+    // sigue constando como descartada para un varón, con su motivo.
     const l = leerEvidencia(SALTO, COLOMBIANO);
     expect(l.descartadas.some((d) => d.referencia.fuenteId === 'hoffmann_chms_2019')).toBe(true);
+    expect(l.compatibles.every((c) => c.referencia.ambito.sexo === 'M')).toBe(true);
   });
 
   it('la edad fuera de banda también descarta, con su motivo', () => {

@@ -217,7 +217,18 @@ export interface LecturaEvidencia {
    * Las referencias compatibles. **Puede haber más de una y no se elige** —
    * misma doctrina que el NIE: se particiona, no se selecciona.
    */
-  compatibles: readonly { referencia: ReferenciaEvidencia; posicion: Posicion | null }[];
+  compatibles: readonly {
+    referencia: ReferenciaEvidencia;
+    posicion: Posicion | null;
+    /**
+     * La norma es de otra población que la del atleta (PAS-13).
+     *
+     * No impide situar el resultado —una prueba estandarizada mide lo mismo en
+     * todas partes— pero **obliga a nombrar de quién es la norma**. Presentar
+     * un percentil canadiense sin decirlo lo convertiría en uno colombiano.
+     */
+    poblacionAjena: boolean;
+  }[];
   /** Las descartadas, con el motivo. Una ausencia sin motivo no es información. */
   descartadas: readonly { referencia: ReferenciaEvidencia; motivo: string }[];
   /** Qué falta para poder decir más. Vacío cuando no falta nada. */

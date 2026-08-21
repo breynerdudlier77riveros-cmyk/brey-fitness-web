@@ -69,7 +69,7 @@ const DETALLE_VARIABLE: Readonly<Record<string, string>> = {
 // ════════════════════════════════════════════════════════════════════════════
 
 type Veredicto =
-  | { apta: true }
+  | { apta: true; poblacionAjena?: boolean }
   | { apta: false; motivo: string }
   | { apta: false; carencia: Carencia };
 
@@ -153,16 +153,24 @@ function evaluar(
     }
   }
 
-  // 5 · Población · país. Una referencia sin país es internacional y no excluye
-  //     a nadie; una con país solo aplica a esa población.
-  if (ref.ambito.pais !== null && sujeto.pais !== null && ref.ambito.pais !== sujeto.pais) {
-    return {
-      apta: false,
-      motivo:
-        `La referencia describe a la población de ${ref.ambito.pais} y el atleta pertenece a ` +
-        `la de ${sujeto.pais}.`,
-    };
-  }
+  // 5 · Población · país.
+  //
+  // G-06 REABIERTO Y RESUELTO AL REVÉS (PAS-13, decisión del profesional).
+  //
+  // Hasta ahora un país distinto DESCARTABA la referencia. La consecuencia era
+  // que un atleta colombiano no veía nada, teniendo el sistema una norma
+  // adulta de 5188 personas con muestreo probabilístico esperando sin usar.
+  // Eso no es prudencia: es tirar información real.
+  //
+  // Estas pruebas están estandarizadas, y una norma internacional sigue
+  // describiendo a seres humanos midiendo lo mismo con el mismo protocolo. Lo
+  // que NO puede hacerse es presentarla como si fuera colombiana — así que se
+  // aplica, y la población de origen viaja con ella para que se declare.
+  //
+  // La edad y el protocolo siguen bloqueando: comparar a un adulto con normas
+  // de escolares, o dos protocolos distintos, sí cambia lo que se está midiendo.
+  const poblacionAjena =
+    ref.ambito.pais !== null && sujeto.pais !== null && ref.ambito.pais !== sujeto.pais;
 
   // 6 · Protocolo. Aquí es donde el bloqueo de captura se vuelve visible: si la
   //     prueba no declara sus condiciones, esto no puede resolverse.
@@ -205,7 +213,7 @@ function evaluar(
     }
   }
 
-  return { apta: true };
+  return { apta: true, poblacionAjena };
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -247,7 +255,11 @@ export function leerEvidencia(
   medicion: MedicionEvaluada,
   sujeto: SujetoEvidencia,
 ): LecturaEvidencia {
-  const compatibles: { referencia: ReferenciaEvidencia; posicion: Posicion | null }[] = [];
+  const compatibles: {
+    referencia: ReferenciaEvidencia;
+    posicion: Posicion | null;
+    poblacionAjena: boolean;
+  }[] = [];
   const descartadas: { referencia: ReferenciaEvidencia; motivo: string }[] = [];
   const carencias: Carencia[] = [];
   const complementarias: ReferenciaEvidencia[] = [];
@@ -276,7 +288,13 @@ export function leerEvidencia(
         });
         continue;
       }
-      compatibles.push({ referencia: ref, posicion: situar(medicion.valor, ref.representacion) });
+      compatibles.push({
+        referencia: ref,
+        posicion: situar(medicion.valor, ref.representacion),
+        // Se sitúa igual, pero la tarjeta tiene que poder decir de quién es la
+        // norma. Una posición sin población es media verdad.
+        poblacionAjena: v.poblacionAjena === true,
+      });
     } else {
       complementarias.push(ref);
     }

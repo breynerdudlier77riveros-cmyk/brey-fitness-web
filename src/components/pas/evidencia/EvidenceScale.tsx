@@ -1,4 +1,4 @@
-import type { Posicion, Representacion } from "@/lib/pas/evidencia";
+import type { Representacion } from "@/lib/pas/evidencia";
 
 // ── Escala de evidencia (Sprint PAS-10E §8, §15, §16, §27) ─────────────────
 //
@@ -22,10 +22,14 @@ import type { Posicion, Representacion } from "@/lib/pas/evidencia";
 
 interface Props {
   representacion: Representacion;
-  posicion: Posicion | null;
   observado: number;
   unidad: string;
 }
+
+// `posicion` era un parámetro de este componente hasta PAS-13, y se usaba para
+// repetir «Entre P20 y P30» debajo del eje. Esa lectura la enuncia ahora la
+// tarjeta, en español y una sola vez; el gráfico dibuja lo publicado y explica
+// su propio eje, que es todo lo que un gráfico debe hacer.
 
 /** Coma decimal. Solo presentación. */
 const num = (v: number): string =>
@@ -78,7 +82,7 @@ function Marca({ en, arriba, abajo }: { en: number; arriba: string; abajo?: stri
   );
 }
 
-export default function EvidenceScale({ representacion: r, posicion, observado, unidad }: Props) {
+export default function EvidenceScale({ representacion: r, observado, unidad }: Props) {
   // ── Percentiles publicados ───────────────────────────────────────────────
   if (r.clase === "percentiles") {
     const puntos = [...r.puntos].sort((a, b) => a.valor - b.valor);
@@ -131,12 +135,15 @@ export default function EvidenceScale({ representacion: r, posicion, observado, 
           ))}
           <Marcador en={pct(observado, min, max)} etiqueta={`${num(observado)} ${unidad}`} />
         </Riel>
-        {posicion?.clase === "entre_percentiles" ? (
-          <p className="text-[11px] text-white/35">
-            Entre P{posicion.inferior} y P{posicion.superior}. La fuente no publica valores
-            intermedios y no se estima ninguno.
-          </p>
-        ) : null}
+        {/* La leyenda del eje, no el resultado (PAS-13).
+            Antes aquí se repetía «Entre P20 y P30», que es la misma frase que
+            la tarjeta enuncia arriba en español y el mismo límite que aparece
+            al pie: tres veces lo mismo. Lo que faltaba era decir qué significa
+            una marca, que es lo que el lector no sabe. */}
+        <p className="text-[11px] leading-relaxed text-white/35">
+          Cada marca del eje es un percentil publicado: el porcentaje de personas de la referencia
+          que quedan por debajo de ese valor.
+        </p>
       </div>
     );
   }

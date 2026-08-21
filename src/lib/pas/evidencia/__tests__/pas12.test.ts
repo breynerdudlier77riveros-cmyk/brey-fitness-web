@@ -295,12 +295,15 @@ describe('el comportamiento científico anterior sigue intacto', () => {
     expect(REFERENCIAS.filter((r) => r.pruebaId === 'P-03')).toEqual([]);
   });
 
-  it('la norma canadiense sigue sin aplicarse a un colombiano', () => {
+  it('la norma canadiense ya se aplica a un colombiano, declarada como ajena', () => {
+    // Cambiado en PAS-13: lo que se conserva intacto no es el bloqueo, es la
+    // obligación de no presentar una norma extranjera como si fuera propia.
     const l = leerEvidencia(
       { pruebaId: 'P-04', valor: 44, unidad: 'cm', condiciones: { brazos: 'libres' } },
       CO,
     );
-    expect(l.compatibles).toEqual([]);
+    expect(l.compatibles.length).toBeGreaterThan(0);
+    expect(l.compatibles.every((c) => c.poblacionAjena)).toBe(true);
   });
 
   it('P-10 y P-11 siguen siendo gaps honestos', () => {

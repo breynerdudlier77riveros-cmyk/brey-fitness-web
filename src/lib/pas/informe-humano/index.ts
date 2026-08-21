@@ -8,6 +8,7 @@ export {
   type EntradaInformeHumano,
   type MedicionPrevia,
 } from './componer';
+export { lecturaLlanaDe } from './llano';
 export {
   metaDe,
   objetivoDe,

@@ -9,6 +9,7 @@
 // Módulo puro.
 
 import type { ResultadoNormativo, SalidaNIE, ValoresNormativos } from '@/lib/nie';
+import type { Posicion } from '@/lib/pas/evidencia';
 import type { ConsultaNormativa } from '@/lib/pas/normativo';
 
 import { escalar, type Escala } from './escala';
@@ -139,12 +140,13 @@ function evidenciaDe(r: ResultadoNormativo): readonly FilaEvidencia[] {
 function leerResultado(
   r: ResultadoNormativo,
   unidad: string,
-): { resumen: string | null; explicacion: string | null } {
+): { resumen: string | null; explicacion: string | null; posicion: Posicion | null } {
   const res = r.comparacion.resultado;
-  if (res === null) return { resumen: null, explicacion: null };
+  if (res === null) return { resumen: null, explicacion: null, posicion: null };
 
   if (res.tipo === 'percentil_exacto') {
     return {
+      posicion: { clase: 'percentil_exacto', p: res.percentil },
       resumen: `P${res.percentil}`,
       explicacion:
         `El valor coincide exactamente con el percentil ${res.percentil} publicado ` +
@@ -156,6 +158,11 @@ function leerResultado(
     const { inferior, superior } = res;
     if (inferior && superior) {
       return {
+        posicion: {
+          clase: 'entre_percentiles',
+          inferior: inferior.percentil,
+          superior: superior.percentil,
+        },
         resumen: `entre P${inferior.percentil} y P${superior.percentil}`,
         explicacion:
           `El valor queda entre los percentiles ${inferior.percentil} (${num(inferior.valor)} ${unidad}) ` +
@@ -165,6 +172,7 @@ function leerResultado(
     }
     if (superior) {
       return {
+        posicion: { clase: 'fuera_por_debajo', primerPercentil: superior.percentil },
         resumen: `por debajo de P${superior.percentil}`,
         explicacion:
           `El valor queda por debajo del menor percentil publicado, P${superior.percentil} ` +
@@ -173,16 +181,18 @@ function leerResultado(
     }
     if (inferior) {
       return {
+        posicion: { clase: 'fuera_por_encima', ultimoPercentil: inferior.percentil },
         resumen: `por encima de P${inferior.percentil}`,
         explicacion:
           `El valor queda por encima del mayor percentil publicado, P${inferior.percentil} ` +
           `(${num(inferior.valor)} ${unidad}). No se extrapola.`,
       };
     }
-    return { resumen: null, explicacion: null };
+    return { resumen: null, explicacion: null, posicion: null };
   }
 
   return {
+    posicion: { clase: 'desviaciones', z: res.z },
     resumen: `z = ${conSigno(res.z)}`,
     explicacion:
       // «por encima / por debajo», no «sobre / bajo»: `bajo` es preposición
@@ -312,6 +322,7 @@ function tarjetasDe(
       unidad: r.unidad.unidadOriginal,
       situacion: ETIQUETA_INTERPRETACION[r.comparacion.estado],
       resumenResultado: lectura.resumen,
+      posicion: lectura.posicion,
       explicacion: lectura.explicacion,
       motivo: r.comparacion.motivo,
       poblacion: poblacionDe(r),

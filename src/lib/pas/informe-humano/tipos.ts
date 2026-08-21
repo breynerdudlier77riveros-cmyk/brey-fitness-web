@@ -20,8 +20,9 @@
 // objetivo» en una categoría normativa que nadie publicó.
 
 import type { ConflictoDeclarado } from '@/lib/nie';
+import type { Escala } from '@/lib/pas/report-v2';
 import type { InterpretacionResultado } from '@/lib/pas/interpretacion';
-import type { LecturaEvidencia } from '@/lib/pas/evidencia';
+import type { LecturaEvidencia, Posicion } from '@/lib/pas/evidencia';
 import type { MotivoSinProgreso, PosicionRango, SerieLongitudinal } from '@/lib/pas/seguimiento';
 
 import type { EstadoObjetivo, ObjetivoAtleta, TipoObjetivo } from './objetivos';
@@ -62,10 +63,29 @@ export interface ReferenciaNormativa {
   resumen: string | null;
   /** La frase completa. Describe dónde cae el valor, nunca qué significa. */
   explicacion: string | null;
+  /**
+   * Dónde cae el valor, estructurado (PAS-13).
+   *
+   * `resumen` es su rótulo técnico —`P50`, `entre P90 y P97`— y `posicion` es
+   * el dato del que sale. Existe para que la tarjeta pueda redactar la lectura
+   * en lenguaje llano sin releer la cadena, que ataría el significado a la
+   * puntuación de una frase.
+   */
+  posicion: Posicion | null;
   /** `Colombia · Varones · 22 años`, para saber contra quién se compara. */
   poblacion: string | null;
   /** Nombre legible del instrumento. El código va en los detalles técnicos. */
   metodo: string | null;
+  /**
+   * La barra de percentiles publicados, ya posicionada (PAS-13).
+   *
+   * Se calculó en PRS v2.0 y solo se dibujaba en el informe clínico. El atleta
+   * recibía la misma comparación en forma de cadena —«entre P90 y P97»— y sin
+   * gráfico. Es transporte: aquí no se recoloca ninguna marca.
+   */
+  escala: Escala | null;
+  /** Rótulo accesible completo de esa barra. Lo compuso el modelo de vista. */
+  aria: string | null;
 }
 
 /**

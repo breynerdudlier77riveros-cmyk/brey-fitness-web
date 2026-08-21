@@ -71,10 +71,13 @@ function resultado(over: Partial<ResultadoHumano> = {}): ResultadoHumano {
     referencia: {
       estado: 'SIN_REFERENCIA',
       clase: null,
+      posicion: null,
       resumen: null,
       explicacion: 'No existe actualmente una referencia normativa compatible.',
       poblacion: null,
       metodo: null,
+      escala: null,
+      aria: null,
     },
     tendencia: {
       disponible: false,
