@@ -355,6 +355,34 @@ describe('el perfil agrupa por dominios sin puntuar', () => {
         valorObservado: 120,
         evidencia: LECTURAS.noDeterminable,
         tendencia: { ...resultado().tendencia, disponible: true, valorAnterior: 110, cambioAbsoluto: 10 },
+        // Con objetivo además de evolución: es el caso que demuestra que los
+        // tres ejes se leen por separado, y sin él el fixture no ejercitaba
+        // ninguna prueba con los tres a la vez.
+        objetivo: {
+          disponible: true,
+          objetivo: {
+            id: 'o1',
+            atletaId: 'a1',
+            pruebaId: 'P-01',
+            tipo: 'aumentar' as const,
+            nombre: 'Llegar a 140 kg',
+            valorInicial: 110,
+            fechaPuntoDePartida: '2026-01-15',
+            valorObjetivo: 140,
+            rango: null,
+            unidad: 'kg',
+            prioridad: 'alta' as const,
+            fechaInicio: '2026-01-15',
+            fechaObjetivo: null,
+            estado: 'activo' as const,
+            notas: null,
+          },
+          progreso: 0.33,
+          superado: false,
+          mantenimiento: null,
+          motivoCodigo: null,
+          motivo: null,
+        },
       }),
     ]),
     grupo('Metabólico', [
@@ -374,10 +402,12 @@ describe('el perfil agrupa por dominios sin puntuar', () => {
     expect(html).toContain('No se promedian entre sí');
   });
 
-  it('los tres ejes se leen en columnas separadas', () => {
-    expect(html).toContain('Referencia');
-    expect(html).toContain('Evolución');
-    expect(html).toContain('Objetivo');
+  it('los tres ejes se leen por separado, sin cruzarse', () => {
+    // Ya no son tres columnas de una tabla —esa se arrastraba en horizontal en
+    // un móvil— sino la lectura normativa más dos etiquetas. Lo que se protege
+    // no es la forma: es que sigan siendo tres respuestas distinguibles.
+    expect(html).toContain('Con medición anterior');
+    expect(html).toContain('Con objetivo');
   });
 
   it('una prueba SIN referencia no desaparece del perfil', () => {
@@ -385,14 +415,63 @@ describe('el perfil agrupa por dominios sin puntuar', () => {
     expect(html).toContain('120');
   });
 
-  it('y declara qué le falta, en vez de un guion mudo', () => {
-    expect(html).toContain('falta un dato');
+  it('declara qué le falta en palabras completas, no en un fragmento', () => {
+    // Decía «falta un dato». Es cierto y es indescifrable sin conocer el
+    // sistema: no dice de quién es el dato ni para qué serviría.
+    expect(html).toContain('Falta un dato del atleta para poder comparar');
+    expect(html).toContain('La referencia publicada es de otra población');
   });
 
   it('una prueba sin norma pero con evolución la muestra igual', () => {
     // Es el punto del §B: sin normativa, el resultado sigue sirviendo.
     const fila = html.slice(html.indexOf('data-prueba="P-01"'));
-    expect(fila.slice(0, 600)).toContain('✓');
+    expect(fila.slice(0, 900)).toContain('Con medición anterior');
+  });
+
+  it('donde HAY lectura, se enseña la lectura y no un visto bueno', () => {
+    // El defecto que esto corrige: el caso bueno era el que menos decía. Un ✓
+    // confirma que existe una comparación sin enseñarla, y la comparación ya
+    // está redactada en lenguaje llano desde PAS-13.
+    const conNorma = grupo('Potencia', [
+      resultado({
+        pruebaId: 'P-04',
+        nombre: 'Salto con contramovimiento',
+        valorObservado: 44,
+        unidad: 'cm',
+        fuenteNormativa: 'evidencia',
+        evidencia: leerEvidencia(
+          { pruebaId: 'P-04', valor: 44, unidad: 'cm', condiciones: { brazos: 'libres' } },
+          ADULTO,
+        ),
+      }),
+    ]);
+    const conLectura = renderToStaticMarkup(
+      createElement(PerformanceProfile, { dominios: [conNorma] }),
+    );
+    expect(conLectura).toMatch(/de cada 100 por debajo/);
+    expect(conLectura).not.toContain('✓');
+  });
+
+  it('y esa lectura sigue sin contener ninguna categoría de mérito', () => {
+    const conNorma = grupo('Potencia', [
+      resultado({
+        pruebaId: 'P-04',
+        nombre: 'Salto con contramovimiento',
+        valorObservado: 44,
+        unidad: 'cm',
+        fuenteNormativa: 'evidencia',
+        evidencia: leerEvidencia(
+          { pruebaId: 'P-04', valor: 44, unidad: 'cm', condiciones: { brazos: 'libres' } },
+          ADULTO,
+        ),
+      }),
+    ]);
+    const conLectura = renderToStaticMarkup(
+      createElement(PerformanceProfile, { dominios: [conNorma] }),
+    );
+    expect(conLectura).not.toMatch(
+      /(?<![-\w])(bueno|malo|excelente|deficiente|normal|adecuado)(?![-\w])/i,
+    );
   });
 
   it('las pruebas se identifican por nombre; el código va en data-', () => {

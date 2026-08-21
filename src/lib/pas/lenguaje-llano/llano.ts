@@ -48,6 +48,16 @@ export interface LecturaLlana {
    * mezclarlas produciría exactamente la clasificación que no se puede emitir.
    */
   sentido: string;
+  /**
+   * La misma lectura, para donde solo quepa una línea (el perfil por
+   * dominios, una celda de tabla).
+   *
+   * NO es el rótulo técnico abreviado: es la frase llana recortada a lo
+   * esencial —cuánta gente queda por debajo— sin la población, que en una
+   * vista de once pruebas ya está implícita en el nombre de la prueba y se
+   * repetiría once veces. Sigue sin contener ninguna categoría.
+   */
+  resumen: string;
   /** La forma técnica de lo mismo. Para los detalles, nunca para la tarjeta. */
   tecnico: string;
 }
@@ -136,6 +146,40 @@ function cuantaGente(p: Posicion, poblacion: string): string | null {
 }
 
 /**
+ * La misma lectura en una línea, sin la población.
+ *
+ * Comparte la guarda de `cuantaGente`: si las etiquetas de percentil no crecen
+ * con el valor, tampoco aquí se cuenta gente. Dos formas de la misma frase con
+ * criterios distintos acabarían contradiciéndose en la misma pantalla.
+ */
+function resumenDe(p: Posicion): string {
+  switch (p.clase) {
+    case 'percentil_exacto':
+      return `${p.p} de cada 100 por debajo`;
+    case 'entre_percentiles':
+      return p.inferior >= p.superior
+        ? 'entre dos valores publicados'
+        : `${p.inferior}–${p.superior} de cada 100 por debajo`;
+    case 'fuera_por_debajo':
+      return `menos de ${p.primerPercentil} de cada 100 por debajo`;
+    case 'fuera_por_encima':
+      return `más de ${p.ultimoPercentil} de cada 100 por debajo`;
+    case 'desviaciones':
+      // Sin cifra: la fuente no publica percentiles y el resumen no puede
+      // insinuar una posición que la frase larga se niega a dar.
+      return `${p.z >= 0 ? 'por encima' : 'por debajo'} de la media publicada`;
+    case 'dentro_del_rango':
+      return 'dentro del rango publicado';
+    case 'fuera_del_rango':
+      return `fuera del rango, por el extremo ${p.lado}`;
+    case 'respecto_al_corte':
+      return p.lado === 'en_el_corte'
+        ? 'en el punto de corte publicado'
+        : `${p.lado === 'por_debajo' ? 'por debajo' : 'por encima'} del punto de corte`;
+  }
+}
+
+/**
  * La posición, en español corriente.
  *
  * `poblacion` ya viene redactada por quien la conoce («varones de 20 a 24 años
@@ -147,7 +191,7 @@ export function enLlano(pruebaId: string, p: Posicion, poblacion: string): Lectu
 
   switch (p.clase) {
     case 'percentil_exacto':
-      return { texto: gente!, sentido, tecnico: `Percentil ${p.p}` };
+      return { texto: gente!, sentido, resumen: resumenDe(p), tecnico: `Percentil ${p.p}` };
 
     case 'entre_percentiles':
       return {
@@ -155,6 +199,7 @@ export function enLlano(pruebaId: string, p: Posicion, poblacion: string): Lectu
           gente ??
           `Tu marca queda entre dos de los valores que la fuente publica para ${poblacion}.`,
         sentido,
+        resumen: resumenDe(p),
         tecnico: `Entre el percentil ${p.inferior} y el ${p.superior}`,
       };
 
@@ -162,6 +207,7 @@ export function enLlano(pruebaId: string, p: Posicion, poblacion: string): Lectu
       return {
         texto: gente!,
         sentido,
+        resumen: resumenDe(p),
         tecnico: `Por debajo del percentil ${p.primerPercentil}, el menor publicado`,
       };
 
@@ -169,6 +215,7 @@ export function enLlano(pruebaId: string, p: Posicion, poblacion: string): Lectu
       return {
         texto: gente!,
         sentido,
+        resumen: resumenDe(p),
         tecnico: `Por encima del percentil ${p.ultimoPercentil}, el mayor publicado`,
       };
 
@@ -184,6 +231,7 @@ export function enLlano(pruebaId: string, p: Posicion, poblacion: string): Lectu
           'Esta fuente publica la media del grupo, no una tabla de percentiles, así que no puede ' +
           'decirse a cuánta gente superas.',
         sentido,
+        resumen: resumenDe(p),
         tecnico: `${num(Math.abs(p.z))} desviaciones típicas ${p.z >= 0 ? 'por encima' : 'por debajo'} de la media`,
       };
 
@@ -191,6 +239,7 @@ export function enLlano(pruebaId: string, p: Posicion, poblacion: string): Lectu
       return {
         texto: `Tu marca cae dentro del rango que la fuente publica para ${poblacion}.`,
         sentido,
+        resumen: resumenDe(p),
         tecnico: 'Dentro del rango de referencia',
       };
 
@@ -200,6 +249,7 @@ export function enLlano(pruebaId: string, p: Posicion, poblacion: string): Lectu
           `Tu marca queda ${p.lado === 'superior' ? 'por encima' : 'por debajo'} del rango que ` +
           `la fuente publica para ${poblacion}.`,
         sentido,
+        resumen: resumenDe(p),
         tecnico: `Fuera del rango de referencia, por el extremo ${p.lado}`,
       };
 
@@ -211,6 +261,7 @@ export function enLlano(pruebaId: string, p: Posicion, poblacion: string): Lectu
             : `Tu marca queda ${p.lado === 'por_debajo' ? 'por debajo' : 'por encima'} del valor ` +
               `de corte publicado para ${poblacion}.`,
         sentido,
+        resumen: resumenDe(p),
         tecnico: 'Respecto al punto de corte publicado',
       };
   }
