@@ -51,6 +51,7 @@
 //     pendiente en el informe.
 
 import type { Cliente, Medicion } from '@/lib/bcs/tipos';
+import { bloqueoDe, sujetoDe, type SujetoBCS } from '@/lib/bcs/identidad';
 
 // ── Catálogo de variables ──────────────────────────────────────────────────
 
@@ -125,14 +126,23 @@ export interface Clasificacion {
 }
 
 /**
- * Motivo por el que una variable clasificable en la especificación no se
- * clasifica hoy — dato faltante en el modelo, no una omisión silenciosa.
+ * Las tres variables que la especificación clasifica y este sistema todavía
+ * no. **Solo la lista** — el motivo de cada una ya no es una constante.
+ *
+ * Lo era, y decía «ningún campo de Cliente ni Medición los captura hoy».
+ * Desde BCS-7.0 los campos existen, así que la frase pasó de verdadera a
+ * falsa sin que nada avisara. Pero el defecto de fondo era otro: una sola
+ * frase describía cuatro situaciones distintas —falta el sexo, falta la fecha
+ * de nacimiento, falta el dispositivo, falta cargar la tabla— y solo tres de
+ * ellas las puede resolver quien lee el informe.
+ *
+ * El motivo se calcula ahora por sujeto y por medición en `bcs/identidad`.
  */
-export const BLOQUEO_CLASIFICACION: Partial<Record<VariableId, string>> = {
-  grasa_pct: 'Requiere sexo y edad del Cliente (BCS Handbook 06) — ningún campo de Cliente ni Medición los captura hoy.',
-  whr: 'Requiere sexo del Cliente (categorías OMS, BCS Handbook 06) — no capturado hoy.',
-  grasa_visceral_idx: 'Requiere la escala del dispositivo del fabricante (BCS-V14) — no capturada hoy.',
-};
+export const CLASIFICABLES_PENDIENTES: readonly VariableId[] = [
+  'grasa_pct',
+  'whr',
+  'grasa_visceral_idx',
+];
 
 /** Solo IMC es calculable con los datos disponibles hoy (bandas OMS universales, sin sexo/edad/dispositivo). */
 function clasificarImc(valor: number): Clasificacion {
@@ -198,7 +208,7 @@ export interface BloqueCategoria {
   filas: FilaVariable[];
 }
 
-export function construirFicha(medicion: Medicion): BloqueCategoria[] {
+export function construirFicha(medicion: Medicion, sujeto: SujetoBCS): BloqueCategoria[] {
   return CATEGORIAS.map(({ id: categoria, etiqueta }) => {
     const filas: FilaVariable[] = ORDEN_VARIABLES
       .filter((id) => CATALOGO[id].categoria === categoria)
@@ -213,7 +223,7 @@ export function construirFicha(medicion: Medicion): BloqueCategoria[] {
           valor,
           procedencia: def.procedencia,
           clasificacion: clasificarValor(id, valor),
-          bloqueoClasificacion: BLOQUEO_CLASIFICACION[id] ?? null,
+          bloqueoClasificacion: bloqueoDe(id, sujeto, medicion)?.detalle ?? null,
         });
         return acc;
       }, []);
@@ -341,8 +351,20 @@ export function calcularAdvertencias(m: Medicion): AdvertenciaValidacion[] {
 
 // ── El Reporte completo (BCS Handbook 04, 8 secciones) ─────────────────────
 
+/**
+ * Lo que el Reporte necesita del Cliente.
+ *
+ * `sexo` y `fecha_nacimiento` entran aquí porque sin ellos no puede decirse
+ * POR QUÉ una variable no se clasifica, y decir «faltan datos» sin nombrar
+ * cuáles convierte una tarea de treinta segundos en un callejón sin salida.
+ */
+export type ClienteDelReporte = Pick<
+  Cliente,
+  'id' | 'nombre' | 'estado' | 'sexo' | 'fecha_nacimiento'
+>;
+
 export interface Reporte {
-  cliente: Pick<Cliente, 'id' | 'nombre' | 'estado'>;
+  cliente: ClienteDelReporte;
   medicionActual: Medicion;
   medicionAnterior: Medicion | null;
   resumenEjecutivo: ItemResumen[];
@@ -361,19 +383,20 @@ export interface Reporte {
  * esta función no vuelve a filtrar por estado, confía en su contrato).
  */
 export function construirReporte(
-  cliente: Pick<Cliente, 'id' | 'nombre' | 'estado'>,
+  cliente: ClienteDelReporte,
   historicoVigenteDesc: Medicion[]
 ): Reporte | null {
   if (historicoVigenteDesc.length === 0) return null;
 
   const [medicionActual, medicionAnterior = null] = historicoVigenteDesc;
+  const sujeto = sujetoDe(cliente);
 
   return {
     cliente,
     medicionActual,
     medicionAnterior,
     resumenEjecutivo: construirResumenEjecutivo(medicionActual, medicionAnterior),
-    ficha: construirFicha(medicionActual),
+    ficha: construirFicha(medicionActual, sujeto),
     comparacion: medicionAnterior ? construirComparacion(medicionActual, medicionAnterior) : null,
     historico: historicoVigenteDesc,
     tendencias: construirTendencias(historicoVigenteDesc),

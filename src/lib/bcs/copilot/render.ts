@@ -11,6 +11,22 @@
 
 import type { Seccion } from './tipos';
 
+/**
+ * `n` con la forma que le corresponda: «1 evaluación», «3 evaluaciones».
+ *
+ * Existe porque el fallo se repetía en siete plantillas distintas y siempre
+ * igual: una condición `length > 0` con una frase escrita en plural. Con una
+ * sola medición —el caso de la mayoría de los clientes reales— el documento
+ * decía «Se registraron 1 evaluación», y un informe que no sabe contar hasta
+ * uno no invita a creerse el resto.
+ *
+ * Devuelve la frase entera y no solo el sustantivo, porque a menudo lo que
+ * hay que concordar es el verbo: «que condiciona» / «que condicionan».
+ */
+export function segunNumero(n: number, singular: string, plural: string): string {
+  return `${n} ${n === 1 ? singular : plural}`;
+}
+
 /** Palabras de un texto. Cuenta secuencias no vacías separadas por espacio. */
 export function contarPalabras(texto: string): number {
   return texto.trim().split(/\s+/).filter(Boolean).length;

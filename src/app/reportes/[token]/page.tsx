@@ -3,6 +3,8 @@ import { obtenerReportePublico } from "@/lib/bcs/actions-publico";
 import { analizarComposicionCorporal } from "@/lib/bcs/analysis";
 import { generarRecomendaciones } from "@/lib/bcs/recommendations";
 import { generarObservaciones } from "@/lib/bcs/observation";
+import { generarEntregables } from "@/lib/bcs/copilot";
+import { sujetoDe } from "@/lib/bcs/identidad";
 import ReportView from "@/features/composicion-corporal/components/ReportView";
 import { EstadoSinPermiso } from "@/features/composicion-corporal/components/EstadosVacios";
 import { fechaISOLocal } from "@/lib/utils";
@@ -59,9 +61,24 @@ export default async function ReportePublicoPage({ params }: Props) {
   // `hoyISO` se pasa explícito porque la capa pura no consulta el reloj.
   const hoy = new Date();
   const hoyISO = fechaISOLocal(hoy);
-  const analisis = analizarComposicionCorporal(reporte.historico, { hoyISO });
+  // `sujeto` llega desde el propio Reporte (BCS-7.0). Sin él, la vista
+  // pública decía «no consta el sexo del cliente» aunque constara — el mismo
+  // dato produciendo dos respuestas distintas según la ruta.
+  const analisis = analizarComposicionCorporal(reporte.historico, {
+    hoyISO,
+    sujeto: sujetoDe(reporte.cliente),
+  });
   const recomendaciones = generarRecomendaciones(analisis);
   const observaciones = generarObservaciones({ analisis, recomendaciones });
+
+  // Solo la explicación al cliente: el resto del lote son herramientas del
+  // profesional —nota SOAP, borradores de correo— y no pintan nada en la
+  // pantalla de la persona evaluada.
+  const copiloto = generarEntregables(
+    { reporte, analisis, recomendaciones, observaciones, hoyISO },
+    { explicacionPaciente: true },
+  );
+  const explicacion = copiloto.entregables[0] ?? null;
   const generadoEl = hoy.toLocaleDateString("es", { day: "2-digit", month: "long", year: "numeric" });
 
   return (
@@ -81,6 +98,7 @@ export default async function ReportePublicoPage({ params }: Props) {
           reporte={reporte}
           analisis={analisis}
           recomendaciones={recomendaciones}
+          explicacionPaciente={explicacion}
           observaciones={observaciones}
           generadoEl={hoyISO}
         />

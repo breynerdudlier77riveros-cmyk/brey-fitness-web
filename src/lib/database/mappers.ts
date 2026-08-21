@@ -127,6 +127,12 @@ export function mapCliente(row: Row): Cliente {
     nombre: row.nombre as string,
     estado: row.estado as Cliente['estado'],
     created_at: row.created_at as string,
+    // `?? null` y no `as string | null`: mientras la migración de identidad no
+    // esté aplicada la columna no existe y PostgREST no la devuelve, así que
+    // la propiedad llega `undefined`. Un `undefined` colándose donde el
+    // dominio espera `null` rompe cada comprobación `=== null` aguas arriba.
+    sexo: (row.sexo as Cliente['sexo']) ?? null,
+    fecha_nacimiento: (row.fecha_nacimiento as string | null) ?? null,
   };
 }
 
@@ -163,6 +169,7 @@ export function mapMedicion(row: Row): Medicion {
     fecha: row.fecha as string,
     observaciones: (row.observaciones as string | null) ?? null,
     foto_url: (row.foto_url as string | null) ?? null,
+    dispositivo: (row.dispositivo as string | null) ?? null,
   };
 }
 

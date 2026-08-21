@@ -39,23 +39,71 @@ import {
 import type { Cliente, Medicion, EnlacePublico } from "@/lib/bcs/tipos";
 import type { ActionResult } from "@/lib/types";
 
+/**
+ * Identidad del Cliente, opcional en las dos direcciones.
+ *
+ * Omitir una clave significa «no la toques»; pasarla como `null` significa
+ * «bórrala». La distinción importa: sin ella, guardar desde una pantalla que
+ * no pregunta el sexo lo borraría en silencio.
+ *
+ * Las dos son necesarias para clasificar % grasa y WHR (BCS Handbook 06) y
+ * NINGUNA se infiere: ni el sexo del nombre, ni la edad de nada.
+ */
+export interface IdentidadCliente {
+  sexo?: Cliente["sexo"];
+  fechaNacimiento?: string | null;
+}
+
+/** Fecha de nacimiento utilizable, o el código de por qué no lo es. */
+function validarNacimiento(valor: string | null | undefined, hoyISO: string): string | null {
+  if (valor === undefined || valor === null || valor === "") return null;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(valor)) return "FECHA_NACIMIENTO_INVALIDA";
+  // Comparación de cadenas ISO: es exacta para yyyy-mm-dd y no arrastra la
+  // zona horaria del servidor, que con `new Date()` haría que la misma fecha
+  // fuera futura o no según dónde corra el proceso.
+  if (valor > hoyISO) return "FECHA_NACIMIENTO_FUTURA";
+  return null;
+}
+
+/** Hoy en ISO, según el reloj del servidor. Único punto que lo consulta. */
+const hoy = (): string => new Date().toISOString().slice(0, 10);
+
 // ── UC-01 · CrearCliente ───────────────────────────────────────────────────
-export async function crearCliente(nombre: string): Promise<ActionResult<Cliente>> {
+export async function crearCliente(
+  nombre: string,
+  identidad: IdentidadCliente = {},
+): Promise<ActionResult<Cliente>> {
   const user = await getUser();
   if (!user) return { ok: false, error: "NO_AUTENTICADO" };
   if (!nombre.trim()) return { ok: false, error: "NOMBRE_VACIO" };
 
+  const fallo = validarNacimiento(identidad.fechaNacimiento, hoy());
+  if (fallo) return { ok: false, error: fallo };
+
   const supabase = await createClient();
-  const cliente = await guardarCliente(supabase, user.id, { nombre: nombre.trim() });
+  const cliente = await guardarCliente(supabase, user.id, {
+    nombre: nombre.trim(),
+    ...(identidad.sexo !== undefined ? { sexo: identidad.sexo } : {}),
+    ...(identidad.fechaNacimiento !== undefined
+      ? { fecha_nacimiento: identidad.fechaNacimiento || null }
+      : {}),
+  });
   if (!cliente) return { ok: false, error: "CLIENTE_NO_CREADO" };
   return { ok: true, data: cliente };
 }
 
 // ── UC-02 · EditarCliente ──────────────────────────────────────────────────
-export async function editarCliente(id: string, nombre: string): Promise<ActionResult<Cliente>> {
+export async function editarCliente(
+  id: string,
+  nombre: string,
+  identidad: IdentidadCliente = {},
+): Promise<ActionResult<Cliente>> {
   const user = await getUser();
   if (!user) return { ok: false, error: "NO_AUTENTICADO" };
   if (!nombre.trim()) return { ok: false, error: "NOMBRE_VACIO" };
+
+  const fallo = validarNacimiento(identidad.fechaNacimiento, hoy());
+  if (fallo) return { ok: false, error: fallo };
 
   const supabase = await createClient();
   // La existencia + propiedad la resuelve la RLS: si no es su Cliente, la
@@ -63,7 +111,14 @@ export async function editarCliente(id: string, nombre: string): Promise<ActionR
   const existente = await obtenerClientePorId(supabase, id);
   if (!existente) return { ok: false, error: "CLIENTE_NO_ENCONTRADO" };
 
-  const cliente = await guardarCliente(supabase, user.id, { id, nombre: nombre.trim() });
+  const cliente = await guardarCliente(supabase, user.id, {
+    id,
+    nombre: nombre.trim(),
+    ...(identidad.sexo !== undefined ? { sexo: identidad.sexo } : {}),
+    ...(identidad.fechaNacimiento !== undefined
+      ? { fecha_nacimiento: identidad.fechaNacimiento || null }
+      : {}),
+  });
   if (!cliente) return { ok: false, error: "CLIENTE_NO_ACTUALIZADO" };
   return { ok: true, data: cliente };
 }

@@ -5,9 +5,11 @@ import { createClient } from "@/lib/supabase/server";
 import { obtenerClientePorId, listarMedicionesVigentesPorCliente, obtenerEnlaceActivoPorCliente } from "@/lib/bcs/repository";
 import { getProfile } from "@/lib/profile/repository";
 import { construirReporte } from "@/lib/bcs/reporte";
+import { sujetoDe } from "@/lib/bcs/identidad";
 import { analizarComposicionCorporal } from "@/lib/bcs/analysis";
 import { generarRecomendaciones } from "@/lib/bcs/recommendations";
 import { generarObservaciones } from "@/lib/bcs/observation";
+import { generarEntregables } from "@/lib/bcs/copilot";
 import { fechaISOLocal } from "@/lib/utils";
 import ClienteDetailClient from "./ClienteDetailClient";
 
@@ -45,7 +47,9 @@ export default async function ClienteDetailPage({ params }: Props) {
   // Derivado, nunca persistido — se recomputa en cada render, igual que el
   // Reporte. `hoyISO` explícito: la capa de análisis no consulta el reloj.
   const hoyISO = fechaISOLocal();
-  const analisis = reporte ? analizarComposicionCorporal(historico, { hoyISO }) : null;
+  const analisis = reporte
+    ? analizarComposicionCorporal(historico, { hoyISO, sujeto: sujetoDe(cliente) })
+    : null;
   const recomendaciones = analisis ? generarRecomendaciones(analisis) : null;
   const observaciones =
     analisis && recomendaciones ? generarObservaciones({ analisis, recomendaciones }) : null;
@@ -55,6 +59,21 @@ export default async function ClienteDetailPage({ params }: Props) {
   // Training: no cruza el límite de contexto con el BCS.
   const perfil = await getProfile(supabase, user.id);
   const entrenador = perfil?.nombre ?? user.email ?? undefined;
+
+  // El copiloto es puro y determinista: no consulta red ni reloj, así que
+  // componer el lote entero aquí cuesta lo mismo que componer uno. Se pide
+  // completo y la vista decide qué enseñar.
+  const copiloto =
+    reporte && analisis && recomendaciones && observaciones
+      ? generarEntregables({
+          reporte,
+          analisis,
+          recomendaciones,
+          observaciones,
+          hoyISO,
+          profesional: entrenador,
+        })
+      : null;
 
   return (
     <ClienteDetailClient
@@ -66,6 +85,7 @@ export default async function ClienteDetailPage({ params }: Props) {
       enlaceActivo={enlaceActivo}
       generadoEl={hoyISO}
       entrenador={entrenador}
+      copiloto={copiloto}
     />
   );
 }

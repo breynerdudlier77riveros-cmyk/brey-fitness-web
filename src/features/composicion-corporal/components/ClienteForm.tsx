@@ -14,6 +14,24 @@ import type { Cliente } from "@/lib/bcs/tipos";
 // (patrón BE-01, el mismo que ya sigue src/lib/bcs/actions.ts) en vez de
 // hablar directo con el repositorio — es la vía correcta para datos de
 // Entrenador→Cliente, distinta de la excepción histórica de PerfilForm.
+//
+// ── SEXO Y FECHA DE NACIMIENTO ────────────────────────────────────────────
+//
+// Los dos son OPCIONALES y los dos dicen para qué sirven, porque sin esa
+// frase parecen burocracia. No lo son: de las cuatro variables que el BCS
+// puede clasificar, dos dependen de ellos (% grasa y WHR, BCS Handbook 06), y
+// el % de grasa es el número por el que un cliente abre el informe.
+//
+// Se piden, no se deducen. El sexo no se infiere del nombre y la edad no se
+// infiere de nada: el informe prefiere decir «falta este dato» a clasificar
+// con una identidad inventada.
+
+const MENSAJE: Record<string, string> = {
+  NOMBRE_VACIO: "El nombre no puede estar vacío.",
+  FECHA_NACIMIENTO_INVALIDA: "La fecha de nacimiento no es válida.",
+  FECHA_NACIMIENTO_FUTURA: "La fecha de nacimiento no puede ser posterior a hoy.",
+  NO_AUTENTICADO: "La sesión ha caducado.",
+};
 
 interface Props {
   cliente?: Cliente;
@@ -25,6 +43,8 @@ type Estado = "idle" | "guardando" | "error";
 
 export default function ClienteForm({ cliente, onCancel, onSaved }: Props) {
   const [nombre, setNombre] = useState(cliente?.nombre ?? "");
+  const [sexo, setSexo] = useState<string>(cliente?.sexo ?? "");
+  const [nacimiento, setNacimiento] = useState(cliente?.fecha_nacimiento ?? "");
   const [estado, setEstado] = useState<Estado>("idle");
   const [error, setError] = useState<string | null>(null);
 
@@ -39,12 +59,22 @@ export default function ClienteForm({ cliente, onCancel, onSaved }: Props) {
     setEstado("guardando");
     setError(null);
 
-    const resultado = cliente ? await editarCliente(cliente.id, nombre) : await crearCliente(nombre);
+    // La cadena vacía es «no consta», no un valor: se envía como null para que
+    // borrar el campo en la pantalla lo borre también en la fila.
+    const identidad = {
+      sexo: (sexo === "M" || sexo === "F" ? sexo : null) as Cliente["sexo"],
+      fechaNacimiento: nacimiento.trim() === "" ? null : nacimiento,
+    };
+
+    const resultado = cliente
+      ? await editarCliente(cliente.id, nombre, identidad)
+      : await crearCliente(nombre, identidad);
 
     if (!resultado.ok) {
       setEstado("error");
-      setError("No se pudo guardar el cliente. Inténtalo de nuevo.");
-      toast.error("No se pudo guardar el cliente.");
+      const texto = MENSAJE[resultado.error] ?? "No se pudo guardar el cliente. Inténtalo de nuevo.";
+      setError(texto);
+      toast.error(texto);
       return;
     }
 
@@ -69,8 +99,65 @@ export default function ClienteForm({ cliente, onCancel, onSaved }: Props) {
           onChange={(e) => setNombre(e.target.value)}
           disabled={guardando}
         />
-        {error && <p className="text-red-400 text-xs mt-1">{error}</p>}
       </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <label htmlFor="sexo-cliente" className="block text-xs font-semibold text-white/60 mb-1.5">
+            Sexo
+            <span className="ml-2 font-normal text-white/35">Opcional</span>
+          </label>
+          {/* Fondo opaco y `color-scheme: dark`: un select translúcido deja el
+              desplegable nativo en blanco sobre blanco. */}
+          <select
+            id="sexo-cliente"
+            value={sexo}
+            onChange={(e) => setSexo(e.target.value)}
+            disabled={guardando}
+            className="h-10 w-full rounded-lg border border-white/15 bg-slate-900 px-3 text-sm text-white outline-none focus:border-orange-500/40 [color-scheme:dark]"
+          >
+            <option value="" className="bg-slate-900 text-white">
+              No consta
+            </option>
+            <option value="M" className="bg-slate-900 text-white">
+              Masculino
+            </option>
+            <option value="F" className="bg-slate-900 text-white">
+              Femenino
+            </option>
+          </select>
+        </div>
+
+        <div>
+          <label
+            htmlFor="nacimiento-cliente"
+            className="block text-xs font-semibold text-white/60 mb-1.5"
+          >
+            Fecha de nacimiento
+            <span className="ml-2 font-normal text-white/35">Opcional</span>
+          </label>
+          <Input
+            id="nacimiento-cliente"
+            type="date"
+            value={nacimiento}
+            onChange={(e) => setNacimiento(e.target.value)}
+            disabled={guardando}
+          />
+        </div>
+      </div>
+
+      <p className="text-[11px] leading-relaxed text-white/35">
+        Los dos son opcionales, pero sin ellos el informe no puede situar el porcentaje de grasa
+        corporal ni la relación cintura-cadera: sus rangos de referencia se publican por sexo y por
+        edad. Se guarda la fecha de nacimiento y no la edad, para que cada medición se interprete
+        con la edad que el cliente tenía ese día.
+      </p>
+
+      {error && (
+        <p role="alert" className="text-red-400 text-xs">
+          {error}
+        </p>
+      )}
 
       <div className="flex items-center gap-3">
         <Button type="submit" size="md" disabled={guardando}>

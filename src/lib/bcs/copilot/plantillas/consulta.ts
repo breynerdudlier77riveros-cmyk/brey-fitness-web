@@ -12,6 +12,7 @@ import type { FuentesNormalizadas } from '../fuentes';
 import { Traza } from '../trazabilidad';
 import { palabrasParaMinutos, recortarAPalabras } from '../render';
 import type { Seccion } from '../tipos';
+import { segunNumero } from '../render';
 
 export type VarianteGuion = '2min' | '5min' | '10min';
 
@@ -49,7 +50,9 @@ export function componerGuion(f: FuentesNormalizadas, variante: VarianteGuion) {
     });
   } else {
     explicacion.push(
-      'Respecto a la evaluación anterior, las diferencias quedan dentro del margen propio del aparato. Eso no quiere decir que nada haya cambiado, sino que un cambio de ese tamaño no se distingue del margen de la medición.'
+      f.cantidadMediciones < 2
+        ? 'Es la primera evaluación registrada, así que todavía no hay una anterior con la que contrastarla. La comparación aparece a partir de la segunda.'
+        : 'Respecto a la evaluación anterior, las diferencias quedan dentro del margen propio del aparato. Eso no quiere decir que nada haya cambiado, sino que un cambio de ese tamaño no se distingue del margen de la medición.'
     );
   }
 
@@ -62,7 +65,9 @@ export function componerGuion(f: FuentesNormalizadas, variante: VarianteGuion) {
 
   if (f.cambiosSinUmbral.length > 0) {
     explicacion.push(
-      `Hay otros ${f.cambiosSinUmbral.length} valores que también se movieron, pero para ellos no existe una cifra establecida que permita decir si el movimiento importa. Los anotamos y los seguimos.`
+      f.cambiosSinUmbral.length === 1
+        ? 'Hay otro valor que también se movió, pero para él no existe una cifra establecida que permita decir si el movimiento importa. Lo anotamos y lo seguimos.'
+        : `Hay otros ${f.cambiosSinUmbral.length} valores que también se movieron, pero para ellos no existe una cifra establecida que permita decir si el movimiento importa. Los anotamos y los seguimos.`
     );
   }
 
@@ -112,7 +117,13 @@ export function componerPresentacion(f: FuentesNormalizadas, variante: VarianteP
   const traza = new Traza(`presentacion:${variante}`);
 
   const secciones: Seccion[] = [
-    { titulo: f.clienteNombre, contenido: [`Composición corporal · ${f.cantidadMediciones} evaluaciones`, `Emitido el ${f.hoyISO}`] },
+    {
+      titulo: f.clienteNombre,
+      contenido: [
+        `Composición corporal · ${segunNumero(f.cantidadMediciones, 'evaluación', 'evaluaciones')}`,
+        `Emitido el ${f.hoyISO}`,
+      ],
+    },
     { titulo: 'Qué se midió', contenido: ['Estimación por bioimpedancia', 'Comparación contigo mismo a lo largo del tiempo'] },
   ];
 

@@ -9,6 +9,7 @@
 import type { FuentesNormalizadas } from '../fuentes';
 import { Traza } from '../trazabilidad';
 import type { Seccion } from '../tipos';
+import { segunNumero } from '../render';
 
 export type VarianteCorreo = 'consulta_inicial' | 'seguimiento' | 'nueva_medicion' | 'recordatorio';
 
@@ -37,14 +38,18 @@ export function componerCorreo(f: FuentesNormalizadas, variante: VarianteCorreo)
       break;
     case 'seguimiento':
       cuerpo.push(
-        `Te comparto tu informe de composición corporal, elaborado sobre ${f.cantidadMediciones} evaluaciones.`,
-        'Incluye la comparación con la evaluación anterior y la evolución del conjunto.'
+        `Te comparto tu informe de composición corporal, elaborado sobre ${segunNumero(f.cantidadMediciones, 'evaluación', 'evaluaciones')}.`,
+        f.cantidadMediciones > 1
+          ? 'Incluye la comparación con la evaluación anterior y la evolución del conjunto.'
+          : 'Todavía es una sola evaluación: describe el estado registrado, y la comparación llegará con la siguiente.'
       );
       break;
     case 'nueva_medicion':
       cuerpo.push(
         `He registrado tu nueva evaluación${f.fechaActual ? ` del ${f.fechaActual}` : ''}.`,
-        'El informe ya está actualizado con la comparación respecto a la anterior.'
+        f.cantidadMediciones > 1
+          ? 'El informe ya está actualizado con la comparación respecto a la anterior.'
+          : 'El informe ya está actualizado. Al ser la primera evaluación, todavía no incluye comparación.'
       );
       break;
     case 'recordatorio':
@@ -102,7 +107,7 @@ export function componerWhatsapp(f: FuentesNormalizadas, variante: VarianteWhats
     case 'formal':
       lineas.push(
         `Buenos días, ${f.clienteNombre}.`,
-        `Le comparto su informe de composición corporal, elaborado sobre ${f.cantidadMediciones} ${f.cantidadMediciones === 1 ? 'evaluación registrada' : 'evaluaciones registradas'}.`,
+        `Le comparto su informe de composición corporal, elaborado sobre ${segunNumero(f.cantidadMediciones, 'evaluación registrada', 'evaluaciones registradas')}.`,
         'El documento describe las medidas obtenidas y su evolución en el tiempo, junto con los límites de lo que puede interpretarse a partir de ellas.',
         'Quedo a su disposición para revisarlo en la próxima consulta.'
       );

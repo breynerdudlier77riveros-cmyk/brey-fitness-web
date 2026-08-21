@@ -24,6 +24,8 @@ function cliente(over: Partial<Cliente> & { id: string; nombre: string }): Clien
     entrenador_id: "e1",
     estado: "activo",
     created_at: "2026-01-15T10:00:00Z",
+    sexo: null,
+    fecha_nacimiento: null,
     ...over,
   };
 }
@@ -38,7 +40,7 @@ function medicion(over: Partial<Medicion> & { id: string; cliente_id: string; fe
     grasa_visceral_idx: null, angulo_fase_deg: null, bmr_kcal: null,
     edad_metabolica: null, smi: null, circ_cintura_cm: null,
     circ_cadera_cm: null, whr: null, impedancia_ohm: null,
-    observaciones: null, foto_url: null,
+    observaciones: null, foto_url: null, dispositivo: null,
     ...over,
   };
 }

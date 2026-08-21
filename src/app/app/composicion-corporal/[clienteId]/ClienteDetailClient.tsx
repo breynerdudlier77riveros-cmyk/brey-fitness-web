@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { toast } from "@/components/brand/Toast";
 import { LinkIcon, Copy, Trash, ArrowLeft, Download } from "@/components/brand/icons";
 import ReportView from "@/features/composicion-corporal/components/ReportView";
+import CopilotPanel from "@/features/composicion-corporal/components/CopilotPanel";
 import ClienteForm from "@/features/composicion-corporal/components/ClienteForm";
 import MedicionForm from "@/features/composicion-corporal/components/MedicionForm";
 import { EstadoVacioMediciones } from "@/features/composicion-corporal/components/EstadosVacios";
@@ -20,6 +21,7 @@ import type { Reporte } from "@/lib/bcs/reporte";
 import type { BodyCompositionAnalysis } from "@/lib/bcs/analysis";
 import type { RecommendationReport } from "@/lib/bcs/recommendations";
 import type { ClinicalObservationReport } from "@/lib/bcs/observation";
+import type { ResultadoCopilot } from "@/lib/bcs/copilot";
 
 type Dialogo = "ninguno" | "medicion" | "editar-cliente" | "compartir" | "confirmar-archivar" | "confirmar-eliminar";
 
@@ -37,6 +39,14 @@ interface Props {
   generadoEl: string;
   /** Nombre del profesional que emite el reporte. */
   entrenador?: string;
+  /**
+   * Documentos compuestos por el copiloto a partir de este mismo informe.
+   *
+   * Se componen en el Server Component, como todo lo demás: son puros y
+   * deterministas, así que no hay ninguna razón para recalcularlos en el
+   * navegador. `null` cuando no hay informe del que componerlos.
+   */
+  copiloto: ResultadoCopilot | null;
 }
 
 export default function ClienteDetailClient({
@@ -48,6 +58,7 @@ export default function ClienteDetailClient({
   enlaceActivo: enlaceInicial,
   generadoEl,
   entrenador,
+  copiloto,
 }: Props) {
   const router = useRouter();
   const [cliente, setCliente] = useState(clienteInicial);
@@ -189,11 +200,22 @@ export default function ClienteDetailClient({
           observaciones={observaciones}
           generadoEl={generadoEl}
           entrenador={entrenador}
+          explicacionPaciente={
+            copiloto?.entregables.find((e) => e.tipo === "explicacion_paciente") ?? null
+          }
           onCorregirMedicion={abrirCorregir}
         />
       ) : (
         <EstadoVacioMediciones onRegistrar={() => setDialogo("medicion")} />
       )}
+
+      {/* `print:hidden`: son herramientas para preparar la consulta, no parte
+          del documento que se imprime y se entrega. */}
+      {copiloto ? (
+        <div className="print:hidden mt-10 pt-8 border-t border-white/[0.06]">
+          <CopilotPanel resultado={copiloto} />
+        </div>
+      ) : null}
 
       <div className="print:hidden mt-10 pt-6 border-t border-white/[0.06]">
         <button

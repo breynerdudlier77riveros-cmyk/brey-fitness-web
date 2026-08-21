@@ -167,6 +167,20 @@ body {
     display: none !important;
   }
 
+  /* Los hechos del análisis van plegados en pantalla y desplegados en papel:
+     un informe impreso no se puede abrir con el ratón, y esa lista es la
+     evidencia de toda la interpretación. Se fuerza con CSS porque `open` es un
+     atributo del elemento y ninguna clase de utilidad puede escribirlo. */
+  .reporte-print details.bcs-hallazgos > summary {
+    display: none !important;
+  }
+  .reporte-print details.bcs-hallazgos > *:not(summary) {
+    display: block !important;
+  }
+  .reporte-print details.bcs-hallazgos {
+    display: block !important;
+  }
+
   /* ── Tema claro dentro del reporte ─────────────────────────────────────
      Las utilidades de Tailwind con opacidad (text-white/50, bg-white/[0.02])
      se escriben como color-mix()/rgb con alpha, así que no basta con

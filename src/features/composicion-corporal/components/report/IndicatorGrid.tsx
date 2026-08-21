@@ -1,5 +1,5 @@
 import IndicatorCard from "./IndicatorCard";
-import { CATALOGO, BLOQUEO_CLASIFICACION, type VariableId } from "@/lib/bcs/reporte";
+import { CATALOGO, type VariableId } from "@/lib/bcs/reporte";
 import type { BodyCompositionAnalysis } from "@/lib/bcs/analysis";
 import type { Medicion } from "@/lib/bcs/tipos";
 import type { FilaVariable } from "@/lib/bcs/reporte";
@@ -42,7 +42,7 @@ export default function IndicatorGrid({ medicionActual, analisis, filas }: Props
         // que el modelo no captura, se dice — nunca se deja el hueco mudo.
         const clasificacion =
           fila?.clasificacion?.etiqueta ??
-          (BLOQUEO_CLASIFICACION[id] ? "Sin clasificación disponible" : undefined);
+          (fila?.bloqueoClasificacion ? "Sin clasificación disponible" : undefined);
 
         return (
           <IndicatorCard

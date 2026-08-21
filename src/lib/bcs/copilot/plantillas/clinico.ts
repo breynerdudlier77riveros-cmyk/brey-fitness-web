@@ -10,6 +10,7 @@
 import type { FuentesNormalizadas } from '../fuentes';
 import { Traza } from '../trazabilidad';
 import type { Seccion } from '../tipos';
+import { segunNumero } from '../render';
 
 export function componerSoap(f: FuentesNormalizadas) {
   const traza = new Traza('nota_soap');
@@ -33,13 +34,15 @@ export function componerSoap(f: FuentesNormalizadas) {
 
   if (f.cambiosSinUmbral.length > 0) {
     objective.push(
-      `Variación sin umbral documentado en ${f.cambiosSinUmbral.length} variables adicionales.`
+      `Variación sin umbral documentado en ${segunNumero(f.cambiosSinUmbral.length, 'variable adicional', 'variables adicionales')}.`
     );
     f.cambiosSinUmbral.forEach((c) => traza.usarHallazgo(c.id).usarVariable(c.variable));
   }
 
   if (f.alertas.length > 0) {
-    objective.push(`${f.alertas.length} incidencias de consistencia pendientes de verificación.`);
+    objective.push(
+      `${segunNumero(f.alertas.length, 'incidencia de consistencia pendiente', 'incidencias de consistencia pendientes')} de verificación.`,
+    );
     f.alertas.forEach((a) => traza.usarHallazgo(a.id));
   }
 
@@ -114,7 +117,15 @@ export function componerDocumentoImpresion(f: FuentesNormalizadas, variante: Var
           : `Extracto de ${variante === 'una_pagina' ? 'una página' : 'dos páginas'} del reporte completo.`,
       ],
     },
-    { titulo: 'Secciones incluidas', contenido: COMPOSICION_IMPRESION[variante] },
+    {
+      titulo: 'Secciones incluidas',
+      // El catálogo lista todas las secciones del formato; con una sola
+      // medición, la de comparación no tiene contenido. Anunciarla en el
+      // índice del documento promete una página que no va a existir.
+      contenido: COMPOSICION_IMPRESION[variante].filter(
+        (s) => f.cantidadMediciones > 1 || !/anterior/i.test(s),
+      ),
+    },
   ];
 
   return { secciones, traza: traza.construir() };

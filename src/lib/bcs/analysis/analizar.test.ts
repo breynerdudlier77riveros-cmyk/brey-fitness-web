@@ -38,6 +38,7 @@ function medicion(over: Partial<Medicion> & { id: string; fecha: string }): Medi
     impedancia_ohm: null,
     observaciones: null,
     foto_url: null,
+    dispositivo: null,
     ...over,
   };
 }

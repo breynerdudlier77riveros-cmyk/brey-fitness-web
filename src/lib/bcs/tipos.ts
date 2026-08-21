@@ -16,6 +16,9 @@ export type MedicionEstado = 'vigente' | 'anulada';
 /** Estado de la máquina de EnlacePúblico — activo → revocado (terminal, IN-28). */
 export type EnlaceEstado = 'activo' | 'revocado';
 
+/** Sexo del Cliente. `null` = no consta, y nunca se infiere del nombre. */
+export type SexoCliente = 'M' | 'F';
+
 /** Fila de `bcs_clientes`. El Cliente presencial del Entrenador. */
 export interface Cliente {
   id: string;
@@ -23,6 +26,22 @@ export interface Cliente {
   nombre: string;
   estado: ClienteEstado;
   created_at: string;
+  /**
+   * Requerido por las clasificaciones de % grasa y WHR (BCS Handbook 06).
+   *
+   * `null` cuando no consta, y entonces esas clasificaciones se omiten
+   * mostrando el valor crudo — es el caso límite que el propio 06 declara.
+   * Deducirlo del nombre sería inventar identidad.
+   */
+  sexo: SexoCliente | null;
+  /**
+   * Fecha, no edad.
+   *
+   * La edad se deriva a la fecha de CADA medición. Guardar un número obligaría
+   * a saber cuándo se escribió, y clasificaría una medición de hace dos años
+   * con la edad de hoy — el mismo error que el PAS cerró en G-01.
+   */
+  fecha_nacimiento: string | null;
 }
 
 /**
@@ -60,6 +79,16 @@ export interface Medicion {
   /** date de Postgres — string ISO yyyy-mm-dd. Nunca futura. */
   fecha: string;                       // BCS-V23
   observaciones: string | null;        // BCS-V24
+  /**
+   * Modelo del analizador BIA de ESTA medición.
+   *
+   * Va en la Medición y no en el Cliente porque una misma persona puede
+   * medirse en dos básculas distintas, y el handbook (03) advierte que dos
+   * dispositivos pueden reportar valores diferentes para la misma persona el
+   * mismo día. Atarlo al Cliente haría que cambiar de aparato reescribiera la
+   * procedencia de todo su histórico.
+   */
+  dispositivo: string | null;
   /** Referencia a Storage, nunca la imagen en la fila. */
   foto_url: string | null;             // BCS-V25
 }

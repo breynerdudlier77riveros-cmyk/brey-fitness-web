@@ -56,6 +56,7 @@ export default function MedicionForm({ clienteId, medicionOriginal, onCancel, on
   const [fecha, setFecha] = useState(medicionOriginal?.fecha ?? hoyISO());
   const [observaciones, setObservaciones] = useState(medicionOriginal?.observaciones ?? "");
   const [fotoUrl, setFotoUrl] = useState(medicionOriginal?.foto_url ?? "");
+  const [dispositivo, setDispositivo] = useState(medicionOriginal?.dispositivo ?? "");
   const [estado, setEstado] = useState<Estado>("idle");
   const [error, setError] = useState<string | null>(null);
 
@@ -86,6 +87,7 @@ export default function MedicionForm({ clienteId, medicionOriginal, onCancel, on
       fecha,
       observaciones: observaciones.trim() || null,
       foto_url: fotoUrl.trim() || null,
+      dispositivo: dispositivo.trim() || null,
       ...numeros,
     } as Omit<Medicion, "id" | "estado">;
 
@@ -175,6 +177,27 @@ export default function MedicionForm({ clienteId, medicionOriginal, onCancel, on
           </div>
         );
       })}
+
+      {/* El aparato, junto a las observaciones y no arriba entre las cifras:
+          no es una variable medida, es el contexto de todas ellas. */}
+      <div>
+        <label htmlFor="dispositivo-medicion" className="block text-xs font-semibold text-white/60 mb-1.5">
+          Analizador utilizado
+          <span className="ml-2 font-normal text-white/35">Opcional</span>
+        </label>
+        <Input
+          id="dispositivo-medicion"
+          value={dispositivo}
+          onChange={(e) => setDispositivo(e.target.value)}
+          disabled={guardando}
+          placeholder="InBody 270, Tanita MC-780…"
+        />
+        <p className="mt-1 text-[11px] leading-relaxed text-white/35">
+          Dos básculas distintas pueden dar cifras distintas de la misma persona el mismo día, y
+          la escala de grasa visceral la define cada fabricante. Sin saber cuál se usó, el informe
+          no puede aplicar ninguna.
+        </p>
+      </div>
 
       <div>
         <label htmlFor="observaciones-medicion" className="block text-xs font-semibold text-white/60 mb-1.5">

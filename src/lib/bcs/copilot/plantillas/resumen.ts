@@ -33,7 +33,9 @@ export function componerResumen(f: FuentesNormalizadas, variante: VarianteResume
   // 2 · Lo que condiciona la lectura.
   if (f.alertas.length > 0) {
     oraciones.push(
-      `Hay ${f.alertas.length} ${f.alertas.length === 1 ? 'registro pendiente' : 'registros pendientes'} de verificación que condicionan la lectura.`
+      f.alertas.length === 1
+        ? 'Hay 1 registro pendiente de verificación que condiciona la lectura.'
+        : `Hay ${f.alertas.length} registros pendientes de verificación que condicionan la lectura.`
     );
     f.alertas.forEach((a) => traza.usarHallazgo(a.id));
   }
@@ -58,7 +60,9 @@ export function componerResumen(f: FuentesNormalizadas, variante: VarianteResume
   // 5 · Variación sin umbral.
   if (f.cambiosSinUmbral.length > 0) {
     oraciones.push(
-      `Otras ${f.cambiosSinUmbral.length} variables presentan variación sin umbral documentado que permita calificarla.`
+      f.cambiosSinUmbral.length === 1
+        ? 'Otra variable presenta variación sin umbral documentado que permita calificarla.'
+        : `Otras ${f.cambiosSinUmbral.length} variables presentan variación sin umbral documentado que permita calificarla.`
     );
     f.cambiosSinUmbral.forEach((c) => traza.usarHallazgo(c.id).usarVariable(c.variable));
   }

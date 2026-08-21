@@ -7,6 +7,7 @@
 // caché — se recomputa en cada render, igual que el Reporte.
 
 import type { Medicion } from '@/lib/bcs/tipos';
+import type { SujetoBCS } from '@/lib/bcs/identidad';
 import { construirAvisos } from './alertas';
 import { evaluarCalidad } from './calidad';
 import { compararMediciones } from './comparacion';
@@ -24,6 +25,12 @@ export interface OpcionesAnalisis {
    * día en que corren.
    */
   hoyISO?: string;
+  /**
+   * Identidad del cliente. Sin ella el análisis funciona igual, pero las
+   * limitaciones de clasificación solo pueden decir «no consta el sexo» —
+   * que es la verdad cuando el llamador no lo aporta.
+   */
+  sujeto?: SujetoBCS;
 }
 
 function suficienciaGlobal(cantidad: number): Suficiencia {
@@ -56,7 +63,11 @@ export function analizarComposicionCorporal(
 
   const comparacion = actual && anterior ? compararMediciones(anterior, actual) : [];
   const tendencias = calcularTendencias(asc);
-  const incidencias = evaluarCalidad({ historicoDesc: desc, hoyISO: opciones.hoyISO });
+  const incidencias = evaluarCalidad({
+    historicoDesc: desc,
+    hoyISO: opciones.hoyISO,
+    sujeto: opciones.sujeto,
+  });
   const hallazgos = construirHallazgos({ comparacion, tendencias, incidencias, cantidadMediciones });
   const avisos = construirAvisos(incidencias);
   const insights = construirInsights(hallazgos);

@@ -14,6 +14,7 @@ import type { FuentesNormalizadas } from '../fuentes';
 import { FICHAS_HEREDADAS } from '../conocimiento';
 import { Traza } from '../trazabilidad';
 import type { Seccion } from '../tipos';
+import { segunNumero } from '../render';
 
 export function componerExplicacionPaciente(f: FuentesNormalizadas) {
   const traza = new Traza('explicacion_paciente');
@@ -22,7 +23,9 @@ export function componerExplicacionPaciente(f: FuentesNormalizadas) {
   secciones.push({
     titulo: 'Qué se midió',
     contenido: [
-      `Se registraron ${f.cantidadMediciones} ${f.cantidadMediciones === 1 ? 'evaluación' : 'evaluaciones'} de composición corporal.`,
+      f.cantidadMediciones === 1
+        ? 'Se registró 1 evaluación de composición corporal.'
+        : `Se registraron ${f.cantidadMediciones} evaluaciones de composición corporal.`,
       'La báscula no mide la grasa ni el músculo directamente: hace pasar una corriente muy suave por el cuerpo y calcula el resto a partir de cómo la atraviesa.',
       'Por eso los valores se comparan siempre contigo mismo a lo largo del tiempo, y no con los de otra persona.',
     ],
@@ -38,6 +41,18 @@ export function componerExplicacionPaciente(f: FuentesNormalizadas) {
       ],
     });
     f.cambiosSignificativos.forEach((c) => traza.usarHallazgo(c.id).usarVariable(c.variable));
+  } else if (f.cantidadMediciones < 2) {
+    // NO es lo mismo «medí dos veces y salió casi igual» que «solo he medido
+    // una vez». Presentar lo segundo como lo primero afirma una comparación
+    // que nunca ocurrió.
+    secciones.push({
+      titulo: 'Todavía no hay con qué comparar',
+      contenido: [
+        'Esta es tu primera evaluación, así que aún no hay una anterior con la que contrastarla.',
+        'A partir de la segunda, este apartado dirá qué se movió y si el movimiento es lo bastante grande como para considerarlo real.',
+      ],
+    });
+    traza.usarFicha(FICHAS_HEREDADAS.calidad);
   } else {
     secciones.push({
       titulo: 'Qué cambió',
@@ -53,7 +68,7 @@ export function componerExplicacionPaciente(f: FuentesNormalizadas) {
     secciones.push({
       titulo: 'Qué se observa, con cautela',
       contenido: [
-        `Otros ${f.cambiosSinUmbral.length} valores también se movieron, pero para ellos no existe una cifra establecida que permita decir si ese movimiento es importante.`,
+        `${segunNumero(f.cambiosSinUmbral.length, 'Otro valor también se movió', 'Otros valores también se movieron')}, pero no existe una cifra establecida que permita decir si ese movimiento es importante.`,
         'Se anotan para poder seguirlos, sin sacar conclusiones todavía.',
       ],
     });

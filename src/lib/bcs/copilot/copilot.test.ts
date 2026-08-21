@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { analizarComposicionCorporal } from "@/lib/bcs/analysis";
 import { generarRecomendaciones } from "@/lib/bcs/recommendations";
 import { generarObservaciones } from "@/lib/bcs/observation";
-import { construirReporte } from "@/lib/bcs/reporte";
+import { construirReporte, type ClienteDelReporte } from "@/lib/bcs/reporte";
 import {
   generarEntregables, validarTexto, contarPalabras, CONTRATOS, renderizarContrato,
   CLAVES_PREGUNTA, CONCEPTOS, COMPOSICION_IMPRESION, EXTENSIONES, MINUTOS,
@@ -10,7 +10,7 @@ import {
 } from "./index";
 import { normalizar } from "./fuentes";
 import { recortarAPalabras, dividirOraciones } from "./render";
-import type { Cliente, Medicion } from "@/lib/bcs/tipos";
+import type { Medicion } from "@/lib/bcs/tipos";
 
 // ── Pruebas del AI Clinical Copilot (Sprint BCS-6.0) ───────────────────────
 
@@ -26,12 +26,20 @@ function medicion(over: Partial<Medicion> & { id: string; fecha: string }): Medi
     grasa_visceral_idx: null, angulo_fase_deg: null, bmr_kcal: null,
     edad_metabolica: null, smi: null, circ_cintura_cm: null,
     circ_cadera_cm: null, whr: null, impedancia_ohm: null,
-    observaciones: null, foto_url: null,
+    observaciones: null, foto_url: null, dispositivo: null,
     ...over,
   };
 }
 
-const CLIENTE: Pick<Cliente, "id" | "nombre" | "estado"> = { id: "c1", nombre: "Ana Ruiz", estado: "activo" };
+const CLIENTE: ClienteDelReporte = {
+  id: "c1",
+  nombre: "Ana Ruiz",
+  estado: "activo",
+  // Sin sexo ni nacimiento a propósito: es el estado real de los cuatro
+  // clientes registrados, y el copiloto tiene que redactar bien con él.
+  sexo: null,
+  fecha_nacimiento: null,
+};
 
 function entrada(mediciones: Medicion[], profesional?: string): EntradaCopilot {
   const desc = [...mediciones].sort((a, b) => b.fecha.localeCompare(a.fecha));
@@ -172,8 +180,23 @@ describe("explicación para el paciente", () => {
     expect(e.traza.referenciaIds.length).toBeGreaterThan(0);
   });
 
-  it("sin cambios significativos explica el margen en lugar de callarlo", () => {
+  it("con UNA medición no explica el margen: explica que no hay con qué comparar", () => {
+    // Este test decía «sin cambios significativos explica el margen en lugar
+    // de callarlo», y pasaba — sobre un fixture de UNA medición. Fijaba el
+    // bug: con un solo dato no hay «cambios no significativos», hay ausencia
+    // de comparación, y el margen del aparato no viene al caso.
     const r = generarEntregables(entrada(UNA), { explicacionPaciente: true });
+    expect(r.entregables[0].texto).toContain("Todavía no hay con qué comparar");
+    expect(r.entregables[0].texto.toLowerCase()).not.toContain("margen");
+  });
+
+  it("con DOS mediciones y sin cambios sí explica el margen, en vez de callarlo", () => {
+    // La intención original del test anterior, aplicada donde sí corresponde.
+    const dos = [
+      medicion({ id: "p1", fecha: "2026-06-01", peso_kg: 80, imc: 25.2 }),
+      medicion({ id: "p2", fecha: "2026-07-01", peso_kg: 80, imc: 25.2 }),
+    ];
+    const r = generarEntregables(entrada(dos), { explicacionPaciente: true });
     expect(r.entregables[0].texto.toLowerCase()).toContain("margen");
   });
 });
@@ -686,9 +709,11 @@ describe("casos límite", () => {
     expect(r.entregables.length).toBe(r.meta.solicitados);
   });
 
-  it("con una medición el guion explica el margen en lugar de comparar", () => {
+  it("con una medición el guion dice que no hay anterior, no habla del margen", () => {
+    // Mismo cambio que en la explicación al paciente, y por lo mismo.
     const r = generarEntregables(entrada(UNA), { guion: ["5min"] });
-    expect(r.entregables[0].texto.toLowerCase()).toContain("margen");
+    expect(r.entregables[0].texto).toMatch(/primera evaluación registrada/);
+    expect(r.entregables[0].texto.toLowerCase()).not.toContain("margen propio del aparato");
   });
 
   it("un reporte con pocas variables no hace mencionar las ausentes", () => {
@@ -701,5 +726,131 @@ describe("casos límite", () => {
     for (const x of R.rechazados) {
       expect(x.motivo.length).toBeGreaterThan(20);
     }
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// CONCORDANCIA DE NÚMERO (Sprint BCS-7.0)
+// ════════════════════════════════════════════════════════════════════════════
+//
+// Estos fallos vivieron desde BCS-6.0 sin que nadie los viera, por dos razones
+// que se sumaron: ningún componente pedía estos textos, y ninguna prueba
+// ejercitaba el caso de UNA sola medición. Las suites usaban series de tres,
+// donde todas las frases van en plural y todas salen bien.
+//
+// Con una medición —el estado real de tres de los cuatro clientes— el
+// documento decía «Se registraron 1 evaluación». Un informe que no sabe contar
+// hasta uno no invita a creerse el resto.
+
+describe("los documentos concuerdan en número, también con un solo dato", () => {
+  const UNA = entrada([
+    medicion({ id: "u1", fecha: "2026-07-31", peso_kg: 81, imc: 25.6, grasa_pct: 22.4 }),
+  ]);
+
+  const textoDe = (tipo: string): string => {
+    const r = generarEntregables(UNA);
+    const e = r.entregables.find((x) => x.tipo === tipo);
+    return e ? e.texto : "";
+  };
+
+  it("CONTROL POSITIVO · con una medición sí se emiten documentos", () => {
+    // Sin esto, todas las comprobaciones de abajo pasarían sobre cadenas
+    // vacías y no demostrarían nada.
+    const r = generarEntregables(UNA);
+    expect(r.entregables.length).toBeGreaterThan(5);
+    expect(textoDe("explicacion_paciente").length).toBeGreaterThan(200);
+  });
+
+  it("«Se registró 1 evaluación», no «Se registraron 1»", () => {
+    const t = textoDe("explicacion_paciente");
+    expect(t).toContain("Se registró 1 evaluación de composición corporal.");
+    expect(t).not.toContain("Se registraron 1");
+  });
+
+  it("ninguna cifra 1 va seguida de un sustantivo en plural", () => {
+    // Auditor transversal sobre TODOS los entregables a la vez: coge los
+    // fallos que aún no se han escrito, no solo los cuatro conocidos.
+    const plurales = /\b1 (evaluaciones|valores|variables|incidencias|registros|cambios|mediciones|documentos)\b/;
+    for (const e of generarEntregables(UNA).entregables) {
+      expect(e.texto, e.id).not.toMatch(plurales);
+    }
+  });
+
+  it("CONTROL POSITIVO · ese auditor reconoce la infracción cuando existe", () => {
+    const plurales = /\b1 (evaluaciones|valores|variables|incidencias|registros|cambios|mediciones|documentos)\b/;
+    expect(plurales.test("Se registraron 1 evaluaciones de composición.")).toBe(true);
+    expect(plurales.test("Otros 1 valores también se movieron.")).toBe(true);
+    // Y no confunde otras cifras.
+    expect(plurales.test("Se registraron 21 evaluaciones.")).toBe(false);
+  });
+
+  it("con varias mediciones el plural sigue estando bien", () => {
+    // La otra mitad del arreglo: corregir el singular no puede haber roto el
+    // plural, que es el camino que sí estaban probando las suites.
+    const varias = entrada([
+      medicion({ id: "v1", fecha: "2026-05-01", peso_kg: 79, imc: 24.9, grasa_pct: 21.0 }),
+      medicion({ id: "v2", fecha: "2026-06-15", peso_kg: 80, imc: 25.2, grasa_pct: 21.8 }),
+      medicion({ id: "v3", fecha: "2026-07-31", peso_kg: 81, imc: 25.6, grasa_pct: 22.4 }),
+    ]);
+    const e = generarEntregables(varias).entregables.find(
+      (x) => x.tipo === "explicacion_paciente",
+    )!;
+    expect(e.texto).toContain("Se registraron 3 evaluaciones de composición corporal.");
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// NO SE AFIRMA UNA COMPARACIÓN QUE NO OCURRIÓ (Sprint BCS-7.0)
+// ════════════════════════════════════════════════════════════════════════════
+//
+// Con una sola medición, la explicación al cliente decía «Comparando con la
+// evaluación anterior, las diferencias quedan dentro del margen del aparato».
+// No hay evaluación anterior. La rama se disparaba por «no hay cambios
+// significativos» sin comprobar que hubiera algo con lo que comparar.
+//
+// «Medí dos veces y salió casi igual» y «solo he medido una vez» son
+// situaciones opuestas. La segunda contada como la primera es una afirmación
+// falsa sobre el propio historial del cliente — y tres de los cuatro clientes
+// reales tienen exactamente una medición.
+
+describe("con una sola medición no se habla de la anterior", () => {
+  const UNA = entrada([
+    medicion({ id: "u1", fecha: "2026-07-31", peso_kg: 81, imc: 25.6, grasa_pct: 22.4 }),
+  ]);
+
+  /** Toda mención a una medición previa, en cualquier forma. */
+  const MENCION_PREVIA = /(evaluación|medición) anterior|respecto a la anterior|comparación con la/i;
+
+  it("CONTROL POSITIVO · el auditor reconoce la mención cuando existe", () => {
+    expect(MENCION_PREVIA.test("Comparando con la evaluación anterior, todo igual.")).toBe(true);
+    expect(MENCION_PREVIA.test("El informe incluye la comparación con la anterior.")).toBe(true);
+    expect(MENCION_PREVIA.test("Se registró 1 evaluación.")).toBe(false);
+  });
+
+  it("ningún entregable menciona una medición previa que no existe", () => {
+    for (const e of generarEntregables(UNA).entregables) {
+      expect(e.texto, e.id).not.toMatch(MENCION_PREVIA);
+    }
+  });
+
+  it("y la explicación lo dice en positivo: qué llegará con la segunda", () => {
+    const e = generarEntregables(UNA).entregables.find(
+      (x) => x.tipo === "explicacion_paciente",
+    )!;
+    expect(e.texto).toContain("Todavía no hay con qué comparar");
+    expect(e.texto).toMatch(/A partir de la segunda/);
+  });
+
+  it("CONTROL POSITIVO · con dos mediciones sí se compara, y se dice", () => {
+    // La otra mitad: el arreglo no puede haber apagado la comparación real.
+    const dos = entrada([
+      medicion({ id: "d1", fecha: "2026-05-01", peso_kg: 79, imc: 24.9, grasa_pct: 21.0 }),
+      medicion({ id: "d2", fecha: "2026-07-31", peso_kg: 81, imc: 25.6, grasa_pct: 22.4 }),
+    ]);
+    const e = dos && generarEntregables(dos).entregables.find(
+      (x) => x.tipo === "explicacion_paciente",
+    )!;
+    expect(e.texto).toMatch(MENCION_PREVIA);
+    expect(e.texto).not.toContain("Todavía no hay con qué comparar");
   });
 });

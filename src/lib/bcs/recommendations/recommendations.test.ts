@@ -22,7 +22,7 @@ function medicion(over: Partial<Medicion> & { id: string; fecha: string }): Medi
     grasa_visceral_idx: null, angulo_fase_deg: null, bmr_kcal: null,
     edad_metabolica: null, smi: null, circ_cintura_cm: null,
     circ_cadera_cm: null, whr: null, impedancia_ohm: null,
-    observaciones: null, foto_url: null,
+    observaciones: null, foto_url: null, dispositivo: null,
     ...over,
   };
 }

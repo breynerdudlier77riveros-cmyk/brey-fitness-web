@@ -10,12 +10,12 @@
 // marca para revisión del entrenador". Ese es el techo de lo que esta capa
 // afirma.
 
-import { BLOQUEO_CLASIFICACION, CATALOGO, type VariableId } from '@/lib/bcs/reporte';
+import { CATALOGO, type VariableId } from '@/lib/bcs/reporte';
+import { bloqueosDe, SUJETO_DESCONOCIDO, type SujetoBCS } from '@/lib/bcs/identidad';
 import type { Medicion } from '@/lib/bcs/tipos';
 import { diasEntre } from './comparacion';
 import {
   CAMBIO_SOSPECHOSO,
-  CLASIFICACION_BLOQUEADA,
   IMC_SOSPECHOSO_PCT,
   MASAS_ACOTADAS_POR_PESO,
   RANGO_FISICO,
@@ -206,20 +206,22 @@ function revisarCambios(anterior: Medicion, actual: Medicion): Incidencia[] {
   return incidencias;
 }
 
-/** Limitaciones de clasificación — datos que el modelo no captura hoy. */
-function limitacionesDeClasificacion(actual: Medicion): Incidencia[] {
-  return CLASIFICACION_BLOQUEADA.filter((variable) => {
-    const valor = actual[variable];
-    return valor !== null && valor !== undefined;
-  }).map((variable) => ({
-    id: `clasificacion_bloqueada:${variable}`,
+/**
+ * Limitaciones de clasificación, con el motivo REAL de cada una.
+ *
+ * El motivo depende del sujeto y de la medición, no de la variable: la misma
+ * `grasa_pct` está bloqueada por el sexo en un cliente, por el dispositivo en
+ * otro, y por la tabla sin cargar en un tercero. Una constante no puede
+ * distinguirlos, y la diferencia es la que decide a quién se le pide el dato.
+ */
+function limitacionesDeClasificacion(actual: Medicion, sujeto: SujetoBCS): Incidencia[] {
+  return bloqueosDe(actual, sujeto).map((b) => ({
+    id: `clasificacion_bloqueada:${b.variable}`,
     clase: 'limitacion' as ClaseIncidencia,
     severidad: 'informativo' as const,
-    titulo: `${CATALOGO[variable].etiqueta} no puede clasificarse`,
-    descripcion:
-      BLOQUEO_CLASIFICACION[variable] ??
-      `${CATALOGO[variable].etiqueta} requiere datos que no se registran hoy.`,
-    variables: [variable],
+    titulo: `${CATALOGO[b.variable].etiqueta} no puede clasificarse`,
+    descripcion: b.detalle,
+    variables: [b.variable],
     mediciones: [actual.id],
   }));
 }
@@ -229,6 +231,15 @@ export interface EntradaCalidad {
   historicoDesc: readonly Medicion[];
   /** Fecha de referencia `yyyy-mm-dd` para detectar fechas futuras. Sin ella, esa validación se omite (nunca se consulta el reloj desde aquí). */
   hoyISO?: string;
+  /**
+   * Sexo y fecha de nacimiento del cliente, para poder decir POR QUÉ una
+   * variable no se clasifica.
+   *
+   * Opcional, y su ausencia se trata como «no consta» —que es exactamente lo
+   * que el informe sabe cuando nadie se lo pasa—, nunca como un sujeto
+   * inventado.
+   */
+  sujeto?: SujetoBCS;
 }
 
 /**
@@ -236,7 +247,11 @@ export interface EntradaCalidad {
  * reloj: si el llamador no pasa `hoyISO`, la validación de fecha futura
  * simplemente no se ejecuta.
  */
-export function evaluarCalidad({ historicoDesc, hoyISO }: EntradaCalidad): Incidencia[] {
+export function evaluarCalidad({
+  historicoDesc,
+  hoyISO,
+  sujeto = SUJETO_DESCONOCIDO,
+}: EntradaCalidad): Incidencia[] {
   const incidencias: Incidencia[] = [];
 
   if (historicoDesc.length === 0) return incidencias;
@@ -298,7 +313,7 @@ export function evaluarCalidad({ historicoDesc, hoyISO }: EntradaCalidad): Incid
     incidencias.push(...revisarCambios(asc[i - 1], asc[i]));
   }
 
-  incidencias.push(...limitacionesDeClasificacion(actual));
+  incidencias.push(...limitacionesDeClasificacion(actual, sujeto));
 
   if (historicoDesc.length === 1) {
     incidencias.push({
