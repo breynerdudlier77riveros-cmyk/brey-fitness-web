@@ -171,13 +171,16 @@ body {
      un informe impreso no se puede abrir con el ratón, y esa lista es la
      evidencia de toda la interpretación. Se fuerza con CSS porque `open` es un
      atributo del elemento y ninguna clase de utilidad puede escribirlo. */
-  .reporte-print details.bcs-hallazgos > summary {
+  .reporte-print details.bcs-hallazgos > summary,
+  .reporte-print details.bcs-variable > summary {
     display: none !important;
   }
-  .reporte-print details.bcs-hallazgos > *:not(summary) {
+  .reporte-print details.bcs-hallazgos > *:not(summary),
+  .reporte-print details.bcs-variable > *:not(summary) {
     display: block !important;
   }
-  .reporte-print details.bcs-hallazgos {
+  .reporte-print details.bcs-hallazgos,
+  .reporte-print details.bcs-variable {
     display: block !important;
   }
 

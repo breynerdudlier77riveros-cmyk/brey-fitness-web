@@ -151,7 +151,7 @@ export default function ReportView({
           </Sub>
 
           <Sub titulo="Todas las variables registradas">
-            <BodyAnalysisSection ficha={ficha} />
+            <BodyAnalysisSection ficha={ficha} tendencias={tendencias} />
           </Sub>
 
           {medicionActual.imc !== null && (
