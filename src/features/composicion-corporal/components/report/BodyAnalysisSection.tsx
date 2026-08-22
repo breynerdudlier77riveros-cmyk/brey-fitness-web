@@ -1,4 +1,3 @@
-import ProcedenciaBadge from "@/features/composicion-corporal/components/ProcedenciaBadge";
 import VariableDetail from "./VariableDetail";
 import type { BloqueCategoria, SerieTendencia } from "@/lib/bcs/reporte";
 import { formatearValor } from "./formato";
@@ -54,11 +53,8 @@ export default function BodyAnalysisSection({ ficha, tendencias = [] }: Props) {
           <dl className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-x-6 gap-y-4">
             {bloque.filas.map((fila) => (
               <div key={fila.id} className="min-w-0">
-                <dt className="flex items-center gap-1.5 mb-0.5">
-                  <span className="text-[10px] font-semibold text-white/45 truncate">
-                    {fila.etiqueta}
-                  </span>
-                  <ProcedenciaBadge procedencia={fila.procedencia} />
+                <dt className="mb-0.5">
+                  <span className="text-[10px] font-semibold text-white/45">{fila.etiqueta}</span>
                 </dt>
                 <dd className="text-sm font-black text-white tabular-nums">
                   {formatearValor(fila.valor, fila.unidad)}

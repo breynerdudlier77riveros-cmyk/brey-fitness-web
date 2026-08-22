@@ -1,5 +1,5 @@
 import LineChart from "./LineChart";
-import ProcedenciaBadge from "@/features/composicion-corporal/components/ProcedenciaBadge";
+import ProcedenciaTexto from "./Procedencia";
 import NormPosition from "./NormPosition";
 import { significadoDe } from "@/lib/bcs/significados";
 import type { FilaVariable, SerieTendencia } from "@/lib/bcs/reporte";
@@ -131,9 +131,9 @@ export default function VariableDetail({ fila, serie }: Props) {
           </Bloque>
         ) : null}
 
-        <p className="flex items-center gap-1.5 text-[10px] text-white/30">
-          De dónde sale este número: <ProcedenciaBadge procedencia={fila.procedencia} />
-        </p>
+        <Bloque titulo="De dónde sale este número">
+          <ProcedenciaTexto procedencia={fila.procedencia} />
+        </Bloque>
       </div>
     </details>
   );

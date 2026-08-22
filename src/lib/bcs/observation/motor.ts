@@ -243,7 +243,9 @@ export const EVALUADORES: Record<string, Evaluador> = {
     return [
       {
         oraciones: [
-          `Se ${avisos.length === 1 ? 'identifica una variación' : `identifican ${avisos.length} variaciones`} que exceden lo esperable para el intervalo transcurrido o el rango de referencia de la variable.`,
+          avisos.length === 1
+            ? 'Se identifica una variación que excede lo esperable para el intervalo transcurrido o el rango de referencia de la variable.'
+            : `Se identifican ${avisos.length} variaciones que exceden lo esperable para el intervalo transcurrido o el rango de referencia de la variable.`,
           'El sistema señala el registro para verificación y no concluye que exista un fallo del dispositivo.',
           'La distinción entre un cambio real y una variación del procedimiento no siempre es resoluble con el dato disponible.',
         ],
@@ -427,7 +429,12 @@ export const EVALUADORES: Record<string, Evaluador> = {
     const oraciones: string[] = [
       analisis.cantidadMediciones === 0
         ? 'El informe no contiene observaciones sobre composición corporal por ausencia de registros.'
-        : `El informe recoge ${cambios === 0 ? 'ninguna variación entre los registros comparados' : `${cambios} ${cambios === 1 ? 'variación registrada' : 'variaciones registradas'}`} y ${recomendaciones.recomendaciones.length} ${recomendaciones.recomendaciones.length === 1 ? 'recomendación' : 'recomendaciones'}.`,
+        // «El informe recoge ninguna variación» era gramaticalmente imposible:
+        // en español la negación va antes del verbo. El caso cero necesita su
+        // propia frase, no un hueco dentro de la afirmativa.
+        : cambios === 0
+          ? `No se registró ninguna variación entre los registros comparados. El informe recoge ${recomendaciones.recomendaciones.length} ${recomendaciones.recomendaciones.length === 1 ? 'recomendación' : 'recomendaciones'}.`
+          : `El informe recoge ${cambios} ${cambios === 1 ? 'variación registrada' : 'variaciones registradas'} y ${recomendaciones.recomendaciones.length} ${recomendaciones.recomendaciones.length === 1 ? 'recomendación' : 'recomendaciones'}.`,
     ];
 
     if (alertas > 0) {

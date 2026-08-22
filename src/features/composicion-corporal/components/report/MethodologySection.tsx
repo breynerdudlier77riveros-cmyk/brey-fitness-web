@@ -67,21 +67,18 @@ export default function MethodologySection({ analisis }: Props) {
         </ul>
       </Bloque>
 
+{/* La lista de limitaciones vivía aquí Y en «Qué no puede interpretarse»,
+          palabra por palabra. Se conserva el recuento y se apunta al apartado
+          que las detalla: repetirlas no las explicaba mejor, alargaba el
+          documento. */}
       <Bloque titulo="Qué no pudo interpretarse">
-        {limitaciones.length > 0 ? (
-          <ul className="list-disc pl-4 space-y-1">
-            {limitaciones.map((l) => (
-              <li key={l.id}>
-                <span className="text-white/70 font-semibold">{l.titulo}.</span> {l.descripcion}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>
-            No se registraron limitaciones de interpretación para las mediciones incluidas en este
-            reporte.
-          </p>
-        )}
+        <p>
+          {limitaciones.length === 0
+            ? 'No se registraron limitaciones de interpretación para las mediciones incluidas en este reporte.'
+            : limitaciones.length === 1
+              ? 'Un aspecto no pudo interpretarse. Se detalla en el apartado «Qué no puede interpretarse», con el motivo concreto y qué haría falta para resolverlo.'
+              : `${limitaciones.length} aspectos no pudieron interpretarse. Se detallan en el apartado «Qué no puede interpretarse», cada uno con su motivo concreto y qué haría falta para resolverlo.`}
+        </p>
       </Bloque>
 
       <Bloque titulo="Alcance">

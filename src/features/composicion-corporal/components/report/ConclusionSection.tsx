@@ -37,10 +37,14 @@ export default function ConclusionSection({ analisis, clienteNombre }: Props) {
 
       <p className="text-sm text-white/60 leading-relaxed">
         {insights.length > 0
-          ? `Se emitieron ${insights.length} ${insights.length === 1 ? "interpretación" : "interpretaciones"} a partir de los hallazgos verificados.`
+          ? insights.length === 1
+            ? "Se emitió una interpretación a partir de los hallazgos verificados."
+            : `Se emitieron ${insights.length} interpretaciones a partir de los hallazgos verificados.`
           : "No se emitieron interpretaciones: los datos disponibles no permiten combinar hallazgos."}{" "}
         {alertas > 0
-          ? `Quedan ${alertas} ${alertas === 1 ? "dato" : "datos"} pendientes de revisión antes de considerar el registro definitivo.`
+          ? alertas === 1
+            ? "Queda un dato pendiente de revisión antes de considerar el registro definitivo."
+            : `Quedan ${alertas} datos pendientes de revisión antes de considerar el registro definitivo.`
           : "No se detectaron incidencias de consistencia en los datos registrados."}{" "}
         {limitaciones > 0 &&
           `${limitaciones === 1 ? "Una variable no pudo interpretarse" : `${limitaciones} aspectos no pudieron interpretarse`} por ausencia de datos que el sistema no captura; el detalle figura en Metodología.`}

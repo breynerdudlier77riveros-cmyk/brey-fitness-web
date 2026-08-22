@@ -14,7 +14,7 @@ import PhotoGallery from "@/features/composicion-corporal/components/report/Phot
 import ReportInterpretation from "@/features/composicion-corporal/components/report/ReportInterpretation";
 import ReportAppendix from "@/features/composicion-corporal/components/report/ReportAppendix";
 import { AlertsBlock } from "@/features/composicion-corporal/components/report/AnalysisBlocks";
-import PatientExplanation from "@/features/composicion-corporal/components/report/PatientExplanation";
+import BreyAI from "@/features/composicion-corporal/components/report/BreyAI";
 
 import type { Reporte } from "@/lib/bcs/reporte";
 import type { BodyCompositionAnalysis } from "@/lib/bcs/analysis";
@@ -90,6 +90,8 @@ interface Props {
    * — entonces no se dibuja nada, nunca un hueco con título.
    */
   explicacionPaciente?: Entregable | null;
+  /** Cuántos documentos más compuso el copiloto. Solo para remitir a ellos. */
+  documentosCopiloto?: number;
   /** Solo el panel del Entrenador la pasa (BCS-ADR-05). */
   onCorregirMedicion?: (medicion: Medicion) => void;
 }
@@ -114,6 +116,7 @@ export default function ReportView({
   generadoEl,
   entrenador,
   explicacionPaciente = null,
+  documentosCopiloto = 0,
   onCorregirMedicion,
 }: Props) {
   const { cliente, medicionActual, ficha, historico, tendencias, fotografias } = reporte;
@@ -136,7 +139,7 @@ export default function ReportView({
       {/* Va aquí y no al final: si estuviera abajo, el cliente tendría que
           atravesar once secciones de jerga profesional para llegar a la única
           escrita para él, y no llegaría. */}
-      <PatientExplanation entregable={explicacionPaciente} />
+      <BreyAI entregable={explicacionPaciente} documentosDisponibles={documentosCopiloto} />
 
       {hayAlertas && (
         <SectionCard titulo="Datos a revisar">

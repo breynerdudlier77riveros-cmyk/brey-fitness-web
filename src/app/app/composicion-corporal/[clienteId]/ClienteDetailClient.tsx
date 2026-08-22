@@ -203,6 +203,9 @@ export default function ClienteDetailClient({
           explicacionPaciente={
             copiloto?.entregables.find((e) => e.tipo === "explicacion_paciente") ?? null
           }
+          documentosCopiloto={
+            copiloto?.entregables.filter((e) => e.tipo !== "explicacion_paciente").length ?? 0
+          }
           onCorregirMedicion={abrirCorregir}
         />
       ) : (

@@ -142,17 +142,21 @@ export default function ReportInterpretation({
           mismo apartado. Estuvieron a punto de ser dos secciones seguidas —
           exactamente la fragmentación que BCS-7.0 quitó del informe— hasta
           que el test que fija la lista de apartados obligó a mirarlo. */}
+      {/* ORDEN INVERTIDO EN BCS-11. Iba primero «Sobre este registro» —lo que
+          hay que verificar del dato— y la orientación por objetivo quedaba al
+          final de un documento de diecinueve páginas. Es la parte que un
+          profesional usa para decidir algo, y la última que veía.
+          .
+          Ahora abre el apartado. Las notas sobre el registro siguen dentro,
+          debajo: son importantes y no urgentes. */}
       <SectionCard titulo="Recomendaciones">
         <div className="space-y-7">
-          {/* Primero lo que afecta a la lectura de HOY: si hay un registro que
-              verificar, todo lo demás se lee condicionado a eso. */}
-          <Sub titulo="Sobre este registro">
-            <RecommendationSection informe={recomendaciones} />
-          </Sub>
-
-          {/* Y después qué mueve cada cosa del cuerpo, por objetivo. */}
           <Sub titulo="Según el objetivo">
             <GuidanceSection />
+          </Sub>
+
+          <Sub titulo="Sobre este registro">
+            <RecommendationSection informe={recomendaciones} />
           </Sub>
         </div>
       </SectionCard>

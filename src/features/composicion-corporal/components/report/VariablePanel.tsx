@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/brand/Dialog";
 import LineChart from "./LineChart";
-import ProcedenciaBadge from "@/features/composicion-corporal/components/ProcedenciaBadge";
+import ProcedenciaTexto from "./Procedencia";
 import NormPosition from "./NormPosition";
 import { formatearValor } from "./formato";
 import { significadoDe } from "@/lib/bcs/significados";
@@ -131,9 +131,11 @@ export default function VariablePanel({ fila, serie }: Props) {
               </Bloque>
             ) : null}
 
-            <p className="flex items-center gap-2 border-t border-white/[0.06] pt-3 text-[11px] text-white/35">
-              De dónde sale este número: <ProcedenciaBadge procedencia={fila.procedencia} />
-            </p>
+            <div className="border-t border-white/[0.06] pt-4">
+              <Bloque titulo="De dónde sale este número">
+                <ProcedenciaTexto procedencia={fila.procedencia} />
+              </Bloque>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

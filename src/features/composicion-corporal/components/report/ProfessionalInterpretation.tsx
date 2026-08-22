@@ -92,14 +92,18 @@ export default function ProfessionalInterpretation({ analisis }: Props) {
   // 4 · Calidad del dato, si compromete la lectura.
   if (calidad.length > 0) {
     parrafos.push(
-      `Se identifican ${calidad.length === 1 ? "una incidencia" : `${calidad.length} incidencias`} en la consistencia del dato registrado. Su detalle figura en el apartado de datos a revisar y condiciona la lectura de las variables implicadas.`
+      calidad.length === 1
+        ? "Se identifica una incidencia en la consistencia del dato registrado. Su detalle figura en el apartado de datos a revisar y condiciona la lectura de las variables implicadas."
+        : `Se identifican ${calidad.length} incidencias en la consistencia del dato registrado. Su detalle figura en el apartado de datos a revisar y condiciona la lectura de las variables implicadas.`
     );
   }
 
   // 5 · Límite explícito de la interpretación.
   if (limitaciones.length > 0) {
     parrafos.push(
-      `La interpretación permanece limitada en ${limitaciones.length === 1 ? "un aspecto" : `${limitaciones.length} aspectos`}, detallados en el apartado de Metodología. Las variables afectadas se presentan únicamente como valor y evolución, sin clasificación.`
+      limitaciones.length === 1
+        ? "La interpretación permanece limitada en un aspecto, detallado en el apartado «Qué no puede interpretarse». La variable afectada se presenta únicamente como valor y evolución, sin clasificación."
+        : `La interpretación permanece limitada en ${limitaciones.length} aspectos, detallados en el apartado «Qué no puede interpretarse». Las variables afectadas se presentan únicamente como valor y evolución, sin clasificación.`
     );
   }
 

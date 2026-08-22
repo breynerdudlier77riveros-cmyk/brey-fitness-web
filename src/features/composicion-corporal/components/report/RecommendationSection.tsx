@@ -6,6 +6,21 @@ import type {
 } from "@/lib/bcs/recommendations";
 import { NotaSinHistorial } from "@/features/composicion-corporal/components/EstadosVacios";
 
+/**
+ * Reglas cuya tarjeta NO se dibuja aquí, y por qué.
+ *
+ * `R-14` y `R-15` no emiten una acción: su «acción profesional» dice
+ * «considerar el valor y su evolución», que es lo que se hace de todos modos.
+ * Lo que sí aportan —el motivo por el que una variable no se clasifica— ya
+ * tiene su propio apartado, «Qué no puede interpretarse», y en el informe
+ * exportado aparecían cuatro tarjetas completas repitiéndolo.
+ *
+ * NO se apagan en el motor: sus observaciones y sus recuentos siguen siendo
+ * correctos y otras vistas las consumen. Se filtran en la presentación, que es
+ * donde estaba el problema.
+ */
+const SIN_TARJETA_PROPIA = ['R-14-clasificacion-bloqueada', 'R-15-agua-no-verificable'];
+
 // ── Recomendaciones profesionales (Sprint BCS-4.0) ─────────────────────────
 // Renderiza el informe del Recommendation Engine. No decide nada: prioridad,
 // categoría, texto y evidencia llegan resueltos.
@@ -85,7 +100,13 @@ function Tarjeta({ recomendacion }: { recomendacion: ProfessionalRecommendation 
 }
 
 export default function RecommendationSection({ informe }: { informe: RecommendationReport }) {
-  const { recomendaciones, limitaciones, resumen, reglasEvaluadas } = informe;
+  const { limitaciones, resumen, reglasEvaluadas } = informe;
+
+  // Las que sí piden una acción. Ver `SIN_TARJETA_PROPIA`.
+  const recomendaciones = informe.recomendaciones.filter(
+    (r) => !SIN_TARJETA_PROPIA.includes(r.regla),
+  );
+  const remitidas = informe.recomendaciones.length - recomendaciones.length;
 
   return (
     <div className="space-y-5">
@@ -96,6 +117,8 @@ export default function RecommendationSection({ informe }: { informe: Recommenda
             {recomendaciones.length === 1 ? "recomendación emitida" : "recomendaciones emitidas"} sobre{" "}
             {reglasEvaluadas} reglas evaluadas
             {resumen.alta > 0 && ` · ${resumen.alta} de prioridad alta`}.
+            {remitidas > 0 &&
+              ` Otras ${remitidas} señalan variables que no pueden clasificarse: su motivo está en «Qué no puede interpretarse».`}
           </p>
 
           <div className="space-y-3">

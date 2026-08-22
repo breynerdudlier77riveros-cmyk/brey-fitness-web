@@ -287,6 +287,21 @@ body {
 
   /* ── Control de saltos de página ───────────────────────────────────────
      Nada se parte por la mitad: ni una tarjeta, ni un gráfico, ni una fila. */
+  /* Una Section Card entera no cabe en una página, y `break-inside: avoid`
+     sobre ella producía una página en blanco con solo el título encima. Se
+     permite partirla —el contenido de dentro sigue sin partirse— y se impide
+     que el título quede huérfano al final de la página. */
+  .reporte-print [data-slot="card"] {
+    break-inside: auto;
+    page-break-inside: auto;
+  }
+
+  .reporte-print [data-slot="card-header"],
+  .reporte-print [data-slot="card-title"] {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
   .reporte-print section,
   .reporte-print [class*="rounded-2xl"],
   .reporte-print figure,

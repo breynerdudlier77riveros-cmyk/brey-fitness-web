@@ -1,5 +1,4 @@
 import { TrendUp, TrendDown, TrendFlat } from "@/components/brand/icons";
-import ProcedenciaBadge from "@/features/composicion-corporal/components/ProcedenciaBadge";
 import type { ComparacionMetrica, EstadoTendencia, TendenciaMetrica } from "@/lib/bcs/analysis";
 import type { Procedencia } from "@/lib/bcs/reporte";
 import { formatearDelta, formatearFechaCorta, formatearPorcentaje, formatearValor } from "./formato";
@@ -59,7 +58,6 @@ export default function IndicatorCard({
   etiqueta,
   valor,
   unidad,
-  procedencia,
   comparacion,
   tendencia,
   clasificacion,
@@ -93,11 +91,15 @@ export default function IndicatorCard({
       aria-label={descripcionAccesible}
       className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-4 flex flex-col"
     >
-      <div className="flex items-start justify-between gap-2 mb-3">
+      {/* Sin badge de procedencia (BCS-11).
+          «DATO CRUDO» y «DERIVADO» son vocabulario del sistema, no del lector:
+          nueve tarjetas con una etiqueta que hay que aprender antes de poder
+          ignorarla. La procedencia no se pierde — se dice con palabras dentro
+          del panel de cada variable, donde además cabe explicarla. */}
+      <div className="mb-3">
         <h3 className="text-[10px] font-bold tracking-[0.12em] uppercase text-white/50 leading-tight">
           {etiqueta}
         </h3>
-        <ProcedenciaBadge procedencia={procedencia} />
       </div>
 
       <p className="font-black text-2xl text-white tabular-nums leading-none">
