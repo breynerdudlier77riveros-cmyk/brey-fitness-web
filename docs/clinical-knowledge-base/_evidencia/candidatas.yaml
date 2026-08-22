@@ -239,3 +239,102 @@ angulo_fase_biva_europa_2023:
     criterio pedido.
     .
     Texto completo no accesible en la verificación.
+
+# ════════════════════════════════════════════════════════════════════════════
+# BÚSQUEDA 2 · PROTEÍNA, MINERALES, MASA ÓSEA, AGUA (2026-08-22)
+# ════════════════════════════════════════════════════════════════════════════
+#
+# PREGUNTA QUE LA ORIGINA, del profesional: «para proteína, minerales, masa
+# ósea, agua o ángulo de fase, ¿sí existe evidencia? ¿o de dónde saca esta
+# evidencia InBody?»
+#
+# Las dos mitades se responden por separado, porque las respuestas son
+# distintas y la segunda es la que más importa.
+
+# ── DE DÓNDE SACA InBODY SUS RANGOS ──────────────────────────────────────────
+
+inbody_guia_profesional:
+  titulo: "The Professional's Guide to the InBody Result Sheet"
+  autor_corporativo: "InBody"
+  tipo: material_del_fabricante
+  paginas: 48
+  url: "https://uk.inbody.com/wp-content/uploads/2018/08/The_Professional_s_Guide_to_the_InBody_Result_Sheet.pdf"
+  verificado_el: 2026-08-22
+  verificacion: pdf_completo_extraido_y_leido
+  admisible_como_norma: false
+  hallazgo_principal: >-
+    Los rangos NO son percentiles poblacionales de ningún estudio. El propio
+    documento explica que las barras se construyen sobre un «ideal» derivado de
+    la estatura y el sexo:
+    .
+    «The 100% mark, as well as all the percentage marks above bar graphs, are
+    all based on what is considered ideal for an individual of the specific
+    height and gender they give when they tested.»
+    .
+    «While the healthy range varies as shown above, 100% designates the ideal
+    for individuals with the same height and gender.»
+    .
+    Es decir: la barra dice a qué distancia estás de un valor de referencia
+    calculado para tu talla, no en qué percentil de una población caes. Son dos
+    afirmaciones distintas y la segunda es la que un informe con norma hace.
+  citas_bibliograficas_en_las_48_paginas: 0
+  unica_fuente_externa_nombrada: >-
+    La OMS, y solo para el IMC: «24.99 kg/m2 is the normal range according to
+    the World Health Organization». Ninguna otra variable nombra una fuente,
+    un estudio, una población de referencia ni un método percentílico.
+  motivo_de_no_admision: >-
+    La política de citación de esta base (README) y el módulo 12 §5 excluyen
+    los rangos de fuente comercial. No es una objeción a InBody: es que un
+    rango sin población descrita, sin n y sin método publicado no puede
+    auditarse, y este sistema muestra el n de cada celda que usa.
+    .
+    Se registra igualmente porque responder «de dónde sale» ES la pregunta, y
+    la respuesta está verificada.
+
+# ── QUÉ EVIDENCIA PUBLICADA EXISTE, VARIABLE A VARIABLE ─────────────────────
+
+busqueda_agua_proteina_minerales:
+  fecha: 2026-08-22
+  metodo: >-
+    Búsqueda dirigida de valores de referencia poblacionales por sexo y banda
+    de edad, publicados y revisados por pares, para las variables que hoy no
+    tienen norma cargada.
+  resultados:
+    agua_total_l:
+      existe_percentil_poblacional: false
+      que_si_existe: >-
+        El cociente ECW/TBW, con un valor en torno a 0,38 en personas sanas y
+        un umbral de ≥0,40 descrito como desplazamiento inflamatorio. Ya está
+        en la CKB (05, ficha cociente-ecw-tbw) con nivel
+        `bajo_para_poblacion_brey`: su evidencia pronóstica procede de
+        hemodiálisis y oncología, y la ficha declara NO admisible trasladarla a
+        una persona sana.
+      nota: >-
+        Lo que abunda en la literatura son estudios de VALIDACIÓN —bioimpedancia
+        frente a dilución isotópica— no tablas de percentiles por sexo y edad.
+        Son cosas distintas: uno dice si la medida es fiable, el otro dónde caes.
+    agua_intracelular_l: { existe_percentil_poblacional: false }
+    agua_extracelular_l: { existe_percentil_poblacional: false }
+    proteina_kg:
+      existe_percentil_poblacional: false
+      nota: >-
+        No se localizó ninguna tabla de referencia. Es una salida derivada del
+        modelo del fabricante, no una magnitud con literatura normativa propia.
+    minerales_kg:
+      existe_percentil_poblacional: false
+      nota: >-
+        Cuidado con una confusión que parece un hallazgo: SÍ existen valores de
+        referencia de densidad y contenido mineral ÓSEO por densitometría —por
+        ejemplo una serie chilena de 5 a 80 años con curvas LMS por sexo y
+        edad— pero eso no es «minerales por bioimpedancia». Son magnitudes
+        distintas, medidas con técnicas distintas, y cruzarlas sería el mismo
+        error que comparar entre dispositivos.
+    masa_osea_kg:
+      existe_percentil_poblacional: false
+      nota: Mismo caso que minerales. La densitometría no es bioimpedancia.
+    angulo_fase_deg:
+      existe_percentil_poblacional: true
+      fuentes: [angulo_fase_colombia_2026, angulo_fase_biva_europa_2023]
+      bloqueo: >-
+        Las dos son de acceso restringido. Sus DOI se entregaron al profesional
+        el 2026-08-21 para que los consiga.
