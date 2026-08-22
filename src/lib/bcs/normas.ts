@@ -75,11 +75,38 @@ export interface NormaPoblacional {
 }
 
 /** Los siete percentiles que publica Amaral 2022, en orden. */
-const P = [5, 10, 25, 50, 75, 90, 95] as const;
+const P7 = [5, 10, 25, 50, 75, 90, 95] as const;
+/** Los cinco que publica Coelho-Júnior 2024. */
+const P5 = [5, 25, 50, 75, 95] as const;
 
-/** Une los siete valores de una fila con sus etiquetas. Solo transcripción. */
+/** Une los valores de una fila con sus etiquetas. Solo transcripción. */
 const fila = (...v: readonly number[]): { p: number; valor: number }[] =>
-  P.map((p, i) => ({ p, valor: v[i] }));
+  P7.map((p, i) => ({ p, valor: v[i] }));
+
+const fila5 = (...v: readonly number[]): { p: number; valor: number }[] =>
+  P5.map((p, i) => ({ p, valor: v[i] }));
+
+const CITA_AMARAL =
+  'Amaral MA, Mundstock E, Scarpatto CH, Cañon-Montañez W, Mattiello R. ' +
+  'Reference percentiles for bioimpedance body composition parameters of healthy ' +
+  'individuals. Clinics (São Paulo) 2022;77:100078.';
+
+const LIMITES_AMARAL = [
+  'Los autores no presentan resultados por raza.',
+  'No es una muestra probabilística de la población brasileña.',
+  'La banda de 20 a 59 años es una sola: no distingue a alguien de 22 de alguien de 55.',
+];
+
+/**
+ * La celda de varones de 60 o más de Amaral, en las tres variables.
+ *
+ * n = 16. El propio artículo declara en sus métodos que consideraba «un número
+ * mínimo de 50 participantes por sexo y ciclo vital»: esa celda incumple el
+ * criterio de sus propios autores, no uno mío.
+ */
+const MOTIVO_N_INSUFICIENTE =
+  'Esta celda se calculó sobre 16 personas, y el propio artículo fija en sus métodos un ' +
+  'mínimo de 50 participantes por sexo y ciclo vital: incumple el criterio de sus autores.';
 
 export const NORMAS: readonly NormaPoblacional[] = [
   {
@@ -87,10 +114,7 @@ export const NORMAS: readonly NormaPoblacional[] = [
     variable: 'grasa_pct',
     unidad: '%',
     fuente: 'amaral_percentiles_bia_2022',
-    cita:
-      'Amaral MA, Mundstock E, Scarpatto CH, Cañon-Montañez W, Mattiello R. ' +
-      'Reference percentiles for bioimpedance body composition parameters of healthy ' +
-      'individuals. Clinics (São Paulo) 2022;77:100078.',
+    cita: CITA_AMARAL,
     pais: 'Brasil',
     dispositivo: 'InBody S10 (50 kHz)',
     celdas: [
@@ -108,8 +132,7 @@ export const NORMAS: readonly NormaPoblacional[] = [
         utilizable: false,
         motivoNoUtilizable:
           'La tabla publicada imprime el percentil 10 (15,0 %) por debajo del percentil 5 ' +
-          '(18,1 %), lo que es imposible en una distribución, y esa celda se calculó sobre ' +
-          '16 personas. No se corrige la fuente ni se usa una celda que no se sostiene.',
+          '(18,1 %), lo que es imposible en una distribución. ' + MOTIVO_N_INSUFICIENTE,
       },
 
       // ── Mujeres ────────────────────────────────────────────────────────
@@ -118,11 +141,127 @@ export const NORMAS: readonly NormaPoblacional[] = [
       { sexo: 'F', edadMin: 20, edadMax: 59, n: 345, utilizable: true, puntos: fila(18.5, 20.8, 25, 32.3, 38.8, 44.3, 48) },
       { sexo: 'F', edadMin: 60, edadMax: 120, n: 51, utilizable: true, puntos: fila(24.4, 28.4, 33.7, 39.4, 43.4, 49.2, 50.7) },
     ],
-    limitaciones: [
-      'Los autores no presentan resultados por raza.',
-      'No es una muestra probabilística de la población brasileña.',
-      'La banda de 20 a 59 años es una sola: no distingue a alguien de 22 de alguien de 55.',
+    limitaciones: LIMITES_AMARAL,
+  },
+
+  // ── Masa grasa absoluta y masa libre de grasa, misma fuente ────────────
+  {
+    id: 'masa_grasa_kg/amaral-2022',
+    variable: 'masa_grasa_kg',
+    unidad: 'kg',
+    fuente: 'amaral_percentiles_bia_2022',
+    cita: CITA_AMARAL,
+    pais: 'Brasil',
+    dispositivo: 'InBody S10 (50 kHz)',
+    celdas: [
+      { sexo: 'M', edadMin: 5, edadMax: 9, n: 58, utilizable: true, puntos: fila(2.3, 2.4, 3.6, 5.9, 9.6, 17, 19.2) },
+      { sexo: 'M', edadMin: 10, edadMax: 19, n: 134, utilizable: true, puntos: fila(2.4, 3.2, 5.3, 7.7, 12.2, 21.3, 27.5) },
+      { sexo: 'M', edadMin: 20, edadMax: 59, n: 371, utilizable: true, puntos: fila(7, 8.7, 11.9, 16.5, 22.4, 28.7, 35.5) },
+      {
+        sexo: 'M', edadMin: 60, edadMax: 120, n: 16,
+        puntos: fila(12.3, 14, 15.2, 21.3, 27.4, 32.2, 32.2),
+        utilizable: false,
+        motivoNoUtilizable: MOTIVO_N_INSUFICIENTE,
+      },
+      { sexo: 'F', edadMin: 5, edadMax: 9, n: 79, utilizable: true, puntos: fila(2.2, 2.6, 4, 5.4, 8.3, 15.4, 17.8) },
+      { sexo: 'F', edadMin: 10, edadMax: 19, n: 154, utilizable: true, puntos: fila(6.2, 7.6, 9.8, 13.4, 21.4, 25.2, 35.5) },
+      { sexo: 'F', edadMin: 20, edadMax: 59, n: 345, utilizable: true, puntos: fila(10.1, 11.2, 14.4, 20.4, 28.5, 38.5, 43.3) },
+      { sexo: 'F', edadMin: 60, edadMax: 120, n: 51, utilizable: true, puntos: fila(12.9, 15, 19.9, 24.6, 29.4, 36.7, 47.2) },
     ],
+    limitaciones: LIMITES_AMARAL,
+  },
+
+  {
+    id: 'masa_libre_grasa_kg/amaral-2022',
+    variable: 'masa_libre_grasa_kg',
+    unidad: 'kg',
+    fuente: 'amaral_percentiles_bia_2022',
+    cita: CITA_AMARAL,
+    pais: 'Brasil',
+    dispositivo: 'InBody S10 (50 kHz)',
+    celdas: [
+      { sexo: 'M', edadMin: 5, edadMax: 9, n: 58, utilizable: true, puntos: fila(19.2, 19.7, 21.3, 24.3, 26.5, 28.4, 29.4) },
+      { sexo: 'M', edadMin: 10, edadMax: 19, n: 134, utilizable: true, puntos: fila(33.5, 35.4, 39.2, 44.6, 50.3, 56.3, 60.6) },
+      { sexo: 'M', edadMin: 20, edadMax: 59, n: 371, utilizable: true, puntos: fila(51.2, 54.7, 59.2, 64.3, 70.3, 75.9, 79.1) },
+      {
+        sexo: 'M', edadMin: 60, edadMax: 120, n: 16,
+        puntos: fila(44.8, 44.8, 47.2, 53.7, 66, 66.2, 77.1),
+        utilizable: false,
+        motivoNoUtilizable: MOTIVO_N_INSUFICIENTE,
+      },
+      { sexo: 'F', edadMin: 5, edadMax: 9, n: 79, utilizable: true, puntos: fila(16.3, 17.5, 19.5, 21.3, 23.8, 26.3, 27.6) },
+      { sexo: 'F', edadMin: 10, edadMax: 19, n: 154, utilizable: true, puntos: fila(28.9, 30.6, 33.5, 38.2, 42.7, 48.3, 51.6) },
+      { sexo: 'F', edadMin: 20, edadMax: 59, n: 345, utilizable: true, puntos: fila(36.3, 39.1, 40.7, 44.1, 47.6, 51.2, 53.1) },
+      { sexo: 'F', edadMin: 60, edadMax: 120, n: 51, utilizable: true, puntos: fila(32, 33.5, 36.7, 38.5, 42.4, 45.9, 48.8) },
+    ],
+    limitaciones: LIMITES_AMARAL,
+  },
+
+  // ── Masa muscular · Coelho-Júnior 2024 ─────────────────────────────────
+  //
+  // De las cuatro filas normativas del artículo se carga UNA. Ver NO_CARGADAS.
+  {
+    id: 'masa_muscular_kg/coelho-2024',
+    variable: 'masa_muscular_kg',
+    unidad: 'kg',
+    fuente: 'coelho_junior_musculo_2024',
+    cita:
+      'Coelho-Júnior HJ, Marques FL, Sousa CV, Marzetti E, Aguiar SdS. Age- and ' +
+      'sex-specific normative values for muscle mass parameters in 18,625 Brazilian ' +
+      'adults. Front Public Health 2024;11:1287994.',
+    pais: 'Brasil',
+    dispositivo: 'InBody 230 (20 y 100 kHz), tras 8 h de ayuno y 96 h sin ejercicio',
+    celdas: [
+      { sexo: 'M', edadMin: 18, edadMax: 29, n: 1793, utilizable: true, puntos: fila5(26.4, 31.2, 34.7, 38.0, 43.4) },
+      { sexo: 'M', edadMin: 30, edadMax: 39, n: 1885, utilizable: true, puntos: fila5(29.5, 33.5, 36.8, 40.5, 47.0) },
+      { sexo: 'M', edadMin: 40, edadMax: 49, n: 1911, utilizable: true, puntos: fila5(29.5, 33.8, 36.8, 40.6, 46.5) },
+      { sexo: 'M', edadMin: 50, edadMax: 59, n: 1077, utilizable: true, puntos: fila5(27.7, 31.5, 35.0, 38.6, 43.5) },
+      { sexo: 'M', edadMin: 60, edadMax: 69, n: 755, utilizable: true, puntos: fila5(25.5, 30.1, 33.3, 36.6, 41.1) },
+      { sexo: 'M', edadMin: 70, edadMax: 79, n: 410, utilizable: true, puntos: fila5(24.4, 27.5, 30.5, 33.2, 38.9) },
+      { sexo: 'M', edadMin: 80, edadMax: 120, n: 222, utilizable: true, puntos: fila5(22.3, 25.0, 26.5, 30.0, 35.0) },
+
+      { sexo: 'F', edadMin: 18, edadMax: 29, n: 1544, utilizable: true, puntos: fila5(21.4, 23.1, 24.6, 26.9, 30.9) },
+      { sexo: 'F', edadMin: 30, edadMax: 39, n: 2452, utilizable: true, puntos: fila5(21.6, 23.2, 25.0, 27.5, 31.9) },
+      { sexo: 'F', edadMin: 40, edadMax: 49, n: 3101, utilizable: true, puntos: fila5(21.4, 23.4, 25.2, 27.5, 31.3) },
+      { sexo: 'F', edadMin: 50, edadMax: 59, n: 1878, utilizable: true, puntos: fila5(21.1, 22.8, 24.6, 26.7, 30.5) },
+      { sexo: 'F', edadMin: 60, edadMax: 69, n: 1127, utilizable: true, puntos: fila5(20.7, 22.3, 23.5, 25.0, 29.0) },
+      { sexo: 'F', edadMin: 70, edadMax: 79, n: 368, utilizable: true, puntos: fila5(20.4, 21.8, 23.0, 24.6, 29.0) },
+      { sexo: 'F', edadMin: 80, edadMax: 120, n: 102, utilizable: true, puntos: fila5(20.1, 21.6, 22.9, 25.7, 28.3) },
+    ],
+    limitaciones: [
+      'Pacientes de una clínica privada de nutrición: los propios autores advierten de que sus resultados deben extrapolarse con cuidado a personas en otras condiciones.',
+      'Sin datos de actividad física, adherencia al ejercicio ni prevalencia de enfermedad.',
+      'El artículo no declara qué salida concreta del InBody 230 llama «masa muscular».',
+      'Las evaluaciones se hicieron a distintas horas del día.',
+    ],
+  },
+];
+
+/**
+ * Filas normativas publicadas que NO se cargan, y por qué.
+ *
+ * Se declaran porque su ausencia es una decisión, no un olvido: quien abra el
+ * artículo verá cuatro tablas normativas y aquí encontrará una.
+ */
+export const NO_CARGADAS: readonly { fuente: string; filas: string; motivo: string }[] = [
+  {
+    fuente: 'coelho_junior_musculo_2024',
+    filas: 'Masa muscular apendicular (ASM) y SMI I',
+    motivo:
+      'Sus centiles están TRANSPUESTOS en la publicación. En varones de 18 a 29 años la fila ' +
+      'de ASM imprime centiles de 9,0 a 13,2 junto a una media de 26,1 kg, y la de SMI I ' +
+      'imprime centiles de 20,2 a 32,5 junto a una media de 11,0 kg/m². En los dos casos los ' +
+      'centiles son los de la otra fila. Se repite igual en la tabla de mujeres, y las medias ' +
+      'coinciden con las de la Tabla 1, así que lo intercambiado son los bloques de centiles. ' +
+      'Deshacer el cambio sería reescribir la fuente a partir de una deducción propia.',
+  },
+  {
+    fuente: 'coelho_junior_musculo_2024',
+    filas: 'SMI II (ASM / talla²)',
+    motivo:
+      'Su tabla sí es coherente, pero el catálogo del BCS define `smi` como masa muscular ' +
+      'normalizada por la talla sin precisar si la absoluta o la apendicular. Cargar SMI II ' +
+      'contra un campo que puede contener la otra compararía dos magnitudes distintas.',
   },
 ];
 

@@ -342,7 +342,7 @@ describe('la tabla de Amaral 2022 está transcrita, no reinterpretada', () => {
   });
 
   it('una variable sin tabla cargada dice eso, y no «falta un dato tuyo»', () => {
-    const pn = situarEnNorma('masa_muscular_kg', 32.3, { sexo: 'M', fechaNacimiento: '2004-01-15' }, '2026-08-21');
+    const pn = situarEnNorma('proteina_kg', 11.3, { sexo: 'M', fechaNacimiento: '2004-01-15' }, '2026-08-21');
     expect(pn.motivo).toBe('SIN_NORMA');
     expect(pn.detalleMotivo).toMatch(/No es un dato que falte por tu parte/);
   });

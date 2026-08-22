@@ -83,11 +83,20 @@ amaral_percentiles_bia_2022:
   limitaciones_declaradas:
     - "Los autores no presentan resultados por raza."
     - "No es una muestra probabilística de la población brasileña."
+  verificacion_completa: 2026-08-21
+  filas_cargadas: ["Percentage of body fat (%)", "Total body fat (kg)", "Fat free mass (kg)"]
+  celdas_inutilizables:
+    - celda: "Varones ≥60 años (n=16), las tres variables"
+      motivo: >-
+        n = 16. Los propios métodos del artículo declaran haber considerado un
+        mínimo de 50 participantes por sexo y ciclo vital, así que esa celda
+        incumple el criterio de sus autores. En la tabla de porcentaje graso
+        además imprime el percentil 10 (15,0 %) POR DEBAJO del percentil 5
+        (18,1 %), que es imposible en una distribución.
   nota: >-
-    LA MEJOR CANDIDATA PARA `grasa_pct`, que es la variable por la que un
-    cliente abre el informe. Texto completo accesible, así que sus tablas
-    pueden transcribirse sin depender de un resumen. Mismo fabricante que el
-    aparato del profesional, modelo distinto.
+    ADMITIDA tras leer el PDF completo. Cubre `grasa_pct` —la variable por la
+    que un cliente abre el informe—, `masa_grasa_kg` y `masa_libre_grasa_kg`.
+    Mismo fabricante que el aparato del profesional, modelo distinto.
 
 # ════════════════════════════════════════════════════════════════════════════
 # MASA MUSCULAR Y SMI
@@ -132,10 +141,29 @@ coelho_junior_musculo_2024:
     - "«Nuestros resultados deben extrapolarse con cuidado a personas en otras condiciones.»"
     - "Sin datos de actividad física ni de prevalencia de enfermedad."
     - "Pacientes de una clínica privada de nutrición: posiblemente no representativos de la población brasileña general."
+  verificacion_completa: 2026-08-21
+  filas_utilizables: ["Masa muscular (kg)", "SMI II (kg/m²)"]
+  filas_con_error_de_imprenta: ["Masa muscular apendicular (ASM)", "SMI I (kg/m²)"]
   nota: >-
-    Candidata para `masa_muscular_kg` y `smi`. Muestra grande, reciente, y las
-    condiciones de medición están estandarizadas y declaradas — algo que las
-    hace comparables, si el protocolo del profesional coincide.
+    ADMITIDA PARCIALMENTE tras leer el PDF completo. Solo se carga la fila de
+    masa muscular absoluta.
+    .
+    DOS DE LAS CUATRO TABLAS NORMATIVAS TIENEN LOS CENTILES TRANSPUESTOS. En
+    varones de 18 a 29 años, la fila «Appendicular muscle mass (kg)» imprime
+    centiles de 9,0 a 13,2 junto a una media de 26,1 kg, y la fila «SMI I»
+    imprime centiles de 20,2 a 32,5 junto a una media de 11,0 kg/m². Cada
+    bloque de centiles corresponde a la OTRA fila. La columna Mean (SD) sí
+    coincide con la Tabla 1 en ambos casos, y el mismo intercambio se repite
+    en la Tabla 3 (mujeres), así que lo permutado son los bloques de centiles,
+    no las medias.
+    .
+    No se deshace el cambio: reescribir una fuente publicada a partir de una
+    deducción propia, por sólida que parezca, es exactamente lo que la política
+    de citación impide. Se declara y se dejan fuera.
+    .
+    SMI II es coherente y no se carga por otro motivo: el catálogo del BCS
+    define `smi` sin precisar si es masa muscular absoluta o apendicular sobre
+    la talla al cuadrado, y compararlas sería comparar dos magnitudes.
 
 # ════════════════════════════════════════════════════════════════════════════
 # ÁNGULO DE FASE
