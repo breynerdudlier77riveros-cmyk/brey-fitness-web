@@ -19,6 +19,8 @@ import { describe, expect, it } from 'vitest';
 import { bloqueoDe, bloqueosDe, edadEnFecha, sujetoDe, SUJETO_DESCONOCIDO } from '../identidad';
 import type { SujetoBCS } from '../identidad';
 import type { Medicion } from '../tipos';
+import { NORMAS, normaPara } from '../normas';
+import { advertenciaDe, poblacionDe, redactarPosicion, situarEnNorma } from '../posicion-normativa';
 
 const VARON_1990: SujetoBCS = { sexo: 'M', fechaNacimiento: '1990-06-15' };
 
@@ -263,5 +265,114 @@ describe('sujetoDe traduce, no deduce', () => {
 
   it('un cliente sin identidad produce un sujeto sin identidad', () => {
     expect(sujetoDe({ sexo: null, fecha_nacimiento: null })).toEqual(SUJETO_DESCONOCIDO);
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// NORMAS POBLACIONALES TRANSCRITAS (Sprint BCS-10.0)
+// ════════════════════════════════════════════════════════════════════════════
+//
+// Percentiles publicados, cargados desde su fuente. Lo que estos tests fijan
+// no es que la posición se calcule —de eso ya se encarga `situar()`— sino las
+// tres cosas que se pueden estropear al transcribir una tabla:
+//
+//   · que los números dejen de ser los del artículo;
+//   · que una celda imposible se «arregle» en silencio;
+//   · que la procedencia deje de nombrarse.
+
+describe('la tabla de Amaral 2022 está transcrita, no reinterpretada', () => {
+  it('los percentiles son los del artículo, byte a byte', () => {
+    const { celda } = normaPara('grasa_pct', 'M', 22)!;
+    expect(celda.puntos.map((x) => x.valor)).toEqual([10.2, 12, 15.5, 20.2, 25.8, 31.1, 34.5]);
+    expect(celda.n).toBe(371);
+  });
+
+  it('y los de mujeres son otros: no se comparte tabla entre sexos', () => {
+    const { celda } = normaPara('grasa_pct', 'F', 30)!;
+    expect(celda.puntos.map((x) => x.valor)).toEqual([18.5, 20.8, 25, 32.3, 38.8, 44.3, 48]);
+    expect(celda.n).toBe(345);
+  });
+
+  it('LA CELDA IMPOSIBLE se conserva tal cual y NO se usa', () => {
+    // El artículo imprime P10 = 15,0 por debajo de P5 = 18,1, sobre 16
+    // personas. Corregirlo sería inventar la fuente; usarlo, situar a alguien
+    // en una distribución que no existe.
+    const { celda } = normaPara('grasa_pct', 'M', 65)!;
+    expect(celda.puntos[0].valor).toBe(18.1);
+    expect(celda.puntos[1].valor).toBe(15);
+    expect(celda.utilizable).toBe(false);
+    expect(celda.motivoNoUtilizable).toMatch(/imposible en una distribución/);
+    expect(celda.motivoNoUtilizable).toMatch(/16 personas/);
+  });
+
+  it('y quien cae en ella recibe el motivo, no un silencio', () => {
+    const pn = situarEnNorma('grasa_pct', 25, { sexo: 'M', fechaNacimiento: '1961-01-15' }, '2026-08-21');
+    expect(pn.posicion).toBeNull();
+    expect(pn.motivo).toBe('CELDA_NO_UTILIZABLE');
+    expect(pn.detalleMotivo).toMatch(/16 personas/);
+  });
+
+  it('CONTROL POSITIVO · la celda de al lado sí sitúa', () => {
+    // Sin esto, el test anterior pasaría también si la norma entera estuviera
+    // rota y nunca situara a nadie.
+    const pn = situarEnNorma('grasa_pct', 13.3, { sexo: 'M', fechaNacimiento: '2004-01-15' }, '2026-08-21');
+    expect(pn.posicion).not.toBeNull();
+    expect(redactarPosicion(pn, poblacionDe(pn.celda!))).toMatch(
+      /Entre 10 y 25 de cada 100 varones de 20 a 59 años/,
+    );
+  });
+
+  it('la procedencia se nombra SIEMPRE que hay posición', () => {
+    // La tabla es de otro país y de otro modelo de aparato. Presentarla sin
+    // decirlo la convertiría en una norma de aquí — es G-06 otra vez.
+    const pn = situarEnNorma('grasa_pct', 13.3, { sexo: 'M', fechaNacimiento: '2004-01-15' }, '2026-08-21');
+    const aviso = advertenciaDe(pn)!;
+    expect(aviso).toMatch(/Brasil/);
+    expect(aviso).toMatch(/InBody S10/);
+    expect(aviso).toMatch(/371 personas/);
+    expect(aviso).toMatch(/no está demostrado/);
+  });
+
+  it('sin identidad no se sitúa, y se dice cuál de los dos datos falta', () => {
+    const sinSexo = situarEnNorma('grasa_pct', 13.3, { sexo: null, fechaNacimiento: '2004-01-15' }, '2026-08-21');
+    expect(sinSexo.motivo).toBe('SIN_SEXO');
+    const sinNac = situarEnNorma('grasa_pct', 13.3, { sexo: 'M', fechaNacimiento: null }, '2026-08-21');
+    expect(sinNac.motivo).toBe('SIN_NACIMIENTO');
+    expect(sinSexo.detalleMotivo).not.toBe(sinNac.detalleMotivo);
+  });
+
+  it('una variable sin tabla cargada dice eso, y no «falta un dato tuyo»', () => {
+    const pn = situarEnNorma('masa_muscular_kg', 32.3, { sexo: 'M', fechaNacimiento: '2004-01-15' }, '2026-08-21');
+    expect(pn.motivo).toBe('SIN_NORMA');
+    expect(pn.detalleMotivo).toMatch(/No es un dato que falte por tu parte/);
+  });
+
+  it('la edad se toma a la fecha de la medición, también aquí', () => {
+    // Un adolescente medido hace ocho años no se sitúa en la tabla de adultos.
+    const antigua = situarEnNorma('grasa_pct', 15, { sexo: 'M', fechaNacimiento: '2004-01-15' }, '2018-08-21');
+    expect(poblacionDe(antigua.celda!)).toMatch(/10 a 19 años/);
+    const reciente = situarEnNorma('grasa_pct', 15, { sexo: 'M', fechaNacimiento: '2004-01-15' }, '2026-08-21');
+    expect(poblacionDe(reciente.celda!)).toMatch(/20 a 59 años/);
+  });
+
+  it('toda norma cargada declara su fuente, su país y su aparato', () => {
+    for (const n of NORMAS) {
+      expect(n.cita.length, n.id).toBeGreaterThan(60);
+      expect(n.fuente.length, n.id).toBeGreaterThan(3);
+      expect(n.pais.length, n.id).toBeGreaterThan(2);
+      expect(n.dispositivo.length, n.id).toBeGreaterThan(3);
+      expect(n.limitaciones.length, n.id).toBeGreaterThan(0);
+    }
+  });
+
+  it('ninguna celda utilizable tiene percentiles desordenados', () => {
+    // El auditor que habría cazado la fila de varones ≥60 si nadie la mira.
+    for (const n of NORMAS) {
+      for (const c of n.celdas.filter((x) => x.utilizable)) {
+        const valores = c.puntos.map((x) => x.valor);
+        const ordenados = [...valores].sort((a, b) => a - b);
+        expect(valores, `${n.id} ${c.sexo} ${c.edadMin}-${c.edadMax}`).toEqual(ordenados);
+      }
+    }
   });
 });

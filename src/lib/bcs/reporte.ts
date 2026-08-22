@@ -52,6 +52,7 @@
 
 import type { Cliente, Medicion } from '@/lib/bcs/tipos';
 import { bloqueoDe, sujetoDe, type SujetoBCS } from '@/lib/bcs/identidad';
+import { situarEnNorma, type PosicionNormativa } from '@/lib/bcs/posicion-normativa';
 
 // ── Catálogo de variables ──────────────────────────────────────────────────
 
@@ -200,6 +201,15 @@ export interface FilaVariable {
   procedencia: Procedencia;
   clasificacion: Clasificacion | null;
   bloqueoClasificacion: string | null;
+  /**
+   * Dónde cae el valor en una tabla de percentiles publicada (BCS-10.0).
+   *
+   * Es un eje DISTINTO de `clasificacion`: aquella son las bandas del IMC, que
+   * la fuente define como categorías; esto es una posición medida dentro de
+   * una distribución, sin categoría asociada. Mezclarlos convertiría un
+   * percentil en una etiqueta que nadie publicó.
+   */
+  posicionNormativa: PosicionNormativa | null;
 }
 
 export interface BloqueCategoria {
@@ -216,6 +226,12 @@ export function construirFicha(medicion: Medicion, sujeto: SujetoBCS): BloqueCat
         const valor = medicion[id];
         if (valor === null || valor === undefined) return acc; // R6/DS-09: ausente ≠ cero — se omite, nunca placeholder "—"
         const def = CATALOGO[id];
+        const posicionNormativa = situarEnNorma(id, valor, sujeto, medicion.fecha);
+        // Una variable con norma cargada ya no está «bloqueada»: su motivo, si
+        // lo tiene, lo da la propia norma —falta el sexo, la celda no se
+        // sostiene— y es más preciso que el bloqueo genérico del catálogo.
+        const tieneNorma = posicionNormativa.motivo !== 'SIN_NORMA';
+
         acc.push({
           id,
           etiqueta: def.etiqueta,
@@ -223,7 +239,10 @@ export function construirFicha(medicion: Medicion, sujeto: SujetoBCS): BloqueCat
           valor,
           procedencia: def.procedencia,
           clasificacion: clasificarValor(id, valor),
-          bloqueoClasificacion: bloqueoDe(id, sujeto, medicion)?.detalle ?? null,
+          bloqueoClasificacion: tieneNorma
+            ? posicionNormativa.detalleMotivo
+            : (bloqueoDe(id, sujeto, medicion)?.detalle ?? null),
+          posicionNormativa: posicionNormativa.posicion === null ? null : posicionNormativa,
         });
         return acc;
       }, []);

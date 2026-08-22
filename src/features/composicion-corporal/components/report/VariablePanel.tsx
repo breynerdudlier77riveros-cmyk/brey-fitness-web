@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/brand/Dialog";
 import LineChart from "./LineChart";
 import ProcedenciaBadge from "@/features/composicion-corporal/components/ProcedenciaBadge";
+import NormPosition from "./NormPosition";
 import { formatearValor } from "./formato";
 import { significadoDe } from "@/lib/bcs/significados";
 import type { FilaVariable, SerieTendencia } from "@/lib/bcs/reporte";
@@ -97,6 +98,16 @@ export default function VariablePanel({ fila, serie }: Props) {
             {info ? (
               <Bloque titulo="Cómo se lee">
                 <p className="text-sm leading-relaxed text-white/70">{info.lectura}</p>
+              </Bloque>
+            ) : null}
+
+            {fila.posicionNormativa ? (
+              <Bloque titulo="Dónde cae, comparado con población">
+                <NormPosition
+                  posicion={fila.posicionNormativa}
+                  valor={fila.valor}
+                  unidad={fila.unidad}
+                />
               </Bloque>
             ) : null}
 

@@ -1,5 +1,6 @@
 import LineChart from "./LineChart";
 import ProcedenciaBadge from "@/features/composicion-corporal/components/ProcedenciaBadge";
+import NormPosition from "./NormPosition";
 import { significadoDe } from "@/lib/bcs/significados";
 import type { FilaVariable, SerieTendencia } from "@/lib/bcs/reporte";
 
@@ -97,6 +98,16 @@ export default function VariableDetail({ fila, serie }: Props) {
 
         {/* La clasificación, cuando existe. Hoy solo el IMC la tiene, y su
             texto viene del dominio con el aviso poblacional incluido. */}
+        {fila.posicionNormativa ? (
+          <Bloque titulo="Dónde cae, comparado con población">
+            <NormPosition
+              posicion={fila.posicionNormativa}
+              valor={fila.valor}
+              unidad={fila.unidad}
+            />
+          </Bloque>
+        ) : null}
+
         {fila.clasificacion ? (
           <Bloque titulo="Dónde cae">
             <p className="text-[11px] leading-relaxed text-white/70">{fila.clasificacion.texto}</p>
