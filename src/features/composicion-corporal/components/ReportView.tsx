@@ -22,6 +22,7 @@ import type { RecommendationReport } from "@/lib/bcs/recommendations";
 import type { ClinicalObservationReport } from "@/lib/bcs/observation";
 import type { Medicion } from "@/lib/bcs/tipos";
 import type { Entregable } from "@/lib/bcs/copilot";
+import { leerMedicion } from "@/lib/bcs/lectura-transversal";
 
 // ── Vista del Reporte — ÚNICA implementación (BCS-ADR-05) ──────────────────
 // La usan el panel del Entrenador (app/composicion-corporal/[clienteId]) y la
@@ -147,7 +148,12 @@ export default function ReportView({
       <SectionCard titulo="Indicadores">
         <div className="space-y-7">
           <Sub titulo="Principales">
-            <IndicatorGrid medicionActual={medicionActual} analisis={analisis} filas={filas} />
+            <IndicatorGrid
+              medicionActual={medicionActual}
+              analisis={analisis}
+              filas={filas}
+              tendencias={tendencias}
+            />
           </Sub>
 
           <Sub titulo="Todas las variables registradas">
@@ -199,6 +205,7 @@ export default function ReportView({
         analisis={analisis}
         recomendaciones={recomendaciones}
         observaciones={observaciones}
+        lecturas={leerMedicion(medicionActual, filas)}
       />
 
       <SectionCard titulo="Historial de mediciones">

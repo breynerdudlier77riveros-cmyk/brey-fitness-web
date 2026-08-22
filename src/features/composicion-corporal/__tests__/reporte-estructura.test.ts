@@ -107,10 +107,45 @@ function render(mediciones: Medicion[]): string {
   );
 }
 
+/**
+ * Una medición como las que da el aparato de verdad, no cuatro campos.
+ *
+ * El fixture anterior traía peso, IMC, % graso y músculo, y con eso ninguna de
+ * las lecturas transversales podía dispararse: la identidad del peso necesita
+ * la masa grasa, el metabolismo basal necesita el BMR, el reparto de agua
+ * necesita los tres compartimentos. Un fixture más pobre que el dato real hace
+ * pasar tests sobre un informe que nadie va a ver.
+ */
+const completa = (
+  id: string,
+  fecha: string,
+  peso: number,
+  imc: number,
+  graso: number,
+  musculo: number,
+) =>
+  medicion({
+    id,
+    fecha,
+    peso_kg: peso,
+    imc,
+    grasa_pct: graso,
+    masa_grasa_kg: Number(((peso * graso) / 100).toFixed(1)),
+    masa_libre_grasa_kg: Number((peso - (peso * graso) / 100).toFixed(1)),
+    masa_muscular_kg: musculo,
+    agua_total_l: Number((peso * 0.55).toFixed(1)),
+    agua_intracelular_l: Number((peso * 0.34).toFixed(1)),
+    agua_extracelular_l: Number((peso * 0.21).toFixed(1)),
+    proteina_kg: Number((musculo * 0.35).toFixed(1)),
+    masa_osea_kg: 2.6,
+    bmr_kcal: 1420,
+    grasa_visceral_idx: 4,
+  });
+
 const SERIE = [
-  medicion({ id: "m1", fecha: "2026-04-01", peso_kg: 62, imc: 22.8, grasa_pct: 27.1, masa_muscular_kg: 24.1 }),
-  medicion({ id: "m2", fecha: "2026-06-01", peso_kg: 63, imc: 23.1, grasa_pct: 26.4, masa_muscular_kg: 25.0 }),
-  medicion({ id: "m3", fecha: "2026-08-01", peso_kg: 63.4, imc: 23.3, grasa_pct: 25.6, masa_muscular_kg: 25.8 }),
+  completa("m1", "2026-04-01", 62, 22.8, 27.1, 24.1),
+  completa("m2", "2026-06-01", 63, 23.1, 26.4, 25.0),
+  completa("m3", "2026-08-01", 63.4, 23.3, 25.6, 25.8),
 ];
 
 /** Los encabezados de primer nivel: los `CardTitle` de cada Section Card. */
@@ -232,5 +267,99 @@ describe("sin evolución, el apartado de evolución no existe", () => {
   it("y se dice explícitamente que hace falta una segunda medición", () => {
     // Callar el apartado no puede convertirse en callar el motivo.
     expect(html).toContain("Todavía no hay con qué comparar");
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// EL INFORME HABLA DEL CUERPO, NO SOLO DE SÍ MISMO (Sprint BCS-8.0)
+// ════════════════════════════════════════════════════════════════════════════
+//
+// La queja que lo originó, literal: «en el apartado de interpretación sigue
+// vacío, no me da nada, no me dice nada».
+//
+// Y era exacto. Los cuatro párrafos que había hablaban del ANÁLISIS —cuántas
+// mediciones lo sostienen, cuántas variables no admiten clasificación— y
+// ninguno de la persona. Un informe que solo sabe hablar de sus propias
+// limitaciones no es cauto: está vacío y suena cauto.
+
+describe("con UNA sola medición el informe dice algo del cuerpo", () => {
+  const html = render([SERIE[2]]);
+
+  it("CONTROL POSITIVO · sigue sin haber evolución que mostrar", () => {
+    // Si este fixture tuviera histórico, todo lo de abajo pasaría por el
+    // camino fácil y no demostraría nada.
+    expect(titulos(html)).not.toContain("Evolución");
+  });
+
+  it("dice de qué está hecho el peso, que es una identidad exacta", () => {
+    expect(html).toContain("De qué está hecho tu peso");
+    expect(html).toContain('data-lectura="composicion-del-peso"');
+  });
+
+  it("junta el IMC con el porcentaje graso, en vez de dejarlos separados", () => {
+    // El aviso del handbook dice literalmente «considerar junto al % de grasa
+    // corporal registrado». El informe clasificaba el IMC en una tarjeta y
+    // mostraba la grasa en otra, sin juntarlos nunca.
+    expect(html).toContain('data-lectura="imc-vs-grasa"');
+    expect(html).toMatch(/El IMC solo conoce tu peso y tu estatura/);
+  });
+
+  it("declara que el metabolismo basal no se midió", () => {
+    expect(html).toContain('data-lectura="bmr-derivado"');
+    expect(html).toMatch(/no se midieron/);
+  });
+
+  it("cada lectura muestra de dónde sale, para poder comprobarla", () => {
+    // Sin el fundamento a la vista, estas frases serían indistinguibles de
+    // texto generado. Con él, cualquiera puede ir al módulo y contrastarlas.
+    expect(html).toMatch(/CKB 10/);
+    expect(html).toMatch(/BCS Handbook 03|BCS Handbook 06/);
+  });
+
+  it("y el alcance del análisis sigue estando, DETRÁS y no delante", () => {
+    // No se ha quitado: se ha movido. Iba primero y, siendo lo único que
+    // había, convertía el apartado entero en una disculpa.
+    expect(html).toContain("Alcance de este análisis");
+    expect(html.indexOf("Lo que dicen tus cifras")).toBeLessThan(
+      html.indexOf("Alcance de este análisis"),
+    );
+  });
+
+  it("NINGUNA lectura clasifica ni recomienda", () => {
+    const seccion = html.slice(
+      html.indexOf("Lo que dicen tus cifras"),
+      html.indexOf("Alcance de este análisis"),
+    );
+    expect(seccion).not.toMatch(/(?<![-\w])(deberías|conviene|se recomienda|riesgo|saludable)(?![-\w])/i);
+  });
+
+  it("CONTROL POSITIVO · ese auditor reconoce una recomendación cuando la hay", () => {
+    const prohibidas = /(?<![-\w])(deberías|conviene|se recomienda|riesgo|saludable)(?![-\w])/i;
+    expect(prohibidas.test("Se recomienda un déficit calórico.")).toBe(true);
+    expect(prohibidas.test("Esto supone un riesgo metabólico.")).toBe(true);
+    expect(prohibidas.test("Tus 42,0 L de agua son el 63,6 % de tu peso.")).toBe(false);
+  });
+});
+
+describe("cada variable abre su ficha, en los dos sitios donde aparece", () => {
+  const html = render(SERIE);
+
+  it("las tarjetas de indicadores principales la llevan", () => {
+    const rejilla = html.slice(html.indexOf("bcs-indicadores"));
+    expect(rejilla.slice(0, 6000)).toContain("bcs-variable");
+  });
+
+  it("y la lista completa de variables también", () => {
+    expect((html.match(/bcs-variable/g) ?? []).length).toBeGreaterThan(10);
+  });
+
+  it("el ángulo de fase declara que su evidencia es de otra población", () => {
+    // Es la corrección de fondo: la CKB tiene la fisiología Y la frontera, y
+    // el texto anterior se quedaba en un aviso de electrodos.
+    const conAngulo = render([
+      medicion({ id: "a1", fecha: "2026-08-01", peso_kg: 63, angulo_fase_deg: 6.1 }),
+    ]);
+    expect(conAngulo).toMatch(/pacientes críticos, oncológicos/);
+    expect(conAngulo).toMatch(/salto que la base de conocimiento clínica declara no admisible/);
   });
 });

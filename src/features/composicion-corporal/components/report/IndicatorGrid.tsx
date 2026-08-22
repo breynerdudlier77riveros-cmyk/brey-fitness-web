@@ -1,8 +1,9 @@
 import IndicatorCard from "./IndicatorCard";
+import VariableDetail from "./VariableDetail";
 import { CATALOGO, type VariableId } from "@/lib/bcs/reporte";
 import type { BodyCompositionAnalysis } from "@/lib/bcs/analysis";
 import type { Medicion } from "@/lib/bcs/tipos";
-import type { FilaVariable } from "@/lib/bcs/reporte";
+import type { FilaVariable, SerieTendencia } from "@/lib/bcs/reporte";
 
 // ── Rejilla de indicadores principales (BCS Sprint 2.0) ────────────────────
 // Los nueve indicadores que el reporte destaca, en el orden en que un
@@ -27,13 +28,25 @@ interface Props {
   analisis: BodyCompositionAnalysis;
   /** Filas de la ficha, que ya traen la clasificación calculada por el dominio. */
   filas: FilaVariable[];
+  /**
+   * Series por variable, para la gráfica dentro de cada panel.
+   *
+   * Opcional: sin ellas los paneles se abren igual y no muestran gráfica.
+   */
+  tendencias?: readonly SerieTendencia[];
 }
 
-export default function IndicatorGrid({ medicionActual, analisis, filas }: Props) {
+export default function IndicatorGrid({
+  medicionActual,
+  analisis,
+  filas,
+  tendencias = [],
+}: Props) {
   const porVariable = new Map(filas.map((f) => [f.id, f]));
+  const serieDe = new Map(tendencias.map((t) => [t.id, t]));
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 print:grid-cols-3 gap-3">
+    <div className="bcs-indicadores grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 print:grid-cols-3 gap-3">
       {INDICADORES.map((id) => {
         const def = CATALOGO[id];
         const fila = porVariable.get(id);
@@ -55,6 +68,9 @@ export default function IndicatorGrid({ medicionActual, analisis, filas }: Props
             tendencia={analisis.tendencias.find((t) => t.variable === id)}
             clasificacion={clasificacion}
             fecha={medicionActual.fecha}
+            detalle={
+              fila ? <VariableDetail fila={fila} serie={serieDe.get(id)} /> : undefined
+            }
           />
         );
       })}

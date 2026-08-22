@@ -167,6 +167,26 @@ body {
     display: none !important;
   }
 
+  /* ── Los paneles por variable, UNA sola vez en papel ───────────────────
+     `VariableDetail` se dibuja en la rejilla de indicadores principales y
+     otra vez en la lista completa de variables. En pantalla eso está bien:
+     son dos sitios distintos y el lector abre el que tenga delante. Impresos
+     los dos, nueve variables saldrían con su ficha duplicada y el documento
+     casi doblaría de tamaño.
+
+     Se conserva el de la lista completa, que es donde están TODAS. */
+  .reporte-print .bcs-indicadores details.bcs-variable {
+    display: none !important;
+  }
+
+  /* Cada bloque de variable entero en la misma página: una ficha partida
+     entre «Qué es» y «Qué no dice» es peor que no imprimirla. */
+  .reporte-print details.bcs-variable,
+  .reporte-print [data-lectura] {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
   /* Los hechos del análisis van plegados en pantalla y desplegados en papel:
      un informe impreso no se puede abrir con el ratón, y esa lista es la
      evidencia de toda la interpretación. Se fuerza con CSS porque `open` es un
@@ -314,8 +334,17 @@ body {
   }
 
   .reporte-print [class*="text-[10px]"],
+  .reporte-print [class*="text-[11px]"],
   .reporte-print [class*="text-xs"] {
     font-size: 8.5pt !important;
+  }
+
+  /* El 9px de las trazas y los fundamentos es ilegible en papel, y es
+     precisamente lo que permite auditar el informe: si no se lee, la
+     trazabilidad impresa no sirve de nada. */
+  .reporte-print [class*="text-[9px]"] {
+    font-size: 7.5pt !important;
+    line-height: 1.35 !important;
   }
 
   .reporte-print [class*="text-sm"] {

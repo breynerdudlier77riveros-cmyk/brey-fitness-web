@@ -45,6 +45,14 @@ interface Props {
   clasificacion?: string;
   /** Fecha de la medición a la que pertenece el valor. */
   fecha: string;
+  /**
+   * El panel «Qué significa» de esta variable (BCS-8.0).
+   *
+   * Llega como nodo ya construido en vez de como datos: la tarjeta no sabe
+   * de significados ni de series, y no tiene por qué. `undefined` cuando la
+   * variable no tiene panel — entonces la tarjeta queda como estaba.
+   */
+  detalle?: React.ReactNode;
 }
 
 export default function IndicatorCard({
@@ -56,6 +64,7 @@ export default function IndicatorCard({
   tendencia,
   clasificacion,
   fecha,
+  detalle,
 }: Props) {
   const significativo = comparacion?.significancia === "significativa";
   const direccion = comparacion?.direccion;
@@ -122,9 +131,12 @@ export default function IndicatorCard({
         {clasificacion && <p className="text-white/60 font-semibold">{clasificacion}</p>}
       </div>
 
-      <p className="text-[10px] text-white/30 mt-3 pt-2.5 border-t border-white/[0.05]">
-        {formatearFechaCorta(fecha)}
-      </p>
+      {/* `mt-auto` empuja el pie al fondo: con paneles de alturas distintas,
+          las fechas de una fila dejaban de alinearse entre sí. */}
+      <div className="mt-auto pt-2.5 border-t border-white/[0.05]">
+        <p className="text-[10px] text-white/30">{formatearFechaCorta(fecha)}</p>
+        {detalle}
+      </div>
     </article>
   );
 }

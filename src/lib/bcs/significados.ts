@@ -145,27 +145,29 @@ export const SIGNIFICADOS: Readonly<Partial<Record<VariableId, Significado>>> = 
 
   agua_total_l: {
     significado:
-      'Agua corporal total, sumando la de dentro y la de fuera de las células.',
+      'Agua corporal total: la suma de la que está dentro de las células y la que está fuera. Es el componente más grande del cuerpo.',
     lectura:
-      'Es la variable que explica buena parte de las diferencias de peso entre dos días. Cambia con la comida, la bebida, el ejercicio reciente y la hora.',
+      'Explica buena parte de las diferencias de peso entre dos días —cambia con la comida, la bebida, el ejercicio reciente y la hora— y va estructuralmente unida al músculo, que es un tejido mayoritariamente acuoso.',
     limite:
-      'Una diferencia de agua entre dos mediciones no dice si es retención, deshidratación o simplemente la hora del día. El sistema la registra y no la interpreta.',
+      'Una diferencia de agua entre dos mediciones no dice si fue retención, deshidratación o la hora a la que te pesaste. El sistema la registra y no atribuye la causa.',
   },
 
   agua_intracelular_l: {
-    significado: 'Agua contenida dentro de las células.',
+    significado:
+      'Agua contenida dentro de las células. Es, en la práctica, un reflejo de la masa celular activa del cuerpo.',
     lectura:
-      'Se lee junto a la extracelular: lo que informa es la proporción entre ambas, no cada una por su cuenta.',
+      'Sube y baja con el músculo, porque el tejido muscular es el principal depósito de agua intracelular. En un proceso de pérdida de peso, que baje a la vez que el músculo es el patrón que indica que la pérdida arrastró tejido magro.',
     limite:
-      'No existe una tolerancia publicada que permita decir cuándo la suma de las dos se aparta demasiado del agua total, así que el sistema no emite ningún juicio sobre esa relación.',
+      'Se lee junto a la extracelular, no sola: lo que la literatura estudia es la proporción entre ambas. Y la identidad agua total = intracelular + extracelular no tiene una tolerancia numérica publicada, así que el sistema no juzga si la suma cuadra.',
   },
 
   agua_extracelular_l: {
-    significado: 'Agua fuera de las células: plasma y líquido intersticial.',
+    significado:
+      'Agua fuera de las células: plasma y líquido intersticial. Lo que se estudia no es su valor absoluto sino su proporción sobre el agua total, el cociente ECW/TBW.',
     lectura:
-      'Su proporción respecto al agua total es lo que la literatura usa como indicador; el valor absoluto por sí solo informa poco.',
+      'Un desplazamiento relativo del agua hacia el compartimento extracelular puede acompañar a estados de sobrecarga de fluidos, a inflamación sistémica o a pérdida de masa celular. En las poblaciones donde se ha estudiado, un cociente elevado se asocia a desgaste proteico-energético.',
     limite:
-      'Una proporción elevada puede ser un dato real o un problema de contacto de los electrodos. El sistema no distingue automáticamente entre las dos cosas: lo marca para que lo revises.',
+      'ESA EVIDENCIA ES DE OTRA POBLACIÓN. Procede de pacientes en hemodiálisis y oncológicos, no de una persona sana que entrena, y la base de conocimiento clínica declara expresamente no admisible trasladar ese valor pronóstico a un cliente sano ni inferir inflamación de un cociente elevado en alguien sano. Los rangos de «estado sano» que circulan proceden de material de fabricantes, no de literatura revisada por pares, así que no se cargan. Además, un cociente alto puede reflejar un contacto deficiente de los electrodos: el sistema lo marca para revisión y no concluye cuál de las dos cosas es.',
   },
 
   bmr_kcal: {
@@ -197,10 +199,11 @@ export const SIGNIFICADOS: Readonly<Partial<Record<VariableId, Significado>>> = 
 
   angulo_fase_deg: {
     significado:
-      'Ángulo derivado de la relación entre resistencia y reactancia. La literatura clínica lo usa como marcador indirecto de integridad de la membrana celular.',
-    lectura: 'Se muestra como serie temporal. Su movimiento tuyo a lo largo del tiempo es lo único que se lee.',
+      'Ángulo derivado de la relación entre la resistencia y la reactancia que el aparato mide. Refleja la contribución relativa de los fluidos y la de las membranas celulares.',
+    lectura:
+      'Valores más altos se asocian a mayor cantidad de membranas celulares íntegras, y más bajos a menor integridad celular. En la literatura se han descrito asociaciones con masa y fuerza muscular, y con el reparto de agua entre compartimentos.',
     limite:
-      'No hay consenso suficiente sobre sus valores de referencia, así que no se clasifica. Y no se compara entre aparatos distintos.',
+      'ESA EVIDENCIA ES DE OTRA POBLACIÓN. Toda la evidencia pronóstica localizada procede de pacientes críticos, oncológicos, en hemodiálisis, con cirrosis o EPOC. No se localizó ninguna que permita leerlo como marcador de progreso en una persona sana que entrena, y trasladar cocientes de riesgo de un paciente crítico a un cliente de gimnasio es un salto que la base de conocimiento clínica declara no admisible — igual que presentarlo como indicador de «salud celular». Tampoco hay punto de corte publicado para población general, así que no se clasifica, y no se compara entre aparatos: depende de la frecuencia del dispositivo, de la edad, del sexo y de la hidratación.',
   },
 
   circ_cintura_cm: {

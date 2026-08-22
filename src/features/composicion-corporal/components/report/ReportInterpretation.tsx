@@ -3,6 +3,8 @@ import ProfessionalInterpretation from "./ProfessionalInterpretation";
 import ObservationSection from "./ObservationSection";
 import RecommendationSection from "./RecommendationSection";
 import { FindingsBlock, InsightsBlock } from "./AnalysisBlocks";
+import CrossSectionalReading from "./CrossSectionalReading";
+import type { LecturaTransversal } from "@/lib/bcs/lectura-transversal";
 import type { BodyCompositionAnalysis } from "@/lib/bcs/analysis";
 import type { RecommendationReport } from "@/lib/bcs/recommendations";
 import type { ClinicalObservationReport } from "@/lib/bcs/observation";
@@ -46,6 +48,15 @@ interface Props {
   analisis: BodyCompositionAnalysis;
   recomendaciones: RecommendationReport;
   observaciones: ClinicalObservationReport;
+  /**
+   * Lo que puede decirse del CUERPO con la medición actual (BCS-8.0).
+   *
+   * Va la primera del apartado. Todo lo demás que hay aquí habla del análisis
+   * —cuántas mediciones lo sostienen, qué no puede clasificarse— y sin esto
+   * el apartado entero era un informe que solo sabía hablar de sus propias
+   * limitaciones.
+   */
+  lecturas?: readonly LecturaTransversal[];
 }
 
 /** Rótulo interno. No es una Section Card: no se anidan (BCS-C02). */
@@ -60,7 +71,12 @@ function Sub({ titulo, children }: { titulo: string; children: React.ReactNode }
   );
 }
 
-export default function ReportInterpretation({ analisis, recomendaciones, observaciones }: Props) {
+export default function ReportInterpretation({
+  analisis,
+  recomendaciones,
+  observaciones,
+  lecturas = [],
+}: Props) {
   const hayInsights = analisis.insights.length > 0;
   const hayHallazgos = analisis.hallazgos.length > 0;
 
@@ -68,10 +84,23 @@ export default function ReportInterpretation({ analisis, recomendaciones, observ
     <>
       <SectionCard titulo="Interpretación">
         <div className="space-y-7">
-          {/* 1 · La lectura corrida. Abre porque enuncia el alcance —sobre
-                 cuántas mediciones se apoya todo lo demás— antes de afirmar
-                 nada. */}
-          <ProfessionalInterpretation analisis={analisis} />
+          {/* 1 · Lo que dicen tus cifras. Primero, y separado de todo lo
+                 demás: es la única parte del apartado que habla del cuerpo.
+                 No necesita histórico ni norma poblacional — sale de las
+                 relaciones entre las variables de esta misma medición. */}
+          {lecturas.length > 0 ? (
+            <Sub titulo="Lo que dicen tus cifras">
+              <CrossSectionalReading lecturas={lecturas} />
+            </Sub>
+          ) : null}
+
+          {/* 2 · El alcance: sobre cuántas mediciones se apoya lo anterior.
+                 Va DESPUÉS, como marco de lo afirmado. Iba delante, y siendo
+                 lo único que había, el apartado entero se leía como una
+                 disculpa. */}
+          <Sub titulo="Alcance de este análisis">
+            <ProfessionalInterpretation analisis={analisis} />
+          </Sub>
 
           {/* 2 · Las observaciones del motor clínico, con su trazabilidad. */}
           <Sub titulo="Observaciones clínicas">
