@@ -1,0 +1,213 @@
+# ── Referencias CANDIDATAS · pendientes de admisión ─────────────────────────
+#
+# QUÉ ES ESTE FICHERO Y POR QUÉ NO ES `referencias.yaml`.
+#
+#   `referencias.yaml` es el registro de lo ADMITIDO: lo que las fichas pueden
+#   citar y lo que el sistema puede usar para afirmar algo. Esto es la bandeja
+#   de entrada.
+#
+#   Todas las entradas de aquí se localizaron y se comprobaron una a una: no
+#   hay ninguna registrada por plausibilidad ni por aparecer en un resumen de
+#   búsqueda. Pero verificada no es lo mismo que admisible, y quien admite una
+#   norma es el profesional, no quien la encuentra.
+#
+#   El campo `verificacion` dice exactamente HASTA DÓNDE se comprobó cada una.
+#   Distinguir «leí el artículo entero» de «confirmé que existe y sus datos de
+#   portada» es la diferencia entre poder transcribir su tabla y no poder.
+#
+# MOTIVO DE LA BÚSQUEDA (2026-08-21)
+#
+#   De las 25 variables del BCS, solo el IMC se clasifica. El bloqueo de las
+#   demás no era conceptual: faltaban valores de referencia publicados. Estas
+#   cuatro entradas los tienen, por sexo y por banda de edad, en muestras
+#   grandes y recientes.
+#
+# LO QUE NINGUNA DE ELLAS RESUELVE
+#
+#   · Grasa visceral. Ninguna publica valores de referencia para el índice
+#     visceral. Sigue exactamente donde estaba: escala propietaria del
+#     fabricante, sin equivalencia entre marcas, y la CKB (04, 12 §5) declara
+#     no admisible clasificarla con un rango de fuente comercial.
+#   · Cociente ECW/TBW en población sana. No se localizó.
+#
+# EL LÍMITE QUE AFECTA A LAS CUATRO
+#
+#   Son valores de referencia obtenidos POR BIOIMPEDANCIA, con un aparato
+#   concreto. La CKB (06) prohíbe comparar entre fabricantes distintos. Tres de
+#   las cuatro usan InBody —el mismo fabricante del dispositivo del
+#   profesional— pero modelos distintos (S10, 230), y que dos modelos de la
+#   misma marca sean intercambiables NO está demostrado en ninguna de ellas.
+#   Es la pregunta que hay que responder antes de admitirlas, no después.
+
+# ════════════════════════════════════════════════════════════════════════════
+# % GRASA CORPORAL, MASA GRASA, MASA LIBRE DE GRASA
+# ════════════════════════════════════════════════════════════════════════════
+
+amaral_percentiles_bia_2022:
+  titulo: >-
+    Reference percentiles for bioimpedance body composition parameters of
+    healthy individuals: A cross-sectional study
+  autores: >-
+    Amaral MA, Mundstock E, Scarpatto CH, Cañon-Montañez W, Mattiello R
+  publicacion: "Clinics (São Paulo)"
+  anio: 2022
+  volumen: 77
+  doi: "10.1016/j.clinsp.2022.100078"
+  pubmed: "36087566"
+  tipo: estudio_transversal
+  acceso: abierto
+  verificado_el: 2026-08-21
+  verificacion: texto_completo_leido
+  poblacion:
+    pais: Brasil
+    region: "sur de Brasil"
+    n: 1240
+    mujeres: 651
+    hombres: 589
+    edad: "5 años en adelante"
+    ciclos_vitales: "niños 5-9 · adolescentes 10-19 · adultos 20-59 · mayores ≥60"
+    reclutamiento: "empresas y eventos; captación boca a boca"
+  dispositivo:
+    modelo: "InBody S10"
+    frecuencia: "50 kHz"
+  publica:
+    percentiles: [5, 10, 25, 50, 75, 90, 95]
+    estratificado_por: [sexo, banda_de_edad]
+    variables:
+      - "Masa grasa total (kg)"
+      - "Porcentaje de grasa corporal (%)"
+      - "Masa libre de grasa (kg)"
+      - "Porcentaje de masa magra (%)"
+      - "Índice de masa grasa (kg/m²)"
+      - "Índice de masa libre de grasa (kg/m²)"
+  limitaciones_declaradas:
+    - "Los autores no presentan resultados por raza."
+    - "No es una muestra probabilística de la población brasileña."
+  nota: >-
+    LA MEJOR CANDIDATA PARA `grasa_pct`, que es la variable por la que un
+    cliente abre el informe. Texto completo accesible, así que sus tablas
+    pueden transcribirse sin depender de un resumen. Mismo fabricante que el
+    aparato del profesional, modelo distinto.
+
+# ════════════════════════════════════════════════════════════════════════════
+# MASA MUSCULAR Y SMI
+# ════════════════════════════════════════════════════════════════════════════
+
+coelho_junior_musculo_2024:
+  titulo: >-
+    Age- and sex-specific normative values for muscle mass parameters in
+    18,625 Brazilian adults
+  autores: >-
+    Coelho-Júnior HJ, Marques FL, Sousa CV, Marzetti E, da Silva Aguiar S
+  publicacion: "Frontiers in Public Health"
+  anio: 2024
+  doi: "10.3389/fpubh.2023.1287994"
+  pubmed: "38235157"
+  tipo: estudio_transversal
+  acceso: abierto
+  verificado_el: 2026-08-21
+  verificacion: texto_completo_leido
+  poblacion:
+    pais: Brasil
+    region: "Brasilia"
+    n: 18625
+    mujeres: 10572
+    hombres: 8053
+    edad: "18 años en adelante"
+    bandas: "18-29 · 30-39 · 40-49 · 50-59 · 60-69 · 70-79 · 80+"
+    reclutamiento: "clínica privada de nutrición, enero 2018 – julio 2022"
+  dispositivo:
+    modelo: "InBody 230"
+    metodo: "tetrapolar mano-pie, 8 electrodos táctiles"
+    condiciones: "ayuno de 8 h y sin ejercicio en las 96 h previas"
+  publica:
+    percentiles: [5, 25, 50, 75, 95]
+    estratificado_por: [sexo, banda_de_edad]
+    variables:
+      - "Masa muscular absoluta (kg)"
+      - "Masa muscular esquelética apendicular (kg)"
+      - "Índice de masa muscular esquelética I (masa absoluta / talla²)"
+      - "Índice de masa muscular esquelética II (masa apendicular / talla²)"
+  limitaciones_declaradas:
+    - "«Nuestros resultados deben extrapolarse con cuidado a personas en otras condiciones.»"
+    - "Sin datos de actividad física ni de prevalencia de enfermedad."
+    - "Pacientes de una clínica privada de nutrición: posiblemente no representativos de la población brasileña general."
+  nota: >-
+    Candidata para `masa_muscular_kg` y `smi`. Muestra grande, reciente, y las
+    condiciones de medición están estandarizadas y declaradas — algo que las
+    hace comparables, si el protocolo del profesional coincide.
+
+# ════════════════════════════════════════════════════════════════════════════
+# ÁNGULO DE FASE
+# ════════════════════════════════════════════════════════════════════════════
+
+angulo_fase_colombia_2026:
+  titulo: >-
+    Reference values for bioelectrical impedance–derived phase angle: a
+    cross-sectional study of 5,049 healthy individuals from Colombia
+  publicacion: "European Journal of Clinical Nutrition"
+  anio: 2026
+  doi: "10.1038/s41430-026-01744-z"
+  url: "https://www.nature.com/articles/s41430-026-01744-z"
+  tipo: estudio_transversal
+  acceso: restringido
+  verificado_el: 2026-08-21
+  verificacion: metadatos_confirmados_en_el_editor
+  poblacion:
+    pais: Colombia
+    n: 5049
+    mujeres: 3113
+    edad: "10 a 94 años"
+  publica:
+    percentiles: [3, 10, 25, 50, 75, 90, 97]
+    metodo: "curvas suavizadas por LMS (Lambda-Mu-Sigma)"
+    estratificado_por: [sexo, edad]
+    variables: ["Ángulo de fase (°)"]
+  nota: >-
+    LA MEJOR COINCIDENCIA POBLACIONAL DE LAS CUATRO, y con diferencia: es la
+    única sobre población colombiana, que es la del cliente. Cubre además desde
+    los 10 años, así que resolvería el hueco pediátrico que el handbook (06)
+    deja abierto como pregunta.
+    .
+    NO SE HA LEÍDO EL TEXTO COMPLETO: el editor exige suscripción. Se confirmó
+    su existencia, título, revista, DOI, tamaño y diseño en la página del
+    editor. Sus tablas NO pueden transcribirse desde un resumen de búsqueda —
+    hacerlo sería exactamente lo que la política de citación prohíbe.
+    .
+    ATENCIÓN: no consta en la verificación qué dispositivo se usó. Es un dato
+    imprescindible antes de admitirla, porque el ángulo de fase depende de la
+    frecuencia del aparato (CKB 06).
+
+angulo_fase_biva_europa_2023:
+  titulo: >-
+    New bioelectrical impedance vector references and phase angle centile
+    curves in 4,367 adults: The need for an urgent update after 30 years
+  publicacion: "Clinical Nutrition"
+  anio: 2023
+  volumen: 42
+  paginas: "1749-1758"
+  doi: "10.1016/j.clnu.2023.07.025"
+  tipo: estudio_transversal_multicentrico
+  acceso: restringido
+  verificado_el: 2026-08-21
+  verificacion: metadatos_confirmados_en_el_editor
+  poblacion:
+    n: 4367
+    hombres: 2137
+    mujeres: 2230
+    edad: "18 a 65 años"
+    nota_muestra: "mínimo 35 sujetos por sexo y banda de edad"
+  dispositivo:
+    tipo: "analizadores mano-pie sensibles a la fase"
+    frecuencia: "50 kHz"
+  publica:
+    percentiles: [3, 5, 10, 25, 50, 75, 90, 95, 97]
+    estratificado_por: [sexo, edad]
+    variables: ["Ángulo de fase (°)", "Elipses de tolerancia BIVA"]
+  nota: >-
+    Alternativa a la colombiana. Declara el dispositivo y la frecuencia, que la
+    colombiana no. Su propio título argumenta que las referencias de ángulo de
+    fase en uso llevaban treinta años sin actualizarse, que es exactamente el
+    criterio pedido.
+    .
+    Texto completo no accesible en la verificación.
