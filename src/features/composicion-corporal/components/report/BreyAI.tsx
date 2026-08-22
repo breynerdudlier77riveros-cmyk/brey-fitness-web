@@ -1,4 +1,6 @@
+import PreguntarIA from "./PreguntarIA";
 import type { Entregable } from "@/lib/bcs/copilot";
+import type { EntradaContexto } from "@/lib/bcs/ia/contexto";
 
 // ── BREY IA · lo que el sistema sabe decir de este informe (BCS-11) ────────
 //
@@ -28,9 +30,17 @@ interface Props {
   entregable: Entregable | null;
   /** Cuántos documentos más hay disponibles para este informe. */
   documentosDisponibles?: number;
+  /**
+   * Lo que el modelo necesita para responder preguntas (BCS-12).
+   *
+   * Opcional: sin él el bloque se dibuja igual y no ofrece conversación. Las
+   * vistas que no deben conversar —la pública, por ejemplo— simplemente no lo
+   * pasan, y no hay nada que desactivar.
+   */
+  contextoIA?: EntradaContexto;
 }
 
-export default function BreyAI({ entregable, documentosDisponibles = 0 }: Props) {
+export default function BreyAI({ entregable, documentosDisponibles = 0, contextoIA }: Props) {
   if (entregable === null) return null;
 
   return (
@@ -74,6 +84,8 @@ export default function BreyAI({ entregable, documentosDisponibles = 0 }: Props)
           </p>
         ) : null}
       </div>
+
+      {contextoIA ? <PreguntarIA contexto={contextoIA} /> : null}
     </section>
   );
 }

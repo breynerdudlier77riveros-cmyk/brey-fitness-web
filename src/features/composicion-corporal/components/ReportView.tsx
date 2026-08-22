@@ -23,6 +23,7 @@ import type { ClinicalObservationReport } from "@/lib/bcs/observation";
 import type { Medicion } from "@/lib/bcs/tipos";
 import type { Entregable } from "@/lib/bcs/copilot";
 import { leerMedicion } from "@/lib/bcs/lectura-transversal";
+import type { EntradaContexto } from "@/lib/bcs/ia/contexto";
 
 // ── Vista del Reporte — ÚNICA implementación (BCS-ADR-05) ──────────────────
 // La usan el panel del Entrenador (app/composicion-corporal/[clienteId]) y la
@@ -92,6 +93,13 @@ interface Props {
   explicacionPaciente?: Entregable | null;
   /** Cuántos documentos más compuso el copiloto. Solo para remitir a ellos. */
   documentosCopiloto?: number;
+  /**
+   * Contexto para que BREY IA responda preguntas (BCS-12).
+   *
+   * La vista pública NO lo pasa: un enlace anónimo no debe poder consumir la
+   * API del modelo. Sin él, el bloque se dibuja sin cuadro de preguntas.
+   */
+  contextoIA?: EntradaContexto;
   /** Solo el panel del Entrenador la pasa (BCS-ADR-05). */
   onCorregirMedicion?: (medicion: Medicion) => void;
 }
@@ -117,6 +125,7 @@ export default function ReportView({
   entrenador,
   explicacionPaciente = null,
   documentosCopiloto = 0,
+  contextoIA,
   onCorregirMedicion,
 }: Props) {
   const { cliente, medicionActual, ficha, historico, tendencias, fotografias } = reporte;
@@ -139,7 +148,11 @@ export default function ReportView({
       {/* Va aquí y no al final: si estuviera abajo, el cliente tendría que
           atravesar once secciones de jerga profesional para llegar a la única
           escrita para él, y no llegaría. */}
-      <BreyAI entregable={explicacionPaciente} documentosDisponibles={documentosCopiloto} />
+      <BreyAI
+        entregable={explicacionPaciente}
+        documentosDisponibles={documentosCopiloto}
+        contextoIA={contextoIA}
+      />
 
       {hayAlertas && (
         <SectionCard titulo="Datos a revisar">

@@ -21,6 +21,8 @@ import type { SujetoBCS } from '../identidad';
 import type { Medicion } from '../tipos';
 import { NORMAS, normaPara } from '../normas';
 import { advertenciaDe, poblacionDe, redactarPosicion, situarEnNorma } from '../posicion-normativa';
+import { construirContexto } from '../ia/contexto';
+import { MODELO, SISTEMA } from '../ia/contrato';
 
 const VARON_1990: SujetoBCS = { sexo: 'M', fechaNacimiento: '1990-06-15' };
 
@@ -374,5 +376,104 @@ describe('la tabla de Amaral 2022 está transcrita, no reinterpretada', () => {
         expect(valores, `${n.id} ${c.sexo} ${c.edadMin}-${c.edadMax}`).toEqual(ordenados);
       }
     }
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// LO QUE BREY IA NO PUEDE VER (Sprint BCS-12)
+// ════════════════════════════════════════════════════════════════════════════
+//
+// La restricción más fuerte del módulo no está en el prompt: está en lo que
+// NO se le pasa. Una instrucción se puede desobedecer; un dato ausente no.
+//
+// El modelo recibe las conclusiones que los motores ya sacaron —cada una con
+// su fuente y su límite— y nunca la ficha de variables en crudo. Sin la cifra
+// suelta no puede clasificarla aunque se lo pidan.
+
+describe('el contexto del modelo excluye las cifras sueltas', () => {
+  const entrada = {
+    clienteNombre: 'Ana Ruiz',
+    analisis: {
+      cantidadMediciones: 1,
+      suficiencia: 'insuficiente',
+      fechaInicial: '2026-08-01',
+      fechaFinal: '2026-08-01',
+      resumen: { titulo: 'Primera medición', texto: 'Se registró la primera medición.' },
+      hallazgos: [{ titulo: 'Peso se mantuvo', descripcion: 'Sin cambio.' }],
+      insights: [],
+      avisos: [
+        { tipo: 'limitacion', titulo: '% Grasa corporal no puede clasificarse', descripcion: 'No consta el sexo.' },
+      ],
+    },
+    observaciones: { bloques: [] },
+    recomendaciones: { recomendaciones: [] },
+    lecturas: [
+      {
+        id: 'composicion-del-peso',
+        titulo: 'De qué está hecho tu peso',
+        texto: 'De tus 66,0 kg, 8,8 kg son masa grasa.',
+        fundamento: 'CKB 10 · relación de composición.',
+      },
+    ],
+    quienPregunta: 'profesional' as const,
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const texto = construirContexto(entrada as any);
+
+  it('CONTROL POSITIVO · el contexto sí lleva las conclusiones', () => {
+    // Sin esto, todo lo de abajo pasaría también sobre una cadena vacía.
+    expect(texto).toContain('De qué está hecho tu peso');
+    expect(texto).toContain('CKB 10');
+    expect(texto.length).toBeGreaterThan(500);
+  });
+
+  it('las limitaciones van rotuladas para que el modelo no las contradiga', () => {
+    expect(texto).toContain('LO QUE NO PUEDE INTERPRETARSE (no lo contradigas)');
+    expect(texto).toContain('% Grasa corporal no puede clasificarse');
+  });
+
+  it('la orientación por objetivo viaja entera, con sus fuentes', () => {
+    // Es lo ÚNICO del contexto que autoriza a hablar de entrenamiento o de
+    // ingesta, y va marcado como tal.
+    expect(texto).toContain('Orientación por objetivo');
+    expect(texto).toMatch(/lo único que autoriza a hablar de entrenamiento/);
+    expect(texto).toMatch(/proximidad_fallo_hipertrofia_2023|hipertrofia-muscular/);
+    expect(texto).toContain('NO ADMISIBLE');
+  });
+
+  it('la persona gramatical cambia según quién pregunta, y nada más', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const delCliente = construirContexto({ ...entrada, quienPregunta: 'cliente' } as any);
+    expect(texto).toContain('háblale de su cliente en tercera persona');
+    expect(delCliente).toContain('háblale de tú');
+    // Lo que se puede decir NO cambia: solo la última línea difiere.
+    expect(texto.split('\n').slice(0, -1)).toEqual(delCliente.split('\n').slice(0, -1));
+  });
+});
+
+describe('el contrato del modelo repite las prohibiciones de la CKB', () => {
+  it('nombra las ocho, en el mismo lenguaje que el validador', () => {
+    for (const regla of [
+      'NO diagnosticar',
+      'NO emitir juicios de salud',
+      'NO prescribir',
+      'NO atribuir causas',
+      'NO clasificar un valor si el informe no trae ya su clasificación',
+    ]) {
+      expect(SISTEMA, regla).toContain(regla);
+    }
+  });
+
+  it('y le dice que «eso no está en el informe» es una respuesta correcta', () => {
+    // La instrucción que evita que rellene huecos inventando.
+    // El prompt va con saltos de línea: se normalizan antes de buscar.
+    const enUnaLinea = SISTEMA.replace(/\s+/g, ' ');
+    expect(enUnaLinea).toMatch(/no está en el informe» es una respuesta correcta/);
+    expect(enUnaLinea).toMatch(/Inventar para rellenar es el único error que no se puede recuperar/);
+  });
+
+  it('usa el modelo que el proyecto declara, en un solo sitio', () => {
+    expect(MODELO).toBe('claude-opus-5');
   });
 });

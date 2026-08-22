@@ -18,6 +18,7 @@ import { archivarCliente, reactivarCliente, eliminarCliente, crearEnlacePublico,
 import { SITE_URL } from "@/lib/site";
 import type { Cliente, Medicion, EnlacePublico } from "@/lib/bcs/tipos";
 import type { Reporte } from "@/lib/bcs/reporte";
+import { leerMedicion } from "@/lib/bcs/lectura-transversal";
 import type { BodyCompositionAnalysis } from "@/lib/bcs/analysis";
 import type { RecommendationReport } from "@/lib/bcs/recommendations";
 import type { ClinicalObservationReport } from "@/lib/bcs/observation";
@@ -206,6 +207,14 @@ export default function ClienteDetailClient({
           documentosCopiloto={
             copiloto?.entregables.filter((e) => e.tipo !== "explicacion_paciente").length ?? 0
           }
+          contextoIA={{
+            clienteNombre: cliente.nombre,
+            analisis,
+            observaciones,
+            recomendaciones,
+            lecturas: leerMedicion(reporte.medicionActual, reporte.ficha.flatMap((b) => b.filas)),
+            quienPregunta: "profesional",
+          }}
           onCorregirMedicion={abrirCorregir}
         />
       ) : (
