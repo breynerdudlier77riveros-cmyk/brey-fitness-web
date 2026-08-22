@@ -4,6 +4,7 @@ import ObservationSection from "./ObservationSection";
 import RecommendationSection from "./RecommendationSection";
 import { FindingsBlock, InsightsBlock } from "./AnalysisBlocks";
 import CrossSectionalReading from "./CrossSectionalReading";
+import GuidanceSection from "./GuidanceSection";
 import type { LecturaTransversal } from "@/lib/bcs/lectura-transversal";
 import type { BodyCompositionAnalysis } from "@/lib/bcs/analysis";
 import type { RecommendationReport } from "@/lib/bcs/recommendations";
@@ -137,8 +138,23 @@ export default function ReportInterpretation({
 
       {/* Sigue siendo su propia sección: «qué significa» y «qué hago» son dos
           preguntas, y fundirlas convertiría una descripción en una indicación. */}
-      <SectionCard titulo="Recomendaciones profesionales">
-        <RecommendationSection informe={recomendaciones} />
+      {/* «Qué hago» es UNA pregunta, y por eso las dos partes van en el
+          mismo apartado. Estuvieron a punto de ser dos secciones seguidas —
+          exactamente la fragmentación que BCS-7.0 quitó del informe— hasta
+          que el test que fija la lista de apartados obligó a mirarlo. */}
+      <SectionCard titulo="Recomendaciones">
+        <div className="space-y-7">
+          {/* Primero lo que afecta a la lectura de HOY: si hay un registro que
+              verificar, todo lo demás se lee condicionado a eso. */}
+          <Sub titulo="Sobre este registro">
+            <RecommendationSection informe={recomendaciones} />
+          </Sub>
+
+          {/* Y después qué mueve cada cosa del cuerpo, por objetivo. */}
+          <Sub titulo="Según el objetivo">
+            <GuidanceSection />
+          </Sub>
+        </div>
       </SectionCard>
     </>
   );

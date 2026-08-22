@@ -176,7 +176,7 @@ describe("el informe no vuelve a trocear la misma pregunta", () => {
       "Indicadores",
       "Evolución",
       "Interpretación",
-      "Recomendaciones profesionales",
+      "Recomendaciones",
       "Historial de mediciones",
       "Calidad del análisis",
       "Qué no puede interpretarse",
@@ -344,9 +344,12 @@ describe("con UNA sola medición el informe dice algo del cuerpo", () => {
 describe("cada variable abre su ficha, en los dos sitios donde aparece", () => {
   const html = render(SERIE);
 
-  it("las tarjetas de indicadores principales la llevan", () => {
+  it("las tarjetas de indicadores abren un DIÁLOGO, no un desplegable", () => {
+    // El `<details>` crecía dentro de la tarjeta, empujaba a las otras dos de
+    // su fila y en móvil dejaba el texto en una tira de una columna.
     const rejilla = html.slice(html.indexOf("bcs-indicadores"));
-    expect(rejilla.slice(0, 6000)).toContain("bcs-variable");
+    expect(rejilla.slice(0, 8000)).toContain("Ver detalle");
+    expect(rejilla.slice(0, 8000)).toContain('aria-haspopup="dialog"');
   });
 
   it("y la lista completa de variables también", () => {
@@ -361,5 +364,69 @@ describe("cada variable abre su ficha, en los dos sitios donde aparece", () => {
     ]);
     expect(conAngulo).toMatch(/pacientes críticos, oncológicos/);
     expect(conAngulo).toMatch(/salto que la base de conocimiento clínica declara no admisible/);
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// LA ORIENTACIÓN SE INDEXA POR OBJETIVO, NUNCA POR VALOR (Sprint BCS-9.0)
+// ════════════════════════════════════════════════════════════════════════════
+//
+// La petición fue «no me recomienda nada», con este ejemplo:
+//
+//   «grasa visceral alta → problemas metabólicos → se recomienda déficit»
+//
+// Esa cadena clasifica con un rango que no existe, emite un juicio de salud
+// que el handbook prohíbe, y atribuye al dato una causa que el dato no
+// contiene. La que sí se sostiene —y es la que un profesional usa— es «para
+// este objetivo, esto es lo que la evidencia señala».
+//
+// El test que importa no es que aparezcan las recomendaciones: es que NO
+// dependan de ninguna cifra del cliente.
+
+describe("qué hacer se organiza por objetivo, no se deduce de una cifra", () => {
+  it("las tres orientaciones aparecen, con sus palancas", () => {
+    const html = render(SERIE);
+    expect(html).toContain('data-objetivo="ganar_musculo"');
+    expect(html).toContain('data-objetivo="recomposicion"');
+    expect(html).toContain('data-objetivo="perder_peso"');
+    expect(html).toMatch(/Tensión mecánica/);
+    expect(html).toMatch(/Ingesta proteica/);
+  });
+
+  it("cada una cita su ficha, su nivel de evidencia y sus referencias", () => {
+    const html = render(SERIE);
+    expect(html).toMatch(/ficha hipertrofia-muscular/);
+    expect(html).toMatch(/proximidad_fallo_hipertrofia_2023/);
+    expect(html).toMatch(/barakat_recomposicion_2020/);
+  });
+
+  it("y declara lo que NO puede concluirse, dentro y no al pie", () => {
+    const html = render(SERIE);
+    expect(html).toContain("Qué no puede concluirse");
+    expect(html).toMatch(/el dato no contiene la causa/);
+    expect(html).toMatch(/no autoriza|no puede concluirse|sarcopenia/i);
+  });
+
+  it("LA COMPROBACIÓN DE FONDO · el texto es idéntico con cifras opuestas", () => {
+    // Si la orientación dependiera de un valor, dos clientes distintos verían
+    // textos distintos. Es la única forma mecánica de demostrar que no se
+    // está recomendando a partir de una cifra.
+    const magro = render([completa("x1", "2026-08-01", 60, 19.5, 8.0, 30)]);
+    const graso = render([completa("x2", "2026-08-01", 95, 31.0, 34.0, 28)]);
+
+    const seccion = (h: string) =>
+      h.slice(h.indexOf('data-objetivo="ganar_musculo"'), h.indexOf("Historial de mediciones"));
+
+    expect(seccion(magro)).toBe(seccion(graso));
+    expect(seccion(magro).length).toBeGreaterThan(500);
+  });
+
+  it("y no clasifica al cliente en ninguna parte de esa sección", () => {
+    const html = render(SERIE);
+    const seccion = html.slice(
+      html.indexOf('data-objetivo="ganar_musculo"'),
+      html.indexOf("Historial de mediciones"),
+    );
+    expect(seccion).not.toMatch(/tu (grasa|peso|músculo) es (alto|alta|bajo|baja|excesiv)/i);
   });
 });

@@ -1,5 +1,5 @@
 import IndicatorCard from "./IndicatorCard";
-import VariableDetail from "./VariableDetail";
+import VariablePanel from "./VariablePanel";
 import { CATALOGO, type VariableId } from "@/lib/bcs/reporte";
 import type { BodyCompositionAnalysis } from "@/lib/bcs/analysis";
 import type { Medicion } from "@/lib/bcs/tipos";
@@ -68,9 +68,7 @@ export default function IndicatorGrid({
             tendencia={analisis.tendencias.find((t) => t.variable === id)}
             clasificacion={clasificacion}
             fecha={medicionActual.fecha}
-            detalle={
-              fila ? <VariableDetail fila={fila} serie={serieDe.get(id)} /> : undefined
-            }
+            detalle={fila ? <VariablePanel fila={fila} serie={serieDe.get(id)} /> : undefined}
           />
         );
       })}
