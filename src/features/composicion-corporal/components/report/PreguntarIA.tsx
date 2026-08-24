@@ -15,7 +15,9 @@ import type { EntradaContexto } from "@/lib/bcs/ia/contexto";
 // TRES ESTADOS QUE NO SE COLAPSAN, y es lo que hace usable la función:
 //
 //   · `sin_configurar` — falta la clave. No es un fallo del sistema ni del
-//     usuario: es una función que no está encendida, y se dice cómo encenderla.
+//     usuario: es una función que no está encendida, y se dice cómo encenderla
+//     nombrando la variable exacta: hay dos proveedores posibles y «falta una
+//     clave» no le dice a nadie cuál.
 //   · `rechazada` — el modelo respondió y el validador tumbó la respuesta. Se
 //     enseña QUÉ regla rompió, no un «error» genérico. Que ocurra es el
 //     sistema funcionando, no fallando.
@@ -23,6 +25,10 @@ import type { EntradaContexto } from "@/lib/bcs/ia/contexto";
 //
 // Colapsar los tres en «algo salió mal» convertiría un rechazo por seguridad
 // —que es información valiosa— en un fallo indistinguible de una caída de red.
+//
+// EL MODELO QUE CONTESTÓ VA FIRMADO (BCS-14). Desde que hay dos proveedores
+// con calidad de seguimiento distinta, cuál habló es la variable que más
+// explica lo que se está leyendo — y por qué una respuesta fue rechazada.
 //
 // `print:hidden`: una conversación no forma parte del documento que se entrega.
 
@@ -108,8 +114,9 @@ export default function PreguntarIA({ contexto }: Props) {
             </p>
           ))}
           <p className="pt-1 text-[10px] leading-relaxed text-white/25">
-            Respuesta generada sobre las conclusiones de este informe y comprobada contra las
-            prohibiciones de la base de conocimiento. No forma parte del documento ni se guarda.
+            Generada por {respuesta.modelo} sobre las conclusiones de este informe, y comprobada
+            contra las prohibiciones de la base de conocimiento. No forma parte del documento ni se
+            guarda.
           </p>
         </div>
       ) : null}
@@ -129,7 +136,9 @@ export default function PreguntarIA({ contexto }: Props) {
           </ul>
           <p className="mt-2 text-[11px] leading-relaxed text-white/40">
             No se muestra una versión recortada: entregar el resto sin la parte censurada daría un
-            texto mutilado con apariencia de correcto. Prueba a preguntarlo de otra manera.
+            texto mutilado con apariencia de correcto. Prueba a preguntarlo de otra manera. La
+            respondió {respuesta.modelo}; si se repite a menudo, es que ese modelo no sigue bien
+            este contrato.
           </p>
         </div>
       ) : null}
@@ -137,7 +146,7 @@ export default function PreguntarIA({ contexto }: Props) {
       {respuesta?.estado === "sin_configurar" ? (
         <p className="mt-4 text-[11px] leading-relaxed text-white/45">
           BREY IA no está habilitada todavía. Falta configurar la clave de API en el servidor
-          (variable <code className="text-white/60">ANTHROPIC_API_KEY</code>). Todo lo demás del
+          (variable <code className="text-white/60">{respuesta.variable}</code>). Todo lo demás del
           informe funciona sin ella: es determinista y no usa modelo.
         </p>
       ) : null}

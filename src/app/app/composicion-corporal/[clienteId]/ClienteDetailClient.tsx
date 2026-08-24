@@ -208,7 +208,6 @@ export default function ClienteDetailClient({
             copiloto?.entregables.filter((e) => e.tipo !== "explicacion_paciente").length ?? 0
           }
           contextoIA={{
-            clienteNombre: cliente.nombre,
             analisis,
             observaciones,
             recomendaciones,

@@ -1,6 +1,6 @@
-"use server";
+'use server';
 
-// ── BREY IA · responder una pregunta sobre el informe (Sprint BCS-12) ──────
+// ── BREY IA · responder una pregunta sobre el informe (Sprint BCS-12/14) ───
 //
 // La única parte del ecosistema que NO es determinista, y está encapsulada
 // aquí a propósito: nada de lo que devuelve entra en el informe, se persiste
@@ -25,23 +25,36 @@
 //   declara: entregar el resto sin la parte censurada deja un texto mutilado
 //   con apariencia de correcto, y quien lo lee no sabe que faltó algo.
 //
-// SIN CLAVE NO HAY MAGIA. Si `ANTHROPIC_API_KEY` no está configurada, se
-// devuelve un estado explícito y la interfaz lo dice. Nunca se degrada a una
+// ── LAS TRES PUERTAS NO DEPENDEN DEL PROVEEDOR (BCS-14) ───────────────────
+//
+//   Desde que hay dos modelos posibles, esta distinción importa: el proveedor
+//   se elige por variable de entorno, pero las tres puertas son las mismas
+//   para todos y están de este lado del puerto. Un adaptador nuevo no puede
+//   aflojarlas, porque no las toca — solo devuelve texto o el motivo de que no
+//   lo haya.
+//
+//   Y el modelo que contestó se NOMBRA en la respuesta. Con dos proveedores de
+//   calidad distinta, ocultar cuál habló sería esconder la variable que más
+//   explica lo que se está leyendo.
+//
+// SIN CLAVE NO HAY MAGIA. Si no hay ninguna configurada se devuelve un estado
+// explícito, con el nombre de la variable que falta. Nunca se degrada a una
 // respuesta inventada ni se finge que la función no existe.
-
-import Anthropic from '@anthropic-ai/sdk';
 
 import { validarTexto, type Violacion } from '@/lib/bcs/copilot';
 import { CATALOGO, type VariableId } from '@/lib/bcs/reporte';
 import { construirContexto, type EntradaContexto } from './contexto';
-import { MAX_TOKENS, MODELO, SISTEMA } from './contrato';
+import { SISTEMA } from './contrato';
+import { claveQueFalta, proveedorElegido, type Proveedor } from './proveedor';
+import { crearProveedorAnthropic } from './proveedores/anthropic';
+import { crearProveedorGemini } from './proveedores/gemini';
 
 export type RespuestaIA =
-  | { estado: 'ok'; texto: string }
+  | { estado: 'ok'; texto: string; modelo: string }
   /** El modelo dijo algo que el validador no admite. Se muestra el motivo. */
-  | { estado: 'rechazada'; violaciones: readonly Violacion[] }
+  | { estado: 'rechazada'; violaciones: readonly Violacion[]; modelo: string }
   /** No hay clave configurada. No es un error: es una función sin habilitar. */
-  | { estado: 'sin_configurar' }
+  | { estado: 'sin_configurar'; variable: string }
   | { estado: 'error'; mensaje: string };
 
 /** Todas las variables del catálogo: el modelo puede nombrar cualquiera. */
@@ -55,12 +68,29 @@ const VARIABLES = Object.keys(CATALOGO) as VariableId[];
  */
 const MAX_PREGUNTA = 500;
 
+/** El adaptador que toca, ya construido, o `null` si le falta la clave. */
+function resolverProveedor(): Proveedor | null {
+  switch (proveedorElegido()) {
+    case 'gemini':
+      return crearProveedorGemini();
+    case 'anthropic':
+      return crearProveedorAnthropic();
+    default:
+      return null;
+  }
+}
+
 export async function preguntarABreyIA(
   pregunta: string,
   contexto: EntradaContexto,
 ): Promise<RespuestaIA> {
-  const clave = process.env.ANTHROPIC_API_KEY;
-  if (!clave) return { estado: 'sin_configurar' };
+  const proveedor = resolverProveedor();
+  if (proveedor === null) {
+    return {
+      estado: 'sin_configurar',
+      variable: claveQueFalta(proveedorElegido()) ?? 'GEMINI_API_KEY',
+    };
+  }
 
   const limpia = pregunta.trim();
   if (limpia.length === 0) return { estado: 'error', mensaje: 'La pregunta está vacía.' };
@@ -71,64 +101,34 @@ export async function preguntarABreyIA(
     };
   }
 
-  const client = new Anthropic({ apiKey: clave });
+  const resultado = await proveedor.responder(
+    SISTEMA,
+    `${construirContexto(contexto)}\n\n---\n\nPregunta: ${limpia}`,
+  );
 
-  try {
-    // Streaming aunque la respuesta sea corta: el techo de tokens es holgado y
-    // una petición sin stream puede chocar con el tiempo límite HTTP.
-    const stream = client.messages.stream({
-      model: MODELO,
-      max_tokens: MAX_TOKENS,
-      thinking: { type: 'adaptive' },
-      system: [
-        // El contrato es idéntico en cada petición: se cachea. Lo que cambia
-        // —el informe y la pregunta— va después, en el mensaje del usuario.
-        { type: 'text', text: SISTEMA, cache_control: { type: 'ephemeral' } },
-      ],
-      messages: [
-        {
-          role: 'user',
-          content:
-            `${construirContexto(contexto)}\n\n---\n\nPregunta: ${limpia}`,
-        },
-      ],
-    });
+  switch (resultado.estado) {
+    case 'declinada':
+      return { estado: 'error', mensaje: 'El modelo declinó responder a esa pregunta.' };
 
-    const mensaje = await stream.finalMessage();
-
-    if (mensaje.stop_reason === 'refusal') {
+    case 'truncada':
+      // No se entrega la mitad que llegó. Es el mismo criterio que aplica el
+      // validador a una respuesta parcialmente inadmisible, por el mismo
+      // motivo: un texto cortado no se ve cortado.
       return {
         estado: 'error',
-        mensaje: 'El modelo declinó responder a esa pregunta.',
+        mensaje: 'La respuesta se cortó antes de terminar. Prueba con una pregunta más concreta.',
       };
-    }
 
-    const texto = mensaje.content
-      .filter((b): b is Anthropic.TextBlock => b.type === 'text')
-      .map((b) => b.text)
-      .join('\n')
-      .trim();
+    case 'error':
+      return { estado: 'error', mensaje: resultado.mensaje };
 
-    if (texto === '') {
-      return { estado: 'error', mensaje: 'El modelo no devolvió texto.' };
+    case 'texto': {
+      // LA PUERTA. Se comprueba el texto que iba a verse, no el que se pidió.
+      const violaciones = validarTexto(resultado.texto, VARIABLES);
+      if (violaciones.length > 0) {
+        return { estado: 'rechazada', violaciones, modelo: proveedor.modelo };
+      }
+      return { estado: 'ok', texto: resultado.texto, modelo: proveedor.modelo };
     }
-
-    // LA PUERTA. Se comprueba el texto que iba a verse, no el que se pidió.
-    const violaciones = validarTexto(texto, VARIABLES);
-    if (violaciones.length > 0) return { estado: 'rechazada', violaciones };
-
-    return { estado: 'ok', texto };
-  } catch (error) {
-    // Se distinguen los casos que el profesional puede resolver de los que no.
-    if (error instanceof Anthropic.AuthenticationError) {
-      return { estado: 'error', mensaje: 'La clave de API no es válida.' };
-    }
-    if (error instanceof Anthropic.RateLimitError) {
-      return { estado: 'error', mensaje: 'Demasiadas peticiones. Inténtalo en un momento.' };
-    }
-    if (error instanceof Anthropic.APIError) {
-      return { estado: 'error', mensaje: `La API respondió ${error.status}.` };
-    }
-    return { estado: 'error', mensaje: 'No se pudo contactar con el modelo.' };
   }
 }

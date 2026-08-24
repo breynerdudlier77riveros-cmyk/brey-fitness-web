@@ -20,6 +20,18 @@
 // junto a su posición percentil, por ejemplo) sí entran: llegan dentro de la
 // frase que los interpreta, no como número suelto.
 //
+// ── TAMPOCO VE DE QUIÉN ES EL INFORME (Sprint BCS-14) ─────────────────────
+//
+// El nombre del cliente iba en el encabezado. Se ha quitado, y no por pudor:
+// esto sale de la máquina hacia un tercero, y las capas gratuitas de los
+// proveedores suelen reservarse el derecho a usar lo enviado para entrenar.
+// Un nombre propio junto a datos de salud es exactamente el par que no debe
+// salir; los datos sin el nombre no identifican a nadie.
+//
+// El modelo no lo necesitaba. Lo único que cambiaba con el nombre era la
+// persona gramatical, y eso ya lo decide `quienPregunta`. Que el informe siga
+// mostrando el nombre en pantalla y en el PDF no cambia nada: eso no viaja.
+//
 // Módulo puro.
 
 import type { BodyCompositionAnalysis } from '@/lib/bcs/analysis';
@@ -29,7 +41,6 @@ import type { LecturaTransversal } from '@/lib/bcs/lectura-transversal';
 import { ORIENTACIONES } from '@/lib/bcs/orientacion';
 
 export interface EntradaContexto {
-  clienteNombre: string;
   analisis: BodyCompositionAnalysis;
   observaciones: ClinicalObservationReport;
   recomendaciones: RecommendationReport;
@@ -46,7 +57,8 @@ export function construirContexto(e: EntradaContexto): string {
   const { analisis: a } = e;
 
   const partes: string[] = [
-    `# Informe de ${e.clienteNombre}`,
+    // Sin nombre, a propósito. Ver la cabecera del fichero.
+    '# Informe de composición corporal',
     '',
     `Mediciones vigentes: ${a.cantidadMediciones}. Suficiencia de la base: ${a.suficiencia}.`,
     `Periodo: ${a.fechaInicial ?? 'sin fecha'} a ${a.fechaFinal ?? 'sin fecha'}.`,

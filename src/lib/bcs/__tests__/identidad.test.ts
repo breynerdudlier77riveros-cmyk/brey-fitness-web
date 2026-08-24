@@ -22,7 +22,8 @@ import type { Medicion } from '../tipos';
 import { NORMAS, normaPara } from '../normas';
 import { advertenciaDe, poblacionDe, redactarPosicion, situarEnNorma } from '../posicion-normativa';
 import { construirContexto } from '../ia/contexto';
-import { MODELO, SISTEMA } from '../ia/contrato';
+import { SISTEMA } from '../ia/contrato';
+import { MODELO_POR_DEFECTO } from '../ia/proveedores/anthropic';
 
 const VARON_1990: SujetoBCS = { sexo: 'M', fechaNacimiento: '1990-06-15' };
 
@@ -392,7 +393,6 @@ describe('la tabla de Amaral 2022 está transcrita, no reinterpretada', () => {
 
 describe('el contexto del modelo excluye las cifras sueltas', () => {
   const entrada = {
-    clienteNombre: 'Ana Ruiz',
     analisis: {
       cantidadMediciones: 1,
       suficiencia: 'insuficiente',
@@ -426,6 +426,22 @@ describe('el contexto del modelo excluye las cifras sueltas', () => {
     expect(texto).toContain('De qué está hecho tu peso');
     expect(texto).toContain('CKB 10');
     expect(texto.length).toBeGreaterThan(500);
+  });
+
+  it('NO viaja el nombre de nadie: sale de la máquina hacia un tercero', () => {
+    // Los datos de salud sin el nombre no identifican a nadie. Con el nombre
+    // al lado, sí — y las capas gratuitas de los proveedores suelen reservarse
+    // el derecho a usar lo enviado para entrenar. El modelo tampoco lo
+    // necesita: la persona gramatical la decide `quienPregunta`.
+    const conNombre = construirContexto({
+      ...entrada,
+      clienteNombre: 'Ana Ruiz',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any);
+    expect(conNombre).not.toContain('Ana Ruiz');
+    expect(conNombre).not.toContain('Ana');
+    // Y el encabezado sigue existiendo: no se ha borrado, se ha despersonalizado.
+    expect(conNombre).toContain('# Informe de composición corporal');
   });
 
   it('las limitaciones van rotuladas para que el modelo no las contradiga', () => {
@@ -474,6 +490,6 @@ describe('el contrato del modelo repite las prohibiciones de la CKB', () => {
   });
 
   it('usa el modelo que el proyecto declara, en un solo sitio', () => {
-    expect(MODELO).toBe('claude-opus-5');
+    expect(MODELO_POR_DEFECTO).toBe('claude-opus-5');
   });
 });
