@@ -50,7 +50,7 @@ export default async function SesionPublicaPage({ params }: Props) {
 
   return (
     <main className="min-h-screen bg-slate-950 print:bg-white">
-      <div className="mx-auto max-w-4xl px-5 py-10 sm:px-8 sm:py-14">
+      <div className="hoja-print mx-auto max-w-4xl px-5 py-10 sm:px-8 sm:py-14">
         <header className="mb-8">
           <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.14em] text-orange-400/70">
             Plan de entrenamiento

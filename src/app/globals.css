@@ -209,23 +209,23 @@ body {
      se escriben como color-mix()/rgb con alpha, así que no basta con
      redefinir una variable: se neutralizan por selector de atributo sobre la
      clase, que es la vía que no obliga a tocar los 20 componentes. */
-  .reporte-print,
-  .reporte-print * {
+  .hoja-print,
+  .hoja-print * {
     color: #0f172a !important;
     background-image: none !important;
     box-shadow: none !important;
     text-shadow: none !important;
   }
 
-  .reporte-print [class*="bg-white"],
-  .reporte-print [class*="bg-slate"] {
+  .hoja-print [class*="bg-white"],
+  .hoja-print [class*="bg-slate"] {
     background-color: transparent !important;
   }
 
   /* El marcador de la barra de rango es un círculo blanco: con la regla de
      arriba se volvería transparente y desaparecería justo el elemento que
      indica dónde cae el valor. Se invierte a oscuro sobre papel. */
-  .reporte-print .print-marcador {
+  .hoja-print .print-marcador {
     background-color: #0f172a !important;
     border-color: #fff !important;
     -webkit-print-color-adjust: exact;
@@ -233,9 +233,9 @@ body {
   }
 
   /* Jerarquía en gris, no en blanco translúcido (que sobre papel desaparece). */
-  .reporte-print [class*="text-white/5"],
-  .reporte-print [class*="text-white/4"],
-  .reporte-print [class*="text-white/3"] {
+  .hoja-print [class*="text-white/5"],
+  .hoja-print [class*="text-white/4"],
+  .hoja-print [class*="text-white/3"] {
     color: #475569 !important;
   }
 
@@ -243,44 +243,44 @@ body {
      borde solo se neutraliza donde era blanco translúcido: los bordes
      semánticos (el ámbar de una alerta, el azul de un insight) son la
      identidad de cada bloque y deben sobrevivir a la impresión. */
-  .reporte-print [class*="rounded-2xl"],
-  .reporte-print [class*="rounded-xl"] {
+  .hoja-print [class*="rounded-2xl"],
+  .hoja-print [class*="rounded-xl"] {
     border-radius: 4px !important;
   }
 
-  .reporte-print [class*="border-white"] {
+  .hoja-print [class*="border-white"] {
     border-color: #cbd5e1 !important;
   }
 
   /* Color semántico preservado — nunca se degrada a gris (Design Handbook 14).
      print-color-adjust obliga al navegador a respetarlo. */
-  .reporte-print [class*="text-emerald"],
-  .reporte-print [class*="text-red"],
-  .reporte-print [class*="text-yellow"],
-  .reporte-print [class*="text-sky"],
-  .reporte-print [class*="text-orange"],
-  .reporte-print [class*="bg-emerald"],
-  .reporte-print [class*="bg-red"],
-  .reporte-print [class*="bg-yellow"],
-  .reporte-print [class*="bg-sky"],
-  .reporte-print [class*="bg-orange"] {
+  .hoja-print [class*="text-emerald"],
+  .hoja-print [class*="text-red"],
+  .hoja-print [class*="text-yellow"],
+  .hoja-print [class*="text-sky"],
+  .hoja-print [class*="text-orange"],
+  .hoja-print [class*="bg-emerald"],
+  .hoja-print [class*="bg-red"],
+  .hoja-print [class*="bg-yellow"],
+  .hoja-print [class*="bg-sky"],
+  .hoja-print [class*="bg-orange"] {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
 
-  .reporte-print [class*="text-emerald"] { color: #047857 !important; }
-  .reporte-print [class*="text-red"]     { color: #b91c1c !important; }
-  .reporte-print [class*="text-yellow"]  { color: #a16207 !important; }
-  .reporte-print [class*="text-sky"]     { color: #0369a1 !important; }
-  .reporte-print [class*="text-orange"]  { color: #c2410c !important; }
+  .hoja-print [class*="text-emerald"] { color: #047857 !important; }
+  .hoja-print [class*="text-red"]     { color: #b91c1c !important; }
+  .hoja-print [class*="text-yellow"]  { color: #a16207 !important; }
+  .hoja-print [class*="text-sky"]     { color: #0369a1 !important; }
+  .hoja-print [class*="text-orange"]  { color: #c2410c !important; }
 
   /* Los gráficos son SVG con `fill`/`stroke`, y las zonas de la barra de
      rango son divs con fondo pleno. Ambos deben imprimirse con su color
      real: sin print-color-adjust el navegador los omite y el gráfico sale
      vacío. NO se sustituye el color por un gris — eso borraría la
      distinción entre zonas, que es toda la información de la barra. */
-  .reporte-print svg,
-  .reporte-print svg * {
+  .hoja-print svg,
+  .hoja-print svg * {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
@@ -291,88 +291,114 @@ body {
      sobre ella producía una página en blanco con solo el título encima. Se
      permite partirla —el contenido de dentro sigue sin partirse— y se impide
      que el título quede huérfano al final de la página. */
-  .reporte-print [data-slot="card"] {
+  .hoja-print [data-slot="card"] {
     break-inside: auto;
     page-break-inside: auto;
   }
 
-  .reporte-print [data-slot="card-header"],
-  .reporte-print [data-slot="card-title"] {
+  .hoja-print [data-slot="card-header"],
+  .hoja-print [data-slot="card-title"] {
     break-after: avoid;
     page-break-after: avoid;
   }
 
-  .reporte-print section,
-  .reporte-print [class*="rounded-2xl"],
-  .reporte-print figure,
-  .reporte-print img,
-  .reporte-print svg,
-  .reporte-print li {
+  .hoja-print section,
+  .hoja-print [class*="rounded-2xl"],
+  .hoja-print figure,
+  .hoja-print img,
+  .hoja-print svg,
+  .hoja-print li {
     break-inside: avoid;
     page-break-inside: avoid;
   }
 
-  .reporte-print table {
+  /* ── Una tabla ancha se imprime ENTERA ─────────────────────────────────
+     En pantalla la rejilla de semanas scrollea dentro de su caja. En papel no
+     hay dónde scrollear: con `overflow: auto` el navegador RECORTA lo que no
+     cabe, y las semanas perdidas no dejan ninguna señal de que faltan. Un
+     documento que miente por omisión es peor que uno apretado. */
+  .hoja-print [class*="overflow-x-auto"],
+  .hoja-print [class*="overflow-x-scroll"],
+  .hoja-print [class*="overflow-x-hidden"] {
+    overflow: visible !important;
+  }
+
+  /* `min-w-max` pide el ancho natural de la tabla; sobre papel el ancho lo
+     manda la página. Se deja que encoja: columnas estrechas se leen, columnas
+     ausentes no. */
+  .hoja-print table {
+    min-width: 0 !important;
+    width: 100% !important;
+    table-layout: auto;
+  }
+
+  /* `position: sticky` no significa nada sin scroll, y en el flujo paginado
+     saca la celda de su fila. */
+  .hoja-print [class*="sticky"] {
+    position: static !important;
+  }
+
+  .hoja-print table {
     break-inside: auto;
   }
 
-  .reporte-print tr {
+  .hoja-print tr {
     break-inside: avoid;
     page-break-inside: avoid;
   }
 
   /* La cabecera de una tabla se repite en cada página que ocupe. */
-  .reporte-print thead {
+  .hoja-print thead {
     display: table-header-group;
   }
 
   /* Un título nunca queda solo al final de la página. */
-  .reporte-print h1,
-  .reporte-print h2,
-  .reporte-print h3,
-  .reporte-print [class*="uppercase"] {
+  .hoja-print h1,
+  .hoja-print h2,
+  .hoja-print h3,
+  .hoja-print [class*="uppercase"] {
     break-after: avoid;
     page-break-after: avoid;
   }
 
-  .reporte-print p,
-  .reporte-print li {
+  .hoja-print p,
+  .hoja-print li {
     orphans: 3;
     widows: 3;
   }
 
   /* ── Legibilidad sobre papel ───────────────────────────────────────────
      La pantalla usa 10-12px sobre fondo oscuro; en papel eso se lee mal. */
-  .reporte-print {
+  .hoja-print {
     font-size: 10.5pt;
     line-height: 1.45;
   }
 
-  .reporte-print [class*="text-[10px]"],
-  .reporte-print [class*="text-[11px]"],
-  .reporte-print [class*="text-xs"] {
+  .hoja-print [class*="text-[10px]"],
+  .hoja-print [class*="text-[11px]"],
+  .hoja-print [class*="text-xs"] {
     font-size: 8.5pt !important;
   }
 
   /* El 9px de las trazas y los fundamentos es ilegible en papel, y es
      precisamente lo que permite auditar el informe: si no se lee, la
      trazabilidad impresa no sirve de nada. */
-  .reporte-print [class*="text-[9px]"] {
+  .hoja-print [class*="text-[9px]"] {
     font-size: 7.5pt !important;
     line-height: 1.35 !important;
   }
 
-  .reporte-print [class*="text-sm"] {
+  .hoja-print [class*="text-sm"] {
     font-size: 10pt !important;
   }
 
-  .reporte-print [class*="text-2xl"],
-  .reporte-print [class*="text-3xl"] {
+  .hoja-print [class*="text-2xl"],
+  .hoja-print [class*="text-3xl"] {
     font-size: 18pt !important;
   }
 
   /* El ancho de pantalla no aplica en papel: el margen lo pone @page. */
-  .reporte-print {
+  .hoja-print {
     max-width: none !important;
     padding: 0 !important;
     margin: 0 !important;
@@ -382,40 +408,40 @@ body {
      acordeón (Sprint 3.0) y el histórico es una línea de tiempo abierta, así
      que no queda nada colapsado que forzar: basta con retirar los controles
      que sí existen dentro del documento. */
-  .reporte-print button,
-  .reporte-print input,
-  .reporte-print select,
-  .reporte-print textarea,
-  .reporte-print [role="button"] {
+  .hoja-print button,
+  .hoja-print input,
+  .hoja-print select,
+  .hoja-print textarea,
+  .hoja-print [role="button"] {
     display: none !important;
   }
 
   /* Un contenedor con scroll horizontal recorta en papel todo lo que en
      pantalla se alcanzaba desplazando: las tablas anchas perdían la columna
      de diferencia. En impresión no hay scroll, así que se deja fluir. */
-  .reporte-print [class*="overflow-x-auto"],
-  .reporte-print [class*="overflow-y-auto"],
-  .reporte-print [class*="overflow-auto"] {
+  .hoja-print [class*="overflow-x-auto"],
+  .hoja-print [class*="overflow-y-auto"],
+  .hoja-print [class*="overflow-auto"] {
     overflow: visible !important;
     max-height: none !important;
   }
 
-  .reporte-print table {
+  .hoja-print table {
     width: 100% !important;
     table-layout: auto;
   }
 
   /* Las barras de los gráficos se dimensionan con altura fija en px pensada
      para pantalla; en papel se reducen para que una serie completa quepa. */
-  .reporte-print [class*="aspect-"] {
+  .hoja-print [class*="aspect-"] {
     aspect-ratio: auto !important;
   }
 
   /* Nada se sale del ancho útil de la página. */
-  .reporte-print img,
-  .reporte-print svg,
-  .reporte-print table,
-  .reporte-print pre {
+  .hoja-print img,
+  .hoja-print svg,
+  .hoja-print table,
+  .hoja-print pre {
     max-width: 100% !important;
   }
 

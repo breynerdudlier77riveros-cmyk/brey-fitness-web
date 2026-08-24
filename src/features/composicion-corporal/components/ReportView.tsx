@@ -135,7 +135,7 @@ export default function ReportView({
   const hayComparacion = historico.length >= 2;
 
   return (
-    <div className="reporte-print space-y-6">
+    <div className="reporte-print hoja-print space-y-6">
       <ReportCover
         clienteNombre={cliente.nombre}
         analisis={analisis}

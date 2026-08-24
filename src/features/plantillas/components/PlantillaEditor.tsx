@@ -264,9 +264,20 @@ export default function PlantillaEditor({
         ))}
       </div>
 
-      {pestana === "vista" ? (
+      {/* ── El documento se dibuja SIEMPRE, aunque estés editando ──────────
+          Antes solo existía en la pestaña de vista previa, y como el editor
+          entero es `print:hidden`, imprimir desde «Editar» producía un
+          documento SIN NADA. El navegador no dice «esto está vacío»: se queda
+          girando en «generando vista previa», y parece que el botón está roto.
+
+          Así que en modo edición se dibuja igual, oculto en pantalla y
+          visible en papel. Imprimir hace lo mismo estés en la pestaña que
+          estés, que es lo que cualquiera espera de ese botón. */}
+      <div className={pestana === "vista" ? undefined : "hidden print:block"}>
         <SessionView contenido={contenido} semanas={semanas} />
-      ) : (
+      </div>
+
+      {pestana === "editar" && (
         <div className="space-y-6 print:hidden">
           <SelectorSemana
             semanas={semanas}

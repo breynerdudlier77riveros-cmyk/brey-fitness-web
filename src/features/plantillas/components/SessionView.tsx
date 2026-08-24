@@ -26,6 +26,14 @@ import { seriesEnSemana, tonelajeSemana } from "@/lib/plantillas/contenido";
 //   única acaba leído como «lo de arriba», que es exactamente lo que se salta
 //   quien tiene prisa.
 //
+// ── EL TEMA DE IMPRESIÓN VIAJA CON EL COMPONENTE ──────────────────────────
+//
+//   La clase `hoja-print` la lleva la propia raíz, no quien lo usa. Sin ella
+//   el papel sale con texto blanco sobre fondo blanco —las utilidades de
+//   Tailwind son `text-white/x` y el papel es blanco— y el fallo es invisible
+//   hasta que alguien imprime. Que dependa de recordarlo en cada sitio
+//   garantiza que un día se olvide.
+//
 // Componente de servidor.
 
 interface Props {
@@ -47,7 +55,7 @@ export default function SessionView({ contenido, semanas, para = null }: Props) 
   }
 
   return (
-    <div className="space-y-8">
+    <div className="hoja-print space-y-8">
       {para && (
         <p className="text-sm text-white/50">
           Preparada para <span className="font-semibold text-white/80">{para}</span>.
