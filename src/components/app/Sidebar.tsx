@@ -4,18 +4,19 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Bolt,
-  Flag,
-  Calendar,
-  TrendingUp,
-  Book,
-  UserIcon,
-  Settings,
-  Menu,
   ArrowLeft,
   ArrowRight,
+  Bolt,
+  Book,
+  Calendar,
+  Cycle,
+  Flag,
+  Menu,
   Scale,
+  Settings,
   Target,
+  TrendingUp,
+  UserIcon,
 } from "@/components/brand/icons";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/brand/Drawer";
 import { signOut } from "@/lib/supabase/actions";
@@ -44,6 +45,10 @@ const navItems = [
   { href: "/app/progreso", label: "Progreso", icon: TrendingUp },
   { href: "/app/biblioteca", label: "Biblioteca", icon: Book },
   { href: "/app/composicion-corporal", label: "Composición Corporal", icon: Scale },
+  // Editor de plantillas de sesión (Sprint PLS-1). Va con los otros dos
+  // espacios profesionales: los tres son herramientas del entrenador sobre
+  // terceros, no del usuario sobre sí mismo.
+  { href: "/app/plantillas", label: "Plantillas de sesión", icon: Cycle },
   // Módulo independiente (Sprint PAS-7.0). Se añade junto a Composición
   // Corporal por ser el otro espacio de trabajo profesional; las entradas del
   // BCS quedan intactas.

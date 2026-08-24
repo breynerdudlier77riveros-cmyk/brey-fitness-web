@@ -13,6 +13,9 @@ import type {
 } from '@/lib/types';
 import type { Diagnostico, Respuesta } from '@/lib/diagnostico/tipos';
 import type { Cliente, Medicion, EnlacePublico } from '@/lib/bcs/tipos';
+import type {
+  Ajustes, Contenido, EnlacePlantilla, Plantilla,
+} from '@/lib/plantillas/tipos';
 
 type Row = Record<string, unknown>;
 
@@ -181,6 +184,43 @@ export function mapEnlacePublico(row: Row): EnlacePublico {
     cliente_id: row.cliente_id as string,
     token: row.token as string,
     estado: row.estado as EnlacePublico['estado'],
+    created_at: row.created_at as string,
+  };
+}
+
+// ── Plantillas de sesión ───────────────────────────────────────────────────
+//
+// `contenido` y `ajustes` llegan de columnas jsonb, así que PostgREST ya los
+// entrega deserializados. El `?? ` de cada uno cubre la fila antigua o la
+// columna recién añadida, que llegan como `undefined` — el mismo caso que ya
+// obligó a poner `?? null` en la identidad del cliente del BCS.
+
+export function mapPlantilla(row: Row): Plantilla {
+  return {
+    id: row.id as string,
+    entrenador_id: row.entrenador_id as string,
+    nombre: row.nombre as string,
+    descripcion: (row.descripcion as string | null) ?? null,
+    semanas: (row.semanas as number | null) ?? 1,
+    contenido: (row.contenido as Contenido | null) ?? { dias: [] },
+    estado: row.estado as Plantilla['estado'],
+    created_at: row.created_at as string,
+    actualizado_el: (row.actualizado_el as string | null) ?? (row.created_at as string),
+  };
+}
+
+export function mapEnlacePlantilla(row: Row): EnlacePlantilla {
+  return {
+    id: row.id as string,
+    plantilla_id: row.plantilla_id as string,
+    // `?? null` y no un cast a secas: aquí null NO es un dato ausente, es el
+    // valor que significa «enlace genérico», y confundirlo con undefined
+    // rompería la distinción entre los dos modos de compartir.
+    cliente_id: (row.cliente_id as string | null) ?? null,
+    token: row.token as string,
+    ajustes: (row.ajustes as Ajustes | null) ?? {},
+    nota: (row.nota as string | null) ?? null,
+    estado: row.estado as EnlacePlantilla['estado'],
     created_at: row.created_at as string,
   };
 }
