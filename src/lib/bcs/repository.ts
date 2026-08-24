@@ -14,7 +14,8 @@
 
 import type { SupabaseClient, PostgrestError } from '@supabase/supabase-js';
 import { mapCliente, mapMedicion, mapEnlacePublico } from '@/lib/database/mappers';
-import type { Cliente, Medicion, EnlacePublico, ClienteEstado } from '@/lib/bcs/tipos';
+import type { Cliente, Medicion, EnlacePublico, ClienteEstado, SexoCliente } from '@/lib/bcs/tipos';
+import type { RangosDispositivo } from '@/lib/bcs/rangos-dispositivo';
 
 /**
  * Registra un fallo de consulta sin cambiar el contrato: las lecturas siguen
@@ -67,12 +68,31 @@ export async function listarClientesPorEntrenador(
 export async function guardarCliente(
   supabase: SupabaseClient,
   entrenadorId: string,
-  datos: { id?: string; nombre: string }
+  datos: {
+    id?: string;
+    nombre: string;
+    sexo?: SexoCliente | null;
+    fecha_nacimiento?: string | null;
+    rangos_dispositivo?: RangosDispositivo | null;
+    dispositivo_referencia?: string | null;
+  }
 ): Promise<Cliente | null> {
+  // Solo se escriben las claves PRESENTES: `undefined` significa «no toques
+  // este campo» y `null` significa «bórralo». Colapsar las dos haría que
+  // guardar desde una pantalla que no pregunta el sexo lo borrara sin que
+  // nadie lo pidiera.
+  const extra: Record<string, unknown> = {};
+  if (datos.sexo !== undefined) extra.sexo = datos.sexo;
+  if (datos.fecha_nacimiento !== undefined) extra.fecha_nacimiento = datos.fecha_nacimiento;
+  if (datos.rangos_dispositivo !== undefined) extra.rangos_dispositivo = datos.rangos_dispositivo;
+  if (datos.dispositivo_referencia !== undefined) {
+    extra.dispositivo_referencia = datos.dispositivo_referencia;
+  }
+
   if (datos.id) {
     const { data, error } = await supabase
       .from('bcs_clientes')
-      .update({ nombre: datos.nombre })
+      .update({ nombre: datos.nombre, ...extra })
       .eq('id', datos.id)
       .eq('entrenador_id', entrenadorId)
       .select('*')
@@ -83,7 +103,7 @@ export async function guardarCliente(
 
   const { data, error } = await supabase
     .from('bcs_clientes')
-    .insert({ entrenador_id: entrenadorId, nombre: datos.nombre })
+    .insert({ entrenador_id: entrenadorId, nombre: datos.nombre, ...extra })
     .select('*')
     .single();
   if (error || !data) return null;

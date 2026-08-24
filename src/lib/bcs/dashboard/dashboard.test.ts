@@ -26,6 +26,8 @@ function cliente(over: Partial<Cliente> & { id: string; nombre: string }): Clien
     created_at: "2026-01-15T10:00:00Z",
     sexo: null,
     fecha_nacimiento: null,
+    rangos_dispositivo: null,
+    dispositivo_referencia: null,
     ...over,
   };
 }

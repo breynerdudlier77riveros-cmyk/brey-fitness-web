@@ -37,6 +37,7 @@ import {
   revocarEnlace,
 } from "@/lib/bcs/repository";
 import type { Cliente, Medicion, EnlacePublico } from "@/lib/bcs/tipos";
+import { CAPTURABLES, type RangosDispositivo } from "@/lib/bcs/rangos-dispositivo";
 import type { ActionResult } from "@/lib/types";
 
 /**
@@ -52,6 +53,46 @@ import type { ActionResult } from "@/lib/types";
 export interface IdentidadCliente {
   sexo?: Cliente["sexo"];
   fechaNacimiento?: string | null;
+}
+
+/**
+ * Rangos de referencia del aparato, transcritos de la hoja del cliente.
+ *
+ * NO son identidad, y por eso van en su propio parámetro: son la escala que
+ * imprime un modelo concreto de analizador. Se guardan en el Cliente porque
+ * dependen de su talla y su sexo —no cambian entre mediciones— y porque no
+ * existe ninguna tabla global de la que sacarlos (ver `rangos-dispositivo`).
+ *
+ * Omitir una clave es «no la toques»; `null` es «bórrala». Misma regla que la
+ * identidad, y por el mismo motivo: guardar desde una pantalla que no los
+ * pregunta no puede borrarlos en silencio.
+ */
+export interface ReferenciaDispositivo {
+  rangosDispositivo?: RangosDispositivo | null;
+  dispositivoReferencia?: string | null;
+}
+
+/** Los ids que el formulario puede enviar. Cualquier otro se rechaza. */
+const IDS_CAPTURABLES = new Set<string>(CAPTURABLES.map((c) => c.id));
+
+/**
+ * Rangos utilizables, o el código de por qué no lo son.
+ *
+ * Un rango invertido o con un número imposible NO se corrige ni se descarta en
+ * silencio: se devuelve error. Vendría de un desliz al copiar de la hoja, y un
+ * rango silenciosamente eliminado deja al informe sin barra sin que nadie
+ * sepa por qué.
+ */
+function validarRangos(rangos: RangosDispositivo | null | undefined): string | null {
+  if (rangos === undefined || rangos === null) return null;
+  for (const [id, r] of Object.entries(rangos)) {
+    if (!IDS_CAPTURABLES.has(id)) return "RANGO_VARIABLE_DESCONOCIDA";
+    if (!r) return "RANGO_INCOMPLETO";
+    if (!Number.isFinite(r.min) || !Number.isFinite(r.max)) return "RANGO_INCOMPLETO";
+    if (r.min < 0) return "RANGO_NEGATIVO";
+    if (!(r.max > r.min)) return "RANGO_INVERTIDO";
+  }
+  return null;
 }
 
 /** Fecha de nacimiento utilizable, o el código de por qué no lo es. */
@@ -72,6 +113,7 @@ const hoy = (): string => new Date().toISOString().slice(0, 10);
 export async function crearCliente(
   nombre: string,
   identidad: IdentidadCliente = {},
+  referencia: ReferenciaDispositivo = {},
 ): Promise<ActionResult<Cliente>> {
   const user = await getUser();
   if (!user) return { ok: false, error: "NO_AUTENTICADO" };
@@ -79,6 +121,8 @@ export async function crearCliente(
 
   const fallo = validarNacimiento(identidad.fechaNacimiento, hoy());
   if (fallo) return { ok: false, error: fallo };
+  const falloRango = validarRangos(referencia.rangosDispositivo);
+  if (falloRango) return { ok: false, error: falloRango };
 
   const supabase = await createClient();
   const cliente = await guardarCliente(supabase, user.id, {
@@ -86,6 +130,12 @@ export async function crearCliente(
     ...(identidad.sexo !== undefined ? { sexo: identidad.sexo } : {}),
     ...(identidad.fechaNacimiento !== undefined
       ? { fecha_nacimiento: identidad.fechaNacimiento || null }
+      : {}),
+    ...(referencia.rangosDispositivo !== undefined
+      ? { rangos_dispositivo: referencia.rangosDispositivo }
+      : {}),
+    ...(referencia.dispositivoReferencia !== undefined
+      ? { dispositivo_referencia: referencia.dispositivoReferencia || null }
       : {}),
   });
   if (!cliente) return { ok: false, error: "CLIENTE_NO_CREADO" };
@@ -97,6 +147,7 @@ export async function editarCliente(
   id: string,
   nombre: string,
   identidad: IdentidadCliente = {},
+  referencia: ReferenciaDispositivo = {},
 ): Promise<ActionResult<Cliente>> {
   const user = await getUser();
   if (!user) return { ok: false, error: "NO_AUTENTICADO" };
@@ -104,6 +155,8 @@ export async function editarCliente(
 
   const fallo = validarNacimiento(identidad.fechaNacimiento, hoy());
   if (fallo) return { ok: false, error: fallo };
+  const falloRango = validarRangos(referencia.rangosDispositivo);
+  if (falloRango) return { ok: false, error: falloRango };
 
   const supabase = await createClient();
   // La existencia + propiedad la resuelve la RLS: si no es su Cliente, la
@@ -117,6 +170,12 @@ export async function editarCliente(
     ...(identidad.sexo !== undefined ? { sexo: identidad.sexo } : {}),
     ...(identidad.fechaNacimiento !== undefined
       ? { fecha_nacimiento: identidad.fechaNacimiento || null }
+      : {}),
+    ...(referencia.rangosDispositivo !== undefined
+      ? { rangos_dispositivo: referencia.rangosDispositivo }
+      : {}),
+    ...(referencia.dispositivoReferencia !== undefined
+      ? { dispositivo_referencia: referencia.dispositivoReferencia || null }
       : {}),
   });
   if (!cliente) return { ok: false, error: "CLIENTE_NO_ACTUALIZADO" };

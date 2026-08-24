@@ -39,6 +39,8 @@ const CLIENTE: ClienteDelReporte = {
   // clientes registrados, y el copiloto tiene que redactar bien con él.
   sexo: null,
   fecha_nacimiento: null,
+  rangos_dispositivo: null,
+  dispositivo_referencia: null,
 };
 
 function entrada(mediciones: Medicion[], profesional?: string): EntradaCopilot {

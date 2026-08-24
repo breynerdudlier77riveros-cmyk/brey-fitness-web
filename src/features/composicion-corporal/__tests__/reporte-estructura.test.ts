@@ -40,6 +40,14 @@ const CLIENTE: ClienteDelReporte = {
   estado: "activo",
   sexo: "F",
   fecha_nacimiento: "1994-03-10",
+  // Con rangos del aparato: es el caso que sí dibuja banda, y el fixture debe
+  // ejercitarlo o el componente nuevo no lo prueba nadie.
+  rangos_dispositivo: {
+    grasa_pct: { min: 18, max: 28 },
+    proteina_kg: { min: 7.6, max: 9.3 },
+    agua_total_l: { min: 28.1, max: 34.4 },
+  },
+  dispositivo_referencia: "InBody 770",
 };
 
 function medicion(over: Partial<Medicion> & { id: string; fecha: string }): Medicion {
@@ -428,5 +436,58 @@ describe("qué hacer se organiza por objetivo, no se deduce de una cifra", () =>
       html.indexOf("Historial de mediciones"),
     );
     expect(seccion).not.toMatch(/tu (grasa|peso|músculo) es (alto|alta|bajo|baja|excesiv)/i);
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// LA BANDA DEL APARATO (Sprint BCS-13)
+// ════════════════════════════════════════════════════════════════════════════
+//
+// La gráfica que el profesional llevaba tres sprints pidiendo, y la razón por
+// la que no podía darse antes: los rangos que imprime un analizador no son
+// percentiles de ninguna población, son una fórmula sobre la talla. Dibujar el
+// eje es admisible; poner encima la palabra «Normal» no lo es.
+
+describe("cada variable con rango capturado dibuja su banda", () => {
+  const html = render(SERIE);
+
+  it("CONTROL POSITIVO · el fixture trae rangos, o esto no probaría nada", () => {
+    expect(Object.keys(CLIENTE.rangos_dispositivo ?? {}).length).toBeGreaterThan(0);
+  });
+
+  it("sitúa dentro y fuera del intervalo, sin colapsar los dos casos", () => {
+    // % graso 25,6 en 18–28 cae dentro; agua total 34,9 en 28,1–34,4 no.
+    expect(html).toContain('data-banda="dentro"');
+    expect(html).toContain('data-banda="por_encima"');
+  });
+
+  it("escribe los dos números del fabricante, no solo el marcador", () => {
+    expect(html).toContain("18–28");
+  });
+
+  it("nombra el aparato y avisa de que su intervalo no es un percentil", () => {
+    expect(html).toContain("InBody 770");
+    expect(html).toContain("no es un percentil");
+  });
+
+  it("y NO pone una etiqueta de mérito sobre la barra", () => {
+    // Las tres frases posibles, tal como salen del dominio. Si alguien añade
+    // un adjetivo, deja de coincidir la comprobación de `rangos-dispositivo`
+    // y esta enseña que el cambio llegó hasta el informe servido.
+    const dentro = "cae dentro del intervalo que tu aparato imprime para ti";
+    expect(html).toContain(dentro);
+    expect(html).not.toMatch(/intervalo normal|rango normal|dentro de lo normal/i);
+  });
+
+  it("sin rangos capturados no dibuja banda: no la inventa con una fórmula", () => {
+    // La fórmula del aparato se dedujo y está documentada, pero solo pudo
+    // comprobarse contra una hoja de varón. Aplicarla a quien no la tenga
+    // capturada daría catorce intervalos plausibles y equivocados.
+    const reporte = construirReporte({ ...CLIENTE, rangos_dispositivo: null }, [
+      completa("s1", "2026-08-01", 63.4, 23.3, 25.6, 25.8),
+    ])!;
+    const filas = reporte.ficha.flatMap((b) => b.filas);
+    expect(filas.length).toBeGreaterThan(4);
+    expect(filas.every((f) => f.posicionBanda === null)).toBe(true);
   });
 });

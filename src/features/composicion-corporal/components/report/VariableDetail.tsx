@@ -1,6 +1,7 @@
 import LineChart from "./LineChart";
 import ProcedenciaTexto from "./Procedencia";
 import NormPosition from "./NormPosition";
+import DeviceBand from "./DeviceBand";
 import { significadoDe } from "@/lib/bcs/significados";
 import type { FilaVariable, SerieTendencia } from "@/lib/bcs/reporte";
 
@@ -45,6 +46,8 @@ interface Props {
   fila: FilaVariable;
   /** La serie de ESTA variable, si el dominio la construyó. */
   serie?: SerieTendencia;
+  /** Modelo del aparato del que salió la banda. Se nombra en ella. */
+  dispositivo?: string | null;
 }
 
 /** Rótulo interno del panel. */
@@ -59,14 +62,15 @@ function Bloque({ titulo, children }: { titulo: string; children: React.ReactNod
   );
 }
 
-export default function VariableDetail({ fila, serie }: Props) {
+export default function VariableDetail({ fila, serie, dispositivo }: Props) {
   const info = significadoDe(fila.id);
 
   // Sin descripción y sin serie no hay panel que abrir: el desplegable
   // quedaría vacío y un control que no lleva a ninguna parte es peor que su
   // ausencia.
   const haySerie = serie !== undefined && serie.puntos.length >= 2;
-  if (info === null && !haySerie && fila.bloqueoClasificacion === null) return null;
+  if (info === null && !haySerie && fila.bloqueoClasificacion === null && fila.posicionBanda === null)
+    return null;
 
   return (
     <details className="bcs-variable group mt-1">
@@ -98,6 +102,17 @@ export default function VariableDetail({ fila, serie }: Props) {
 
         {/* La clasificación, cuando existe. Hoy solo el IMC la tiene, y su
             texto viene del dominio con el aviso poblacional incluido. */}
+        {fila.posicionBanda ? (
+          <Bloque titulo="Dónde cae según tu aparato">
+            <DeviceBand
+              posicion={fila.posicionBanda}
+              valor={fila.valor}
+              unidad={fila.unidad}
+              dispositivo={dispositivo ?? null}
+            />
+          </Bloque>
+        ) : null}
+
         {fila.posicionNormativa ? (
           <Bloque titulo="Dónde cae, comparado con población">
             <NormPosition

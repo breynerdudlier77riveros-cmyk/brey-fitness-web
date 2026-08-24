@@ -53,6 +53,11 @@
 import type { Cliente, Medicion } from '@/lib/bcs/tipos';
 import { bloqueoDe, sujetoDe, type SujetoBCS } from '@/lib/bcs/identidad';
 import { situarEnNorma, type PosicionNormativa } from '@/lib/bcs/posicion-normativa';
+import {
+  situarEnBanda,
+  type PosicionBanda,
+  type RangosDispositivo,
+} from '@/lib/bcs/rangos-dispositivo';
 
 // ── Catálogo de variables ──────────────────────────────────────────────────
 
@@ -210,6 +215,17 @@ export interface FilaVariable {
    * percentil en una etiqueta que nadie publicó.
    */
   posicionNormativa: PosicionNormativa | null;
+  /**
+   * Dónde cae el valor en la banda que el aparato imprime para este cliente
+   * (BCS-13). Es un TERCER eje, distinto de los otros dos:
+   *
+   *   `clasificacion`      → bandas del IMC, categorías que la fuente define
+   *   `posicionNormativa`  → percentil dentro de una población publicada
+   *   `posicionBanda`      → distancia a un valor calculado desde su talla
+   *
+   * No se mezclan. El tercero no es un percentil y se dice así en cada barra.
+   */
+  posicionBanda: PosicionBanda | null;
 }
 
 export interface BloqueCategoria {
@@ -218,7 +234,11 @@ export interface BloqueCategoria {
   filas: FilaVariable[];
 }
 
-export function construirFicha(medicion: Medicion, sujeto: SujetoBCS): BloqueCategoria[] {
+export function construirFicha(
+  medicion: Medicion,
+  sujeto: SujetoBCS,
+  rangos: RangosDispositivo | null = null,
+): BloqueCategoria[] {
   return CATEGORIAS.map(({ id: categoria, etiqueta }) => {
     const filas: FilaVariable[] = ORDEN_VARIABLES
       .filter((id) => CATALOGO[id].categoria === categoria)
@@ -227,6 +247,7 @@ export function construirFicha(medicion: Medicion, sujeto: SujetoBCS): BloqueCat
         if (valor === null || valor === undefined) return acc; // R6/DS-09: ausente ≠ cero — se omite, nunca placeholder "—"
         const def = CATALOGO[id];
         const posicionNormativa = situarEnNorma(id, valor, sujeto, medicion.fecha);
+        const posicionBanda = situarEnBanda(id, valor, rangos);
         // Una variable con norma cargada ya no está «bloqueada»: su motivo, si
         // lo tiene, lo da la propia norma —falta el sexo, la celda no se
         // sostiene— y es más preciso que el bloqueo genérico del catálogo.
@@ -243,6 +264,7 @@ export function construirFicha(medicion: Medicion, sujeto: SujetoBCS): BloqueCat
             ? posicionNormativa.detalleMotivo
             : (bloqueoDe(id, sujeto, medicion)?.detalle ?? null),
           posicionNormativa: posicionNormativa.posicion === null ? null : posicionNormativa,
+          posicionBanda,
         });
         return acc;
       }, []);
@@ -379,7 +401,16 @@ export function calcularAdvertencias(m: Medicion): AdvertenciaValidacion[] {
  */
 export type ClienteDelReporte = Pick<
   Cliente,
-  'id' | 'nombre' | 'estado' | 'sexo' | 'fecha_nacimiento'
+  | 'id'
+  | 'nombre'
+  | 'estado'
+  | 'sexo'
+  | 'fecha_nacimiento'
+  // Los rangos del aparato entran aquí porque son lo que permite dibujar la
+  // banda de cada variable, y viven en el cliente: el analizador los calcula
+  // desde su talla y su sexo, así que son suyos y no de una población.
+  | 'rangos_dispositivo'
+  | 'dispositivo_referencia'
 >;
 
 export interface Reporte {
@@ -415,7 +446,7 @@ export function construirReporte(
     medicionActual,
     medicionAnterior,
     resumenEjecutivo: construirResumenEjecutivo(medicionActual, medicionAnterior),
-    ficha: construirFicha(medicionActual, sujeto),
+    ficha: construirFicha(medicionActual, sujeto, cliente.rangos_dispositivo),
     comparacion: medicionAnterior ? construirComparacion(medicionActual, medicionAnterior) : null,
     historico: historicoVigenteDesc,
     tendencias: construirTendencias(historicoVigenteDesc),

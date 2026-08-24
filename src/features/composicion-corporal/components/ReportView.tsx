@@ -169,11 +169,16 @@ export default function ReportView({
               analisis={analisis}
               filas={filas}
               tendencias={tendencias}
+              dispositivo={cliente.dispositivo_referencia ?? null}
             />
           </Sub>
 
           <Sub titulo="Todas las variables registradas">
-            <BodyAnalysisSection ficha={ficha} tendencias={tendencias} />
+            <BodyAnalysisSection
+              ficha={ficha}
+              tendencias={tendencias}
+              dispositivo={cliente.dispositivo_referencia ?? null}
+            />
           </Sub>
 
           {medicionActual.imc !== null && (

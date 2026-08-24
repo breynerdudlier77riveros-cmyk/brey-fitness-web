@@ -34,6 +34,8 @@ interface Props {
    * Opcional: sin ellas los paneles se abren igual y no muestran gráfica.
    */
   tendencias?: readonly SerieTendencia[];
+  /** Modelo del aparato cuyos rangos se capturaron. Se nombra en cada barra. */
+  dispositivo?: string | null;
 }
 
 export default function IndicatorGrid({
@@ -41,6 +43,7 @@ export default function IndicatorGrid({
   analisis,
   filas,
   tendencias = [],
+  dispositivo = null,
 }: Props) {
   const porVariable = new Map(filas.map((f) => [f.id, f]));
   const serieDe = new Map(tendencias.map((t) => [t.id, t]));
@@ -68,7 +71,11 @@ export default function IndicatorGrid({
             tendencia={analisis.tendencias.find((t) => t.variable === id)}
             clasificacion={clasificacion}
             fecha={medicionActual.fecha}
-            detalle={fila ? <VariablePanel fila={fila} serie={serieDe.get(id)} /> : undefined}
+            detalle={
+              fila ? (
+                <VariablePanel fila={fila} serie={serieDe.get(id)} dispositivo={dispositivo} />
+              ) : undefined
+            }
           />
         );
       })}

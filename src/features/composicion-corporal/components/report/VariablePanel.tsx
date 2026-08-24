@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/b
 import LineChart from "./LineChart";
 import ProcedenciaTexto from "./Procedencia";
 import NormPosition from "./NormPosition";
+import DeviceBand from "./DeviceBand";
 import { formatearValor } from "./formato";
 import { significadoDe } from "@/lib/bcs/significados";
 import type { FilaVariable, SerieTendencia } from "@/lib/bcs/reporte";
@@ -37,6 +38,8 @@ import type { FilaVariable, SerieTendencia } from "@/lib/bcs/reporte";
 interface Props {
   fila: FilaVariable;
   serie?: SerieTendencia;
+  /** Modelo del aparato del que salió la banda. Se nombra en ella. */
+  dispositivo?: string | null;
 }
 
 function Bloque({ titulo, children }: { titulo: string; children: React.ReactNode }) {
@@ -50,12 +53,13 @@ function Bloque({ titulo, children }: { titulo: string; children: React.ReactNod
   );
 }
 
-export default function VariablePanel({ fila, serie }: Props) {
+export default function VariablePanel({ fila, serie, dispositivo }: Props) {
   const [abierto, setAbierto] = useState(false);
   const info = significadoDe(fila.id);
 
   const haySerie = serie !== undefined && serie.puntos.length >= 2;
-  if (info === null && !haySerie && fila.bloqueoClasificacion === null) return null;
+  if (info === null && !haySerie && fila.bloqueoClasificacion === null && fila.posicionBanda === null)
+    return null;
 
   return (
     <>
@@ -98,6 +102,17 @@ export default function VariablePanel({ fila, serie }: Props) {
             {info ? (
               <Bloque titulo="Cómo se lee">
                 <p className="text-sm leading-relaxed text-white/70">{info.lectura}</p>
+              </Bloque>
+            ) : null}
+
+            {fila.posicionBanda ? (
+              <Bloque titulo="Dónde cae según tu aparato">
+                <DeviceBand
+                  posicion={fila.posicionBanda}
+                  valor={fila.valor}
+                  unidad={fila.unidad}
+                  dispositivo={dispositivo ?? null}
+                />
               </Bloque>
             ) : null}
 

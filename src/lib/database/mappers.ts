@@ -133,6 +133,8 @@ export function mapCliente(row: Row): Cliente {
     // dominio espera `null` rompe cada comprobación `=== null` aguas arriba.
     sexo: (row.sexo as Cliente['sexo']) ?? null,
     fecha_nacimiento: (row.fecha_nacimiento as string | null) ?? null,
+    rangos_dispositivo: (row.rangos_dispositivo as Cliente['rangos_dispositivo']) ?? null,
+    dispositivo_referencia: (row.dispositivo_referencia as string | null) ?? null,
   };
 }
 

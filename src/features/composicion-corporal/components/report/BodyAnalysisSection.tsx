@@ -36,9 +36,15 @@ interface Props {
    * datos.
    */
   tendencias?: readonly SerieTendencia[];
+  /** Modelo del aparato cuyos rangos se capturaron. Se nombra en cada barra. */
+  dispositivo?: string | null;
 }
 
-export default function BodyAnalysisSection({ ficha, tendencias = [] }: Props) {
+export default function BodyAnalysisSection({
+  ficha,
+  tendencias = [],
+  dispositivo = null,
+}: Props) {
   const bloques = ficha.filter((b) => b.filas.length > 0);
   const porVariable = new Map(tendencias.map((t) => [t.id, t]));
 
@@ -62,7 +68,11 @@ export default function BodyAnalysisSection({ ficha, tendencias = [] }: Props) {
                 {fila.clasificacion && (
                   <p className="text-[10px] text-white/50 mt-0.5">{fila.clasificacion.etiqueta}</p>
                 )}
-                <VariableDetail fila={fila} serie={porVariable.get(fila.id)} />
+                <VariableDetail
+                  fila={fila}
+                  serie={porVariable.get(fila.id)}
+                  dispositivo={dispositivo}
+                />
               </div>
             ))}
           </dl>

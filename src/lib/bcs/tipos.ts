@@ -16,6 +16,8 @@ export type MedicionEstado = 'vigente' | 'anulada';
 /** Estado de la máquina de EnlacePúblico — activo → revocado (terminal, IN-28). */
 export type EnlaceEstado = 'activo' | 'revocado';
 
+import type { RangosDispositivo } from '@/lib/bcs/rangos-dispositivo';
+
 /** Sexo del Cliente. `null` = no consta, y nunca se infiere del nombre. */
 export type SexoCliente = 'M' | 'F';
 
@@ -42,6 +44,18 @@ export interface Cliente {
    * con la edad de hoy — el mismo error que el PAS cerró en G-01.
    */
   fecha_nacimiento: string | null;
+  /**
+   * Rangos de referencia transcritos de la hoja de resultados de ESTE cliente.
+   *
+   * Van en el cliente y no en una tabla global porque no existe tabla global:
+   * el aparato los calcula desde la talla y el sexo, así que son distintos
+   * para cada persona. Ver `bcs/rangos-dispositivo`.
+   *
+   * `null` = no capturados. Entonces no se dibuja banda, igual que hoy.
+   */
+  rangos_dispositivo: RangosDispositivo | null;
+  /** Modelo del que se transcribieron. Se nombra en cada barra. */
+  dispositivo_referencia: string | null;
 }
 
 /**
