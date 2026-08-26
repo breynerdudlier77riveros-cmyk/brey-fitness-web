@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import WeekGrid from "./WeekGrid";
+import VolumeChart from "./VolumeChart";
 import { ETIQUETA_BLOQUE, type Bloque, type Contenido, type Dia } from "@/lib/plantillas/tipos";
 import { seriesEnSemana, tonelajeSemana } from "@/lib/plantillas/contenido";
 
@@ -67,6 +68,8 @@ export default function SessionView({ contenido, semanas, para = null }: Props) 
       {dias.map((dia, i) => (
         <DiaSeccion key={dia.id} dia={dia} indice={i} semanas={semanas} />
       ))}
+
+      <Leyenda />
     </div>
   );
 }
@@ -136,6 +139,25 @@ function ResumenSemanal({ contenido, semanas }: { contenido: Contenido; semanas:
           </tbody>
         </table>
       </div>
+
+      {/* La gráfica va DEBAJO de la tabla, no en vez de ella. La tabla da la
+          cifra exacta y la gráfica da la forma —si sube, se mantiene o
+          descarga—, que es lo que no se ve en una columna de números. Es
+          además la vista de datos que cualquier gráfico necesita para ser
+          accesible, aquí siempre presente y no escondida tras un botón. */}
+      {hayTonelaje ? (
+        <VolumeChart
+          valores={filas.map((f) => f.kg)}
+          titulo="Tonelaje por semana"
+          unidad="kg"
+        />
+      ) : (
+        <VolumeChart
+          valores={filas.map((f) => f.series)}
+          titulo="Series por semana"
+          unidad="series"
+        />
+      )}
 
       {hayTonelaje && incompletas > 0 && (
         <p className="mt-3 text-[11px] leading-relaxed text-white/35">
@@ -209,8 +231,14 @@ function BloqueSeccion({ bloque, semanas }: { bloque: Bloque; semanas: number })
               </h4>
 
               {ejercicio.descansoSeg !== null && (
-                <p className="text-[11px] text-white/40">
-                  Descanso {formatearDescanso(ejercicio.descansoSeg)}
+                // Chip y no texto corrido: el descanso es un dato que se
+                // consulta a mitad de serie, con el móvil en la mano y sin
+                // tiempo de leer una frase.
+                <p className="flex items-center gap-1.5 rounded-full border border-white/[0.10] px-2.5 py-0.5 text-[11px] font-semibold text-white/55">
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-white/30">
+                    Descanso
+                  </span>
+                  {formatearDescanso(ejercicio.descansoSeg)}
                 </p>
               )}
             </div>
@@ -224,6 +252,49 @@ function BloqueSeccion({ bloque, semanas }: { bloque: Bloque; semanas: number })
         ))}
       </div>
     </div>
+  );
+}
+
+/**
+ * Qué significan las abreviaturas de las tablas.
+ *
+ * Va UNA vez al final y no repetida en cada ejercicio. Quien abre el enlace
+ * puede ser el cliente, no el entrenador: «RIR 2» no le dice nada, y sin esta
+ * frase la columna es un número sin unidad. Explicarlo en cada tabla sería
+ * ruido para quien ya lo sabe; no explicarlo en ninguna parte deja fuera a
+ * quien no.
+ */
+function Leyenda() {
+  return (
+    <section
+      aria-label="Cómo leer estas tablas"
+      className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-4 print:break-inside-avoid"
+    >
+      <h2 className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-white/35">
+        Cómo leer estas tablas
+      </h2>
+      <dl className="space-y-1.5 text-[12px] leading-relaxed text-white/50">
+        <div className="flex gap-2">
+          <dt className="w-16 flex-shrink-0 font-bold text-white/70">reps</dt>
+          <dd>Repeticiones de esa serie. Un rango («8-10») es deliberado: el margen forma parte de la indicación.</dd>
+        </div>
+        <div className="flex gap-2">
+          <dt className="w-16 flex-shrink-0 font-bold text-white/70">kg</dt>
+          <dd>Carga prescrita para esa serie.</dd>
+        </div>
+        <div className="flex gap-2">
+          <dt className="w-16 flex-shrink-0 font-bold text-white/70">RIR</dt>
+          <dd>
+            Repeticiones en reserva: cuántas más podrías haber hecho al terminar la serie. RIR 2 es
+            parar con dos en el depósito; RIR 0 es llegar al fallo.
+          </dd>
+        </div>
+        <div className="flex gap-2">
+          <dt className="w-16 flex-shrink-0 font-bold text-white/70">·</dt>
+          <dd>No prescrito. No es un cero: es que ese dato se deja a tu criterio.</dd>
+        </div>
+      </dl>
+    </section>
   );
 }
 

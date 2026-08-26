@@ -338,6 +338,39 @@ body {
     position: static !important;
   }
 
+  /* ── Lo que la neutralización de fondos se llevaría por delante ─────────
+     La regla que pasa todos los `bg-white/x` a transparente es correcta —en
+     papel un fondo translúcido sobre blanco no es nada— pero se lleva también
+     las bandas que agrupan cada semana, que sobre papel hacen MÁS falta que en
+     pantalla: no hay scroll ni cursor con el que seguir la columna. */
+  .hoja-print [data-banda] {
+    background-color: #f1f5f9 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* El hueco de un dato no prescrito tiene que SEGUIR pareciendo un hueco. La
+     regla general pasa toda la tinta a #0f172a, y con ella el punto tenue se
+     imprimiría tan negro como una cifra real. */
+  .hoja-print [data-vacio] {
+    color: #cbd5e1 !important;
+  }
+
+  /* Las barras del gráfico llevan su color en `fill`, no en `background`, así
+     que sobreviven a la neutralización; lo que hay que forzar es que el
+     navegador no las omita al imprimir. */
+  .hoja-print [class*="fill-orange"] {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* La rejilla de semanas gana una línea fina de separación: en pantalla la
+     agrupación la dan el fondo y el espacio, y sobre papel el fondo pierde
+     contraste. */
+  .hoja-print thead th {
+    border-bottom: 1px solid #cbd5e1;
+  }
+
   .hoja-print table {
     break-inside: auto;
   }

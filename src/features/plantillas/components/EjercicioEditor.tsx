@@ -55,6 +55,31 @@ function aNumero(texto: string): number | null {
 
 const deNumero = (v: number | null): string => (v === null ? "" : String(v).replace(".", ","));
 
+// ── El descanso se teclea en minutos Y segundos ────────────────────────────
+//
+// Antes era una sola casilla rotulada «Descanso (s)», y el resultado fue
+// exactamente el previsible: un entrenador escribió «3» pensando en tres
+// minutos y el sistema guardó tres SEGUNDOS de descanso entre series de press
+// de banca, sin decir nada.
+//
+// La culpa no es de quien escribe: nadie prescribe descansos en segundos
+// —se dice «dos minutos», «minuto y medio»— y una casilla que pide la unidad
+// menos natural y no la enseña al lado está pidiendo el error.
+//
+// Dos casillas con su unidad escrita no admiten esa confusión. Se sigue
+// guardando en segundos, que es la unidad sin ambigüedad para la máquina.
+
+const minutosDe = (seg: number | null): string => (seg === null ? "" : String(Math.floor(seg / 60)));
+const segundosDe = (seg: number | null): string => (seg === null ? "" : String(seg % 60));
+
+/** Los dos campos, a segundos. Ambos vacíos = no hay descanso prescrito. */
+function aSegundos(min: string, seg: string): number | null {
+  const m = aNumero(min);
+  const s = aNumero(seg);
+  if (m === null && s === null) return null;
+  return Math.max(0, Math.round((m ?? 0) * 60 + (s ?? 0)));
+}
+
 export default function EjercicioEditor({
   ejercicio,
   semana,
@@ -82,7 +107,7 @@ export default function EjercicioEditor({
             className="py-2 text-sm font-semibold"
           />
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Input
               value={ejercicio.notas ?? ""}
               placeholder="Nota (tempo, ejecución, señal…)"
@@ -90,14 +115,69 @@ export default function EjercicioEditor({
               onChange={(e) => onCampo({ notas: e.target.value.trim() === "" ? null : e.target.value })}
               className="min-w-40 flex-1 py-1.5 text-xs"
             />
-            <Input
-              value={ejercicio.descansoSeg === null ? "" : String(ejercicio.descansoSeg)}
-              inputMode="numeric"
-              placeholder="Descanso (s)"
-              aria-label={`Descanso en segundos de ${ejercicio.nombre || "el ejercicio"}`}
-              onChange={(e) => onCampo({ descansoSeg: aNumero(e.target.value) })}
-              className="w-32 py-1.5 text-xs"
-            />
+
+            <div className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] px-2 py-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-white/30">
+                Descanso
+              </span>
+              <Input
+                value={minutosDe(ejercicio.descansoSeg)}
+                inputMode="numeric"
+                placeholder="0"
+                aria-label={`Minutos de descanso de ${ejercicio.nombre || "el ejercicio"}`}
+                onChange={(e) =>
+                  onCampo({
+                    descansoSeg: aSegundos(e.target.value, segundosDe(ejercicio.descansoSeg)),
+                  })
+                }
+                className="w-11 px-1 py-1 text-center text-xs tabular-nums"
+              />
+              <span className="text-[11px] text-white/40">min</span>
+              <Input
+                value={segundosDe(ejercicio.descansoSeg)}
+                inputMode="numeric"
+                placeholder="0"
+                aria-label={`Segundos de descanso de ${ejercicio.nombre || "el ejercicio"}`}
+                onChange={(e) =>
+                  onCampo({
+                    descansoSeg: aSegundos(minutosDe(ejercicio.descansoSeg), e.target.value),
+                  })
+                }
+                className="w-11 px-1 py-1 text-center text-xs tabular-nums"
+              />
+              <span className="text-[11px] text-white/40">s</span>
+            </div>
+          </div>
+
+          {/* Atajos: el descanso casi siempre es uno de estos cuatro, y
+              teclear «2» y «0» en dos casillas para lo más común es fricción
+              que no aporta nada. */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="text-[10px] uppercase tracking-wider text-white/25">Rápido</span>
+            {[60, 90, 120, 180].map((seg) => (
+              <button
+                key={seg}
+                type="button"
+                onClick={() => onCampo({ descansoSeg: seg })}
+                aria-pressed={ejercicio.descansoSeg === seg}
+                className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold transition-colors ${
+                  ejercicio.descansoSeg === seg
+                    ? "border-orange-500/40 bg-orange-500/10 text-orange-200"
+                    : "border-white/[0.08] text-white/40 hover:border-white/25 hover:text-white"
+                }`}
+              >
+                {seg % 60 === 0 ? `${seg / 60} min` : `${Math.floor(seg / 60)}:${seg % 60}`}
+              </button>
+            ))}
+            {ejercicio.descansoSeg !== null && (
+              <button
+                type="button"
+                onClick={() => onCampo({ descansoSeg: null })}
+                className="text-[10px] text-white/25 underline underline-offset-2 hover:text-white/50"
+              >
+                sin descanso prescrito
+              </button>
+            )}
           </div>
         </div>
 

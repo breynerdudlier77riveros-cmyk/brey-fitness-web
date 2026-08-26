@@ -131,6 +131,105 @@ describe('el tema de impresión viaja con el documento', () => {
   });
 });
 
+describe('el RIR está siempre, aunque no se haya rellenado ninguno', () => {
+  // EL FALLO: la columna solo se pintaba si alguna serie traía un RIR. Un
+  // entrenador que no había escrito ninguno no veía la columna y concluyó
+  // —con razón— que el sistema no tenía RIR. Una casilla que se esconde
+  // cuando está vacía no se puede rellenar nunca.
+  const sinRir = plantilla();
+  const ejercicio = sinRir.contenido.dias[0].bloques[0].ejercicios[0];
+  ejercicio.semanas = ejercicio.semanas.map((s) => ({
+    series: s.series.map((x) => ({ ...x, rir: null })),
+  }));
+
+  const html = renderToStaticMarkup(
+    createElement(SessionView, { contenido: sinRir.contenido, semanas: SEMANAS }),
+  );
+
+  it('CONTROL POSITIVO · el fixture no trae ni un RIR', () => {
+    const rires = sinRir.contenido.dias[0].bloques[0].ejercicios[0].semanas.flatMap((s) =>
+      s.series.map((x) => x.rir),
+    );
+    expect(rires.every((r) => r === null)).toBe(true);
+  });
+
+  it('la columna RIR se pinta igual', () => {
+    expect(html).toContain('>RIR<');
+  });
+
+  it('y las tres columnas van siempre, para que las tablas no queden desalineadas', () => {
+    expect(html).toContain('>reps<');
+    expect(html).toContain('>kg<');
+  });
+
+  it('el hueco es un punto, nunca un cero', () => {
+    // Un cero se leería como una indicación que nadie escribió.
+    expect(html).toContain('data-vacio');
+  });
+
+  it('y el documento explica qué es un RIR, para quien no lo sepa', () => {
+    // Quien abre el enlace puede ser el cliente, no el entrenador.
+    expect(html).toContain('Repeticiones en reserva');
+    expect(html).toContain('Cómo leer estas tablas');
+  });
+});
+
+describe('la gráfica de volumen', () => {
+  it('dibuja una barra por semana, con su valor escrito', () => {
+    const html = renderToStaticMarkup(
+      createElement(SessionView, { contenido: plantilla().contenido, semanas: SEMANAS }),
+    );
+    expect(html).toContain('Tonelaje por semana');
+    expect(html).toMatch(/<svg[^>]*role="img"/);
+    // El texto alternativo lleva la lectura completa: un lector de pantalla
+    // no recorre una rejilla de rectángulos.
+    expect(html).toMatch(/aria-label="Tonelaje por semana\. Semana 1: \d+ kg/);
+  });
+
+  it('sin ninguna carga prescrita cae a series, en vez de pintar ceros', () => {
+    // Un gráfico de barras a cero con sus números encima parece roto, y lo
+    // que diría ya lo dice la tabla.
+    const sinCarga = plantilla();
+    const e = sinCarga.contenido.dias[0].bloques[0].ejercicios[0];
+    e.semanas = e.semanas.map((s) => ({ series: s.series.map((x) => ({ ...x, pesoKg: null })) }));
+
+    const html = renderToStaticMarkup(
+      createElement(SessionView, { contenido: sinCarga.contenido, semanas: SEMANAS }),
+    );
+    expect(html).toContain('Series por semana');
+    expect(html).not.toContain('Tonelaje por semana');
+  });
+
+  it('no deforma los números: el lienzo escala en proporción', () => {
+    // `preserveAspectRatio="none"` estiraría las letras de los valores.
+    const html = renderToStaticMarkup(
+      createElement(SessionView, { contenido: plantilla().contenido, semanas: SEMANAS }),
+    );
+    expect(html).not.toContain('preserveAspectRatio="none"');
+  });
+});
+
+describe('el descanso', () => {
+  it('se escribe en minutos y segundos, no en segundos crudos', () => {
+    // El campo pedía segundos y alguien escribió «3» pensando en minutos: se
+    // guardaron TRES SEGUNDOS de descanso entre series de press de banca.
+    const conDescanso = plantilla();
+    conDescanso.contenido.dias[0].bloques[0].ejercicios[0].descansoSeg = 150;
+
+    const html = renderToStaticMarkup(
+      createElement(SessionView, { contenido: conDescanso.contenido, semanas: SEMANAS }),
+    );
+    expect(html).toContain('2 min 30 s');
+  });
+
+  it('sin descanso prescrito no se inventa uno', () => {
+    const html = renderToStaticMarkup(
+      createElement(SessionView, { contenido: plantilla().contenido, semanas: SEMANAS }),
+    );
+    expect(html).not.toContain('Descanso');
+  });
+});
+
 describe('la rejilla de semanas no se recorta en papel', () => {
   const solo = renderToStaticMarkup(
     createElement(SessionView, { contenido: plantilla().contenido, semanas: SEMANAS }),
