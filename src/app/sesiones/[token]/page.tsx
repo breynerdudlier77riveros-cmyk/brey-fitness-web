@@ -4,6 +4,7 @@ import { obtenerPlantillaPublica } from "@/lib/plantillas/actions-publico";
 import SessionView from "@/features/plantillas/components/SessionView";
 import { Cycle } from "@/components/brand/icons";
 import AccionesSesion from "./AccionesSesion";
+import PreguntarPlan from "@/features/plantillas/components/PreguntarPlan";
 
 interface Props {
   params: Promise<{ token: string }>;
@@ -83,6 +84,8 @@ export default async function SesionPublicaPage({ params }: Props) {
           semanas={plantilla.semanas}
           para={plantilla.para}
         />
+
+        <PreguntarPlan token={token} />
 
         {/* Solo lectura, y se dice. Quien abre esto puede pensar que va a
             poder marcar series hechas; que no pueda no es un fallo, pero

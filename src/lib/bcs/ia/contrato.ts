@@ -122,14 +122,3 @@ informe. No inventes referencias: si no sabes de dónde sale algo, no lo digas.
 Habla en segunda persona si la pregunta la hace el cliente sobre su propio
 cuerpo, y en tercera si es el profesional preguntando por su cliente. El
 contexto te dirá cuál.`;
-
-/**
- * Techo de la respuesta.
- *
- * Subido de 2048 cuando el profesional pidió poder profundizar. El techo bajo
- * no acortaba las respuestas —de eso se encarga el contrato— sino que cortaba
- * a media frase las que sí debían ser largas, y una respuesta truncada se
- * descarta entera. Con el hilo de conversación encima, «desarróllame eso»
- * necesita sitio donde caber.
- */
-export const MAX_TOKENS = 4096;

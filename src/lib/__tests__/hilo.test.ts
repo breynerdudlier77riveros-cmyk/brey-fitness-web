@@ -17,8 +17,8 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { construirTurnos, MAX_TURNO, MAX_TURNOS } from '../ia/hilo';
-import type { Turno } from '../ia/proveedor';
+import { construirTurnos, MAX_TURNO, MAX_TURNOS } from '@/lib/ia/hilo';
+import type { Turno } from '@/lib/ia/proveedor';
 
 const INFORME = '# Informe de composición corporal\nLecturas y límites.';
 

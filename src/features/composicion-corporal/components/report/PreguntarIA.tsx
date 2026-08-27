@@ -4,7 +4,7 @@ import { useState } from "react";
 import Button from "@/components/brand/Button";
 import { Spinner } from "@/components/brand/icons";
 import { preguntarABreyIA, type RespuestaIA } from "@/lib/bcs/ia/preguntar";
-import type { Turno } from "@/lib/bcs/ia/proveedor";
+import type { Turno } from "@/lib/ia/proveedor";
 import type { EntradaContexto } from "@/lib/bcs/ia/contexto";
 
 // ── Preguntar a BREY IA (Sprint BCS-12 / BCS-15) ───────────────────────────

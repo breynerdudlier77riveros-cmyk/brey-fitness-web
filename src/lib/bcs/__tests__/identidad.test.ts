@@ -23,7 +23,7 @@ import { NORMAS, normaPara } from '../normas';
 import { advertenciaDe, poblacionDe, redactarPosicion, situarEnNorma } from '../posicion-normativa';
 import { construirContexto } from '../ia/contexto';
 import { SISTEMA } from '../ia/contrato';
-import { MODELO_POR_DEFECTO } from '../ia/proveedores/anthropic';
+import { MODELO_POR_DEFECTO } from '@/lib/ia/proveedores/anthropic';
 
 const VARON_1990: SujetoBCS = { sexo: 'M', fechaNacimiento: '1990-06-15' };
 

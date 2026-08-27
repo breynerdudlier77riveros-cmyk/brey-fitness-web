@@ -42,8 +42,7 @@
 
 import { GoogleGenAI } from '@google/genai';
 
-import { MAX_TOKENS } from '@/lib/bcs/ia/contrato';
-import type { Proveedor, ResultadoModelo } from '@/lib/bcs/ia/proveedor';
+import { MAX_TOKENS, type Proveedor, type ResultadoModelo } from '@/lib/ia/proveedor';
 
 /**
  * El modelo por defecto, elegido midiendo y no por intuición.

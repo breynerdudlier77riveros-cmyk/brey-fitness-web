@@ -15,9 +15,9 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { claveQueFalta, proveedorElegido } from '../ia/proveedor';
-import { MODELO_POR_DEFECTO, crearProveedorAnthropic } from '../ia/proveedores/anthropic';
-import { crearProveedorGemini, esReintentable } from '../ia/proveedores/gemini';
+import { claveQueFalta, proveedorElegido } from '@/lib/ia/proveedor';
+import { MODELO_POR_DEFECTO, crearProveedorAnthropic } from '@/lib/ia/proveedores/anthropic';
+import { crearProveedorGemini, esReintentable } from '@/lib/ia/proveedores/gemini';
 
 /** Un entorno de mentira, sin heredar el real: si no, el test depende de la máquina. */
 const env = (over: Record<string, string> = {}): NodeJS.ProcessEnv =>

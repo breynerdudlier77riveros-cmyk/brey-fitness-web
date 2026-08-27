@@ -45,10 +45,10 @@ import { validarTexto, type Violacion } from '@/lib/bcs/copilot';
 import { CATALOGO, type VariableId } from '@/lib/bcs/reporte';
 import { construirContexto, type EntradaContexto } from './contexto';
 import { SISTEMA } from './contrato';
-import { construirTurnos } from './hilo';
-import { claveQueFalta, proveedorElegido, type Proveedor, type Turno } from './proveedor';
-import { crearProveedorAnthropic } from './proveedores/anthropic';
-import { crearProveedorGemini } from './proveedores/gemini';
+import { construirTurnos } from '@/lib/ia/hilo';
+import { claveQueFalta, proveedorElegido, type Proveedor, type Turno } from '@/lib/ia/proveedor';
+import { crearProveedorAnthropic } from '@/lib/ia/proveedores/anthropic';
+import { crearProveedorGemini } from '@/lib/ia/proveedores/gemini';
 
 export type RespuestaIA =
   | { estado: 'ok'; texto: string; modelo: string }

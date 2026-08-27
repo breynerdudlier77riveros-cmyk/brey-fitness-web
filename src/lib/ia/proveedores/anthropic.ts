@@ -16,8 +16,7 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 
-import { MAX_TOKENS } from '@/lib/bcs/ia/contrato';
-import type { Proveedor, ResultadoModelo } from '@/lib/bcs/ia/proveedor';
+import { MAX_TOKENS, type Proveedor, type ResultadoModelo } from '@/lib/ia/proveedor';
 
 /** Un solo sitio, para que no diverja entre rutas. */
 export const MODELO_POR_DEFECTO = 'claude-opus-5';

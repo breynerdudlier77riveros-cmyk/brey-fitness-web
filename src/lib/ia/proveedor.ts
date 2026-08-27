@@ -106,3 +106,14 @@ export function claveQueFalta(
   if (proveedor === null) return 'GEMINI_API_KEY';
   return null;
 }
+
+/**
+ * Techo de la respuesta.
+ *
+ * Subido de 2048 cuando el profesional pidió poder profundizar. El techo bajo
+ * no acortaba las respuestas —de eso se encarga el contrato— sino que cortaba
+ * a media frase las que sí debían ser largas, y una respuesta truncada se
+ * descarta entera. Con el hilo de conversación encima, «desarróllame eso»
+ * necesita sitio donde caber.
+ */
+export const MAX_TOKENS = 4096;
