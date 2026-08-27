@@ -245,3 +245,78 @@ describe('la rejilla de semanas no se recorta en papel', () => {
     expect(solo).toContain('85');
   });
 });
+
+// ════════════════════════════════════════════════════════════════════════════
+// EL ENLACE AL VÍDEO, YA PINTADO
+// ════════════════════════════════════════════════════════════════════════════
+//
+// `urlDeVideo` ya se prueba sola en el dominio. Lo que se comprueba aquí es la
+// SEGUNDA puerta: que lo que llega de la base de datos se vuelva a sanear
+// antes de convertirse en un `href`.
+//
+// Que el formulario lo compruebe no basta. Una fila escrita por otra vía —una
+// importación, una consulta a mano, una versión anterior del editor— nunca
+// pasó por ese formulario, y quien pulsa el enlace es un tercero.
+
+describe('el enlace al vídeo', () => {
+  const conVideo = (url: string) => {
+    const p = plantilla();
+    p.contenido.dias[0].bloques[0].ejercicios[0].video = url;
+    return renderToStaticMarkup(
+      createElement(SessionView, { contenido: p.contenido, semanas: SEMANAS }),
+    );
+  };
+
+  it('CONTROL POSITIVO · un enlace legítimo sí se pinta', () => {
+    // Sin esto, las comprobaciones de abajo pasarían también si el enlace
+    // hubiera dejado de dibujarse por completo.
+    const html = conVideo('https://www.youtube.com/watch?v=abc123');
+    expect(html).toContain('href="https://www.youtube.com/watch?v=abc123"');
+    expect(html).toContain('Ver en YouTube');
+  });
+
+  it('abre fuera sin dejar que el destino manipule esta página', () => {
+    // Sin `noopener`, la página destino recibe una referencia a esta y puede
+    // reescribirle la dirección.
+    const html = conVideo('https://vimeo.com/123');
+    expect(html).toMatch(/rel="noopener noreferrer"/);
+    expect(html).toContain('Ver vídeo');
+  });
+
+  it('un `javascript:` guardado en la base NO llega nunca al href', () => {
+    const html = conVideo('javascript:alert(document.cookie)');
+    expect(html).not.toContain('javascript:');
+    expect(html).not.toContain('Ver vídeo');
+    expect(html).not.toContain('Ver en YouTube');
+  });
+
+  it('tampoco un `data:`', () => {
+    const html = conVideo('data:text/html,<script>alert(1)</script>');
+    expect(html).not.toContain('data:text/html');
+  });
+
+  it('sin vídeo no se pinta un enlace vacío', () => {
+    const html = renderToStaticMarkup(
+      createElement(SessionView, { contenido: plantilla().contenido, semanas: SEMANAS }),
+    );
+    expect(html).not.toContain("Ver vídeo");
+    expect(html).not.toContain("data-video");
+  });
+
+  it('una fila antigua sin la clave `video` no rompe el documento', () => {
+    // El campo se añadió después de que hubiera plantillas guardadas: esas
+    // filas llegan con `undefined`, no con `null`.
+    const p = plantilla();
+    const ejercicio = p.contenido.dias[0].bloques[0].ejercicios[0] as unknown as Record<
+      string,
+      unknown
+    >;
+    delete ejercicio.video;
+
+    const html = renderToStaticMarkup(
+      createElement(SessionView, { contenido: p.contenido, semanas: SEMANAS }),
+    );
+    expect(html).toContain(NOMBRE_EJERCICIO);
+    expect(html).not.toContain("data-video");
+  });
+});

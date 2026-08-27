@@ -84,6 +84,20 @@ export interface EjercicioPlantilla {
   slug: string | null;
   notas: string | null;
   descansoSeg: number | null;
+  /**
+   * Enlace a un vídeo del ejercicio. `null` = no hay.
+   *
+   * Cualquier URL http(s), no solo YouTube: la idea es que apunte a los
+   * vídeos propios del entrenador en cuanto los tenga, y atarlo a un
+   * proveedor obligaría a migrarlo ese día.
+   *
+   * SE SANEA AL GUARDARLO Y AL PINTARLO (`urlDeVideo`). Este enlace acaba
+   * dentro de un `href` que abre un tercero desde la página pública, y un
+   * `javascript:` guardado aquí se ejecutaría en su navegador. Que el
+   * formulario ya lo compruebe no basta: lo que llega de la base de datos se
+   * vuelve a comprobar antes de pintarlo.
+   */
+  video: string | null;
   /** Una entrada por semana. Su longitud SIEMPRE es `plantilla.semanas`. */
   semanas: SemanaEjercicio[];
 }

@@ -357,6 +357,16 @@ export function Download(props: IconProps) {
   );
 }
 
+/** Triángulo de reproducción en un círculo — enlace al vídeo de un ejercicio. */
+export function Play(props: IconProps) {
+  return (
+    <StrokeIcon
+      d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-11.024-3.61a.563.563 0 0 1 .855-.482l5.481 3.61a.563.563 0 0 1 0 .964l-5.48 3.61a.563.563 0 0 1-.856-.482V8.39Z"
+      {...props}
+    />
+  );
+}
+
 /** Impresora — imprimir el Reporte. */
 export function Printer(props: IconProps) {
   return (

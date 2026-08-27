@@ -56,6 +56,7 @@ export function ejercicioNuevo(nombre: string, semanas: number, slug: string | n
     slug,
     notas: null,
     descansoSeg: null,
+    video: null,
     semanas: Array.from({ length: semanas }, () => ({ series: [serieVacia()] })),
   };
 }
@@ -81,6 +82,65 @@ export const diaNuevo = (nombre: string): Dia => ({
 });
 
 export const contenidoVacio = (): Contenido => ({ dias: [] });
+
+// ── El enlace al vídeo ─────────────────────────────────────────────────────
+
+/**
+ * La URL del vídeo, o `null` si no es utilizable.
+ *
+ * ── POR QUÉ ESTO NO ES UNA COMODIDAD, ES UNA PUERTA ───────────────────────
+ *
+ *   Este valor termina dentro de un `href` que pulsa un tercero desde la
+ *   página pública. `javascript:alert(1)` es una URL perfectamente válida para
+ *   `new URL()` y se EJECUTA al pulsarla, en el navegador de quien abrió el
+ *   enlace. Lo mismo `data:text/html,...`.
+ *
+ *   Así que solo pasan `http:` y `https:`. Y se llama en los DOS sitios: al
+ *   guardar y al pintar. Sanear solo al guardar deja fuera todo lo que ya
+ *   estuviera en la base de datos, y una fila vieja o escrita por otra vía no
+ *   tiene por qué haber pasado por el formulario.
+ *
+ * ── ESCRIBIR LA URL SIN ESQUEMA ES LO NORMAL ──────────────────────────────
+ *
+ *   Nadie teclea `https://` al copiar una dirección de memoria. Si el texto no
+ *   parece llevar esquema se le antepone `https://` y se vuelve a intentar;
+ *   así «youtube.com/watch?v=x» funciona sin tener que explicárselo a nadie.
+ *   Un `javascript:` NO entra por esa vía: lleva esquema y se rechaza antes.
+ */
+export function urlDeVideo(texto: string | null | undefined): string | null {
+  if (typeof texto !== 'string') return null;
+  const limpio = texto.trim();
+  if (limpio === '') return null;
+
+  const intentar = (candidato: string): string | null => {
+    let url: URL;
+    try {
+      url = new URL(candidato);
+    } catch {
+      return null;
+    }
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return null;
+    if (url.hostname === '') return null;
+    return url.toString();
+  };
+
+  const directo = intentar(limpio);
+  if (directo !== null) return directo;
+
+  // Solo se reintenta si NO traía esquema. Con esquema, un fallo es un fallo.
+  if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(limpio)) return null;
+  return intentar(`https://${limpio}`);
+}
+
+/** Si el enlace es de YouTube. Solo cambia la etiqueta que se enseña. */
+export function esYouTube(url: string): boolean {
+  try {
+    const host = new URL(url).hostname.replace(/^www\./, '');
+    return host === 'youtube.com' || host === 'm.youtube.com' || host === 'youtu.be';
+  } catch {
+    return false;
+  }
+}
 
 // ── Recorrido ──────────────────────────────────────────────────────────────
 

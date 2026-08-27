@@ -1,7 +1,8 @@
 "use client";
 
 import Input from "@/components/brand/Input";
-import { ArrowLeft, ArrowRight, Copy, Plus, Trash } from "@/components/brand/icons";
+import { ArrowLeft, ArrowRight, Copy, Play, Plus, Trash } from "@/components/brand/icons";
+import { urlDeVideo } from "@/lib/plantillas/contenido";
 import type { EjercicioPlantilla } from "@/lib/plantillas/tipos";
 
 // ── Un ejercicio en el editor ──────────────────────────────────────────────
@@ -29,7 +30,12 @@ interface Props {
   semana: number;
   /** Ejercicios del catálogo, para la lista de sugerencias del nombre. */
   listaId: string;
-  onCampo: (campos: { nombre?: string; notas?: string | null; descansoSeg?: number | null }) => void;
+  onCampo: (campos: {
+    nombre?: string;
+    notas?: string | null;
+    descansoSeg?: number | null;
+    video?: string | null;
+  }) => void;
   onSerie: (serie: number, campos: { reps?: string; pesoKg?: number | null; rir?: number | null }) => void;
   onAnadirSerie: () => void;
   onQuitarSerie: (serie: number) => void;
@@ -147,6 +153,29 @@ export default function EjercicioEditor({
               />
               <span className="text-[11px] text-white/40">s</span>
             </div>
+          </div>
+
+          {/* El vídeo se guarda tal cual se teclea y se sanea al salir del
+              campo: normalizar en cada pulsación movería el cursor de sitio
+              mientras se escribe, que es de las cosas más molestas que puede
+              hacer un formulario. */}
+          <div className="flex items-center gap-2">
+            <Play className="h-3.5 w-3.5 flex-shrink-0 text-white/25" strokeWidth={2} />
+            <Input
+              value={ejercicio.video ?? ""}
+              type="url"
+              inputMode="url"
+              placeholder="Enlace a un vídeo del ejercicio (opcional)"
+              aria-label={`Vídeo de ${ejercicio.nombre || "el ejercicio"}`}
+              onChange={(e) => onCampo({ video: e.target.value === "" ? null : e.target.value })}
+              onBlur={(e) => onCampo({ video: urlDeVideo(e.target.value) })}
+              className="min-w-0 flex-1 py-1.5 text-xs"
+            />
+            {ejercicio.video !== null && urlDeVideo(ejercicio.video) === null && (
+              <span className="flex-shrink-0 text-[11px] text-yellow-300/80">
+                No parece una dirección web
+              </span>
+            )}
           </div>
 
           {/* Atajos: el descanso casi siempre es uno de estos cuatro, y

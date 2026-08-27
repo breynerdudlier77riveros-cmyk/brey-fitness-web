@@ -1,9 +1,11 @@
 import Link from "next/link";
 
+import { Play } from "@/components/brand/icons";
+
 import WeekGrid from "./WeekGrid";
 import VolumeChart from "./VolumeChart";
 import { ETIQUETA_BLOQUE, type Bloque, type Contenido, type Dia } from "@/lib/plantillas/tipos";
-import { seriesEnSemana, tonelajeSemana } from "@/lib/plantillas/contenido";
+import { esYouTube, seriesEnSemana, tonelajeSemana, urlDeVideo } from "@/lib/plantillas/contenido";
 
 // ── El documento, en pantalla y en papel ───────────────────────────────────
 //
@@ -230,6 +232,11 @@ function BloqueSeccion({ bloque, semanas }: { bloque: Bloque; semanas: number })
                 )}
               </h4>
 
+              {/* El vídeo se vuelve a sanear AQUÍ, no solo al guardarlo: lo
+                  que llega de la base de datos pudo escribirse por otra vía, y
+                  este `href` lo pulsa un tercero desde la página pública. */}
+              <EnlaceVideo url={urlDeVideo(ejercicio.video)} />
+
               {ejercicio.descansoSeg !== null && (
                 // Chip y no texto corrido: el descanso es un dato que se
                 // consulta a mitad de serie, con el móvil en la mano y sin
@@ -252,6 +259,34 @@ function BloqueSeccion({ bloque, semanas }: { bloque: Bloque; semanas: number })
         ))}
       </div>
     </div>
+  );
+}
+
+/**
+ * El enlace al vídeo del ejercicio.
+ *
+ * `rel="noopener noreferrer"` porque abre en otra pestaña: sin `noopener`, la
+ * página destino recibe una referencia a esta y puede reescribirle la
+ * dirección. Es barato y quien abre esto no es quien lo escribió.
+ *
+ * En papel el enlace no se puede pulsar, así que la hoja de impresión escribe
+ * la dirección al lado (ver `globals.css`). Un enlace impreso sin su URL es
+ * una palabra subrayada que no lleva a ninguna parte.
+ */
+function EnlaceVideo({ url }: { url: string | null }) {
+  if (url === null) return null;
+
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      data-video
+      className="flex items-center gap-1.5 rounded-full border border-white/[0.10] px-2.5 py-0.5 text-[11px] font-semibold text-white/60 transition-colors hover:border-orange-500/40 hover:text-orange-200"
+    >
+      <Play className="h-3 w-3" strokeWidth={2} />
+      {esYouTube(url) ? "Ver en YouTube" : "Ver vídeo"}
+    </a>
   );
 }
 

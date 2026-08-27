@@ -140,7 +140,7 @@ export const anadirEjercicio = (
 export const editarEjercicio = (
   c: Contenido,
   ejercicioId: string,
-  campos: Partial<Pick<EjercicioPlantilla, 'nombre' | 'slug' | 'notas' | 'descansoSeg'>>,
+  campos: Partial<Pick<EjercicioPlantilla, 'nombre' | 'slug' | 'notas' | 'descansoSeg' | 'video'>>,
 ): Contenido => mapEjercicio(c, ejercicioId, (e) => ({ ...e, ...campos }));
 
 export const quitarEjercicio = (c: Contenido, ejercicioId: string): Contenido =>

@@ -27,6 +27,8 @@ import {
   direccion,
   ejercicioNuevo,
   ejerciciosDe,
+  esYouTube,
+  urlDeVideo,
   podarAjustes,
   problemasDe,
   redimensionar,
@@ -316,5 +318,84 @@ describe('validación de la estructura', () => {
     expect(problemasDe(contenido, 0).length).toBeGreaterThan(0);
     expect(problemasDe(contenido, 25).length).toBeGreaterThan(0);
     expect(problemasDe(contenido, 2.5).length).toBeGreaterThan(0);
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// EL ENLACE AL VÍDEO
+// ════════════════════════════════════════════════════════════════════════════
+//
+// LO QUE ESTOS TESTS PROTEGEN, Y NO ES UNA COMODIDAD:
+//
+//   Este valor termina dentro de un `href` que pulsa un TERCERO desde la
+//   página pública. `javascript:alert(1)` es una URL perfectamente válida para
+//   `new URL()` y se ejecuta al pulsarla, en el navegador de quien abrió el
+//   enlace que le pasó su entrenador.
+//
+//   El saneado corre en dos sitios —al guardar y al pintar— porque sanear solo
+//   al guardar deja fuera todo lo que ya estuviera en la base de datos.
+
+describe('urlDeVideo', () => {
+  it('acepta http y https', () => {
+    expect(urlDeVideo('https://www.youtube.com/watch?v=abc')).toBe(
+      'https://www.youtube.com/watch?v=abc',
+    );
+    expect(urlDeVideo('http://ejemplo.com/v.mp4')).toBe('http://ejemplo.com/v.mp4');
+  });
+
+  it('completa el esquema cuando no lo lleva: nadie teclea https:// de memoria', () => {
+    expect(urlDeVideo('youtube.com/watch?v=abc')).toBe('https://youtube.com/watch?v=abc');
+    expect(urlDeVideo('  youtu.be/abc  ')).toBe('https://youtu.be/abc');
+  });
+
+  it('RECHAZA los esquemas que ejecutan código', () => {
+    // El motivo entero de que esta función exista.
+    expect(urlDeVideo('javascript:alert(1)')).toBeNull();
+    expect(urlDeVideo('JavaScript:alert(1)')).toBeNull();
+    expect(urlDeVideo('data:text/html,<script>alert(1)</script>')).toBeNull();
+    expect(urlDeVideo('vbscript:msgbox(1)')).toBeNull();
+    expect(urlDeVideo('file:///etc/passwd')).toBeNull();
+  });
+
+  it('un esquema peligroso NO se cuela por la vía del autocompletado', () => {
+    // Si el respaldo se aplicara a todo, `https://javascript:alert(1)` podría
+    // llegar a parsear. Con esquema, un fallo es un fallo y no se reintenta.
+    expect(urlDeVideo('javascript:void(0)')).toBeNull();
+    expect(urlDeVideo('mailto:a@b.c')).toBeNull();
+  });
+
+  it('lo vacío o ausente es ausencia, no error', () => {
+    expect(urlDeVideo(null)).toBeNull();
+    expect(urlDeVideo(undefined)).toBeNull();
+    expect(urlDeVideo('')).toBeNull();
+    expect(urlDeVideo('   ')).toBeNull();
+    // Una fila antigua no tiene la clave: llega `undefined` y no debe romper.
+    expect(urlDeVideo(({} as { video?: string }).video)).toBeNull();
+  });
+
+  it('lo que no es una dirección se rechaza en vez de guardarse a medias', () => {
+    expect(urlDeVideo('no es una url')).toBeNull();
+    expect(urlDeVideo('https://')).toBeNull();
+  });
+});
+
+describe('esYouTube', () => {
+  it('reconoce los tres dominios, con y sin www', () => {
+    expect(esYouTube('https://www.youtube.com/watch?v=a')).toBe(true);
+    expect(esYouTube('https://youtube.com/watch?v=a')).toBe(true);
+    expect(esYouTube('https://youtu.be/a')).toBe(true);
+    expect(esYouTube('https://m.youtube.com/watch?v=a')).toBe(true);
+  });
+
+  it('no confunde un dominio que solo lo contiene', () => {
+    // `youtube.com.malo.net` no es YouTube, y etiquetarlo como tal daría al
+    // lector una confianza que nadie ha ganado.
+    expect(esYouTube('https://youtube.com.malo.net/x')).toBe(false);
+    expect(esYouTube('https://noyoutube.com/x')).toBe(false);
+    expect(esYouTube('https://vimeo.com/123')).toBe(false);
+  });
+
+  it('solo cambia la etiqueta: un enlace que no es de YouTube sigue siendo válido', () => {
+    expect(urlDeVideo('https://vimeo.com/123')).toBe('https://vimeo.com/123');
   });
 });

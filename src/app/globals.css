@@ -349,6 +349,18 @@ body {
     print-color-adjust: exact;
   }
 
+  /* ── Un enlace impreso sin su dirección no lleva a ninguna parte ───────
+     Sobre papel «Ver en YouTube» es una palabra subrayada y nada más. Se
+     escribe la URL al lado para que se pueda teclear. Solo en los enlaces de
+     vídeo: hacerlo en todos llenaría el documento de direcciones. */
+  .hoja-print a[data-video]::after {
+    content: " · " attr(href);
+    font-size: 7.5pt;
+    font-weight: 400;
+    color: #64748b;
+    word-break: break-all;
+  }
+
   /* El hueco de un dato no prescrito tiene que SEGUIR pareciendo un hueco. La
      regla general pasa toda la tinta a #0f172a, y con ella el punto tenue se
      imprimiría tan negro como una cifra real. */
