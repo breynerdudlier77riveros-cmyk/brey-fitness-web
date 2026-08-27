@@ -125,8 +125,14 @@ export default async function EvaluacionPage({ params }: Props) {
     hoyISO,
     portada: {
       atleta: atleta.nombre,
-      edad: null,
-      sexo: null,
+      // La edad y el sexo iban a `null` y la portada los pinta: el informe
+      // normativo salía sin identificar al sujeto, enseñando solo la fecha.
+      // Los dos estaban resueltos aquí mismo —`sujeto` se calcula arriba para
+      // el informe del atleta— así que era un cable suelto, no un dato que
+      // faltara. Se pasa lo MISMO que consume el otro informe: dos portadas
+      // del mismo expediente no pueden decir cosas distintas.
+      edad: sujeto.sujeto.edad,
+      sexo: atleta.sexo,
       fecha: evaluacion.fecha,
       profesional: null,
       codigo: evaluacion.id,
