@@ -320,3 +320,22 @@ describe('el enlace al vídeo', () => {
     expect(html).not.toContain("data-video");
   });
 });
+
+describe('la dirección que se escribe en papel', () => {
+  it('es la CORTA, no el href con sus parámetros de seguimiento', () => {
+    // En el PDF de una clienta salió la dirección entera en medio de la tabla
+    // y parecía un fallo del documento. `attr()` de CSS no sabe recortar, así
+    // que el recorte viaja en su propio atributo.
+    const p = plantilla();
+    p.contenido.dias[0].bloques[0].ejercicios[0].video =
+      'https://youtube.com/shorts/Cxp6D7LEqjM?si=yOR--_U-xf0MiIS1';
+
+    const html = renderToStaticMarkup(
+      createElement(SessionView, { contenido: p.contenido, semanas: SEMANAS }),
+    );
+
+    expect(html).toContain('data-impreso="youtube.com/shorts/Cxp6D7LEqjM"');
+    // El href sigue completo: al pulsarlo tiene que llevar al vídeo.
+    expect(html).toContain('href="https://youtube.com/shorts/Cxp6D7LEqjM?si=yOR--_U-xf0MiIS1"');
+  });
+});

@@ -5,7 +5,13 @@ import { Play } from "@/components/brand/icons";
 import WeekGrid from "./WeekGrid";
 import VolumeChart from "./VolumeChart";
 import { ETIQUETA_BLOQUE, type Bloque, type Contenido, type Dia } from "@/lib/plantillas/tipos";
-import { esYouTube, seriesEnSemana, tonelajeSemana, urlDeVideo } from "@/lib/plantillas/contenido";
+import {
+  esYouTube,
+  seriesEnSemana,
+  tonelajeSemana,
+  urlCorta,
+  urlDeVideo,
+} from "@/lib/plantillas/contenido";
 
 // ── El documento, en pantalla y en papel ───────────────────────────────────
 //
@@ -272,6 +278,11 @@ function BloqueSeccion({ bloque, semanas }: { bloque: Bloque; semanas: number })
  * En papel el enlace no se puede pulsar, así que la hoja de impresión escribe
  * la dirección al lado (ver `globals.css`). Un enlace impreso sin su URL es
  * una palabra subrayada que no lleva a ninguna parte.
+ *
+ * Pero se escribe la versión CORTA, no el `href`. La dirección completa de un
+ * vídeo arrastra parámetros de seguimiento y ocupa dos líneas en medio de la
+ * tabla, con aspecto de documento roto. `attr()` de CSS no sabe recortar, así
+ * que el recorte viaja en su propio atributo.
  */
 function EnlaceVideo({ url }: { url: string | null }) {
   if (url === null) return null;
@@ -282,6 +293,7 @@ function EnlaceVideo({ url }: { url: string | null }) {
       target="_blank"
       rel="noopener noreferrer"
       data-video
+      data-impreso={urlCorta(url)}
       className="flex items-center gap-1.5 rounded-full border border-white/[0.10] px-2.5 py-0.5 text-[11px] font-semibold text-white/60 transition-colors hover:border-orange-500/40 hover:text-orange-200"
     >
       <Play className="h-3 w-3" strokeWidth={2} />

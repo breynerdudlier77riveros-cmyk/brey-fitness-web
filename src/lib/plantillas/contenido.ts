@@ -132,6 +132,33 @@ export function urlDeVideo(texto: string | null | undefined): string | null {
   return intentar(`https://${limpio}`);
 }
 
+/**
+ * La dirección en corto, para escribirla en papel.
+ *
+ * Un enlace impreso necesita su dirección —sobre papel no se puede pulsar—
+ * pero la dirección completa de un vídeo es un muro:
+ *
+ *   https://youtube.com/shorts/Cxp6D7LEqjM?si=yOR--_U-xf0MiIS1
+ *
+ * En medio de una tabla de entrenamiento eso parece un fallo del documento.
+ * Se le quita el esquema, el `www.` y los parámetros de seguimiento —que no
+ * hacen falta para llegar al vídeo— y queda algo tecleable:
+ *
+ *   youtube.com/shorts/Cxp6D7LEqjM
+ *
+ * Los parámetros se descartan porque los de YouTube (`si=`, `t=`, `feature=`)
+ * son de procedencia y reproducción, no de identidad. Si algún día un enlace
+ * necesitara los suyos para funcionar, este es el sitio de matizarlo.
+ */
+export function urlCorta(url: string): string {
+  try {
+    const u = new URL(url);
+    return `${u.hostname.replace(/^www\./, '')}${u.pathname}`.replace(/\/$/, '');
+  } catch {
+    return url;
+  }
+}
+
 /** Si el enlace es de YouTube. Solo cambia la etiqueta que se enseña. */
 export function esYouTube(url: string): boolean {
   try {

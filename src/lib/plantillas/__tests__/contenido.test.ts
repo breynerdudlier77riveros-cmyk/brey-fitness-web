@@ -28,6 +28,7 @@ import {
   ejercicioNuevo,
   ejerciciosDe,
   esYouTube,
+  urlCorta,
   urlDeVideo,
   podarAjustes,
   problemasDe,
@@ -397,5 +398,33 @@ describe('esYouTube', () => {
 
   it('solo cambia la etiqueta: un enlace que no es de YouTube sigue siendo válido', () => {
     expect(urlDeVideo('https://vimeo.com/123')).toBe('https://vimeo.com/123');
+  });
+});
+
+describe('urlCorta', () => {
+  it('quita el esquema, el www y los parámetros de seguimiento', () => {
+    // Es el enlace real que salió en el PDF de una clienta y parecía un fallo
+    // del documento: dos líneas de dirección en medio de una tabla de series.
+    expect(urlCorta('https://youtube.com/shorts/Cxp6D7LEqjM?si=yOR--_U-xf0MiIS1')).toBe(
+      'youtube.com/shorts/Cxp6D7LEqjM',
+    );
+    expect(urlCorta('https://www.youtube.com/watch?v=abc123')).toBe('youtube.com/watch');
+    expect(urlCorta('https://youtu.be/abc123')).toBe('youtu.be/abc123');
+  });
+
+  it('sigue siendo tecleable: conserva el dominio y la ruta', () => {
+    // El recorte solo vale si lo que queda lleva al vídeo.
+    const corta = urlCorta('https://vimeo.com/123456789');
+    expect(corta).toBe('vimeo.com/123456789');
+  });
+
+  it('quita la barra final, que solo añade ruido', () => {
+    expect(urlCorta('https://ejemplo.com/video/')).toBe('ejemplo.com/video');
+  });
+
+  it('lo que no es una URL se devuelve tal cual, sin romper nada', () => {
+    // No debería llegar aquí —`urlDeVideo` filtra antes— pero esta función se
+    // usa al PINTAR, y ahí nunca se lanza.
+    expect(urlCorta('no es una url')).toBe('no es una url');
   });
 });

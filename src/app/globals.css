@@ -354,7 +354,7 @@ body {
      escribe la URL al lado para que se pueda teclear. Solo en los enlaces de
      vídeo: hacerlo en todos llenaría el documento de direcciones. */
   .hoja-print a[data-video]::after {
-    content: " · " attr(href);
+    content: " · " attr(data-impreso);
     font-size: 7.5pt;
     font-weight: 400;
     color: #64748b;
