@@ -3,12 +3,14 @@ import { lecturaLlanaDe } from "@/lib/pas/informe-humano";
 import type { ResultadoInformeAtleta } from "@/features/performance-workspace/services/informe-atleta";
 import type { ResultadoInformeNormativo } from "@/features/performance-workspace/services/informe-normativo";
 import type { Conflicto } from "@/lib/pas/informe";
+import type { SeriePrueba } from "@/features/performance-workspace/services/series";
 
 import AthleteSummary from "./AthleteSummary";
 import GoalCard from "./GoalCard";
 import PerformanceProfile from "./PerformanceProfile";
 import ResultCard from "./ResultCard";
 import TechnicalDetails from "./TechnicalDetails";
+import EvolucionPrueba from "./EvolucionPrueba";
 
 import NormativeCard from "@/components/pas/report-v2/NormativeCard";
 import SummaryMetric from "@/components/pas/report-v2/SummaryMetric";
@@ -71,6 +73,14 @@ interface Props {
    * mismo día producen cuatro tarjetas y ninguna dice que se contradicen.
    */
   conflictos: readonly Conflicto[];
+  /**
+   * La evolución de cada prueba a lo largo del expediente.
+   *
+   * Contesta «¿mejoré o empeoré?», que es la primera pregunta de cualquier
+   * atleta y que hasta ahora se respondía con un par de números dentro de una
+   * tarjeta.
+   */
+  series: readonly SeriePrueba[];
   /** El informe funcional, ya renderizado. Va al detalle técnico. */
   funcional: React.ReactNode;
 }
@@ -150,6 +160,7 @@ export default function InformeEvaluacion({
   atleta,
   normativo,
   conflictos,
+  series,
   funcional,
 }: Props) {
   const humano = atleta.estado === "DISPONIBLE" ? atleta.informe : null;
@@ -247,6 +258,21 @@ export default function InformeEvaluacion({
         {humano ? <PerformanceProfile dominios={humano.dominios} /> : null}
         {humano && humano.dominios.length > 0 ? (
           <p className="mt-4 text-sm text-white/50">{humano.estadoGeneral}</p>
+        ) : null}
+
+        {series.length > 0 ? (
+          <div data-seccion="evolucion" className="mt-8">
+            <h3 className={H2}>Cómo ha cambiado</h3>
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              {series.map((s) => (
+                <EvolucionPrueba
+                  key={s.pruebaId}
+                  serie={s}
+                  nombre={nombresDePrueba.get(s.pruebaId) ?? s.pruebaId}
+                />
+              ))}
+            </div>
+          </div>
         ) : null}
 
         {norma ? (

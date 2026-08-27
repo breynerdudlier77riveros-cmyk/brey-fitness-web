@@ -20,6 +20,7 @@ import ReportView from "@/components/pas/report/ReportView";
 import InformeEvaluacion from "@/components/pas/informe/InformeEvaluacion";
 import { construirInformeAtleta } from "@/features/performance-workspace/services/informe-atleta";
 import { resolverSujeto } from "@/features/performance-workspace/services/sujeto";
+import { seriesPorPrueba } from "@/features/performance-workspace/services/series";
 import { construirInformeNormativo } from "@/features/performance-workspace/services/informe-normativo";
 import "@/components/pas/report/print.css";
 import "@/components/pas/report-v2/print.css";
@@ -111,6 +112,25 @@ export default async function EvaluacionPage({ params }: Props) {
     pesoKg: evaluacion.pesoKg,
   });
 
+  // ── PAS-14 · la evolución de cada prueba ────────────────────────────────
+  // Se juntan los registros de ESTA evaluación con los del resto del
+  // expediente: la evolución solo existe mirando el conjunto, y `previas` por
+  // sí sola excluye el presente.
+  const series = seriesPorPrueba([
+    ...registros
+      .filter((r) => r.estado === "vigente" && r.valor.tipo === "continuo")
+      .map((r) => {
+        const v = r.valor as Extract<typeof r.valor, { tipo: "continuo" }>;
+        return { pruebaId: r.pruebaId, valor: v.valor, unidad: v.unidad, fecha: r.fecha };
+      }),
+    ...previas.map((p) => ({
+      pruebaId: p.pruebaId,
+      valor: p.valor,
+      unidad: p.unidad,
+      fecha: p.fecha,
+    })),
+  ]);
+
   // PAE → PIE → PPRE, una sola vez.
   const informe = informeDeEvaluacion(evaluacion.atletaId, evaluacion, registros, hoyISO);
 
@@ -145,7 +165,14 @@ export default async function EvaluacionPage({ params }: Props) {
       />
 
       <Section label="Pruebas registradas">
-        <RegistrosTabla registros={registros} />
+        {/* `editable` sale de la MISMA función que decide si se pueden añadir
+            registros: si se pueden añadir, se pueden retirar. Dos criterios
+            distintos para lo mismo acabarían divergiendo. */}
+        <RegistrosTabla
+          registros={registros}
+          evaluacionId={evaluacionId}
+          editable={admiteRegistros(evaluacion.estado)}
+        />
       </Section>
 
       {admiteRegistros(evaluacion.estado) ? (
@@ -168,6 +195,7 @@ export default async function EvaluacionPage({ params }: Props) {
           atleta={informeAtleta}
           normativo={normativo}
           conflictos={informe.analisis.conflictos}
+          series={series}
           funcional={
             <ReportView
               analisis={informe.analisis}

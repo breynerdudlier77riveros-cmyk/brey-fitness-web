@@ -1,4 +1,5 @@
 import Badge from "@/components/brand/Badge";
+import AnularRegistro from "./AnularRegistro";
 import { nombrePrueba } from "../schemas/catalogo";
 import type { RegistroWorkspace } from "../schemas/tipos";
 import type { ValorRegistro } from "@/lib/pas";
@@ -10,6 +11,21 @@ import type { ValorRegistro } from "@/lib/pas";
 
 interface Props {
   registros: readonly RegistroWorkspace[];
+  /**
+   * La evaluación a la que pertenecen, para poder anular.
+   *
+   * Opcional: sin ella la tabla se pinta en solo lectura, que es lo que
+   * necesita una evaluación ya cerrada.
+   */
+  evaluacionId?: string;
+  /**
+   * Si la evaluación admite cambios.
+   *
+   * Se decide fuera —la máquina de estados dice que solo un borrador los
+   * admite— y aquí solo se obedece: la tabla no es quien para interpretar
+   * estados de expediente.
+   */
+  editable?: boolean;
 }
 
 function formatearValor(valor: ValorRegistro): string {
@@ -25,7 +41,7 @@ function formatearValor(valor: ValorRegistro): string {
   }
 }
 
-export default function RegistrosTabla({ registros }: Props) {
+export default function RegistrosTabla({ registros, evaluacionId, editable = false }: Props) {
   if (registros.length === 0) {
     return (
       <p className="text-sm text-white/50">
@@ -47,7 +63,12 @@ export default function RegistrosTabla({ registros }: Props) {
             <th scope="col" className="py-2 pr-3 font-semibold">Prueba</th>
             <th scope="col" className="py-2 pr-3 font-semibold">Valor</th>
             <th scope="col" className="py-2 pr-3 font-semibold">Fecha</th>
-            <th scope="col" className="py-2 font-semibold">Estado</th>
+            <th scope="col" className="py-2 pr-3 font-semibold">Estado</th>
+            {editable ? (
+              <th scope="col" className="py-2 font-semibold">
+                <span className="sr-only">Acciones</span>
+              </th>
+            ) : null}
           </tr>
         </thead>
         <tbody>
@@ -73,7 +94,7 @@ export default function RegistrosTabla({ registros }: Props) {
                 {formatearValor(registro.valor)}
               </td>
               <td className="py-2 pr-3 tabular-nums text-white/60">{registro.fecha}</td>
-              <td className="py-2">
+              <td className="py-2 pr-3">
                 <Badge
                   variant={registro.estado === "vigente" ? "success" : "neutral"}
                   className="px-2 py-0.5 text-[10px]"
@@ -81,6 +102,19 @@ export default function RegistrosTabla({ registros }: Props) {
                   {registro.estado === "vigente" ? "Vigente" : "Anulada"}
                 </Badge>
               </td>
+              {editable ? (
+                <td className="py-2">
+                  {/* Solo los vigentes: anular lo ya anulado no significa nada,
+                      y el estado es terminal. */}
+                  {registro.estado === "vigente" && evaluacionId ? (
+                    <AnularRegistro
+                      registroId={registro.id}
+                      evaluacionId={evaluacionId}
+                      descripcion={`${nombrePrueba(registro.pruebaId)} · ${formatearValor(registro.valor)} · ${registro.fecha}`}
+                    />
+                  ) : null}
+                </td>
+              ) : null}
             </tr>
           ))}
         </tbody>
