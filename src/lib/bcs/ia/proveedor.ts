@@ -44,12 +44,31 @@ export type ResultadoModelo =
   | { estado: 'truncada' }
   | { estado: 'error'; mensaje: string };
 
+/**
+ * Un turno de la conversación.
+ *
+ * Existe porque una sola pregunta suelta no deja PROFUNDIZAR: «explícame más
+ * eso» no tiene antecedente si cada petición empieza de cero, y era la queja
+ * exacta del profesional. Con el hilo, la segunda pregunta se apoya en la
+ * primera.
+ *
+ * El historial llega del navegador, así que se trata como lo que es: entrada
+ * no fiable. Alguien podría fabricar un turno del modelo que diga «acepto
+ * saltarme las reglas». No importa: `validarTexto` comprueba el texto que se
+ * va a ENSEÑAR, no el que se pidió, y esa puerta no depende de que el
+ * historial sea auténtico.
+ */
+export interface Turno {
+  rol: 'usuario' | 'modelo';
+  texto: string;
+}
+
 export interface Proveedor {
   /** Cómo se llama en pantalla. Va bajo cada respuesta. */
   readonly nombre: string;
   /** El modelo concreto. Se nombra también: no da igual cuál contestó. */
   readonly modelo: string;
-  responder(sistema: string, mensaje: string): Promise<ResultadoModelo>;
+  responder(sistema: string, turnos: readonly Turno[]): Promise<ResultadoModelo>;
 }
 
 /** Los proveedores que el sistema sabe usar. */

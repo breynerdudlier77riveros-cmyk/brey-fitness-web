@@ -101,14 +101,19 @@ export function crearProveedorGemini(env: NodeJS.ProcessEnv = process.env): Prov
     nombre: 'Google Gemini',
     modelo,
 
-    async responder(sistema, mensaje): Promise<ResultadoModelo> {
+    async responder(sistema, turnos): Promise<ResultadoModelo> {
       const ai = new GoogleGenAI({ apiKey });
 
       for (let intento = 0; ; intento++) {
         try {
           const respuesta = await ai.models.generateContent({
             model: modelo,
-            contents: mensaje,
+            // El hilo entero, no solo la última pregunta: es lo que permite
+            // repreguntar sobre lo ya dicho.
+            contents: turnos.map((t) => ({
+              role: t.rol === 'usuario' ? 'user' : 'model',
+              parts: [{ text: t.texto }],
+            })),
             config: {
               // El contrato va como instrucción de sistema y no dentro del
               // mensaje: mezclarlo con la pregunta lo pondría al mismo nivel

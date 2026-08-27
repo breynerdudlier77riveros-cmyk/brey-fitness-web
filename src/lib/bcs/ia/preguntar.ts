@@ -45,7 +45,8 @@ import { validarTexto, type Violacion } from '@/lib/bcs/copilot';
 import { CATALOGO, type VariableId } from '@/lib/bcs/reporte';
 import { construirContexto, type EntradaContexto } from './contexto';
 import { SISTEMA } from './contrato';
-import { claveQueFalta, proveedorElegido, type Proveedor } from './proveedor';
+import { construirTurnos } from './hilo';
+import { claveQueFalta, proveedorElegido, type Proveedor, type Turno } from './proveedor';
 import { crearProveedorAnthropic } from './proveedores/anthropic';
 import { crearProveedorGemini } from './proveedores/gemini';
 
@@ -83,6 +84,15 @@ function resolverProveedor(): Proveedor | null {
 export async function preguntarABreyIA(
   pregunta: string,
   contexto: EntradaContexto,
+  /**
+   * Lo dicho hasta ahora, para poder repreguntar.
+   *
+   * Llega del navegador y NO se comprueba su autenticidad, porque no hace
+   * falta: `validarTexto` gobierna el texto que se va a ENSEÑAR, no el que se
+   * pidió. Un turno del modelo fabricado no abre ninguna puerta que la salida
+   * no vuelva a cerrar.
+   */
+  historial: readonly Turno[] = [],
 ): Promise<RespuestaIA> {
   const proveedor = resolverProveedor();
   if (proveedor === null) {
@@ -103,7 +113,7 @@ export async function preguntarABreyIA(
 
   const resultado = await proveedor.responder(
     SISTEMA,
-    `${construirContexto(contexto)}\n\n---\n\nPregunta: ${limpia}`,
+    construirTurnos(construirContexto(contexto), historial, limpia),
   );
 
   switch (resultado.estado) {

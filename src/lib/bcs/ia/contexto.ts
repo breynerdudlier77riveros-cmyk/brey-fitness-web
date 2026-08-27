@@ -39,6 +39,8 @@ import type { ClinicalObservationReport } from '@/lib/bcs/observation';
 import type { RecommendationReport } from '@/lib/bcs/recommendations';
 import type { LecturaTransversal } from '@/lib/bcs/lectura-transversal';
 import { ORIENTACIONES } from '@/lib/bcs/orientacion';
+import { SIGNIFICADOS } from '@/lib/bcs/significados';
+import type { VariableId } from '@/lib/bcs/reporte';
 
 export interface EntradaContexto {
   analisis: BodyCompositionAnalysis;
@@ -47,6 +49,13 @@ export interface EntradaContexto {
   lecturas: readonly LecturaTransversal[];
   /** Quién pregunta. Cambia la persona gramatical, no lo que se puede decir. */
   quienPregunta: 'profesional' | 'cliente';
+  /**
+   * Las variables que el informe trae medidas.
+   *
+   * Solo se usan para elegir QUÉ fichas de la base de conocimiento viajan con
+   * el contexto — nunca sus valores. Ver el bloque de abajo.
+   */
+  variables?: readonly VariableId[];
 }
 
 const bloque = (titulo: string, lineas: readonly string[]): string =>
@@ -70,6 +79,32 @@ export function construirContexto(e: EntradaContexto): string {
     bloque(
       'Lo que dicen sus cifras (lectura de esta medición)',
       e.lecturas.map((l) => `${l.titulo}: ${l.texto} [Fuente: ${l.fundamento}]`),
+    ),
+  );
+
+  // ── LA PROFUNDIDAD VIENE DE AQUÍ, NO DE INTERNET ────────────────────────
+  //
+  //   El profesional pidió respuestas más profundas y preguntó si el modelo
+  //   podía buscar en la web. La respuesta a eso es que no, y este bloque es
+  //   la alternativa: las fichas que el propio sistema ya tiene verificadas,
+  //   para las variables que ESTE informe trae medidas.
+  //
+  //   Una búsqueda web traería tablas de gimnasio, páginas comerciales y
+  //   artículos generados por IA —exactamente las fuentes que la base de
+  //   conocimiento excluye por escrito— y las pondría en boca del sistema, con
+  //   su autoridad. Lo que aquí se añade tiene procedencia y tiene límite
+  //   declarado, que es la diferencia entre profundizar y opinar.
+  //
+  //   Y sigue sin haber una sola cifra suelta: son textos sobre qué es cada
+  //   variable, qué informa y qué NO puede afirmarse con ella.
+  partes.push(
+    bloque(
+      'Qué es cada variable y qué NO puede afirmarse con ella (base de conocimiento del sistema)',
+      (e.variables ?? []).flatMap((id) => {
+        const s = SIGNIFICADOS[id];
+        if (!s) return [];
+        return [`${id} — ${s.significado} Lectura: ${s.lectura} LÍMITE: ${s.limite}`];
+      }),
     ),
   );
 

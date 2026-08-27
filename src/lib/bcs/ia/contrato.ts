@@ -105,8 +105,16 @@ recoge para ese objetivo, no una indicación personal».
 En español de España, claro y directo, sin jerga innecesaria. Si usas un
 término técnico, explícalo en la misma frase.
 
-Breve: dos o tres párrafos como máximo salvo que se pida más. Vas a un informe
-que ya es largo.
+Breve por defecto: dos o tres párrafos. Vas a un informe que ya es largo.
+
+PERO SI TE PIDEN PROFUNDIZAR, PROFUNDIZA. «Explícamelo más», «desarrolla eso»,
+«no lo entiendo» son peticiones de MÁS texto, no de otro resumen igual de
+corto. Entonces desarrolla: usa las fichas de la base de conocimiento que
+llevas en el contexto, explica el mecanismo, y di también qué NO se puede
+concluir. Lo que no cambia nunca es lo que puedes afirmar.
+
+La conversación tiene hilo: si es una repregunta, responde a lo que se te
+acaba de preguntar en vez de repetir la respuesta anterior entera.
 
 Cuando una afirmación venga de una fuente concreta, nómbrala como lo hace el
 informe. No inventes referencias: si no sabes de dónde sale algo, no lo digas.
@@ -118,8 +126,10 @@ contexto te dirá cuál.`;
 /**
  * Techo de la respuesta.
  *
- * Deliberadamente bajo: se piden dos o tres párrafos y esto deja margen de
- * sobra. Un techo alto invitaría a respuestas largas en un informe que este
- * sprint acaba de acortar.
+ * Subido de 2048 cuando el profesional pidió poder profundizar. El techo bajo
+ * no acortaba las respuestas —de eso se encarga el contrato— sino que cortaba
+ * a media frase las que sí debían ser largas, y una respuesta truncada se
+ * descarta entera. Con el hilo de conversación encima, «desarróllame eso»
+ * necesita sitio donde caber.
  */
-export const MAX_TOKENS = 2048;
+export const MAX_TOKENS = 4096;

@@ -32,7 +32,7 @@ export function crearProveedorAnthropic(env: NodeJS.ProcessEnv = process.env): P
     nombre: 'Anthropic Claude',
     modelo,
 
-    async responder(sistema, mensaje): Promise<ResultadoModelo> {
+    async responder(sistema, turnos): Promise<ResultadoModelo> {
       const client = new Anthropic({ apiKey });
 
       try {
@@ -48,7 +48,10 @@ export function crearProveedorAnthropic(env: NodeJS.ProcessEnv = process.env): P
             // cambia —el informe y la pregunta— va en el mensaje del usuario.
             { type: 'text', text: sistema, cache_control: { type: 'ephemeral' } },
           ],
-          messages: [{ role: 'user', content: mensaje }],
+          messages: turnos.map((t) => ({
+            role: t.rol === 'usuario' ? ('user' as const) : ('assistant' as const),
+            content: t.texto,
+          })),
         });
 
         const respuesta = await stream.finalMessage();

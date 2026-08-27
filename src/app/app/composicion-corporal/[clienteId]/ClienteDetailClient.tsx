@@ -212,6 +212,9 @@ export default function ClienteDetailClient({
             observaciones,
             recomendaciones,
             lecturas: leerMedicion(reporte.medicionActual, reporte.ficha.flatMap((b) => b.filas)),
+            // Solo los IDS, para elegir qué fichas de la base de conocimiento
+            // viajan con el contexto. Los valores siguen sin salir de aquí.
+            variables: reporte.ficha.flatMap((b) => b.filas.map((f) => f.id)),
             quienPregunta: "profesional",
           }}
           onCorregirMedicion={abrirCorregir}
