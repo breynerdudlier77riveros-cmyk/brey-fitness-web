@@ -11,6 +11,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getUser } from "@/lib/supabase/user";
 import { fechaISOLocal } from "@/lib/utils";
 import {
+  actualizarPesoEvaluacion,
   anularRegistro,
   cambiarEstadoEvaluacion,
   crearEnlace,
@@ -142,6 +143,39 @@ export async function accionAnularRegistro(
   if (!anulado) return { ok: false, error: "NO_ANULADO" };
 
   revalidatePath(`${RUTA}/evaluacion/${evaluacionId}`);
+  return { ok: true, data: { id } };
+}
+
+/**
+ * Registra la masa corporal de una evaluación ya creada.
+ *
+ * Solo en borrador, igual que añadir o anular registros: cambiar el peso
+ * cambia toda lectura normativa relativa a él, y hacerlo sobre una evaluación
+ * ya compartida reescribiría en silencio un informe que alguien recibió.
+ *
+ * `null` borra el dato. Es distinto de un cero, que sería una masa imposible y
+ * el dominio ya rechaza (`MASA_NO_VALIDA`).
+ */
+export async function accionActualizarPeso(
+  id: string,
+  pesoKg: number | null
+): Promise<ActionResult<{ id: string }>> {
+  const user = await getUser();
+  if (!user) return { ok: false, error: "NO_AUTENTICADO" };
+
+  if (pesoKg !== null && (!Number.isFinite(pesoKg) || pesoKg < 20 || pesoKg > 350)) {
+    return { ok: false, error: "PESO_FUERA_DE_RANGO" };
+  }
+
+  const supabase = await createClient();
+  const evaluacion = await obtenerEvaluacion(supabase, id);
+  if (!evaluacion) return { ok: false, error: "NO_ENCONTRADA" };
+  if (!admiteRegistros(evaluacion.estado)) return { ok: false, error: "EVALUACION_CERRADA" };
+
+  const guardada = await actualizarPesoEvaluacion(supabase, id, pesoKg);
+  if (!guardada) return { ok: false, error: "NO_ACTUALIZADA" };
+
+  revalidatePath(`${RUTA}/evaluacion/${id}`);
   return { ok: true, data: { id } };
 }
 

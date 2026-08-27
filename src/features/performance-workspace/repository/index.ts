@@ -186,6 +186,33 @@ export async function crearEvaluacion(
   return data ? mapEvaluacion(data) : null;
 }
 
+/**
+ * Registra la masa corporal de una evaluación ya creada.
+ *
+ * Existía solo en el alta, y esa era la trampa: quien olvidaba el peso al
+ * crear la evaluación registraba dieciocho pruebas y se quedaba sin poder
+ * añadirlo, con las normas relativas al peso descartadas para siempre en ese
+ * expediente.
+ *
+ * Se actualiza SOLO el peso. Es un dato de la propia fecha (G-01): nunca se
+ * hereda de otra evaluación, y por eso tampoco se toca nada más al escribirlo.
+ */
+export async function actualizarPesoEvaluacion(
+  supabase: SupabaseClient,
+  id: string,
+  pesoKg: number | null
+): Promise<Evaluacion | null> {
+  const { data, error } = await supabase
+    .from('pas_evaluaciones')
+    .update({ peso_kg: pesoKg })
+    .eq('id', id)
+    .select()
+    .single();
+
+  registrarFallo('actualizarPesoEvaluacion', error);
+  return data ? mapEvaluacion(data) : null;
+}
+
 export async function cambiarEstadoEvaluacion(
   supabase: SupabaseClient,
   id: string,
