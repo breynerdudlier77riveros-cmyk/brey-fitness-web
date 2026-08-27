@@ -167,6 +167,7 @@ export default async function EvaluacionPage({ params }: Props) {
         <InformeEvaluacion
           atleta={informeAtleta}
           normativo={normativo}
+          conflictos={informe.analisis.conflictos}
           funcional={
             <ReportView
               analisis={informe.analisis}

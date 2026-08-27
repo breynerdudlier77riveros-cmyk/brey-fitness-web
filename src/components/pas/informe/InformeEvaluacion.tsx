@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/brand/Card";
 import { lecturaLlanaDe } from "@/lib/pas/informe-humano";
 import type { ResultadoInformeAtleta } from "@/features/performance-workspace/services/informe-atleta";
 import type { ResultadoInformeNormativo } from "@/features/performance-workspace/services/informe-normativo";
+import type { Conflicto } from "@/lib/pas/informe";
 
 import AthleteSummary from "./AthleteSummary";
 import GoalCard from "./GoalCard";
@@ -62,13 +63,95 @@ import TechnicalError from "@/components/pas/report-v2/TechnicalError";
 interface Props {
   atleta: ResultadoInformeAtleta;
   normativo: ResultadoInformeNormativo;
+  /**
+   * Los conflictos que el motor detectó sobre los propios registros.
+   *
+   * Llegan aparte porque el informe del atleta NO los conoce: `medicionesDe`
+   * mapea todos los registros vigentes sin agrupar, así que cuatro 1RM del
+   * mismo día producen cuatro tarjetas y ninguna dice que se contradicen.
+   */
+  conflictos: readonly Conflicto[];
   /** El informe funcional, ya renderizado. Va al detalle técnico. */
   funcional: React.ReactNode;
 }
 
+/**
+ * Los conflictos que invalidan la lectura de un resultado.
+ *
+ * Los que hablan del expediente (una fecha futura, un id repetido) no entran:
+ * son de higiene del registro y ya viven en el detalle técnico. Estos tres
+ * significan que las cifras que hay debajo NO se pueden leer como se leen
+ * normalmente, y por eso van arriba del todo.
+ */
+const SOBRE_LOS_DATOS: ReadonlySet<Conflicto["tipo"]> = new Set([
+  "resultado_divergente",
+  "duplicado_exacto",
+  "repeticion_no_admitida",
+]);
+
+const TITULO_CONFLICTO: Readonly<Record<string, string>> = {
+  resultado_divergente: "Resultados que se contradicen",
+  duplicado_exacto: "El mismo resultado registrado dos veces",
+  repeticion_no_admitida: "Repeticiones en una prueba que no las admite",
+};
+
+const EXPLICACION: Readonly<Record<string, string>> = {
+  resultado_divergente:
+    "Hay varios valores distintos de la misma prueba en la misma fecha. Son hechos " +
+    "incompatibles: el sistema no elige entre ellos y los muestra todos tal como se " +
+    "registraron. Mientras estén así, esa prueba no sostiene ninguna lectura.",
+  duplicado_exacto:
+    "El mismo valor aparece más de una vez el mismo día. No aporta información nueva y " +
+    "cuenta como dos mediciones en los recuentos.",
+  repeticion_no_admitida:
+    "La ficha de esta prueba no admite varios intentos en la misma fecha.",
+};
+
+/**
+ * Los valores en conflicto, legibles.
+ *
+ * El motor los da en su forma canónica —`continuo:100:kg | continuo:50:kg`—
+ * que es correcta para comparar y mala para leer. Decir «1RM: 100, 120, 150 y
+ * 50 kg» hace obvio de un vistazo cuál sobra, y ese vistazo es justo lo que le
+ * ahorra al profesional abrir cuatro tarjetas para descubrirlo.
+ *
+ * Si el formato no encaja se devuelve la cadena tal cual: inventar un formato
+ * bonito sobre algo que no se entendió sería peor que enseñar lo crudo.
+ */
+function valoresLegibles(crudo: string | undefined): string | null {
+  if (!crudo) return null;
+
+  const partes = crudo.split("|").map((x) => x.trim()).filter(Boolean);
+  if (partes.length === 0) return null;
+
+  const numeros: string[] = [];
+  let unidad = "";
+
+  for (const parte of partes) {
+    const trozos = parte.split(":");
+    if (trozos[0] !== "continuo" || trozos.length < 3) return crudo;
+    numeros.push(trozos[1]);
+    // Una unidad distinta entre valores es otro problema distinto: se muestra
+    // lo crudo en vez de fingir que comparten escala.
+    if (unidad !== "" && unidad !== trozos[2]) return crudo;
+    unidad = trozos[2];
+  }
+
+  const lista =
+    numeros.length === 1
+      ? numeros[0]
+      : `${numeros.slice(0, -1).join(", ")} y ${numeros[numeros.length - 1]}`;
+  return `${lista} ${unidad}`.replace(".", ",");
+}
+
 const H2 = "mb-3 text-[11px] uppercase tracking-wider text-white/40";
 
-export default function InformeEvaluacion({ atleta, normativo, funcional }: Props) {
+export default function InformeEvaluacion({
+  atleta,
+  normativo,
+  conflictos,
+  funcional,
+}: Props) {
   const humano = atleta.estado === "DISPONIBLE" ? atleta.informe : null;
   const norma = normativo.estado === "DISPONIBLE" ? normativo.informe : null;
 
@@ -79,6 +162,12 @@ export default function InformeEvaluacion({ atleta, normativo, funcional }: Prop
     ...(humano?.advertencias ?? []),
     ...(norma?.advertencias ?? []),
   ].filter((a, i, todas) => todas.indexOf(a) === i);
+
+  // El nombre legible de cada prueba sale de los propios resultados: el
+  // conflicto solo trae el id, y «P-01» no le dice nada a nadie.
+  const nombresDePrueba = new Map(
+    (humano?.resultados ?? []).map((r) => [r.pruebaId, r.nombre]),
+  );
 
   const objetivosSueltos = humano?.panelObjetivos.sinDatos ?? [];
   const otrosObjetivos = [
@@ -117,6 +206,14 @@ export default function InformeEvaluacion({ atleta, normativo, funcional }: Prop
       {/* ── 1 · Qué se midió ───────────────────────────────────────────── */}
       <section data-seccion="que-se-midio" aria-label="Qué se midió">
         {humano ? <AthleteSummary resumen={humano.resumen} /> : null}
+
+        {/* ── El conflicto va ANTES de las cifras ────────────────────────
+            Estaba solo en la rejilla de capacidades del informe funcional,
+            que ahora vive plegada: cuatro 1RM contradictorios del mismo día
+            se pintaban como cuatro resultados normales y nada lo decía.
+            Leerlo después de las tarjetas llega tarde — para entonces ya se
+            han leído como si fueran cuatro hallazgos. */}
+        <ConflictosDeDatos conflictos={conflictos} nombres={nombresDePrueba} />
 
         <h2 className={`${H2} mt-8`}>Resultados</h2>
         {humano === null || humano.resultados.length === 0 ? (
@@ -293,6 +390,64 @@ export default function InformeEvaluacion({ atleta, normativo, funcional }: Prop
         </div>
       </details>
     </article>
+  );
+}
+
+/**
+ * Los conflictos sobre los datos, arriba y sin rodeos.
+ *
+ * NO los resuelve: el motor tampoco (PAS-ADR-04, «ninguna de las tres se
+ * resuelve aquí, se reportan»). Lo que hace es decir que están, cuáles son y
+ * qué significan para las cifras de abajo — que es justo lo que faltaba.
+ */
+function ConflictosDeDatos({
+  conflictos,
+  nombres,
+}: {
+  conflictos: readonly Conflicto[];
+  nombres: ReadonlyMap<string, string>;
+}) {
+  const relevantes = conflictos.filter((c) => SOBRE_LOS_DATOS.has(c.tipo));
+  if (relevantes.length === 0) return null;
+
+  // Por tipo: tres divergencias son el mismo problema tres veces, y una lista
+  // de tres avisos idénticos se lee como ruido en vez de como un problema.
+  const porTipo = new Map<string, { prueba: string; valores: string | null; fecha?: string }[]>();
+  for (const c of relevantes) {
+    const filas = c.pruebas.map((p) => ({
+      prueba: nombres.get(p) ?? p,
+      valores: valoresLegibles(c.detalle.valores),
+      fecha: c.detalle.fecha,
+    }));
+    porTipo.set(c.tipo, [...(porTipo.get(c.tipo) ?? []), ...filas]);
+  }
+
+  return (
+    <div
+      data-seccion="conflictos-datos"
+      role="status"
+      className="my-6 space-y-4 rounded-xl border border-yellow-500/25 bg-yellow-500/[0.04] p-4"
+    >
+      {[...porTipo].map(([tipo, filas]) => (
+        <div key={tipo}>
+          <p className="text-sm font-semibold text-yellow-200/90">
+            {TITULO_CONFLICTO[tipo] ?? tipo}
+          </p>
+          <p className="mt-1 text-[13px] leading-relaxed text-white/60">
+            {EXPLICACION[tipo] ?? ""}
+          </p>
+          <ul className="mt-2 space-y-1">
+            {filas.map((f, i) => (
+              <li key={`${f.prueba}-${i}`} className="text-[13px] text-white/75">
+                <span className="font-semibold">{f.prueba}</span>
+                {f.valores ? <>: {f.valores}</> : null}
+                {f.fecha ? <span className="text-white/40"> · {f.fecha}</span> : null}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
   );
 }
 
