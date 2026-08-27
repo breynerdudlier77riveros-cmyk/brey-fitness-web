@@ -100,6 +100,18 @@ export default function EjercicioEditor({
 }: Props) {
   const series = ejercicio.semanas[semana]?.series ?? [];
 
+  /**
+   * La dirección que está en la nota y debería estar en el vídeo.
+   *
+   * Solo cuando la nota es SOLO una dirección y el campo de vídeo está vacío:
+   * una nota que además dice algo («ver vídeo en youtube.com/…») es una nota
+   * de verdad, y moverla borraría el texto que la acompaña.
+   */
+  const rescatable =
+    ejercicio.video === null && (ejercicio.notas ?? "").trim().split(/\s+/).length === 1
+      ? urlDeVideo(ejercicio.notas)
+      : null;
+
   return (
     <article className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-3">
       <div className="mb-3 flex items-start gap-2">
@@ -113,14 +125,49 @@ export default function EjercicioEditor({
             className="py-2 text-sm font-semibold"
           />
 
+          {/* ── EL VÍDEO VA AQUÍ, PEGADO AL NOMBRE ──────────────────────────
+              Antes iba debajo de la nota, y la nota iba primero. Resultado
+              medido en datos reales: siete de once ejercicios de una plantilla
+              tenían la dirección del vídeo pegada en la NOTA, y el campo de
+              vídeo vacío. Nadie se equivocó — dos cajas de texto seguidas y
+              parecidas, y la primera es la que se rellena.
+
+              Ahora el campo de vídeo va inmediatamente bajo el nombre, con su
+              rótulo y su icono, y la nota va después con un aspecto distinto.
+              El orden en pantalla ES la instrucción. */}
           <div className="flex flex-wrap items-center gap-2">
-            <Input
-              value={ejercicio.notas ?? ""}
-              placeholder="Nota (tempo, ejecución, señal…)"
-              aria-label={`Nota de ${ejercicio.nombre || "el ejercicio"}`}
-              onChange={(e) => onCampo({ notas: e.target.value.trim() === "" ? null : e.target.value })}
-              className="min-w-40 flex-1 py-1.5 text-xs"
-            />
+            <div
+              className={`flex min-w-52 flex-1 items-center gap-1.5 rounded-lg border px-2 py-1 transition-colors ${
+                urlDeVideo(ejercicio.video) !== null
+                  ? "border-orange-500/30 bg-orange-500/[0.04]"
+                  : "border-white/[0.08]"
+              }`}
+            >
+              <Play
+                className={`h-3.5 w-3.5 flex-shrink-0 ${
+                  urlDeVideo(ejercicio.video) !== null ? "text-orange-400/70" : "text-white/25"
+                }`}
+                strokeWidth={2}
+              />
+              <span className="text-[10px] font-bold uppercase tracking-wider text-white/30">
+                Vídeo
+              </span>
+              <Input
+                value={ejercicio.video ?? ""}
+                type="url"
+                inputMode="url"
+                placeholder="Pega aquí el enlace"
+                aria-label={`Vídeo de ${ejercicio.nombre || "el ejercicio"}`}
+                onChange={(e) => onCampo({ video: e.target.value === "" ? null : e.target.value })}
+                onBlur={(e) => onCampo({ video: urlDeVideo(e.target.value) })}
+                className="min-w-0 flex-1 px-1 py-1 text-xs"
+              />
+              {ejercicio.video !== null && urlDeVideo(ejercicio.video) === null && (
+                <span className="flex-shrink-0 text-[11px] text-yellow-300/80">
+                  No parece una dirección
+                </span>
+              )}
+            </div>
 
             <div className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] px-2 py-1">
               <span className="text-[10px] font-bold uppercase tracking-wider text-white/30">
@@ -155,28 +202,35 @@ export default function EjercicioEditor({
             </div>
           </div>
 
-          {/* El vídeo se guarda tal cual se teclea y se sanea al salir del
-              campo: normalizar en cada pulsación movería el cursor de sitio
-              mientras se escribe, que es de las cosas más molestas que puede
-              hacer un formulario. */}
-          <div className="flex items-center gap-2">
-            <Play className="h-3.5 w-3.5 flex-shrink-0 text-white/25" strokeWidth={2} />
-            <Input
-              value={ejercicio.video ?? ""}
-              type="url"
-              inputMode="url"
-              placeholder="Enlace a un vídeo del ejercicio (opcional)"
-              aria-label={`Vídeo de ${ejercicio.nombre || "el ejercicio"}`}
-              onChange={(e) => onCampo({ video: e.target.value === "" ? null : e.target.value })}
-              onBlur={(e) => onCampo({ video: urlDeVideo(e.target.value) })}
-              className="min-w-0 flex-1 py-1.5 text-xs"
-            />
-            {ejercicio.video !== null && urlDeVideo(ejercicio.video) === null && (
-              <span className="flex-shrink-0 text-[11px] text-yellow-300/80">
-                No parece una dirección web
+          {/* La nota, DESPUÉS del vídeo y con otro aspecto. El vídeo se sanea
+              al salir del campo y no en cada pulsación: normalizar mientras se
+              escribe movería el cursor de sitio. */}
+          <Input
+            value={ejercicio.notas ?? ""}
+            placeholder="Nota para el cliente (tempo, ejecución, señal…)"
+            aria-label={`Nota de ${ejercicio.nombre || "el ejercicio"}`}
+            onChange={(e) => onCampo({ notas: e.target.value.trim() === "" ? null : e.target.value })}
+            className="w-full py-1.5 text-xs"
+          />
+
+          {/* ── EL RESCATE ──────────────────────────────────────────────────
+              Siete ejercicios ya escritos tienen la dirección en la nota. No
+              se mueven solos: es el dato del entrenador y adivinar qué quiso
+              decir es justo lo que este proyecto no hace. Pero tampoco se le
+              deja el trabajo manual — un clic y está. */}
+          {rescatable !== null && (
+            <button
+              type="button"
+              onClick={() => onCampo({ video: rescatable, notas: null })}
+              className="flex w-full items-center gap-2 rounded-lg border border-orange-500/30 bg-orange-500/[0.06] px-2.5 py-1.5 text-left text-[11px] text-orange-200/90 transition-colors hover:bg-orange-500/[0.12]"
+            >
+              <Play className="h-3.5 w-3.5 flex-shrink-0" strokeWidth={2} />
+              <span>
+                La nota es una dirección de vídeo. <strong>Muévela al campo de vídeo</strong> para
+                que aparezca como enlace en el plan.
               </span>
-            )}
-          </div>
+            </button>
+          )}
 
           {/* Atajos: el descanso casi siempre es uno de estos cuatro, y
               teclear «2» y «0» en dos casillas para lo más común es fricción

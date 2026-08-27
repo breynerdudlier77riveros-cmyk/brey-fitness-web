@@ -339,3 +339,65 @@ describe('la dirección que se escribe en papel', () => {
     expect(html).toContain('href="https://youtube.com/shorts/Cxp6D7LEqjM?si=yOR--_U-xf0MiIS1"');
   });
 });
+
+// ════════════════════════════════════════════════════════════════════════════
+// EL RESCATE DE LA NOTA QUE ERA UN VÍDEO
+// ════════════════════════════════════════════════════════════════════════════
+//
+// EL FALLO, MEDIDO EN DATOS REALES: siete de once ejercicios de una plantilla
+// tenían la dirección del vídeo pegada en la NOTA y el campo de vídeo vacío.
+// Nadie se equivocó — había dos cajas de texto seguidas y parecidas, y la
+// primera era la nota.
+//
+// Se arregla el orden, y además se ofrece mover lo ya escrito. Lo que NO se
+// hace es moverlo solo: es el dato del entrenador, y adivinar qué quiso decir
+// es lo que este proyecto no hace en ninguna capa.
+
+describe('cuando la nota es en realidad un enlace de vídeo', () => {
+  const conNotaUrl = (notas: string | null, video: string | null = null) => {
+    const p = plantilla();
+    const e = p.contenido.dias[0].bloques[0].ejercicios[0];
+    e.notas = notas;
+    e.video = video;
+    return render(p);
+  };
+
+  it('se ofrece moverla, con un botón', () => {
+    const html = conNotaUrl('https://youtube.com/shorts/Be3jdafVWAk?si=M6VQZTUYW3J0C_X5');
+    expect(html).toContain('Muévela al campo de vídeo');
+  });
+
+  it('CONTROL POSITIVO · una nota normal no dispara nada', () => {
+    // Sin esto, la comprobación de arriba pasaría también con un botón que
+    // saliera siempre.
+    expect(conNotaUrl('Baja controlado, dos segundos.')).not.toContain(
+      'Muévela al campo de vídeo',
+    );
+    expect(conNotaUrl(null)).not.toContain('Muévela al campo de vídeo');
+  });
+
+  it('NO se ofrece si el vídeo ya está puesto', () => {
+    // Mover ahí borraría el enlace bueno.
+    const html = conNotaUrl('https://youtu.be/abc', 'https://youtu.be/xyz');
+    expect(html).not.toContain('Muévela al campo de vídeo');
+  });
+
+  it('NO se ofrece si la nota dice algo además de la dirección', () => {
+    // «mira el vídeo en youtu.be/abc» es una nota de verdad: moverla borraría
+    // el texto que la acompaña.
+    expect(conNotaUrl('mira el vídeo en https://youtu.be/abc')).not.toContain(
+      'Muévela al campo de vídeo',
+    );
+  });
+
+  it('y el campo de vídeo va ANTES que el de nota', () => {
+    // El orden en pantalla es la instrucción: si la nota vuelve a ir primero,
+    // el mismo error se repite con el siguiente cliente.
+    const html = render(plantilla());
+    const iVideo = html.indexOf('Pega aquí el enlace');
+    const iNota = html.indexOf('Nota para el cliente');
+    expect(iVideo).toBeGreaterThan(-1);
+    expect(iNota).toBeGreaterThan(-1);
+    expect(iVideo).toBeLessThan(iNota);
+  });
+});
