@@ -17,10 +17,7 @@ import RegistroPruebaForm from "@/features/performance-workspace/components/Regi
 import RegistrosTabla from "@/features/performance-workspace/components/RegistrosTabla";
 import AccionesEvaluacion from "@/features/performance-workspace/components/AccionesEvaluacion";
 import ReportView from "@/components/pas/report/ReportView";
-import ReportViewV2 from "@/components/pas/report-v2/ReportViewV2";
-import IncompleteSubject from "@/components/pas/report-v2/IncompleteSubject";
-import TechnicalError from "@/components/pas/report-v2/TechnicalError";
-import PerformanceReport from "@/components/pas/informe/PerformanceReport";
+import InformeEvaluacion from "@/components/pas/informe/InformeEvaluacion";
 import { construirInformeAtleta } from "@/features/performance-workspace/services/informe-atleta";
 import { resolverSujeto } from "@/features/performance-workspace/services/sujeto";
 import { construirInformeNormativo } from "@/features/performance-workspace/services/informe-normativo";
@@ -161,33 +158,23 @@ export default async function EvaluacionPage({ params }: Props) {
       ) : null}
 
       {admiteInforme(evaluacion.estado) ? (
-        <>
-          {/* ── PAS-8 · el informe del atleta, primero ──────────────────
-              Responde «¿cómo estoy?» antes que «¿por qué?». El perfil
-              normativo y el funcional siguen debajo, intactos: la información
-              científica no se elimina, se reubica. */}
-          {informeAtleta.estado === "DISPONIBLE" ? (
-            <PerformanceReport informe={informeAtleta.informe} />
-          ) : null}
-
-          <Section label="Perfil normativo">
-            {normativo.estado === "DISPONIBLE" ? (
-              <ReportViewV2 informe={normativo.informe} />
-            ) : normativo.estado === "ERROR_TECNICO" ? (
-              <TechnicalError origen={normativo.origen} detalle={normativo.detalle} />
-            ) : normativo.estado === "SUJETO_INCOMPLETO" ? (
-              <IncompleteSubject ausentes={normativo.ausentes} detalle={normativo.detalle} />
-            ) : (
-              <p className="text-sm text-white/50">{normativo.detalle}</p>
-            )}
-          </Section>
-
-          <ReportView
-            analisis={informe.analisis}
-            interpretacion={informe.interpretacion}
-            atleta={atleta.nombre}
-          />
-        </>
+        /* ── PAS-14 · UN informe, un dueño por pregunta ──────────────────
+           Antes se apilaban tres informes del mismo expediente: dos portadas,
+           dos resúmenes ejecutivos, tres «perfiles» y dos listas de
+           advertencias. El compositor los funde bajo las cuatro preguntas y
+           manda el funcional al detalle plegado — nada científico se borra,
+           se reubica. */
+        <InformeEvaluacion
+          atleta={informeAtleta}
+          normativo={normativo}
+          funcional={
+            <ReportView
+              analisis={informe.analisis}
+              interpretacion={informe.interpretacion}
+              atleta={atleta.nombre}
+            />
+          }
+        />
       ) : (
         <Section label="Informe">
           <p className="text-sm text-white/50">

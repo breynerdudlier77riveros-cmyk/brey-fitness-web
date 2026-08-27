@@ -244,12 +244,39 @@ describe('la ruta usa la lectura que distingue el fallo', () => {
     expect(RUTA).toContain('registros: lectura');
   });
 
+  it('le pasa el resultado ENTERO al compositor, con su estado', () => {
+    // La ruta ya no ramifica por estado: eso se mudó al compositor cuando los
+    // tres informes se fundieron en uno (PAS-14). Lo que la ruta no puede
+    // hacer es resolver el estado por su cuenta y pasar solo el informe — eso
+    // borraría la distinción antes de que nadie pueda pintarla.
+    expect(RUTA).toContain('normativo={normativo}');
+  });
+});
+
+// El compositor es ahora el dueño de la distinción, así que es donde se
+// comprueba. Lo que se protege no ha cambiado: un fallo técnico NUNCA se
+// pinta como un estado científico.
+describe('el compositor distingue el fallo técnico del científico', () => {
+  const COMPOSITOR = fuente('src/components/pas/informe/InformeEvaluacion.tsx');
+
   it('renderiza el error técnico con su propio componente', () => {
-    expect(RUTA).toContain('TechnicalError');
-    expect(RUTA).toContain('ERROR_TECNICO');
+    expect(COMPOSITOR).toContain('TechnicalError');
+    expect(COMPOSITOR).toContain('ERROR_TECNICO');
   });
 
   it('el error técnico se comprueba antes que los estados científicos', () => {
-    expect(RUTA.indexOf('ERROR_TECNICO')).toBeLessThan(RUTA.indexOf('SUJETO_INCOMPLETO'));
+    // Si `SUJETO_INCOMPLETO` se mirara primero, un fallo de la instalación se
+    // leería como «faltan datos del atleta» y mandaría al profesional a
+    // rellenar un formulario que ya estaba completo.
+    expect(COMPOSITOR.indexOf('ERROR_TECNICO')).toBeLessThan(
+      COMPOSITOR.indexOf('SUJETO_INCOMPLETO'),
+    );
+  });
+
+  it('y los tres estados siguen teniendo su propia rama', () => {
+    // CONTROL POSITIVO del propio fichero: si alguien los colapsara en un
+    // «no disponible» genérico, esto cae.
+    expect(COMPOSITOR).toContain('SIN_MEDICIONES');
+    expect(COMPOSITOR).toContain('IncompleteSubject');
   });
 });
