@@ -100,8 +100,44 @@
 
   /* ── Saltos de página ───────────────────────────────────────────────── */
 
+  /* ── Qué puede partirse y qué no (PAS-15) ──────────────────────────────
+     `avoid-page` sobre una sección entera era correcto cuando el informe v2
+     vivía solo y sus secciones eran cortas. Dentro del informe unificado, una
+     sección con once tarjetas no cabe en una página, y prohibirle partirse la
+     empuja entera a la siguiente: media hoja en blanco por cada apartado, y un
+     documento que parece ocho documentos en vez de uno de ocho páginas.
+
+     La unidad que no puede partirse es la TARJETA —valor, barra, evidencia y
+     advertencia se leen juntas o no se entienden—, no el apartado que las
+     contiene. */
   .reporte-prs2-print [data-seccion-v2] {
-    break-inside: avoid-page;
+    break-inside: auto;
+  }
+
+  .reporte-prs2-print [data-seccion] {
+    break-inside: auto;
+  }
+
+  /* Un título no se queda solo al pie de una página. */
+  .reporte-prs2-print [data-seccion] > h2,
+  .reporte-prs2-print [data-seccion] > h3 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  /* ── El detalle técnico SÍ se imprime ───────────────────────────────────
+     Va plegado en pantalla porque es material de referencia, no de lectura.
+     En papel no hay ratón que lo despliegue, y un informe que se entrega sin
+     su trazabilidad no es el mismo documento. Se fuerza con CSS porque `open`
+     es un atributo del elemento y ninguna clase de utilidad puede escribirlo.
+
+     Las HERRAMIENTAS de registro, en cambio, llevan `print:hidden`: no forman
+     parte del documento. */
+  .reporte-prs2-print details[data-seccion="detalle-tecnico"] > summary {
+    display: none;
+  }
+  .reporte-prs2-print details[data-seccion="detalle-tecnico"] > *:not(summary) {
+    display: block !important;
   }
 
   /* Una tarjeta normativa es la unidad de lectura: valor, barra, evidencia y

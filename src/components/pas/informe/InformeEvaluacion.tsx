@@ -146,24 +146,27 @@ function valoresLegibles(crudo: string | undefined): string | null {
 const H2 = "mb-3 text-[11px] uppercase tracking-wider text-white/40";
 
 /**
- * Los resultados agrupados por dominio, en el orden en que aparecen.
+ * Los resultados ordenados por dominio, sin trocearlos.
  *
- * El orden lo marca el primer resultado de cada dominio, no un alfabético: así
- * coincide con el que trae el informe humano y las dos secciones —resultados y
- * perfil— se leen en el mismo orden.
+ * Las pruebas del mismo dominio quedan contiguas —que es lo que hacía falta—
+ * pero siguen en una sola rejilla: seis mini-rejillas de una tarjeta dejan más
+ * blanco que información, y sobre papel convierten un informe en un montón de
+ * fragmentos.
+ *
+ * El orden de los dominios lo marca su primera aparición, no un alfabético:
+ * así coincide con el que trae el informe humano y con el perfil que va justo
+ * debajo. Los que no declaran dominio van al final, juntos, sin repartirse
+ * entre los demás — colocar uno bajo cualquier dominio afirmaría que mide algo
+ * que nadie ha dicho que mida.
  */
-function porDominio<T extends { dominio: string | null }>(
-  resultados: readonly T[],
-): [string, T[]][] {
-  const mapa = new Map<string, T[]>();
+function ordenarPorDominio<T extends { dominio: string | null }>(resultados: readonly T[]): T[] {
+  const orden = new Map<string, number>();
   for (const r of resultados) {
-    // Sin dominio declarado va a su propio grupo y NO se reparte entre los
-    // demás: colocarlo bajo uno cualquiera afirmaría que mide algo que nadie
-    // ha dicho que mida.
-    const clave = r.dominio ?? 'Sin dominio asignado';
-    mapa.set(clave, [...(mapa.get(clave) ?? []), r]);
+    if (r.dominio !== null && !orden.has(r.dominio)) orden.set(r.dominio, orden.size);
   }
-  return [...mapa.entries()];
+  const rango = (r: T) => (r.dominio === null ? orden.size : (orden.get(r.dominio) ?? orden.size));
+  // `slice()` antes de ordenar: `sort` muta, y la entrada es del informe.
+  return resultados.slice().sort((a, b) => rango(a) - rango(b));
 }
 
 export default function InformeEvaluacion({
@@ -242,29 +245,32 @@ export default function InformeEvaluacion({
             Esta evaluación todavía no tiene mediciones registradas.
           </p>
         ) : (
-          /* Agrupados por dominio, no en orden de registro. Once tarjetas en
-             el orden en que se teclearon obligan a recomponer mentalmente qué
-             mide cada una; agrupadas, coinciden con el perfil que está justo
-             debajo y las dos secciones se leen como una. */
-          porDominio(humano.resultados).map(([dominio, resultados]) => (
-            <div key={dominio} className="mt-5">
-              <h3 className="mb-2.5 text-[10px] font-bold uppercase tracking-[0.14em] text-orange-400/60">
-                {dominio}
-              </h3>
-              <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
-                {resultados.map((r, i) => (
-                  <div key={`${r.pruebaId}-${r.detalles.normaId ?? i}`} className="space-y-2">
-                    <ResultCard resultado={r} />
-                    <TechnicalDetails
-                      detalles={r.detalles}
-                      evidencia={r.evidencia}
-                      posicionTecnica={lecturaLlanaDe(r)?.tecnico ?? null}
-                    />
-                  </div>
-                ))}
+          /* ── ORDENADOS por dominio, NO troceados en secciones ─────────────
+             La primera versión de esto ponía un encabezado por dominio con su
+             propia rejilla debajo. Con once pruebas repartidas en seis o siete
+             dominios salían seis mini-rejillas de una o dos tarjetas: mucho
+             blanco, mucho título y, sobre papel, un documento que parecía ocho
+             documentos en vez de uno de ocho páginas.
+
+             Y los encabezados sobraban: `ResultCard` YA imprime el dominio de
+             cada prueba. Se estaba repitiendo en un título lo que la tarjeta
+             dice, y pagando la fragmentación por ello.
+
+             Ordenar sin trocear conserva lo que valía —las pruebas del mismo
+             dominio quedan juntas y en el mismo orden que el perfil de abajo—
+             y devuelve una rejilla continua que llena la página. */
+          <div className="mt-5 grid grid-cols-1 items-start gap-4 md:grid-cols-2">
+            {ordenarPorDominio(humano.resultados).map((r, i) => (
+              <div key={`${r.pruebaId}-${r.detalles.normaId ?? i}`} className="space-y-2">
+                <ResultCard resultado={r} />
+                <TechnicalDetails
+                  detalles={r.detalles}
+                  evidencia={r.evidencia}
+                  posicionTecnica={lecturaLlanaDe(r)?.tecnico ?? null}
+                />
               </div>
-            </div>
-          ))
+            ))}
+          </div>
         )}
       </section>
 

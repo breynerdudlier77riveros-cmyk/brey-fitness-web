@@ -130,18 +130,73 @@ describe('las cuatro secciones tienen título', () => {
     }
   });
 
-  it('los resultados se agrupan por dominio, no por orden de tecleo', () => {
-    expect(COMPOSITOR).toContain('porDominio(');
+  it('los resultados se ORDENAN por dominio, no por orden de tecleo', () => {
+    expect(COMPOSITOR).toContain('ordenarPorDominio(');
+  });
+
+  it('pero NO se trocean en una rejilla por dominio', () => {
+    // La primera versión ponía un encabezado por dominio con su propia
+    // rejilla. Con once pruebas en seis dominios salían seis mini-rejillas de
+    // una tarjeta: mucho blanco, y sobre papel un documento que parecía ocho
+    // documentos en vez de uno de ocho páginas. Los encabezados además
+    // repetían lo que `ResultCard` ya imprime.
+    const rejillas = COMPOSITOR.match(/grid-cols-1 items-start gap-4 md:grid-cols-2/g) ?? [];
+    expect(rejillas.length).toBeLessThanOrEqual(2);
   });
 
   it('un resultado sin dominio no se reparte entre los demás', () => {
-    // Colocarlo bajo uno cualquiera afirmaría que mide algo que nadie ha
-    // dicho que mida.
-    expect(COMPOSITOR).toContain('Sin dominio asignado');
+    // Colocarlo bajo cualquier dominio afirmaría que mide algo que nadie ha
+    // dicho que mida. Van al final, juntos.
+    expect(COMPOSITOR).toContain('r.dominio === null ? orden.size');
+  });
+
+  it('ordenar no muta la lista que le pasa el informe', () => {
+    expect(COMPOSITOR).toContain('resultados.slice()');
   });
 
   it('ya no hay una tarjeta que prometa una función inexistente', () => {
     // Un informe profesional o enseña algo o no ocupa sitio.
     expect(COMPOSITOR).not.toContain('estará disponible cuando la capa');
+  });
+});
+
+// ── El informe se entrega como UN documento (Sprint PAS-15) ────────────────
+//
+// La queja que lo destapó: «al recoger el informe tendría 8 pdfs diferentes en
+// vez de 1 solo con 8 páginas». Tres causas, y las tres eran de impresión.
+
+describe('lo que llega al papel', () => {
+  const HOJA = readFileSync('src/components/pas/report-v2/print.css', 'utf8');
+  const PAGINA = readFileSync(
+    'src/app/app/rendimiento/evaluacion/[evaluacionId]/page.tsx',
+    'utf8',
+  );
+
+  it('un apartado PUEDE partirse entre páginas', () => {
+    // `avoid-page` sobre una sección de once tarjetas la empuja entera a la
+    // página siguiente y deja media hoja en blanco por apartado.
+    expect(HOJA).toMatch(/\[data-seccion-v2\]\s*\{\s*break-inside: auto;/);
+  });
+
+  it('pero una TARJETA no', () => {
+    // Valor, barra, evidencia y advertencia se leen juntas o no se entienden.
+    expect(HOJA).toContain('.prs2-tarjeta');
+    expect(HOJA).toMatch(/prs2-tarjeta[\s\S]{0,200}break-inside: avoid/);
+  });
+
+  it('un título no se queda solo al pie de página', () => {
+    expect(HOJA).toMatch(/\[data-seccion\] > h2[\s\S]{0,120}break-after: avoid/);
+  });
+
+  it('el detalle técnico SÍ se imprime, desplegado', () => {
+    // En papel no hay ratón que lo abra, y un informe entregado sin su
+    // trazabilidad no es el mismo documento.
+    expect(HOJA).toContain('details[data-seccion="detalle-tecnico"]');
+    expect(HOJA).toMatch(/detalle-tecnico"\] > \*:not\(summary\)[\s\S]{0,80}display: block/);
+  });
+
+  it('las herramientas de registro NO se imprimen', () => {
+    // No forman parte del documento que se entrega.
+    expect(PAGINA).toContain('<details className="print:hidden');
   });
 });

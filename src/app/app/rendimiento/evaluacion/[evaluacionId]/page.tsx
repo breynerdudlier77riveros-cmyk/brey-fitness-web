@@ -180,7 +180,7 @@ export default async function EvaluacionPage({ params }: Props) {
           Plegadas y no en otra página: corregir un dato y volver a mirar el
           informe es el gesto más frecuente, y partirlo en dos vistas
           obligaría a navegar para cada corrección. */}
-      <details className="rounded-2xl border border-white/[0.08]">
+      <details className="print:hidden rounded-2xl border border-white/[0.08]">
         <summary className="cursor-pointer list-none px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/40 transition-colors hover:text-white/70">
           Registrar y corregir datos
           <span className="ml-2 font-normal tracking-normal text-white/25">
