@@ -21,6 +21,7 @@
 
 import { requeridasAusentes } from '@/features/performance-workspace/schemas/condiciones';
 
+import { patronCanonico } from './patrones';
 import { situar } from './posicion';
 import { fuenteDe, referenciasDe } from './registro';
 import type {
@@ -45,6 +46,14 @@ export interface MedicionEvaluada {
   valor: number;
   unidad: string;
   condiciones: Readonly<Record<string, string>>;
+  /**
+   * Qué se levantó. `null`/ausente = no consta.
+   *
+   * Opcional para no romper a quien ya construye mediciones sin él; una
+   * referencia que declare patrón simplemente no casará con una medición que
+   * no lo traiga, que es el comportamiento correcto.
+   */
+  patron?: string | null;
 }
 
 /** Las variables del atleta que una referencia puede exigir. */
@@ -106,7 +115,34 @@ function evaluar(
     };
   }
 
-  // 2 · Unidad. No se convierte nada: este sprint no crea conversiones.
+  // 2 · PATRÓN. Una norma de sentadilla no dice nada de un press de banca.
+  //     Se compara por equivalencia EXACTA tras normalizar: nada de
+  //     coincidencias parciales, porque «sentadilla búlgara» contiene
+  //     «sentadilla» y no comparte su norma.
+  //
+  //     Una referencia sin patrón declarado sigue valiendo para cualquier
+  //     medición: es el caso de las pruebas que no piden patrón, y quitarles
+  //     la norma sería romper lo que ya funcionaba.
+  if (ref.ambito.patron !== null) {
+    const suyo = patronCanonico(ref.ambito.patron);
+    const medido = patronCanonico(medicion.patron ?? null);
+    if (medido === null) {
+      return {
+        apta: false,
+        motivo:
+          'Esta referencia mide un levantamiento concreto y el registro no declara cuál se ' +
+          'evaluó, o declara uno que no está entre los que la fuente publica.',
+      };
+    }
+    if (medido !== suyo) {
+      return {
+        apta: false,
+        motivo: `La referencia publica valores de ${ref.ambito.patron} y la medición es de otro levantamiento.`,
+      };
+    }
+  }
+
+  // 3 · Unidad. No se convierte nada: este sprint no crea conversiones.
   if (ref.ambito.unidad !== medicion.unidad) {
     return {
       apta: false,

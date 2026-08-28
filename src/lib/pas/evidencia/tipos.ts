@@ -131,6 +131,24 @@ export interface AmbitoReferencia {
   /** Condiciones de registro que la fuente exige que coincidan. */
   protocolo: Readonly<Record<string, string>>;
   unidad: string;
+  /**
+   * El patrón concreto que midió la fuente. `null` = la prueba no lo declara.
+   *
+   * ── POR QUÉ SE AÑADIÓ (PAS-15) ──────────────────────────────────────────
+   *
+   *   Sin este campo, la norma de sentadilla se aplicaba a cualquier 1RM. El
+   *   p90 de sentadilla masculina 18-35 es 2,83 y el de press de banca 1,96:
+   *   comparar un press contra 2,83 no da una lectura mala, da una lectura de
+   *   otro ejercicio.
+   *
+   *   El catálogo ya lo decía —P-01 declara `requierePatron: true`— así que el
+   *   patrón siempre formó parte de la identidad de la medición. Lo que
+   *   faltaba era que la referencia declarara el suyo.
+   *
+   *   `null` mantiene el comportamiento anterior para las pruebas que no piden
+   *   patrón: dinamometría, salto, sprint.
+   */
+  patron: string | null;
 }
 
 /** Cómo publica sus valores la fuente. Nunca se traduce un tipo en otro (§7). */

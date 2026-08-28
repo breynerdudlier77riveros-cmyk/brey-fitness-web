@@ -1,6 +1,12 @@
 "use client";
 
 import { useState, useTransition } from "react";
+
+import {
+  ETIQUETA_PATRON,
+  PATRONES_CANONICOS,
+  patronCanonico,
+} from "@/lib/pas/evidencia/patrones";
 import { useRouter } from "next/navigation";
 import Button from "@/components/brand/Button";
 import Input from "@/components/brand/Input";
@@ -107,6 +113,7 @@ export default function RegistroPruebaForm({ evaluacionId, fechaEvaluacion }: Pr
   const [pendiente, iniciar] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [pruebaId, setPruebaId] = useState(PRUEBAS[0].id);
+  const [patron, setPatron] = useState("");
 
   const prueba = pruebaRegistrable(pruebaId);
   const mapeo = mapeoDe(pruebaId);
@@ -211,12 +218,67 @@ export default function RegistroPruebaForm({ evaluacionId, fechaEvaluacion }: Pr
         </label>
 
         {prueba?.requierePatron ? (
-          <label className="block sm:col-span-2">
-            <span className="mb-1 block text-xs font-semibold text-white/60">
-              Patrón evaluado
-            </span>
-            <Input name="patron" required maxLength={80} />
-          </label>
+          <div className="block sm:col-span-2">
+            <label className="block">
+              <span className="mb-1 block text-xs font-semibold text-white/60">
+                Patrón evaluado
+              </span>
+              <Input
+                name="patron"
+                required
+                maxLength={80}
+                list="patrones-con-norma"
+                value={patron}
+                onChange={(e) => setPatron(e.target.value)}
+              />
+            </label>
+
+            {/* ── Los que tienen norma, a un clic ────────────────────────────
+                Sigue siendo texto libre: un entrenador mide muchos más
+                ejercicios que los tres que la literatura publica, y cerrar la
+                lista le impediría registrar los demás.
+
+                Lo que cambia es que se VE cuáles tienen norma. Antes eran una
+                casilla vacía, y en datos reales llegaron escritos como
+                «Sentadilla», «press banca», «Peso muerto» y «Dominadas» — sin
+                forma de saber que solo los tres primeros se podían comparar
+                con algo. */}
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              <span className="text-[10px] uppercase tracking-wider text-white/25">
+                Con norma publicada
+              </span>
+              {PATRONES_CANONICOS.map((id) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setPatron(ETIQUETA_PATRON[id])}
+                  aria-pressed={patronCanonico(patron) === id}
+                  className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold transition-colors ${
+                    patronCanonico(patron) === id
+                      ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-200"
+                      : "border-white/[0.08] text-white/45 hover:border-white/25 hover:text-white"
+                  }`}
+                >
+                  {ETIQUETA_PATRON[id]}
+                </button>
+              ))}
+            </div>
+
+            <datalist id="patrones-con-norma">
+              {PATRONES_CANONICOS.map((id) => (
+                <option key={id} value={ETIQUETA_PATRON[id]} />
+              ))}
+            </datalist>
+
+            {/* El aviso solo aparece cuando ya se ha escrito algo: en blanco
+                sería un reproche antes de empezar. */}
+            {patron.trim() !== "" && patronCanonico(patron) === null ? (
+              <p className="mt-2 text-[11px] leading-relaxed text-white/40">
+                Este levantamiento se registra igual, pero no hay norma publicada para él en la
+                fuente cargada: su resultado se guardará sin posición percentil.
+              </p>
+            ) : null}
+          </div>
         ) : null}
       </div>
 

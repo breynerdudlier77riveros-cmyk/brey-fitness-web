@@ -21,6 +21,7 @@
 // nuevas se recuperaron y leyeron; las marcadas `sin_verificar` aparecieron en
 // búsqueda y no se han abierto.
 
+import { DECILES_POWERLIFTING } from './deciles-powerlifting';
 import type { FuenteEvidencia, ReferenciaEvidencia } from './tipos';
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -379,55 +380,50 @@ export function fuenteDe(id: string): FuenteEvidencia | null {
 const SIN_PROTOCOLO: Readonly<Record<string, string>> = {};
 
 export const REFERENCIAS: readonly ReferenciaEvidencia[] = [
-  // ── P-01 · 1RM ───────────────────────────────────────────────────────────
-  {
-    id: 'P-01/powerlifting/p90',
+  // ── P-01 · 1RM · deciles de fuerza relativa ──────────────────────────────
+  //
+  // Sustituyen a las dos entradas anteriores, que traían solo el percentil 90
+  // y —lo importante— NO declaraban de qué levantamiento eran. Ese 2,83 es la
+  // sentadilla; aplicado a un press de banca comparaba contra la norma de otro
+  // ejercicio sin que nada lo impidiera.
+  //
+  // Ahora son 30 referencias: 3 levantamientos × 2 sexos × 5 bandas de edad,
+  // cada una con sus nueve deciles. Se construyen desde
+  // `deciles-powerlifting.ts`, que es el fichero generado y verificado — aquí
+  // solo se les pone el ámbito y las limitaciones que comparten todas.
+  ...DECILES_POWERLIFTING.map((d) => ({
+    id: `P-01/powerlifting/${d.patron}/${d.sexo}/${d.banda.min}`,
     pruebaId: 'P-01',
     fuenteId: 'van_den_hoek_powerlifting_2024',
-    tipo: 'BENCHMARK',
-    nivel: 'C',
+    tipo: 'BENCHMARK' as const,
+    nivel: 'C' as const,
     ambito: {
-      edadMin: 18,
-      edadMax: 35,
-      sexo: 'M',
+      edadMin: d.banda.min,
+      edadMax: d.banda.max,
+      sexo: d.sexo,
       pais: null,
       contexto: 'competicion',
       protocolo: { determinacion: 'medido_directo' },
       unidad: 'ratio_peso',
+      patron: d.patron,
     },
-    // Un único punto porque es el único que se leyó. Rellenar P10..P75 con
-    // valores plausibles sería exactamente lo que este registro impide.
-    representacion: { clase: 'percentiles', puntos: [{ p: 90, valor: 2.83 }] },
+    representacion: { clase: 'percentiles' as const, puntos: d.puntos },
     limitaciones: [
-      'La muestra son competidores federados de powerlifting, no población general.',
+      'La muestra son competidores federados de powerlifting con control antidopaje, no ' +
+        'población general: un practicante recreativo caerá en los percentiles bajos sin que ' +
+        'eso signifique nada sobre su entrenamiento.',
       'El valor es la razón entre la carga levantada y la masa corporal, no kilos absolutos.',
-      'Solo se ha transcrito el percentil 90 de la categoría 18-35 años.',
+      'Son deciles: sitúan el resultado dentro de una distribución. NO son categorías de ' +
+        'nivel, y la fuente no publica ninguna.',
+      ...(d.patron === 'press_banca' && d.sexo === 'M' && d.banda.min === 18
+        ? [
+            'El resumen del artículo da 1,95 para este percentil 90 y la Tabla 4 da 1,96. Se ' +
+              'transcribe la tabla, que es el dato primario.',
+          ]
+        : []),
     ],
     variablesAtleta: ['peso_kg'],
-  },
-  {
-    id: 'P-01/powerlifting/p90-f',
-    pruebaId: 'P-01',
-    fuenteId: 'van_den_hoek_powerlifting_2024',
-    tipo: 'BENCHMARK',
-    nivel: 'C',
-    ambito: {
-      edadMin: 18,
-      edadMax: 35,
-      sexo: 'F',
-      pais: null,
-      contexto: 'competicion',
-      protocolo: { determinacion: 'medido_directo' },
-      unidad: 'ratio_peso',
-    },
-    representacion: { clase: 'percentiles', puntos: [{ p: 90, valor: 2.26 }] },
-    limitaciones: [
-      'La muestra son competidoras federadas de powerlifting, no población general.',
-      'El valor es la razón entre la carga levantada y la masa corporal, no kilos absolutos.',
-      'Solo se ha transcrito el percentil 90 de la categoría 18-35 años.',
-    ],
-    variablesAtleta: ['peso_kg'],
-  },
+  })),
   {
     id: 'P-01/fiabilidad',
     pruebaId: 'P-01',
@@ -437,6 +433,7 @@ export const REFERENCIAS: readonly ReferenciaEvidencia[] = [
     ambito: {
       edadMin: null, edadMax: null, sexo: null, pais: null,
       contexto: 'general', protocolo: SIN_PROTOCOLO, unidad: 'kg',
+      patron: null,
     },
     representacion: { clase: 'fiabilidad', icc: [0.64, 0.99], cvPct: 4.2 },
     limitaciones: [
@@ -456,6 +453,7 @@ export const REFERENCIAS: readonly ReferenciaEvidencia[] = [
     ambito: {
       edadMin: null, edadMax: null, sexo: null, pais: null,
       contexto: 'deportiva', protocolo: SIN_PROTOCOLO, unidad: 'N',
+      patron: null,
     },
     representacion: { clase: 'fiabilidad', icc: [0.73, 0.99], cvPct: 4.9 },
     limitaciones: [
@@ -475,6 +473,7 @@ export const REFERENCIAS: readonly ReferenciaEvidencia[] = [
     ambito: {
       edadMin: 18, edadMax: 25, sexo: null, pais: null,
       contexto: 'deportiva', protocolo: SIN_PROTOCOLO, unidad: 'cm',
+      patron: null,
     },
     representacion: { clase: 'fiabilidad', icc: [0.981, 0.987], cvPct: 6.1 },
     limitaciones: [
@@ -506,6 +505,7 @@ export const REFERENCIAS: readonly ReferenciaEvidencia[] = [
       // evidencia en contra.
       protocolo: { brazos: 'libres' },
       unidad: 'cm',
+      patron: null,
     },
     representacion: {
       clase: 'percentiles',
@@ -533,6 +533,7 @@ export const REFERENCIAS: readonly ReferenciaEvidencia[] = [
       contexto: 'general',
       protocolo: { brazos: 'libres' },
       unidad: 'cm',
+      patron: null,
     },
     representacion: {
       clase: 'percentiles',
@@ -560,6 +561,7 @@ export const REFERENCIAS: readonly ReferenciaEvidencia[] = [
       contexto: 'general',
       protocolo: { brazos: 'libres' },
       unidad: 'cm',
+      patron: null,
     },
     representacion: {
       clase: 'percentiles',
@@ -587,6 +589,7 @@ export const REFERENCIAS: readonly ReferenciaEvidencia[] = [
       contexto: 'general',
       protocolo: { brazos: 'libres' },
       unidad: 'cm',
+      patron: null,
     },
     representacion: {
       clase: 'percentiles',
@@ -620,6 +623,7 @@ export const REFERENCIAS: readonly ReferenciaEvidencia[] = [
       // muestra confunde la comparación de forma directa.
       protocolo: { version: 'clasico' },
       unidad: 'cm',
+      patron: null,
     },
     representacion: {
       clase: 'percentiles',
@@ -647,6 +651,7 @@ export const REFERENCIAS: readonly ReferenciaEvidencia[] = [
       contexto: 'general',
       protocolo: { version: 'clasico' },
       unidad: 'cm',
+      patron: null,
     },
     representacion: {
       clase: 'percentiles',
@@ -674,6 +679,7 @@ export const REFERENCIAS: readonly ReferenciaEvidencia[] = [
       contexto: 'general',
       protocolo: { version: 'clasico' },
       unidad: 'cm',
+      patron: null,
     },
     representacion: {
       clase: 'percentiles',
@@ -701,6 +707,7 @@ export const REFERENCIAS: readonly ReferenciaEvidencia[] = [
       contexto: 'general',
       protocolo: { version: 'clasico' },
       unidad: 'cm',
+      patron: null,
     },
     representacion: {
       clase: 'percentiles',
@@ -725,6 +732,7 @@ export const REFERENCIAS: readonly ReferenciaEvidencia[] = [
     ambito: {
       edadMin: null, edadMax: null, sexo: null, pais: null,
       contexto: 'general', protocolo: { instruccion: 'maxima_altura' }, unidad: 'ratio',
+      patron: null,
     },
     representacion: { clase: 'fiabilidad', icc: [0.8, 0.99], cvPct: 10 },
     limitaciones: [
@@ -750,6 +758,7 @@ export const REFERENCIAS: readonly ReferenciaEvidencia[] = [
       contexto: 'escolar',
       protocolo: { ecuacion: 'leger_1988' },
       unidad: 'estadios',
+      patron: null,
     },
     // La fuente publica P3 a P97 por edad y sexo. Todavía no se ha transcrito
     // la tabla, y decirlo es más útil que fingir que no existe.
@@ -780,6 +789,7 @@ export const REFERENCIAS: readonly ReferenciaEvidencia[] = [
       contexto: 'deportiva',
       protocolo: { normalizado: 'porcentaje_longitud_pierna' },
       unidad: '% long. pierna',
+      patron: null,
     },
     representacion: { clase: 'fiabilidad', icc: [0.85, 0.91], cvPct: null },
     limitaciones: [

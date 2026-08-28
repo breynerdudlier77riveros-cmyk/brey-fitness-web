@@ -23,7 +23,7 @@ const ADULTO: SujetoEvidencia = { edad: 22, sexo: 'M', pais: 'CO', pesoKg: null 
 const ESCOLAR: SujetoEvidencia = { edad: 14, sexo: 'M', pais: 'CO', pesoKg: null };
 
 const med = (over: Partial<MedicionEvaluada> = {}): MedicionEvaluada => ({
-  pruebaId: 'P-01',
+  pruebaId: 'P-01', patron: 'sentadilla',
   valor: 140,
   unidad: 'kg',
   condiciones: {},
@@ -468,7 +468,7 @@ describe('ninguna frase clasifica al atleta', () => {
       estado: 'EVIDENCIA_COMPATIBLE',
       compatibles: [
         {
-          referencia: REFERENCIAS.find((r) => r.id === 'P-01/powerlifting/p90')!,
+          referencia: REFERENCIAS.find((r) => r.id === 'P-01/powerlifting/sentadilla/M/18')!,
           posicion: { clase: 'entre_percentiles', inferior: 50, superior: 90 },
           poblacionAjena: false,
         },

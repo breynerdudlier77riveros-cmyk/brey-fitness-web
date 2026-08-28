@@ -94,11 +94,11 @@ const ESCOLAR = { edad: 14, sexo: 'M' as const, pais: 'CO', pesoKg: null };
 
 const LECTURAS = {
   noDeterminable: leerEvidencia(
-    { pruebaId: 'P-01', valor: 2.5, unidad: 'ratio_peso', condiciones: { determinacion: 'medido_directo' } },
+    { pruebaId: 'P-01', patron: 'sentadilla', valor: 2.5, unidad: 'ratio_peso', condiciones: { determinacion: 'medido_directo' } },
     ADULTO,
   ),
   noComparable: leerEvidencia(
-    { pruebaId: 'P-01', valor: 2.5, unidad: 'ratio_peso', condiciones: {} },
+    { pruebaId: 'P-01', patron: 'sentadilla', valor: 2.5, unidad: 'ratio_peso', condiciones: {} },
     { ...ADULTO, pesoKg: 70 },
   ),
   noCompatible: leerEvidencia(
@@ -114,7 +114,7 @@ const LECTURAS = {
     ADULTO,
   ),
   compatible: leerEvidencia(
-    { pruebaId: 'P-01', valor: 2.5, unidad: 'ratio_peso', condiciones: { determinacion: 'medido_directo' } },
+    { pruebaId: 'P-01', patron: 'sentadilla', valor: 2.5, unidad: 'ratio_peso', condiciones: { determinacion: 'medido_directo' } },
     { ...ADULTO, pesoKg: 70 },
   ),
 };
