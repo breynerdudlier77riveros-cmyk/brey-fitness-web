@@ -1,4 +1,3 @@
-import { Card, CardContent } from "@/components/brand/Card";
 import { lecturaLlanaDe } from "@/lib/pas/informe-humano";
 import type { ResultadoInformeAtleta } from "@/features/performance-workspace/services/informe-atleta";
 import type { ResultadoInformeNormativo } from "@/features/performance-workspace/services/informe-normativo";
@@ -146,6 +145,27 @@ function valoresLegibles(crudo: string | undefined): string | null {
 
 const H2 = "mb-3 text-[11px] uppercase tracking-wider text-white/40";
 
+/**
+ * Los resultados agrupados por dominio, en el orden en que aparecen.
+ *
+ * El orden lo marca el primer resultado de cada dominio, no un alfabético: así
+ * coincide con el que trae el informe humano y las dos secciones —resultados y
+ * perfil— se leen en el mismo orden.
+ */
+function porDominio<T extends { dominio: string | null }>(
+  resultados: readonly T[],
+): [string, T[]][] {
+  const mapa = new Map<string, T[]>();
+  for (const r of resultados) {
+    // Sin dominio declarado va a su propio grupo y NO se reparte entre los
+    // demás: colocarlo bajo uno cualquiera afirmaría que mide algo que nadie
+    // ha dicho que mida.
+    const clave = r.dominio ?? 'Sin dominio asignado';
+    mapa.set(clave, [...(mapa.get(clave) ?? []), r]);
+  }
+  return [...mapa.entries()];
+}
+
 export default function InformeEvaluacion({
   atleta,
   normativo,
@@ -205,6 +225,7 @@ export default function InformeEvaluacion({
 
       {/* ── 1 · Qué se midió ───────────────────────────────────────────── */}
       <section data-seccion="que-se-midio" aria-label="Qué se midió">
+        <h2 className={H2}>Qué se midió</h2>
         {humano ? <AthleteSummary resumen={humano.resumen} /> : null}
 
         {/* ── El conflicto va ANTES de las cifras ────────────────────────
@@ -221,18 +242,29 @@ export default function InformeEvaluacion({
             Esta evaluación todavía no tiene mediciones registradas.
           </p>
         ) : (
-          <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
-            {humano.resultados.map((r, i) => (
-              <div key={`${r.pruebaId}-${r.detalles.normaId ?? i}`} className="space-y-2">
-                <ResultCard resultado={r} />
-                <TechnicalDetails
-                  detalles={r.detalles}
-                  evidencia={r.evidencia}
-                  posicionTecnica={lecturaLlanaDe(r)?.tecnico ?? null}
-                />
+          /* Agrupados por dominio, no en orden de registro. Once tarjetas en
+             el orden en que se teclearon obligan a recomponer mentalmente qué
+             mide cada una; agrupadas, coinciden con el perfil que está justo
+             debajo y las dos secciones se leen como una. */
+          porDominio(humano.resultados).map(([dominio, resultados]) => (
+            <div key={dominio} className="mt-5">
+              <h3 className="mb-2.5 text-[10px] font-bold uppercase tracking-[0.14em] text-orange-400/60">
+                {dominio}
+              </h3>
+              <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
+                {resultados.map((r, i) => (
+                  <div key={`${r.pruebaId}-${r.detalles.normaId ?? i}`} className="space-y-2">
+                    <ResultCard resultado={r} />
+                    <TechnicalDetails
+                      detalles={r.detalles}
+                      evidencia={r.evidencia}
+                      posicionTecnica={lecturaLlanaDe(r)?.tecnico ?? null}
+                    />
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          ))
         )}
       </section>
 
@@ -351,18 +383,12 @@ export default function InformeEvaluacion({
         </section>
       ) : null}
 
-      {/* ── BREY AI ────────────────────────────────────────────────────── */}
-      <section data-seccion="brey-ai" aria-label="Análisis BREY AI">
-        <h2 className={H2}>Análisis BREY AI</h2>
-        <Card className="pas8-brey-ai border-white/5 bg-white/[0.02]">
-          <CardContent className="p-5">
-            <p className="text-sm leading-relaxed text-white/45">
-              El análisis personalizado estará disponible cuando la capa de interpretación esté
-              habilitada. Cuando llegue, explicará estos mismos resultados: no calculará ninguno.
-            </p>
-          </CardContent>
-        </Card>
-      </section>
+      {/* ── BREY AI, retirada en PAS-15 ─────────────────────────────────────
+          Era una tarjeta que ocupaba un apartado entero para decir que la
+          función todavía no existe. Un informe profesional no promete: o
+          enseña algo o no ocupa sitio. Cuando la capa de interpretación se
+          conecte aquí —como ya está en composición corporal y en las
+          plantillas— volverá con contenido, no con un aviso. */}
 
       {/* ── Detalle técnico ────────────────────────────────────────────────
           Plegado, no eliminado. El resumen ejecutivo del perfil normativo y el

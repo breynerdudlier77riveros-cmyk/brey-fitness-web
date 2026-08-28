@@ -89,3 +89,59 @@ describe('la forma canónica del motor', () => {
     expect(COMPOSITOR).toContain('unidad !== trozos[2]');
   });
 });
+
+// ── El orden del informe y de la página (Sprint PAS-15) ────────────────────
+//
+// EL PROBLEMA: la página abría con dos formularios y una tabla de dieciocho
+// filas planas, y había que pasarlos enteros para llegar a lo que se viene a
+// leer. Las herramientas arriba, el producto al final del scroll.
+//
+// Y dentro del informe, tres cosas chirriaban: la primera sección era la única
+// sin título, una tarjeta ocupaba un apartado para decir que la función no
+// existe, y las once tarjetas de resultado salían en orden de tecleo.
+
+describe('el informe se lee antes que las herramientas', () => {
+  const PAGINA = readFileSync(
+    'src/app/app/rendimiento/evaluacion/[evaluacionId]/page.tsx',
+    'utf8',
+  );
+
+  it('el informe va ANTES del bloque de registrar y corregir', () => {
+    const iInforme = PAGINA.indexOf('<InformeEvaluacion');
+    const iHerramientas = PAGINA.indexOf('Registrar y corregir datos');
+    expect(iInforme).toBeGreaterThan(-1);
+    expect(iHerramientas).toBeGreaterThan(-1);
+    expect(iInforme).toBeLessThan(iHerramientas);
+  });
+
+  it('las herramientas van plegadas, no en otra página', () => {
+    // Corregir un dato y volver a mirar el informe es el gesto más frecuente;
+    // partirlo en dos vistas obligaría a navegar en cada corrección.
+    expect(PAGINA).toContain('<details');
+    expect(PAGINA).toContain('RegistroPruebaForm');
+    expect(PAGINA).toContain('MasaCorporal');
+  });
+});
+
+describe('las cuatro secciones tienen título', () => {
+  it('incluida la primera, que era la única sin él', () => {
+    for (const titulo of ['Qué se midió', 'Dónde cae', 'Qué falta', 'Hacia dónde']) {
+      expect(COMPOSITOR, titulo).toContain(`>${titulo}</h2>`);
+    }
+  });
+
+  it('los resultados se agrupan por dominio, no por orden de tecleo', () => {
+    expect(COMPOSITOR).toContain('porDominio(');
+  });
+
+  it('un resultado sin dominio no se reparte entre los demás', () => {
+    // Colocarlo bajo uno cualquiera afirmaría que mide algo que nadie ha
+    // dicho que mida.
+    expect(COMPOSITOR).toContain('Sin dominio asignado');
+  });
+
+  it('ya no hay una tarjeta que prometa una función inexistente', () => {
+    // Un informe profesional o enseña algo o no ocupa sitio.
+    expect(COMPOSITOR).not.toContain('estará disponible cuando la capa');
+  });
+});

@@ -145,6 +145,50 @@ export default async function EvaluacionPage({ params }: Props) {
         actions={<AccionesEvaluacion evaluacion={evaluacion} />}
       />
 
+      {admiteInforme(evaluacion.estado) ? (
+        /* ── PAS-14 · UN informe, un dueño por pregunta ──────────────────
+           Antes se apilaban tres informes del mismo expediente: dos portadas,
+           dos resúmenes ejecutivos, tres «perfiles» y dos listas de
+           advertencias. El compositor los funde bajo las cuatro preguntas y
+           manda el funcional al detalle plegado — nada científico se borra,
+           se reubica. */
+        <InformeEvaluacion
+          atleta={informeAtleta}
+          normativo={normativo}
+          conflictos={informe.analisis.conflictos}
+          funcional={
+            <ReportView
+              analisis={informe.analisis}
+              interpretacion={informe.interpretacion}
+              atleta={atleta.nombre}
+            />
+          }
+        />
+      ) : (
+        <Section label="Informe">
+          <p className="text-sm text-white/50">
+            Esta evaluación está anulada y no se deriva ningún informe.
+          </p>
+        </Section>
+      )}
+
+      {/* ── PAS-15 · las herramientas, DESPUÉS y plegadas ───────────────────
+          Antes la página abría con dos formularios y una tabla de dieciocho
+          filas, y había que pasarlos para llegar a lo que se viene a leer. El
+          informe es el producto; registrar y corregir es la herramienta.
+
+          Plegadas y no en otra página: corregir un dato y volver a mirar el
+          informe es el gesto más frecuente, y partirlo en dos vistas
+          obligaría a navegar para cada corrección. */}
+      <details className="rounded-2xl border border-white/[0.08]">
+        <summary className="cursor-pointer list-none px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/40 transition-colors hover:text-white/70">
+          Registrar y corregir datos
+          <span className="ml-2 font-normal tracking-normal text-white/25">
+            {registros.length} {registros.length === 1 ? "prueba" : "pruebas"}
+          </span>
+        </summary>
+
+        <div className="space-y-8 border-t border-white/[0.08] px-4 py-6">
       {/* La masa corporal va ANTES de las pruebas, no escondida en el alta:
           es lo que decide si esas pruebas van a tener lectura normativa. Solo
           en borrador, igual que registrar y anular. */}
@@ -173,33 +217,8 @@ export default async function EvaluacionPage({ params }: Props) {
           />
         </Section>
       ) : null}
-
-      {admiteInforme(evaluacion.estado) ? (
-        /* ── PAS-14 · UN informe, un dueño por pregunta ──────────────────
-           Antes se apilaban tres informes del mismo expediente: dos portadas,
-           dos resúmenes ejecutivos, tres «perfiles» y dos listas de
-           advertencias. El compositor los funde bajo las cuatro preguntas y
-           manda el funcional al detalle plegado — nada científico se borra,
-           se reubica. */
-        <InformeEvaluacion
-          atleta={informeAtleta}
-          normativo={normativo}
-          conflictos={informe.analisis.conflictos}
-          funcional={
-            <ReportView
-              analisis={informe.analisis}
-              interpretacion={informe.interpretacion}
-              atleta={atleta.nombre}
-            />
-          }
-        />
-      ) : (
-        <Section label="Informe">
-          <p className="text-sm text-white/50">
-            Esta evaluación está anulada y no se deriva ningún informe.
-          </p>
-        </Section>
-      )}
+        </div>
+      </details>
     </div>
   );
 }
