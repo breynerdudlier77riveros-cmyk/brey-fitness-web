@@ -134,6 +134,14 @@ describe('las cuatro secciones tienen título', () => {
     expect(COMPOSITOR).toContain('ordenarPorDominio(');
   });
 
+  it('el resumen y el completo salen del MISMO orden', () => {
+    // Si cada vista ordenara por su cuenta, el recuadro tercero del resumen y
+    // la tarjeta tercera del informe serían pruebas distintas, y quien
+    // compare las dos vistas creería que falta algo.
+    const usos = COMPOSITOR.match(/ordenarPorDominio\(humano\.resultados\)/g) ?? [];
+    expect(usos.length).toBe(2);
+  });
+
   it('pero NO se trocean en una rejilla por dominio', () => {
     // La primera versión ponía un encabezado por dominio con su propia
     // rejilla. Con once pruebas en seis dominios salían seis mini-rejillas de
@@ -198,5 +206,54 @@ describe('lo que llega al papel', () => {
   it('las herramientas de registro NO se imprimen', () => {
     // No forman parte del documento que se entrega.
     expect(PAGINA).toContain('<details className="print:hidden');
+  });
+});
+
+// ── Las dos vistas del informe (Sprint PAS-16) ─────────────────────────────
+//
+// «Resumen» son recuadros compactos; «Informe completo» lo despliega todo y es
+// lo que se guarda en PDF. No son dos informes: es uno a dos profundidades,
+// construido del mismo modelo y ordenado igual.
+
+describe('el papel recibe siempre el informe completo', () => {
+  const VISTA = readFileSync('src/components/pas/informe/VistaInforme.tsx', 'utf8');
+
+  it('CONTROL POSITIVO · hay dos vistas', () => {
+    expect(VISTA).toContain('Informe completo');
+    expect(VISTA).toContain('Resumen');
+  });
+
+  it('la pestaña gobierna la PANTALLA, no la impresión', () => {
+    // Quien pulse imprimir mirando el resumen espera su informe entero, no
+    // ocho recuadros. Es el fallo que las plantillas ya pagaron, donde
+    // imprimir desde la pestaña de edición daba una hoja en blanco.
+    expect(VISTA).toContain('hidden print:block');
+  });
+
+  it('los selectores de pestaña no salen en el papel', () => {
+    expect(VISTA).toContain('print:hidden');
+  });
+
+  it('no conoce el informe: solo decide cuál se ve', () => {
+    // Recibe los dos árboles ya construidos por el servidor, así que el
+    // compositor y las tarjetas siguen siendo componentes de servidor.
+    expect(VISTA).toContain('resumen: React.ReactNode');
+    expect(VISTA).toContain('completo: React.ReactNode');
+  });
+});
+
+describe('el recuadro compacto', () => {
+  const RECUADRO = readFileSync('src/components/pas/informe/PruebaCard.tsx', 'utf8');
+
+  it('usa el MISMO dueño de la lectura que la tarjeta completa', () => {
+    // Si cada una redactara la suya, el resumen y el documento firmado
+    // dirían cosas distintas del mismo expediente.
+    expect(RECUADRO).toContain('lecturaLlanaDe');
+  });
+
+  it('cuando no hay posición, lo dice en vez de dejar el hueco', () => {
+    // Un número con nada debajo se lee como una aprobación, y el sistema no
+    // aprueba nada.
+    expect(RECUADRO).toContain('Sin posición');
   });
 });

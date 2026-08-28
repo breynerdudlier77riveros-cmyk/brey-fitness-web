@@ -8,6 +8,8 @@ import GoalCard from "./GoalCard";
 import PerformanceProfile from "./PerformanceProfile";
 import ResultCard from "./ResultCard";
 import TechnicalDetails from "./TechnicalDetails";
+import PruebaCard from "./PruebaCard";
+import VistaInforme from "./VistaInforme";
 
 import NormativeCard from "@/components/pas/report-v2/NormativeCard";
 import SummaryMetric from "@/components/pas/report-v2/SummaryMetric";
@@ -259,18 +261,36 @@ export default function InformeEvaluacion({
              Ordenar sin trocear conserva lo que valía —las pruebas del mismo
              dominio quedan juntas y en el mismo orden que el perfil de abajo—
              y devuelve una rejilla continua que llena la página. */
-          <div className="mt-5 grid grid-cols-1 items-start gap-4 md:grid-cols-2">
-            {ordenarPorDominio(humano.resultados).map((r, i) => (
-              <div key={`${r.pruebaId}-${r.detalles.normaId ?? i}`} className="space-y-2">
-                <ResultCard resultado={r} />
-                <TechnicalDetails
-                  detalles={r.detalles}
-                  evidencia={r.evidencia}
-                  posicionTecnica={lecturaLlanaDe(r)?.tecnico ?? null}
-                />
+          /* ── Las dos profundidades del MISMO informe (PAS-16) ────────────
+             «Resumen» son los recuadros compactos, para mirar de un vistazo.
+             «Informe completo» lo despliega todo y es lo que se guarda en PDF.
+
+             Los dos salen de `humano.resultados` y del mismo orden por
+             dominio: no son dos informes, es uno a dos profundidades. Y el
+             papel recibe SIEMPRE el completo, mire lo que mire la pantalla. */
+          <VistaInforme
+            resumen={
+              <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {ordenarPorDominio(humano.resultados).map((r, i) => (
+                  <PruebaCard key={`${r.pruebaId}-${r.detalles.normaId ?? i}`} resultado={r} />
+                ))}
               </div>
-            ))}
-          </div>
+            }
+            completo={
+              <div className="mt-5 grid grid-cols-1 items-start gap-4 md:grid-cols-2">
+                {ordenarPorDominio(humano.resultados).map((r, i) => (
+                  <div key={`${r.pruebaId}-${r.detalles.normaId ?? i}`} className="space-y-2">
+                    <ResultCard resultado={r} />
+                    <TechnicalDetails
+                      detalles={r.detalles}
+                      evidencia={r.evidencia}
+                      posicionTecnica={lecturaLlanaDe(r)?.tecnico ?? null}
+                    />
+                  </div>
+                ))}
+              </div>
+            }
+          />
         )}
       </section>
 
