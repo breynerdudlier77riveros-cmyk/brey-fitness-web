@@ -7,6 +7,7 @@ import {
   registrosDivergentes,
 } from '../index';
 import type { Conflicto, TipoConflicto } from '../index';
+import { agrupar, esDivergente, esDuplicadoExacto } from '../duplicados';
 import { HOY, catalogo, contrib, evaluacion, prueba, registro } from './fixtures';
 
 // ── Detección de conflictos (Sprint PAS-2.0) ───────────────────────────────
@@ -385,5 +386,85 @@ describe('reunión y orden', () => {
       atletaId: 'atleta-1', evaluaciones: [b, a], catalogo: cat, hoyISO: HOY,
     });
     expect(uno.conflictos).toEqual(otro.conflictos);
+  });
+});
+
+// ── El patrón forma parte de la identidad de la medición (Sprint PAS-14) ───
+//
+// EL FALLO, VISTO EN DATOS REALES. Un mismo día, en una evaluación:
+//
+//   P-01 · 120 kg · Sentadilla
+//   P-01 · 100 kg · press banca
+//   P-01 ·  50 kg · Dominadas
+//   P-01 · 150 kg · Peso muerto
+//
+// El motor declaraba «resultado divergente»: cuatro versiones incompatibles
+// del mismo hecho. Son cuatro ejercicios distintos. Un peso muerto y un press
+// de banca no se contradicen.
+//
+// La consecuencia no era cosmética: el informe avisaba de un conflicto que no
+// existía, y actuar sobre ese aviso habría significado anular tres registros
+// legítimos.
+//
+// El catálogo ya lo decía —P-01 declara `requierePatron: true`— y la clave de
+// agrupación no lo reflejaba.
+
+describe('el patrón separa mediciones que no son comparables', () => {
+  const base = {
+    fecha: '2026-08-15',
+    estado: 'vigente' as const,
+    condiciones: {},
+    precondicionesCumplidas: null,
+    observaciones: null,
+    metadatos: {},
+  };
+
+  const reg = (id: string, valor: number, patron: string | null) => ({
+    ...base,
+    id,
+    pruebaId: 'P-01',
+    patron,
+    valor: { tipo: 'continuo' as const, valor, unidad: 'kg' },
+  });
+
+  it('cuatro levantamientos distintos NO son un conflicto', () => {
+    const grupos = agrupar([
+      reg('r1', 120, 'Sentadilla'),
+      reg('r2', 100, 'press banca'),
+      reg('r3', 50, 'Dominadas'),
+      reg('r4', 150, 'Peso muerto'),
+    ]);
+
+    expect(grupos).toHaveLength(4);
+    expect(grupos.every((g) => !esDivergente(g))).toBe(true);
+  });
+
+  it('CONTROL POSITIVO · el MISMO patrón con valores distintos SÍ lo es', () => {
+    // Sin esto, el test de arriba pasaría también si la detección se hubiera
+    // roto del todo y ya no encontrara ninguna divergencia.
+    const grupos = agrupar([reg('r1', 120, 'Sentadilla'), reg('r2', 150, 'Sentadilla')]);
+
+    expect(grupos).toHaveLength(1);
+    expect(esDivergente(grupos[0])).toBe(true);
+  });
+
+  it('sin patrón se sigue agrupando como antes', () => {
+    // Es el caso de las pruebas que no declaran patrón —dinamometría, salto—
+    // y su comportamiento no puede cambiar por este arreglo.
+    const grupos = agrupar([reg('r1', 42, null), reg('r2', 45, null)]);
+
+    expect(grupos).toHaveLength(1);
+    expect(esDivergente(grupos[0])).toBe(true);
+  });
+
+  it('el grupo declara qué patrón comparte', () => {
+    const [g] = agrupar([reg('r1', 120, 'Sentadilla')]);
+    expect(g.patron).toBe('Sentadilla');
+    expect(agrupar([reg('r2', 42, null)])[0].patron).toBeNull();
+  });
+
+  it('el mismo valor en el mismo patrón sigue siendo duplicado exacto', () => {
+    const [g] = agrupar([reg('r1', 120, 'Sentadilla'), reg('r2', 120, 'Sentadilla')]);
+    expect(esDuplicadoExacto(g)).toBe(true);
   });
 });

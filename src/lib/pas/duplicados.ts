@@ -27,24 +27,47 @@ export function claveValor(valor: ValorRegistro): string {
 export interface GrupoRegistros {
   pruebaId: string;
   fecha: string;
+  /** El patrón que comparten. `null` en las pruebas que no lo declaran. */
+  patron: string | null;
   registros: RegistroPrueba[];
   /** Valores distintos presentes en el grupo. */
   valoresDistintos: string[];
 }
 
 /**
- * Agrupa por `pruebaId` + `fecha`. Solo se comparan registros del MISMO día:
- * dos resultados de fechas distintas no son incompatibles, son evolución, y
- * el PAS no interpreta evolución (`02-state-model.md`).
+ * Agrupa por `pruebaId` + `fecha` + `patron`. Solo se comparan registros del
+ * MISMO día: dos resultados de fechas distintas no son incompatibles, son
+ * evolución, y el PAS no interpreta evolución (`02-state-model.md`).
  *
- * Los grupos salen ordenados por prueba y fecha para que dos ejecuciones
- * produzcan la misma lista.
+ * ── EL PATRÓN ENTRA EN LA CLAVE, Y ES UNA CORRECCIÓN ──────────────────────
+ *
+ *   Antes la clave era solo prueba + fecha, y eso producía conflictos falsos
+ *   en el caso más normal que existe. Visto en datos reales, un mismo día:
+ *
+ *     P-01 · 120 kg · Sentadilla
+ *     P-01 · 100 kg · press banca
+ *     P-01 ·  50 kg · Dominadas
+ *     P-01 · 150 kg · Peso muerto
+ *
+ *   Cuatro 1RM que el motor declaraba «resultado divergente», como si fueran
+ *   cuatro versiones incompatibles del mismo hecho. Son cuatro ejercicios
+ *   distintos. Un peso muerto y un press de banca no se contradicen.
+ *
+ *   El propio catálogo ya lo decía: P-01 declara `requierePatron: true`, o
+ *   sea que el patrón forma parte de la identidad de la medición. La clave no
+ *   lo reflejaba.
+ *
+ *   Un `patron` nulo agrupa con los demás nulos, que es el comportamiento
+ *   anterior para las pruebas que no lo piden.
+ *
+ * Los grupos salen ordenados para que dos ejecuciones produzcan la misma
+ * lista.
  */
 export function agrupar(registros: readonly RegistroPrueba[]): GrupoRegistros[] {
   const mapa = new Map<string, RegistroPrueba[]>();
 
   for (const registro of registros) {
-    const clave = `${registro.pruebaId}|${registro.fecha}`;
+    const clave = `${registro.pruebaId}|${registro.fecha}|${registro.patron ?? ''}`;
     const grupo = mapa.get(clave);
     if (grupo) grupo.push(registro);
     else mapa.set(clave, [registro]);
@@ -52,11 +75,22 @@ export function agrupar(registros: readonly RegistroPrueba[]): GrupoRegistros[] 
 
   return [...mapa.entries()]
     .map(([clave, lista]) => {
-      const [pruebaId, fecha] = clave.split('|');
+      const [pruebaId, fecha, patron] = clave.split('|');
       const valores = [...new Set(lista.map((r) => claveValor(r.valor)))].sort();
-      return { pruebaId, fecha, registros: lista, valoresDistintos: valores };
+      return {
+        pruebaId,
+        fecha,
+        patron: patron === '' ? null : patron,
+        registros: lista,
+        valoresDistintos: valores,
+      };
     })
-    .sort((a, b) => a.pruebaId.localeCompare(b.pruebaId) || a.fecha.localeCompare(b.fecha));
+    .sort(
+      (a, b) =>
+        a.pruebaId.localeCompare(b.pruebaId) ||
+        a.fecha.localeCompare(b.fecha) ||
+        (a.patron ?? '').localeCompare(b.patron ?? ''),
+    );
 }
 
 /** Más de un registro con valor idéntico: el mismo hecho registrado dos veces. */
