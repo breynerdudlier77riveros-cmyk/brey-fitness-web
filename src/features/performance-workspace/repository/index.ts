@@ -134,6 +134,32 @@ export async function cambiarEstadoAtleta(
 
 // ── Evaluaciones ───────────────────────────────────────────────────────────
 
+/**
+ * Mueve todas las evaluaciones de un atleta a otro.
+ *
+ * Devuelve cuántas se movieron, o `null` si la consulta falló — distinguir
+ * «no había ninguna» de «no se pudo» importa: lo primero deja la fusión
+ * completa y lo segundo la deja a medias.
+ *
+ * NO borra el atleta de origen. Quien llama decide qué hacer con la ficha
+ * vacía, y archivarla conserva el rastro de que existió.
+ */
+export async function reasignarEvaluaciones(
+  supabase: SupabaseClient,
+  desdeAtletaId: string,
+  hastaAtletaId: string
+): Promise<number | null> {
+  const { data, error } = await supabase
+    .from('pas_evaluaciones')
+    .update({ atleta_id: hastaAtletaId })
+    .eq('atleta_id', desdeAtletaId)
+    .select('id');
+
+  registrarFallo('reasignarEvaluaciones', error);
+  if (error) return null;
+  return (data ?? []).length;
+}
+
 export async function listarEvaluaciones(
   supabase: SupabaseClient,
   atletaId: string,

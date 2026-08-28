@@ -13,6 +13,8 @@ import {
 import AtletaCard from "@/features/performance-workspace/components/AtletaCard";
 import AtletaForm from "@/features/performance-workspace/components/AtletaForm";
 import FiltrosAtletas from "@/features/performance-workspace/components/FiltrosAtletas";
+import AtletasDuplicados from "@/features/performance-workspace/components/AtletasDuplicados";
+import { gruposDuplicados } from "@/features/performance-workspace/services/duplicados-atleta";
 
 // ── Performance Assessment · listado de atletas (Sprint PAS-7.0) ───────────
 // Server Component: la lectura ocurre aquí, una vez. La búsqueda y los filtros
@@ -32,6 +34,20 @@ export default async function RendimientoPage({ searchParams }: Props) {
   const supabase = await createClient();
   const todos = await listarAtletas(supabase, user.id);
 
+  // Se calcula sobre TODOS, no sobre los filtrados: un duplicado que el filtro
+  // esconde sigue partiendo el histórico en dos, y avisarlo solo cuando la
+  // búsqueda coincide sería avisarlo casi nunca.
+  const duplicados = gruposDuplicados(
+    todos.map((a) => ({
+      id: a.id,
+      nombre: a.nombre,
+      sexo: a.sexo,
+      fechaNacimiento: a.fechaNacimiento,
+      pais: a.pais,
+      estado: a.estado,
+    })),
+  );
+
   const atletas = filtrarAtletas(todos, {
     busqueda: q,
     estado: estado as never,
@@ -44,6 +60,11 @@ export default async function RendimientoPage({ searchParams }: Props) {
         title="Performance Assessment"
         description="Valoración funcional: atletas, evaluaciones e informes."
       />
+
+      {/* Antes de la lista: un histórico partido en dos expedientes explica
+          por qué una serie parece más corta de lo que es, y descubrirlo
+          después de mirar las fichas es descubrirlo tarde. */}
+      <AtletasDuplicados grupos={duplicados} />
 
       <Section label="Atletas">
         {/* Los filtros van ANTES de la lista y siempre se muestran, también
