@@ -29,6 +29,7 @@ export default async function PerfilPage() {
       avatar_url: null,
       sistema_actual: null,
       nivel_actual: null,
+      es_admin: false,
       edad: null,
       sexo: null,
       peso_kg: null,

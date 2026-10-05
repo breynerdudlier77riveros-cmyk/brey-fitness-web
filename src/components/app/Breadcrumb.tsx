@@ -12,6 +12,7 @@ const LABELS: Record<string, string> = {
   sistema: "Mi Sistema",
   rendimiento: "Performance Assessment",
   evaluacion: "Evaluación",
+  macrociclo: "Macrociclo",
   entrenamientos: "Entrenamientos",
   calendario: "Calendario",
   historial: "Historial",
@@ -20,6 +21,10 @@ const LABELS: Record<string, string> = {
   perfil: "Perfil",
   biblioteca: "Biblioteca",
   configuracion: "Configuración",
+  admin: "Admin",
+  sistemas: "Cursos",
+  compras: "Accesos",
+  anamnesis: "Anamnesis",
 };
 
 /**
@@ -34,8 +39,11 @@ const LABELS: Record<string, string> = {
  * no puede consultar el árbol de rutas. Un segmento nuevo sin página tendría
  * que añadirse aquí, y hay un test que comprueba que la lista sigue siendo
  * exactamente la de los directorios sin `page.tsx`.
+ *
+ * `admin` entró con el panel de cursos (Sprint CURSO-1): `/app/admin` agrupa
+ * `/app/admin/sistemas` y no es, por sí sola, una página.
  */
-const SIN_PAGINA = new Set(["evaluacion"]);
+const SIN_PAGINA = new Set(["evaluacion", "admin"]);
 
 export default function Breadcrumb() {
   const segments = useSelectedLayoutSegments();

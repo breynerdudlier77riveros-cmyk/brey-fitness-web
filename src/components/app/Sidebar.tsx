@@ -11,7 +11,9 @@ import {
   Calendar,
   Cycle,
   Flag,
+  Lock,
   Menu,
+  Printer,
   Scale,
   Settings,
   Target,
@@ -36,6 +38,7 @@ interface Props {
   nombre: string;
   email: string;
   sistemaActual: string | null;
+  esAdmin: boolean;
 }
 
 const navItems = [
@@ -53,13 +56,39 @@ const navItems = [
   // Corporal por ser el otro espacio de trabajo profesional; las entradas del
   // BCS quedan intactas.
   { href: "/app/rendimiento", label: "Performance Assessment", icon: Target },
+  // Capa de planificación (Sprint MAC-1). Va DEBAJO del assessment y encima
+  // de nada: se escribe a partir de una valoración y sus días apuntan a las
+  // plantillas de sesión, así que queda entre las dos que ya existen.
+  { href: "/app/rendimiento/macrociclo", label: "Macrociclos", icon: Cycle },
   { href: "/app/perfil", label: "Perfil", icon: UserIcon },
   { href: "/app/configuracion", label: "Configuración", icon: Settings },
+  // Gestión del contenido de los Sistemas vendibles (Sprint CURSO-1). Va al
+  // final y se filtra en el render, no aquí: `isActive` necesita conocer
+  // TODAS las entradas para resolver «coincidencia más específica» aunque
+  // esta en particular no se muestre a quien no es admin.
+  { href: "/app/admin/sistemas", label: "Administrar cursos", icon: Lock, soloAdmin: true },
+  { href: "/app/admin/anamnesis", label: "Anamnesis", icon: Printer, soloAdmin: true },
 ] as const;
 
-function isActive(pathname: string, href: string) {
+/**
+ * Si esta entrada es la que corresponde a la ruta actual.
+ *
+ * GANA LA COINCIDENCIA MÁS LARGA, y hace falta desde que hay rutas anidadas
+ * (Sprint MAC-1): en `/app/rendimiento/macrociclo/<id>` coinciden tanto
+ * `/app/rendimiento` como `/app/rendimiento/macrociclo`, y con la versión
+ * anterior el menú marcaba las DOS. Dos entradas resaltadas a la vez no dicen
+ * dónde estás: dicen que el menú no lo sabe.
+ */
+export function isActive(pathname: string, href: string) {
   if (href === "/app") return pathname === "/app";
-  return pathname === href || pathname.startsWith(`${href}/`);
+  if (pathname !== href && !pathname.startsWith(`${href}/`)) return false;
+
+  // Si otra entrada del menú encaja y es más específica, manda ella.
+  return !navItems.some(
+    (otra) =>
+      otra.href.length > href.length &&
+      (pathname === otra.href || pathname.startsWith(`${otra.href}/`)),
+  );
 }
 
 function BrandMark() {
@@ -73,7 +102,7 @@ function BrandMark() {
   );
 }
 
-function UserBlock({ nombre, email, sistemaActual }: Props) {
+function UserBlock({ nombre, email, sistemaActual }: Omit<Props, "esAdmin">) {
   return (
     <div>
       <div className="flex items-center gap-3 px-2 mb-3">
@@ -97,10 +126,11 @@ function UserBlock({ nombre, email, sistemaActual }: Props) {
   );
 }
 
-export default function Sidebar({ nombre, email, sistemaActual }: Props) {
+export default function Sidebar({ nombre, email, sistemaActual, esAdmin }: Props) {
   const pathname = usePathname() ?? "/app";
   const [open, setOpen] = useState(false);
   const { collapsed, toggle } = useSidebarCollapse();
+  const items = esAdmin ? navItems : navItems.filter((item) => !("soloAdmin" in item));
 
   return (
     <>
@@ -130,7 +160,7 @@ export default function Sidebar({ nombre, email, sistemaActual }: Props) {
         </div>
 
         <nav className="flex flex-col gap-1">
-          {navItems.map(({ href, label, icon }) => (
+          {items.map(({ href, label, icon }) => (
             <SidebarItem key={href} href={href} label={label} icon={icon} active={isActive(pathname, href)} />
           ))}
         </nav>
@@ -167,7 +197,7 @@ export default function Sidebar({ nombre, email, sistemaActual }: Props) {
           <DrawerTitle className="sr-only">Menú del Dashboard</DrawerTitle>
           <div className="px-4 py-6 flex flex-col gap-6">
             <nav className="flex flex-col gap-1">
-              {navItems.map(({ href, label, icon: Icon }) => {
+              {items.map(({ href, label, icon: Icon }) => {
                 const active = isActive(pathname, href);
                 return (
                   <Link

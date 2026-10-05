@@ -4,11 +4,13 @@ import { getUser } from "@/lib/supabase/user";
 import { createClient } from "@/lib/supabase/server";
 import { getProfile } from "@/lib/profile/repository";
 import { getSistemaBySlug } from "@/data/sistemas";
+import { comprasActivasDelUsuario, vincularComprasDelUsuario } from "@/lib/cursos/repository";
+import { createAdminClient } from "@/lib/supabase/admin";
 import PageHeader from "@/components/app/PageHeader";
 import DashboardCard from "@/components/app/DashboardCard";
 import EmptyState from "@/components/app/EmptyState";
 import Button from "@/components/brand/Button";
-import { Flag, Check } from "@/components/brand/icons";
+import { Flag, Check, Play } from "@/components/brand/icons";
 
 export const metadata: Metadata = { title: "Mi Sistema" };
 
@@ -24,13 +26,49 @@ export default async function MiSistemaPage() {
   const supabase = await createClient();
   const profile = await getProfile(supabase, user.id);
 
+  // La primera vez que este usuario inicia sesión después de comprar, su
+  // compra sigue con `usuario_id` en null (Hotmart la creó por email, antes
+  // de que hubiera sesión). Se enlaza aquí, de paso, con Service Role —
+  // ninguna política de RLS deja hacerlo con el cliente normal (Sprint
+  // CURSO-1, ver migration_cursos.sql).
+  if (user.email) {
+    await vincularComprasDelUsuario(createAdminClient(), user.id, user.email);
+  }
+  const compras = await comprasActivasDelUsuario(supabase, user.id);
+
   const sistema = profile?.sistema_actual ? getSistemaBySlug(profile.sistema_actual) : undefined;
 
   return (
     <div>
       <PageHeader title="Mi Sistema" description="El Sistema BPS que estás entrenando actualmente." />
 
-      {sistema ? (
+      {compras.length > 0 ? (
+        <div className="space-y-4">
+          {compras.map((compra) => {
+            const s = getSistemaBySlug(compra.sistemaSlug);
+            if (!s) return null;
+            return (
+              <DashboardCard key={compra.id}>
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-11 h-11 rounded-2xl border flex items-center justify-center flex-shrink-0 ${s.color.badge}`}>
+                      <s.icon className="w-5 h-5" strokeWidth={1.75} />
+                    </div>
+                    <div>
+                      <p className="font-black text-white">{s.nombre}</p>
+                      <p className="text-white/45 text-[12px]">Tienes acceso completo al curso</p>
+                    </div>
+                  </div>
+                  <Button href={`/app/sistema/${s.slug}`} size="sm">
+                    <Play className="w-3.5 h-3.5" />
+                    Continuar
+                  </Button>
+                </div>
+              </DashboardCard>
+            );
+          })}
+        </div>
+      ) : sistema ? (
         <div className="space-y-6">
           <div className={`rounded-2xl border border-white/[0.08] bg-gradient-to-br ${sistema.color.gradient} p-6 md:p-8`}>
             <div className="flex items-start gap-4">

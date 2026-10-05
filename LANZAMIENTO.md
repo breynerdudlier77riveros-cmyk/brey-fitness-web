@@ -4,7 +4,11 @@ Todo lo técnico de v1.0 está construido. Estos son los pasos que **solo el
 fundador puede completar** para que el circuito de venta quede 100% activo.
 En orden de importancia:
 
-## 1. Activar el checkout (crítico — sin esto no hay ventas)
+## 1. Activar el checkout Y la entrega (crítico — sin esto no hay ventas)
+
+**El dashboard propio de entrega (v1.1) ya existe** — no hace falta subir
+nada al área de miembros de Hotmart. Hotmart solo cobra; el curso se ve
+dentro de esta web.
 
 1. Crea una cuenta de productor en [Hotmart](https://hotmart.com).
 2. Crea un producto por cada Sistema del lanzamiento inicial (precios
@@ -15,14 +19,30 @@ En orden de importancia:
    - Fuerza y Elite NO se crean todavía: están `disponible: false` y muestran
      lista de espera (los contactos llegan a Brevo con FUENTE `espera-<slug>`
      y atributos NOMBRE/OBJETIVO).
-3. Sube a cada producto de Hotmart el contenido entregable (videos/área de
-   miembros de Hotmart — esta es la "entrega v0" hasta que exista el dashboard
-   propio en v1.1).
-4. Pega el enlace de pago de cada Sistema en
-   [`src/data/checkout.ts`](src/data/checkout.ts).
+3. Pega el enlace de pago de cada Sistema en
+   [`src/data/checkout.ts`](src/data/checkout.ts) (`checkoutUrls`) y el id de
+   cada producto en el mismo archivo (`hotmartProductoIds`) — es lo que casa
+   una compra real con el Sistema al que da acceso.
    - Mientras un Sistema disponible esté en `null`, su página muestra captura
      de email ("avísame cuando abra") en lugar del botón de compra. Nada
      queda roto.
+4. **Aplica la migración de base de datos**:
+   [`supabase/migration_cursos.sql`](supabase/migration_cursos.sql) en el SQL
+   Editor de Supabase — crea las tablas de contenido, accesos y el bucket de
+   materiales. Al final del archivo, marca tu propia cuenta como admin (una
+   sola línea SQL con tu correo).
+5. **Configura el webhook de Hotmart**: panel de Hotmart → Herramientas →
+   Webhook → apunta a `https://tudominio.com/api/webhooks/hotmart`, activa
+   los eventos de compra/reembolso/cancelación, y copia el Hottok de tu
+   cuenta a `HOTMART_HOTTOK` en `.env.local` (y en Vercel al desplegar). Sin
+   esto, una compra real no otorga acceso solo.
+6. **Sube el contenido**: inicia sesión con tu cuenta admin, entra a
+   `/app/admin/sistemas` y sube módulos, lecciones (enlace de YouTube/Vimeo
+   sin listar) y PDFs para cada Sistema que vayas a vender. Un Sistema sin
+   ningún video no tiene qué entregar — la propia página de admin lo avisa.
+7. Mientras configuras Hotmart o para invitados de cortesía, puedes otorgar
+   acceso a mano desde `/app/admin/sistemas/<slug>/compras`, sin esperar a
+   una compra real.
 
 ## 2. Activar la captura de email
 
@@ -92,5 +112,9 @@ En orden de importancia:
 
 ---
 
-**Siguiente fase (v1.1 — requiere validación):** auth con Supabase, área
-`/app` con "Hoy entrenas" y la entrega del programa dentro de la plataforma.
+**v1.1 ya está construida** (auth con Supabase, área `/app`, entrega del
+curso dentro de la plataforma — sección 1 arriba). Lo que sigue pendiente de
+validar con uso real: seguimiento de progreso más rico (hoy solo marca
+lección vista/no vista), y una vista previa pública de vídeos gratuitos
+(`Leccion.gratis` ya existe en el modelo, el visor de curso hoy no distingue
+comprador de no-comprador para esas lecciones — solo entra quien ya pagó).

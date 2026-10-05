@@ -181,6 +181,12 @@ export interface Profile {
   avatar_url: string | null;
   sistema_actual: SistemaSlug | null;
   nivel_actual: string | null;
+  /**
+   * Gestiona el contenido de los Sistemas vendibles y ve quién compró qué
+   * (Sprint CURSO-1). `false` por defecto — nadie nace admin al registrarse;
+   * se marca a mano en la base de datos (`migration_cursos.sql`).
+   */
+  es_admin: boolean;
   edad: number | null;
   sexo: string | null;
   peso_kg: number | null;

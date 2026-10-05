@@ -51,7 +51,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <AppShell
-      sidebar={<Sidebar nombre={navUser.nombre} email={navUser.email} sistemaActual={profile.sistema_actual} />}
+      sidebar={
+        <Sidebar
+          nombre={navUser.nombre}
+          email={navUser.email}
+          sistemaActual={profile.sistema_actual}
+          esAdmin={profile.es_admin}
+        />
+      }
       header={<Header user={navUser} />}
     >
       {children}

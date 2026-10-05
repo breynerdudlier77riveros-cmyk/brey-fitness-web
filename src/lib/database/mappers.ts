@@ -27,6 +27,7 @@ export function mapProfile(row: Row): Profile {
     avatar_url: (row.avatar_url as string | null) ?? null,
     sistema_actual: (row.sistema_actual as Profile['sistema_actual']) ?? null,
     nivel_actual: (row.nivel_actual as string | null) ?? null,
+    es_admin: (row.es_admin as boolean | null) ?? false,
     edad: (row.edad as number | null) ?? null,
     sexo: (row.sexo as string | null) ?? null,
     // numeric en Postgres → string en PostgREST — únicas 2 columnas de
