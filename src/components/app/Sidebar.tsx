@@ -142,7 +142,7 @@ export default function Sidebar({ nombre, email, sistemaActual, esAdmin }: Props
       >
         <div className={`flex items-center mb-8 px-1 ${collapsed ? "justify-center" : "justify-between"}`}>
           {!collapsed && (
-            <Link href="/app" className="px-1">
+            <Link href="/" className="px-1">
               <BrandMark />
             </Link>
           )}
@@ -180,7 +180,7 @@ export default function Sidebar({ nombre, email, sistemaActual, esAdmin }: Props
 
       {/* Mobile top bar */}
       <header className="print:hidden md:hidden sticky top-0 z-40 flex items-center justify-between px-4 h-14 border-b border-white/[0.06] bg-slate-950/90 backdrop-blur-xl">
-        <Link href="/app">
+        <Link href="/">
           <BrandMark />
         </Link>
         <button
