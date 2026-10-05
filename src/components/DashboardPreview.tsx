@@ -1,7 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, animate, useReducedMotion } from "motion/react";
+import {
+  motion,
+  animate,
+  useReducedMotion,
+  useMotionValue,
+  useSpring,
+  useTransform,
+} from "motion/react";
 import { Check } from "@/components/brand/icons";
 
 // ── Vista previa de la plataforma ───────────────────────────────────────────
@@ -122,6 +129,50 @@ function DashboardSkeleton() {
   );
 }
 
+/**
+ * Ladeo 3D que sigue al cursor — el mismo truco de profundidad que un
+ * producto diseñado en Spline, sin motor 3D: `rotateX/rotateY` con
+ * perspectiva CSS sobre datos que ya existían (posición del puntero).
+ *
+ * Sin `ref` propio: el rectángulo sale de `e.currentTarget`, el mismo
+ * elemento al que ya está atado el evento. Un `ref` aparte, leído dentro de
+ * `onMouseMove`, es exactamente el patrón que la regla `react-hooks/refs`
+ * del compilador rechaza — y aquí ni hace falta.
+ *
+ * Se apaga entera con `prefers-reduced-motion` (Constitución, coherencia con
+ * el resto del archivo) y no hace nada en pantallas táctiles: ahí no llega
+ * `mousemove`, así que el marco simplemente se queda plano — no hace falta
+ * detectar el dispositivo a mano.
+ */
+function useTiltPreview() {
+  const shouldReduceMotion = useReducedMotion();
+  const puntoX = useMotionValue(0);
+  const puntoY = useMotionValue(0);
+  // Resorte, no interpolación lineal: un tilt que salta de golpe con cada
+  // pixel del ratón se lee como tembloroso, no como profundidad.
+  const rotateX = useSpring(useTransform(puntoY, [-0.5, 0.5], [6, -6]), {
+    stiffness: 220,
+    damping: 22,
+  });
+  const rotateY = useSpring(useTransform(puntoX, [-0.5, 0.5], [-6, 6]), {
+    stiffness: 220,
+    damping: 22,
+  });
+
+  function onMouseMove(e: React.MouseEvent<HTMLDivElement>) {
+    if (shouldReduceMotion) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    puntoX.set((e.clientX - rect.left) / rect.width - 0.5);
+    puntoY.set((e.clientY - rect.top) / rect.height - 0.5);
+  }
+  function onMouseLeave() {
+    puntoX.set(0);
+    puntoY.set(0);
+  }
+
+  return { rotateX, rotateY, onMouseMove, onMouseLeave };
+}
+
 /** true una vez pasado el breve estado de carga (instantáneo si reduced-motion). */
 function useSkeletonReady(delay = SKELETON_MS) {
   const shouldReduceMotion = useReducedMotion();
@@ -159,9 +210,10 @@ function useCountUp(target: number, duration = 1.1, delay = REVEAL_DELAY) {
 export default function DashboardPreview({ className = "" }: { className?: string }) {
   const progreso = useCountUp(44);
   const ready = useSkeletonReady();
+  const tilt = useTiltPreview();
 
   return (
-    <div className={`relative mx-auto w-full max-w-md ${className}`}>
+    <div className={`relative mx-auto w-full max-w-md ${className}`} style={{ perspective: 1000 }}>
       {/* Glow ambiental */}
       <div aria-hidden className="absolute -inset-8 rounded-full bg-orange-500/10 blur-3xl pointer-events-none" />
 
@@ -171,7 +223,12 @@ export default function DashboardPreview({ className = "" }: { className?: strin
       </div>
 
       {/* Marco de la app */}
-      <div className="relative rounded-3xl border border-white/10 bg-slate-900/70 backdrop-blur-xl shadow-2xl shadow-black/50 p-5 sm:p-6">
+      <motion.div
+        onMouseMove={tilt.onMouseMove}
+        onMouseLeave={tilt.onMouseLeave}
+        style={{ rotateX: tilt.rotateX, rotateY: tilt.rotateY, transformStyle: "preserve-3d" }}
+        className="relative rounded-3xl border border-white/10 bg-slate-900/70 backdrop-blur-xl shadow-2xl shadow-black/50 p-5 sm:p-6"
+      >
         {!ready ? (
           <DashboardSkeleton />
         ) : (
@@ -272,7 +329,7 @@ export default function DashboardPreview({ className = "" }: { className?: strin
         </div>
           </>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }
