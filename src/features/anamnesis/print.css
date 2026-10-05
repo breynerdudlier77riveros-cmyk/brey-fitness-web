@@ -1,0 +1,101 @@
+/* ── Impresión de la ficha de anamnesis (Sprint ANAMNESIS-1) ────────────────
+   Hoja propia, colgada de `.anamnesis-print` — mismo patrón que
+   `src/components/pas/report-v2/print.css`: el tema oscuro de /app no se
+   imprime (texto blanco translúcido desaparece sobre papel), y cada input
+   pasa a verse como una línea para rellenar a mano, vacía o no: si el campo
+   ya tiene un valor digital se ve escrito sobre la línea; si no, queda en
+   blanco — eso es lo que permite terminar la ficha con lápiz en el momento
+   de la consulta. */
+
+@media print {
+  @page {
+    size: A4;
+    margin: 16mm 14mm;
+  }
+
+  nav,
+  aside,
+  [role="dialog"],
+  [data-sonner-toaster] {
+    display: none !important;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  /* ── Tema claro dentro de la ficha ───────────────────────────────────── */
+  .anamnesis-print,
+  .anamnesis-print * {
+    color: #0f172a !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  .anamnesis-print [class*="bg-white"],
+  .anamnesis-print [class*="bg-slate"],
+  .anamnesis-print [class*="bg-orange"] {
+    background-color: transparent !important;
+  }
+
+  .anamnesis-print [class*="border-white"] {
+    border-color: #cbd5e1 !important;
+  }
+
+  /* ── Campos: de "caja oscura" a "línea para escribir" ────────────────── */
+  .anamnesis-print input,
+  .anamnesis-print textarea {
+    border: none !important;
+    border-bottom: 1px solid #94a3b8 !important;
+    border-radius: 0 !important;
+    padding: 1px 2px !important;
+    background: transparent !important;
+  }
+
+  /* Los radios/checkbox nativos (listas Sí/No, escalas, temperamento)
+     imprimen su estado marcado de por sí — solo se homogeniza el color. */
+  .anamnesis-print input[type="radio"],
+  .anamnesis-print input[type="checkbox"] {
+    border-bottom: none !important;
+    accent-color: #0f172a !important;
+  }
+
+  /* El indicador del radio de marca (Radix) es un <span> dentro del botón,
+     no un control nativo — necesita su propio color de relleno en papel. */
+  .anamnesis-print [data-slot="radio-group-item"] {
+    border-color: #475569 !important;
+  }
+  .anamnesis-print [data-slot="radio-group-indicator"] span {
+    background-color: #0f172a !important;
+  }
+
+  /* ── Tablas ───────────────────────────────────────────────────────────── */
+  .anamnesis-print table {
+    border-collapse: collapse;
+  }
+  .anamnesis-print th,
+  .anamnesis-print td {
+    border-color: #cbd5e1 !important;
+  }
+
+  /* ── Saltos de página: una sección no se corta a la mitad de una fila ─── */
+  .anamnesis-print [data-seccion] {
+    break-inside: auto;
+  }
+  .anamnesis-print [data-fila] {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .anamnesis-print h1,
+  .anamnesis-print h2,
+  .anamnesis-print h3 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .anamnesis-fecha input {
+    border-bottom: 1px solid #94a3b8 !important;
+  }
+}
