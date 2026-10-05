@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import PageHeader from "@/components/app/PageHeader";
 import Section from "@/components/app/Section";
@@ -96,6 +97,33 @@ export default async function RendimientoPage({ searchParams }: Props) {
             ))}
           </div>
         )}
+      </Section>
+
+      {/* ── MAC-1 · la capa de planificación ────────────────────────────
+          Va DESPUÉS de los atletas y antes del formulario de alta: se
+          planifica a partir de lo que se ha medido, así que leer primero a
+          quién se mide y después qué se le planifica es el orden en que
+          ocurre el trabajo. */}
+      <Section label="Planificación">
+        <Link
+          href="/app/rendimiento/macrociclo"
+          className="flex flex-wrap items-center gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5 transition-colors hover:border-white/20"
+        >
+          <div className="min-w-0 flex-1">
+            <p className="font-semibold text-white">Macrociclos</p>
+            <p className="mt-1 text-[13px] leading-relaxed text-white/50">
+              Una rejilla de hasta 104 semanas con sus mesociclos, editable y exportable a Excel.
+              Cada día apunta a una plantilla de sesión, que conserva su propio editor y su PDF.
+            </p>
+            <p className="mt-2 text-[11px] text-white/30">
+              Se puede sembrar con un modelo de periodización —clásico, ATR, bloques, ondulatorio,
+              conjugado—, que aporta la estructura y su vocabulario. Ninguna cifra sale del modelo.
+            </p>
+          </div>
+          <span className="shrink-0 rounded-full border border-white/[0.12] px-4 py-2 text-xs font-bold text-white/70">
+            Abrir
+          </span>
+        </Link>
       </Section>
 
       <Section label="Nuevo atleta">

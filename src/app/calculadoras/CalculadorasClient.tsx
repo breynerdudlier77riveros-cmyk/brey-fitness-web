@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/brand/Tabs";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/brand/Tooltip";
 import { Bolt, Flame, UserIcon, ChartBar, Heart, TrendingUp } from "@/components/brand/icons";
+import SelectNativo from "@/components/brand/SelectNativo";
 
 /* ─── shared input ─────────────────────────────────────── */
 function Field({
@@ -64,17 +65,16 @@ function Select({
       <label className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/55">
         {label}
       </label>
-      <select
+      {/* Tenia fondo opaco pero le faltaba `color-scheme: dark`, asi que el
+          panel desplegable salia claro en medio de una pagina oscura. Ahora
+          el tratamiento viaja con el componente y no hay que recordarlo. */}
+      <SelectNativo
         value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="rounded-xl border border-white/[0.08] bg-slate-900 px-4 py-3 text-white text-sm outline-none focus:border-orange-500/40 appearance-none cursor-pointer"
-      >
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
+        onChange={onChange}
+        options={options}
+        aria-label={label}
+        className="h-auto rounded-xl border-white/[0.08] px-4 py-3 cursor-pointer"
+      />
     </div>
   );
 }
