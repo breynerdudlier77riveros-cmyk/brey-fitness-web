@@ -66,6 +66,26 @@ export interface Evaluacion {
    * `null` = no consta. Nunca se rellena con el de otra fecha.
    */
   pesoKg: number | null;
+  /**
+   * Signos vitales EN REPOSO el día de la evaluación (PAS-18).
+   *
+   * Viven aquí por el mismo motivo que `pesoKg` (G-01): son del día, no del
+   * atleta. Y no son pruebas del catálogo porque no evalúan ninguna capacidad
+   * — son el contexto fisiológico de la sesión y la condición de seguridad
+   * que decide si puede empezar. El protocolo del Senior Fitness Test excluye
+   * una tensión no controlada de 160/100; el del escalón manda tomar tensión y
+   * pulso antes de autorizar.
+   *
+   * NO confundir con la frecuencia cardiaca que consume el Rockport ni con
+   * los pulsos de recuperación del escalón: esos son componentes del
+   * resultado de SU prueba y viven en `RegistroWorkspace.componentes` (G-04).
+   *
+   * `null` = no consta. Nunca un valor por defecto.
+   */
+  fcReposoLpm: number | null;
+  spo2Pct: number | null;
+  taSistolicaMmhg: number | null;
+  taDiastolicaMmhg: number | null;
   estado: EstadoEvaluacion;
   observaciones: string | null;
   createdAt: string;

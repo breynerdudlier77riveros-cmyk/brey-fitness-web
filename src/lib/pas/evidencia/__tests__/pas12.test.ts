@@ -138,9 +138,19 @@ describe('verificada no es admisible, y admisible no es cualquier cosa', () => {
     const conNormativa = new Set(
       REFERENCIAS.filter((r) => r.tipo === 'NORMATIVA').map((r) => r.fuenteId),
     );
+    // La lista es EXHAUSTIVA a propósito: añadir una fuente normativa obliga a
+    // tocarla, que es la decisión que no debe pasar desapercibida. En PAS-18
+    // pasó de dos a ocho, y las seis nuevas son los protocolos de población
+    // general que aportó el profesional.
     expect([...conNormativa].sort()).toEqual([
+      'aha_vo2_1972',
+      'cooper_vo2_1979',
+      'harvard_iac_lopategui',
       'hoffmann_chms_2019',
+      'mcgill_torso_ace_2015',
       'ramirez_velez_fuprecol_2017',
+      'rikli_jones_sft_2001',
+      'rivera_vo2_pr_1986',
     ]);
   });
 

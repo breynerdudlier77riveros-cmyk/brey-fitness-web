@@ -45,11 +45,66 @@ export function situar(valor: number, r: Representacion): Posicion | null {
         lado: valor < r.valor ? 'por_debajo' : valor > r.valor ? 'por_encima' : 'en_el_corte',
       };
 
+    case 'bandas':
+      return situarEnBandas(valor, r.bandas);
+
     case 'fiabilidad':
     case 'error_medicion':
     case 'valores_sin_transcribir':
       return null;
   }
+}
+
+/**
+ * En qué banda NOMBRADA cae el valor.
+ *
+ * Las bandas se ordenan aquí por su límite inferior, igual que los
+ * percentiles: confiar en el orden de transcripción es confiar en que nadie
+ * edite la tabla después.
+ *
+ * DEVUELVE `null` SI EL VALOR NO CAE EN NINGUNA, y eso es una respuesta, no un
+ * fallo. Las tablas publicadas tienen huecos —la de Rivera salta de «49» a
+ * «50+» sin decir qué es 49,5— y rellenarlos eligiendo la banda de al lado
+ * sería inventar el borde que la fuente no fijó.
+ */
+function situarEnBandas(
+  valor: number,
+  bandas: readonly { nombre: string; min: number | null; max: number | null }[],
+): Posicion | null {
+  const orden = [...bandas].sort((a, b) => (a.min ?? -Infinity) - (b.min ?? -Infinity));
+
+  const caben = orden.filter(
+    (b) => !(b.min !== null && valor < b.min) && !(b.max !== null && valor > b.max),
+  );
+
+  if (caben.length === 1) {
+    const b = caben[0];
+    return { clase: 'en_banda', nombre: b.nombre, min: b.min, max: b.max };
+  }
+
+  // ── DOS BANDAS PARA UN VALOR: EL BORDE QUE LA FUENTE SOLAPA ──────────────
+  //
+  //   Cooper imprime «Muy Pobre: < 35.0» y «Pobre: 35.0-38.3». Un 35,0 exacto
+  //   entra en las dos, y no por un fallo de transcripción: la tabla está
+  //   escrita así.
+  //
+  //   La regla es que **un intervalo explícito gana a un extremo abierto**. La
+  //   fuente se molestó en escribir «35.0-38.3» con su límite inferior; «<
+  //   35.0» es la manera corta de decir «lo que quede por debajo». Elegir el
+  //   cerrado respeta lo que la tabla dice de forma expresa.
+  //
+  //   Si ni así queda una sola —dos intervalos cerrados que se pisan—, se
+  //   devuelve `null`. Ahí la tabla es genuinamente ambigua y elegir sería
+  //   inventar el criterio que a la fuente le faltó.
+  if (caben.length > 1) {
+    const cerradas = caben.filter((b) => b.min !== null && b.max !== null);
+    if (cerradas.length === 1) {
+      const b = cerradas[0];
+      return { clase: 'en_banda', nombre: b.nombre, min: b.min, max: b.max };
+    }
+  }
+
+  return null;
 }
 
 /**

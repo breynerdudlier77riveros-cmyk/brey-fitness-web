@@ -416,8 +416,235 @@ const P11: CondicionesDePrueba = {
   ],
 };
 
+// ── Población general · Sprint PAS-18 ───────────────────────────────────────
+//
+// Los vocabularios salen de los cinco protocolos aportados, igual que los once
+// anteriores salían de la fila «Factores que alteran» de la PKB. Cuando un
+// documento nombra un factor sin enumerar sus valores, el campo NO se crea.
+
+/** Rockport. La ecuación no es un detalle de cálculo: es parte del método. */
+const P12: CondicionesDePrueba = {
+  pruebaId: 'P-12',
+  requeridas: [
+    {
+      clave: 'ecuacion',
+      etiqueta: 'Ecuación de estimación',
+      vocabulario: ['rockport_kg', 'rockport_lb_sin_edad', 'rockport_lb'],
+      etiquetas: et(
+        ['rockport_kg', 'Ecuación 1 · con masa en kg y edad'],
+        ['rockport_lb_sin_edad', 'Ecuación 2 · con masa en libras, sin edad'],
+        ['rockport_lb', 'Ecuación 3 · con masa en libras y edad'],
+      ),
+      porQue:
+        'El documento publica TRES ecuaciones de regresión distintas para el mismo paseo, y dan ' +
+        'resultados distintos: la segunda ni siquiera usa la edad. Sin saber cuál se aplicó, el ' +
+        'VO2máx registrado no es comparable ni consigo mismo en otra fecha.',
+    },
+  ],
+  opcionales: [
+    {
+      clave: 'superficie',
+      etiqueta: 'Superficie',
+      vocabulario: ['pista', 'asfalto', 'cinta'],
+      etiquetas: et(['pista', 'Pista atlética'], ['asfalto', 'Asfalto o cemento'], ['cinta', 'Cinta rodante']),
+      porQue: 'La ecuación se validó caminando sobre suelo firme y llano.',
+    },
+  ],
+};
+
+/** Escalón de Harvard. Altura, cadencia y método de cálculo. */
+const P13: CondicionesDePrueba = {
+  pruebaId: 'P-13',
+  requeridas: [
+    {
+      clave: 'metodo',
+      etiqueta: 'Método de cálculo del índice',
+      vocabulario: ['largo', 'corto'],
+      etiquetas: et(
+        ['largo', 'Largo · suma de los tres pulsos de recuperación'],
+        ['corto', 'Corto · solo el pulso del primer minuto'],
+      ),
+      porQue:
+        'Los dos métodos producen números en escalas distintas y el documento publica UNA TABLA ' +
+        'PARA CADA UNO. Un índice de 70 es «Promedio» con el método largo y «Bueno» con el corto.',
+    },
+    {
+      clave: 'altura_escalon',
+      etiqueta: 'Altura del escalón',
+      vocabulario: ['20_pulgadas', '18_pulgadas', 'otra'],
+      etiquetas: et(
+        ['20_pulgadas', '20 pulgadas (protocolo de varones)'],
+        ['18_pulgadas', '18 pulgadas (protocolo de mujeres)'],
+        ['otra', 'Otra altura'],
+      ),
+      porQue:
+        'El protocolo fija alturas y cadencias distintas por sexo. Subir a un escalón más bajo ' +
+        'es menos trabajo y produce una recuperación más rápida con la misma aptitud.',
+    },
+  ],
+  opcionales: [],
+};
+
+/**
+ * Las siete del Senior Fitness Test comparten condición: la batería vale como
+ * conjunto y su tabla se publicó midiendo con SU material. Lo que cambia el
+ * resultado en las tres primeras es el peso de la mancuerna y la altura de la
+ * silla; en las de flexibilidad, dónde se pone el cero.
+ */
+const sft = (pruebaId: string, extra: CondicionPrueba[] = []): CondicionesDePrueba => ({
+  pruebaId,
+  requeridas: [
+    {
+      clave: 'protocolo',
+      etiqueta: 'Protocolo',
+      vocabulario: ['rikli_jones', 'adaptado'],
+      etiquetas: et(
+        ['rikli_jones', 'Rikli y Jones, sin modificar'],
+        ['adaptado', 'Adaptado (silla, material o tiempo distintos)'],
+      ),
+      porQue:
+        'El intervalo normal publicado describe a quien hizo la prueba EXACTAMENTE como está ' +
+        'descrita. Una silla más alta o una mancuerna más ligera cambian el número y la tabla ' +
+        'deja de aplicar.',
+    },
+  ],
+  opcionales: extra,
+});
+
+const P14 = sft('P-14', [
+  {
+    clave: 'altura_silla',
+    etiqueta: 'Altura del asiento',
+    vocabulario: ['43_cm', 'otra'],
+    etiquetas: et(['43_cm', '43 cm (17 pulgadas), la del protocolo'], ['otra', 'Otra altura']),
+    porQue: 'Cuanto más bajo el asiento, más recorrido y menos repeticiones con la misma fuerza.',
+  },
+]);
+const P15 = sft('P-15', [
+  {
+    clave: 'mancuerna',
+    etiqueta: 'Peso de la mancuerna',
+    vocabulario: ['5_lb', '8_lb', 'otro'],
+    etiquetas: et(['5_lb', '5 libras (mujeres)'], ['8_lb', '8 libras (varones)'], ['otro', 'Otro peso']),
+    porQue: 'El protocolo fija 5 lb en mujeres y 8 lb en varones. Con otro peso la tabla no aplica.',
+  },
+]);
+const P16 = sft('P-16');
+const P17 = sft('P-17');
+const P18 = sft('P-18', [
+  {
+    clave: 'punto_cero',
+    etiqueta: 'Dónde está el cero',
+    vocabulario: ['punta_zapato', 'otro'],
+    etiquetas: et(['punta_zapato', 'La punta del zapato = 0'], ['otro', 'Otra referencia']),
+    porQue:
+      'La tabla se construyó midiendo desde la punta del zapato, con negativos si no se llega. ' +
+      'Es el mismo hallazgo que destapó el sit-and-reach: el cero cambia el número entero.',
+  },
+]);
+const P19 = sft('P-19');
+const P20 = sft('P-20');
+
+/** McGill. Lo que altera los tres tiempos es cómo se sujeta al cliente. */
+const mcgill = (pruebaId: string): CondicionesDePrueba => ({
+  pruebaId,
+  requeridas: [
+    {
+      clave: 'sujecion',
+      etiqueta: 'Sujeción',
+      vocabulario: ['correa', 'manual', 'ninguna'],
+      etiquetas: et(
+        ['correa', 'Correa'],
+        ['manual', 'Sujeción manual del evaluador'],
+        ['ninguna', 'Sin sujeción'],
+      ),
+      porQue:
+        'El protocolo de ACE admite anclar con correa o sujetar a mano, y una sujeción firme ' +
+        'permite aguantar más tiempo. Los tres cocientes de la batería solo tienen sentido si ' +
+        'las tres pruebas se sujetaron igual.',
+    },
+  ],
+  opcionales: [],
+});
+const P21 = mcgill('P-21');
+// El puente lateral se hace a cada lado por separado, y a diferencia de la
+// flexión y la extensión del tronco (P-21, P-23), aquí SÍ hace falta saber
+// cuál: el cociente que compara ambos lados (`calculo/derivados.ts`,
+// `cocientesMcGill`) necesita el tiempo derecho y el izquierdo por separado,
+// y sin esta condición dos registros de «puente lateral» serían
+// indistinguibles el uno del otro.
+const P22: CondicionesDePrueba = {
+  ...mcgill('P-22'),
+  requeridas: [
+    ...mcgill('P-22').requeridas,
+    {
+      clave: 'lado',
+      etiqueta: 'Lado evaluado',
+      vocabulario: ['derecho', 'izquierdo'],
+      etiquetas: et(['derecho', 'Puente lateral derecho'], ['izquierdo', 'Puente lateral izquierdo']),
+      porQue:
+        'El manual de ACE compara el lado derecho contra el izquierdo, y sin declarar cuál se ' +
+        'registró no puede saberse qué mitad del cociente es esta medición.',
+    },
+  ],
+};
+const P23 = mcgill('P-23');
+
+/**
+ * Las 7 pruebas sueltas del FMS (P-24 a P-30) comparten el mismo factor que ya
+ * declara P-09: quién puntúa altera el resultado tanto como qué se puntúa.
+ * Las 5 que se hacen a cada lado añaden, encima, la condición que distingue
+ * cuál es cuál — igual que el puente lateral de McGill: sin ella, la
+ * puntuación final de la prueba (la del lado más bajo) no se podría componer.
+ */
+const fms = (pruebaId: string): CondicionesDePrueba => ({
+  pruebaId,
+  requeridas: [
+    {
+      clave: 'formacion_evaluador',
+      etiqueta: 'Formación del evaluador',
+      vocabulario: ['certificado', 'entrenado', 'sin_formacion_especifica'],
+      etiquetas: et(
+        ['certificado', 'Certificado en FMS'],
+        ['entrenado', 'Con formación previa'],
+        ['sin_formacion_especifica', 'Sin formación específica'],
+      ),
+      porQue:
+        'Es la misma razón que ya declara P-09 para la puntuación compuesta, aplicada a cada ' +
+        'movimiento por separado: la fiabilidad interevaluador varía ampliamente según la ' +
+        'formación de quien puntúa.',
+    },
+  ],
+  opcionales: [],
+});
+const fmsBilateral = (pruebaId: string): CondicionesDePrueba => ({
+  ...fms(pruebaId),
+  requeridas: [
+    ...fms(pruebaId).requeridas,
+    {
+      clave: 'lado',
+      etiqueta: 'Lado evaluado',
+      vocabulario: ['derecho', 'izquierdo'],
+      etiquetas: et(['derecho', 'Lado derecho'], ['izquierdo', 'Lado izquierdo']),
+      porQue:
+        'El protocolo puntúa cada lado por separado y toma el más bajo como resultado de la ' +
+        'prueba: sin declarar cuál es este registro, dos mediciones del mismo atleta serían ' +
+        'indistinguibles.',
+    },
+  ],
+});
+const P24 = fms('P-24');
+const P25 = fmsBilateral('P-25');
+const P26 = fmsBilateral('P-26');
+const P27 = fmsBilateral('P-27');
+const P28 = fmsBilateral('P-28');
+const P29 = fms('P-29');
+const P30 = fmsBilateral('P-30');
+
 export const CONDICIONES: readonly CondicionesDePrueba[] = [
   P01, P02, P03, P04, P05, P06, P07, P08, P09, P10, P11,
+  P12, P13, P14, P15, P16, P17, P18, P19, P20, P21, P22, P23,
+  P24, P25, P26, P27, P28, P29, P30,
 ];
 
 /** Las condiciones declaradas de una prueba. `null` si no está en el catálogo. */

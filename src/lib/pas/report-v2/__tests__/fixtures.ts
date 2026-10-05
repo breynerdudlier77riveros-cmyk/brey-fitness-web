@@ -11,6 +11,7 @@ const PRUEBA_PRENSION = MAPEOS[0].pruebaId;
 import { cargarNormas } from '@/lib/nie/nkb/cargador';
 import { consultarEvaluacion, type SujetoNormativo } from '@/lib/pas/normativo';
 import type { RegistroPrueba } from '@/lib/pas/tipos';
+import { nombrePrueba } from '@/features/performance-workspace/schemas/catalogo';
 
 import { componerInformeNormativo, type DatosPortada } from '../vista';
 
@@ -115,7 +116,11 @@ export function informe(
   sujeto: SujetoNormativo,
   portada: DatosPortada = PORTADA,
 ) {
-  return componerInformeNormativo(consultarEvaluacion(registros, sujeto, NORMAS), portada);
+  return componerInformeNormativo(
+    consultarEvaluacion(registros, sujeto, NORMAS),
+    portada,
+    nombrePrueba,
+  );
 }
 
 /** El caso nominal: 37,5 kg de un universitario de 20 años. */

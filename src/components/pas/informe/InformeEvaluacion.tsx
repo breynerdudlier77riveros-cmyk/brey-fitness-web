@@ -4,12 +4,15 @@ import type { ResultadoInformeNormativo } from "@/features/performance-workspace
 import type { Conflicto } from "@/lib/pas/informe";
 
 import AthleteSummary from "./AthleteSummary";
+import FmsPanel from "./FmsPanel";
 import GoalCard from "./GoalCard";
+import McGillPanel from "./McGillPanel";
 import PerformanceProfile from "./PerformanceProfile";
 import ResultCard from "./ResultCard";
 import TechnicalDetails from "./TechnicalDetails";
 import PruebaCard from "./PruebaCard";
 import VistaInforme from "./VistaInforme";
+import Vo2EstimadoPanel from "./Vo2EstimadoPanel";
 
 import NormativeCard from "@/components/pas/report-v2/NormativeCard";
 import SummaryMetric from "@/components/pas/report-v2/SummaryMetric";
@@ -292,6 +295,22 @@ export default function InformeEvaluacion({
             }
           />
         )}
+
+        {/* El equilibrio entre las tres pruebas de McGill, si están las tres:
+            no es un resultado más de la rejilla de arriba porque no compara
+            con ninguna población — compara al atleta con sus otras dos
+            mediciones de la misma evaluación. */}
+        {humano?.mcgill ? <McGillPanel panel={humano.mcgill} /> : null}
+
+        {/* El VO2máx que la Course-navette no puede situar por sí sola: la
+            evidencia de esa prueba es solo de escolares de Bogotá, pero el
+            dato SÍ estima un VO2máx clasificable contra las mismas tablas
+            que ya usa la caminata Rockport (P-12). */}
+        {humano?.vo2Estimado ? <Vo2EstimadoPanel panel={humano.vo2Estimado} /> : null}
+
+        {/* Las siete pruebas del FMS, si están las siete: sin clasificación,
+            porque ninguna revisión respalda un punto de corte para el total. */}
+        {humano?.fms ? <FmsPanel panel={humano.fms} /> : null}
       </section>
 
       {/* ── 2 · Dónde cae ──────────────────────────────────────────────────

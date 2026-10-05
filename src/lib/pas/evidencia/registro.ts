@@ -22,7 +22,119 @@
 // búsqueda y no se han abierto.
 
 import { DECILES_POWERLIFTING } from './deciles-powerlifting';
+import { PERCENTILES_CHMS } from './percentiles-chms';
+import {
+  GRUPOS_BANDAS,
+  INTERVALOS_SFT,
+  SOLAPES_EN_LA_FUENTE,
+  type GrupoBandas,
+} from './tablas-poblacion-general';
 import type { FuenteEvidencia, ReferenciaEvidencia } from './tipos';
+
+/** De qué fuente es cada tabla de bandas. Una tabla, una primaria. */
+const FUENTE_DE_TABLA: Readonly<Record<GrupoBandas['tabla'], string>> = {
+  cooper: 'cooper_vo2_1979',
+  aha: 'aha_vo2_1972',
+  rivera: 'rivera_vo2_pr_1986',
+  harvard_largo: 'harvard_iac_lopategui',
+  harvard_corto: 'harvard_iac_lopategui',
+};
+
+/**
+ * Qué condición de registro exige cada tabla para poder aplicarse.
+ *
+ * Las tres del VO2máx no exigen ninguna ecuación concreta —clasifican un
+ * VO2máx, venga de donde venga—, pero las DOS DEL ESCALÓN sí exigen su método:
+ * el manual publica una tabla por método y un índice de 70 cae en un tramo
+ * distinto según cuál se usara. Sin esa condición declarada, el sistema
+ * aplicaría las dos tablas al mismo número y produciría el conflicto él solo.
+ */
+const PROTOCOLO_DE_TABLA: Readonly<Record<GrupoBandas['tabla'], Readonly<Record<string, string>>>> = {
+  cooper: {},
+  aha: {},
+  rivera: {},
+  harvard_largo: { metodo: 'largo' },
+  harvard_corto: { metodo: 'corto' },
+};
+
+const LIMITACIONES_DE_TABLA: Readonly<Record<GrupoBandas['tabla'], readonly string[]>> = {
+  cooper: [
+    'La reproducción consultada NO declara sobre qué muestra se construyó esta tabla.',
+    'Publicada en 1979. Transcrita de un manual de laboratorio, no del original.',
+  ],
+  aha: [
+    'Publicada en 1972 por la American Heart Association, sin tamaño de muestra en la ' +
+      'reproducción consultada.',
+    'Sus bandas de 50-65 y 60-69 se solapan tal como están impresas.',
+  ],
+  rivera: [
+    'Adultos PUERTORRIQUEÑOS. Es la única de las cuatro tablas con población latinoamericana, ' +
+      'y aun así no es colombiana.',
+    'Las bandas masculinas de 50-65 y «más de 60» se solapan; las femeninas se detienen en ' +
+      '«más de 50» y no separan a una mujer de 52 de una de 80.',
+  ],
+  harvard_largo: [
+    'El manual no declara la muestra sobre la que se fijaron estos cortes, ni estratifica por ' +
+      'edad ni por sexo.',
+    'Corresponde al método LARGO: el índice se calcula con la suma de los tres pulsos de ' +
+      'recuperación.',
+  ],
+  harvard_corto: [
+    'El manual no declara la muestra sobre la que se fijaron estos cortes, ni estratifica por ' +
+      'edad ni por sexo.',
+    'Corresponde al método CORTO: el índice se calcula solo con el pulso del primer minuto.',
+    'Sus tramos se solapan en 40, 60 y 80, tal como están impresos.',
+  ],
+};
+
+/**
+ * Lo que cada prueba del CHMS arrastra consigo: su protocolo y sus
+ * limitaciones. Es lo ÚNICO que distingue una banda de salto de una de
+ * sit-and-reach — los percentiles vienen del fichero generado, iguales para
+ * las sesenta y seis.
+ *
+ * EL PAÍS SE MANTIENE COMO CONDICIÓN EN LAS DOS, y por motivos distintos que
+ * conviene no confundir:
+ *
+ *   · **Salto** — `rouis_etnia_salto_2016` documenta ~10 cm de diferencia
+ *     entre grupos de ascendencia distinta con brazos libres, que es el mismo
+ *     protocolo que usa esta fuente. Diez centímetros cruzan cuatro bandas de
+ *     percentil de esta misma tabla.
+ *
+ *   · **Sit-and-reach** — mide una DISTANCIA ALCANZADA, y quien tiene brazos
+ *     largos y piernas cortas alcanza más sin ser más extensible. Las
+ *     proporciones de segmentos varían sistemáticamente entre poblaciones.
+ *
+ * Mantenerlo como condición no significa descartar la norma para un
+ * colombiano: desde PAS-13 la norma se aplica y la población de origen viaja
+ * con ella para que la frase la nombre. Lo que no puede hacerse es
+ * presentarla como si fuera propia.
+ */
+const CHMS: Readonly<
+  Record<
+    'P-04' | 'P-06',
+    { protocolo: Readonly<Record<string, string>>; limitaciones: readonly string[] }
+  >
+> = {
+  'P-04': {
+    protocolo: { brazos: 'libres' },
+    limitaciones: [
+      'Muestra nacionalmente representativa de CANADÁ. No describe a ninguna otra población.',
+      'Plataforma Leonardo Mechanograph; salto bilateral con contramovimiento y BRAZOS LIBRES.',
+      'Se tomó el mejor de tres intentos válidos.',
+      'Se han transcrito las 32 bandas que publica la fuente, de 8 a 69 años.',
+    ],
+  },
+  'P-06': {
+    protocolo: { version: 'clasico' },
+    limitaciones: [
+      'Muestra nacionalmente representativa de CANADÁ. No describe a ninguna otra población.',
+      'Flexómetro con el cero calibrado de modo que tocar los dedos equivale a 26 cm: un valor medido con otra calibración no es comparable.',
+      'Se tomó el mejor de dos intentos válidos, tras estiramiento previo.',
+      'Se han transcrito las 34 bandas que publica la fuente, de 6 a 69 años.',
+    ],
+  },
+};
 
 // ════════════════════════════════════════════════════════════════════════════
 // FUENTES
@@ -106,6 +218,29 @@ export const FUENTES: readonly FuenteEvidencia[] = [
       'su uso como herramienta de predicción.',
     noSostiene:
       'No respalda ningún punto de corte. El umbral de 14 no puede usarse para predecir lesión.',
+  },
+  {
+    id: 'cook_fms_2006',
+    estado: 'propuesta',
+    claveExterna: null,
+    cita: {
+      autores: 'Cook, G., Burton, L., y Hoogenboom, B.',
+      anio: 2006,
+      titulo:
+        'Pre-participation screening: the use of fundamental movements as an assessment of ' +
+        'function - part 1 and part 2',
+      publicacion: 'North American Journal of Sports Physical Therapy, 1(2) 62-72 y 1(3) 132-139',
+      localizador: 'PMID 21522216 (parte 1) · PMID 21522225 (parte 2)',
+    },
+    poblacion: 'No es un estudio de muestra: define el protocolo y la escala de las 7 pruebas.',
+    sostiene:
+      'El protocolo original: qué mide cada una de las 7 pruebas, cuáles se puntúan por lado ' +
+      '(el lado más bajo es la puntuación de esa prueba), en cuáles hay una prueba de despeje ' +
+      'que convierte el resultado en 0 si duele, y la escala de 0 a 3 con la que se puntúa cada ' +
+      'una.',
+    noSostiene:
+      'No publica ninguna norma poblacional ni punto de corte: eso es lo que evalúa (y ' +
+      'descarta) `moran_fms_2017`. Aquí solo vive CÓMO se puntúa, no qué significa el total.',
   },
 
   // ── Nuevas, recuperadas y leídas en la fase 2 de PAS-11 ──────────────────
@@ -367,6 +502,220 @@ export const FUENTES: readonly FuenteEvidencia[] = [
     sostiene: 'Nada todavía: la publicación no se ha recuperado.',
     noSostiene: 'Nada puede afirmarse a partir de una fuente sin verificar en origen.',
   },
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // POBLACIÓN GENERAL · Sprint PAS-18
+  // ══════════════════════════════════════════════════════════════════════════
+  //
+  // LA CADENA, QUE AQUÍ IMPORTA MÁS QUE DE COSTUMBRE:
+  //
+  //   Estas cinco tablas llegan en documentos DOCENTES —dos manuales de
+  //   laboratorio, un apunte universitario, un manual de certificación— que
+  //   reproducen tablas de otros. Lo que se tiene en la mano es la
+  //   reproducción; el estudio original no se ha abierto.
+  //
+  //   Se cita la PRIMARIA, porque es de quien son los datos y es lo que hay
+  //   que poder ir a comprobar. Y cada referencia declara por dónde llegó,
+  //   porque «Cooper 1979» leído en un manual de 2025 y «Cooper 1979» leído en
+  //   Cooper no son la misma verificación (NKB `13`, nivel E-2).
+  //
+  //   Ninguna es `admitida`: no han pasado el procedimiento de la NKB. Son
+  //   `propuesta`, que es exactamente lo que son.
+
+  {
+    id: 'rikli_jones_sft_2001',
+    estado: 'propuesta',
+    claveExterna: null,
+    cita: {
+      autores: 'Rikli, R. E., & Jones, C. J.',
+      anio: 2001,
+      titulo: 'Senior Fitness Test Manual',
+      publicacion: 'Champaign, IL: Human Kinetics',
+      localizador:
+        'ISBN 978-0-7360-3356-6. Tabla transcrita de: García Merino, S. «Valoración de la ' +
+        'condición física en personas mayores: Senior Fitness Test», Universidad Europea de ' +
+        'Madrid, pp. 8-10 (intervalo normal por sexo y edad).',
+    },
+    poblacion:
+      'Más de 7.000 mayores independientes de 60 a 94 años, de 267 lugares de Estados Unidos',
+    sostiene:
+      'Situar el resultado de cada una de las siete pruebas dentro del intervalo entre el ' +
+      'percentil 25 y el 75 que publica para su sexo y su banda de edad.',
+    noSostiene:
+      'No es una norma colombiana ni latinoamericana. No define categorías: quedar fuera del ' +
+      'intervalo no es un diagnóstico ni un grado, solo dice que la mitad central del grupo de ' +
+      'referencia no llegaba ahí. Y no se ha leído el manual original: la tabla llega por un ' +
+      'documento docente que la traduce.',
+  },
+  {
+    id: 'cooper_vo2_1979',
+    estado: 'propuesta',
+    claveExterna: null,
+    cita: {
+      autores: 'Cooper, K. H.',
+      anio: 1979,
+      titulo: 'El Camino del Aeróbics',
+      publicacion: 'México: Editorial Diana',
+      localizador:
+        'pp. 295-296. Transcrita de la tabla L4:2 de: Lopategui Corsino, E. «Prueba de ' +
+        'caminata de una milla (Rockport)», http://www.saludmed.com/LabFisio/Lab-F-Men1.html',
+    },
+    poblacion: 'No declarada en la reproducción consultada',
+    sostiene:
+      'Situar un VO2máx estimado en el tramo que esta tabla concreta nombra, para su sexo y su ' +
+      'banda de edad, de los 13 a más de 60 años.',
+    // Las etiquetas de los seis tramos NO se reproducen aquí: viven en
+    // `tablas-poblacion-general.ts`, que es su sitio. Un adjetivo de mérito en
+    // este campo lo convertiría en algo que el sistema afirma, y `admision`
+    // tiene un test que lo impide — con razón.
+    noSostiene:
+      'La reproducción NO declara sobre qué muestra se construyó la tabla, así que no puede ' +
+      'decirse a qué población representa. Los nombres de sus seis tramos son suyos y no ' +
+      'coinciden con los de las otras tres tablas del mismo documento.',
+  },
+  {
+    id: 'aha_vo2_1972',
+    estado: 'propuesta',
+    claveExterna: null,
+    cita: {
+      autores: 'American Heart Association',
+      anio: 1972,
+      titulo: 'Exercise Testing and Training of Apparently Healthy Individuals: A Handbook for Physicians',
+      publicacion: 'Dallas: American Heart Association',
+      localizador:
+        'p. 15. Transcrita de la tabla L4:4 de: Lopategui Corsino, E. ' +
+        'http://www.saludmed.com/LabFisio/Lab-F-Men1.html',
+    },
+    poblacion: 'Adultos aparentemente sanos. La reproducción no publica el tamaño de la muestra',
+    sostiene:
+      'Situar un VO2máx estimado en el tramo que esta tabla nombra, de los 20 a los 69 años.',
+    noSostiene:
+      'Tiene medio siglo y la reproducción no declara su muestra. Sus bandas de edad se solapan ' +
+      '—50-65 y 60-69 a la vez— tal como están impresas.',
+  },
+  {
+    id: 'rivera_vo2_pr_1986',
+    estado: 'propuesta',
+    claveExterna: null,
+    cita: {
+      autores: 'Rivera, M. A.',
+      anio: 1986,
+      titulo: 'The maximal aerobic capacity of adult puerto ricans',
+      publicacion: 'Boletín de la Asociación Médica de Puerto Rico, 78(10), p. 429',
+      localizador:
+        'Boletín de la Asoc. Médica de PR, 78(10), p. 429. Transcrita de la tabla L4:1 de: ' +
+        'Lopategui Corsino, E. http://www.saludmed.com/LabFisio/Lab-F-Men1.html',
+    },
+    poblacion: 'Adultos puertorriqueños',
+    sostiene:
+      'Situar un VO2máx estimado en su tramo. Es la ÚNICA de las cuatro con población ' +
+      'latinoamericana, y por eso se registra pese a sus defectos.',
+    noSostiene:
+      'Puerto Rico no es Colombia. Sus bandas masculinas se solapan (50-65 y más de 60) y las ' +
+      'femeninas se detienen en «más de 50», sin separar a una mujer de 52 de una de 80.',
+  },
+  {
+    id: 'rockport_kline_lopategui',
+    estado: 'propuesta',
+    claveExterna: null,
+    cita: {
+      autores: 'Kline, G. M., y cols.',
+      anio: 1987,
+      titulo:
+        'Estimation of VO2max from a one-mile track walk, gender, age and body weight',
+      publicacion: 'Medicine and Science in Sports and Exercise, 19(3), 253-259',
+      localizador:
+        'PMID 3600239. Las tres ecuaciones se transcriben de: Lopategui Corsino, E. «Prueba de ' +
+        'caminata de una milla (Rockport)», pp. 5-6, ' +
+        'http://www.saludmed.com/LabFisio/Lab-F-Men1.html',
+    },
+    poblacion: 'Adultos sanos de 30 a 69 años (muestra original de validación de Rockport)',
+    sostiene:
+      'Estimar el consumo de oxígeno máximo relativo a la masa corporal a partir del tiempo en ' +
+      'caminar una milla, la frecuencia cardiaca al terminar, la masa, la edad y el sexo.',
+    noSostiene:
+      'Es una ESTIMACIÓN por regresión, no una medición: el error típico de la ecuación viaja ' +
+      'con cada resultado y la fuente consultada no lo publica. Las tres ecuaciones dan cifras ' +
+      'distintas para el mismo paseo, y la segunda ni siquiera usa la edad. No mide el VO2máx ' +
+      'ni sustituye a una prueba de esfuerzo.',
+  },
+  {
+    id: 'harvard_iac_lopategui',
+    estado: 'propuesta',
+    claveExterna: null,
+    cita: {
+      autores: 'Lopategui Corsino, E.',
+      anio: 2008,
+      titulo: 'Prueba del escalón de Harvard · Experimento de laboratorio F-16',
+      publicacion: 'Saludmed',
+      localizador: 'http://www.saludmed.com/LabFisio/Lab-F-Men1.html · citando a Adams, G. M. (1998)',
+    },
+    poblacion: 'No declarada. El manual no publica sobre qué muestra se fijaron los cortes',
+    sostiene:
+      'Situar el índice de aptitud cardiorrespiratoria en el tramo que el manual nombra, ' +
+      'usando la tabla del método con el que se calculó.',
+    noSostiene:
+      'No consta la muestra ni la edad ni el sexo de quien produjo estos cortes, así que la ' +
+      'tabla se aplica a todo el mundo por igual y eso es una limitación, no una virtud. El ' +
+      'propio documento se contradice sobre la duración en mujeres —dice 6 minutos en la ' +
+      'preparación y 4 en la administración— y sus tramos del método corto se solapan en 40, ' +
+      '60 y 80.',
+  },
+  {
+    id: 'mcgill_torso_ace_2015',
+    estado: 'propuesta',
+    claveExterna: null,
+    cita: {
+      autores: 'American Council on Exercise',
+      anio: 2015,
+      titulo: "McGill's Torso Muscular Endurance Test Battery",
+      publicacion: 'ACE Certified Medical Exercise Specialist',
+      localizador:
+        'https://www.acefitness.org · sección 02-10-CMES, figura 4 (hoja de registro y ' +
+        'criterios de relación), p. 4.',
+    },
+    poblacion: 'No declarada',
+    sostiene:
+      'Comparar los tres tiempos ENTRE SÍ mediante los tres cocientes que el manual publica, ' +
+      'cada uno con su criterio.',
+    noSostiene:
+      'No publica ningún valor normativo para los tiempos por separado: aguantar 90 segundos no ' +
+      'se puede situar respecto a nadie. Lo único que sostiene es el equilibrio entre las tres ' +
+      'pruebas del mismo sujeto, y no declara sobre qué muestra se fijaron esos cocientes.',
+  },
+  {
+    id: 'leger_1988_20msr',
+    estado: 'propuesta',
+    claveExterna: null,
+    cita: {
+      autores: 'Léger, L. A., Mercier, D., Gadoury, C., y Lambert, J.',
+      anio: 1988,
+      titulo: 'The multistage 20 metre shuttle run test for aerobic fitness',
+      publicacion: 'Journal of Sports Sciences, 6(2), 93-101',
+      localizador:
+        'DOI 10.1080/02640418808729800. Ecuación transcrita y verificada contra: Bandyopadhyay, ' +
+        'A. (2011). Validity of 20 meter multi-stage shuttle run test for estimation of maximum ' +
+        'oxygen uptake in male university students. Indian Journal of Physiology and ' +
+        'Pharmacology, 55(3), 221-226, p. 223, que reproduce la fórmula completa con sus cuatro ' +
+        'coeficientes.',
+    },
+    poblacion:
+      '188 niños y niñas de 8 a 19 años (muestra de calibración de la ecuación). Revalidada para ' +
+      'adultos de 18 a 50 años (n=77) en Léger, L., y Gadoury, C. (1989). Validity of the 20 ' +
+      'meter shuttle run test with 1 min stages to predict VO2max in adults. Canadian Journal of ' +
+      'Sport Sciences, 14(1), 21-26, manteniendo la edad fija en 18 años para todo mayor de edad.',
+    sostiene:
+      'Estimar el VO2máx (mL·kg⁻¹·min⁻¹) a partir del último estadio completado en la ' +
+      'Course-navette y la edad, con la ecuación: 31,025 + (3,238 × velocidad) − (3,248 × edad) + ' +
+      '(0,1536 × velocidad × edad), donde velocidad = 8 + 0,5 × estadio.',
+    noSostiene:
+      'Es una ESTIMACIÓN por regresión, no una medición directa de gases. El término de edad se ' +
+      'calibró entre 8 y 19 años: usarlo tal cual en un adulto de 40 extrapolaría la ecuación ' +
+      'fuera de donde se ajustó, así que para cualquier edad mayor de 18 se usa 18 — la ' +
+      'revalidación de 1989 hizo exactamente eso, no una elección de este sistema. Con esa ' +
+      'corrección, el error típico de la estimación en adultos no consta en las fuentes ' +
+      'consultadas.',
+  },
 ];
 
 export function fuenteDe(id: string): FuenteEvidencia | null {
@@ -484,243 +833,51 @@ export const REFERENCIAS: readonly ReferenciaEvidencia[] = [
     variablesAtleta: [],
   },
 
-  {
-    id: 'P-04/chms/m-20-24',
-    pruebaId: 'P-04',
+  // ── P-04 y P-06 · las 66 normas canadienses (Sprint PAS-17) ──────────────
+  //
+  // AQUÍ HABÍA OCHO BANDAS TECLEADAS A MANO: varones y mujeres de 20 a 24 y de
+  // 25 a 29. Las otras cincuenta y ocho llevaban desde PAS-12 transcritas y
+  // verificadas en las fichas `CMJ-CA-TN1-percentiles.md` (32 normas, 8 a 69
+  // años) y `SAR-CA-TN1-percentiles.md` (34 normas, 6 a 69 años), y no
+  // llegaban hasta aquí. Un niño de 12, un adulto de 45 y una mujer de 60
+  // salían sin posición en dos de las cinco pruebas que la tienen — no porque
+  // faltara ciencia, sino porque faltaba el cable.
+  //
+  // NO SE ADMITE NINGUNA NORMA NUEVA. La fuente ya estaba admitida, la ficha ya
+  // estaba verificada y las cifras son las mismas: lo único que cambia es
+  // cuántas de ellas llegan a la pantalla. El generador lo demuestra
+  // comparando punto por punto estas ocho bandas con lo que lee de la ficha.
+  ...PERCENTILES_CHMS.map((b) => ({
+    id: `${b.prueba}/chms/${b.sexo.toLowerCase()}-${b.edadMin}-${b.edadMax}`,
+    pruebaId: b.prueba,
     fuenteId: 'hoffmann_chms_2019',
-    tipo: 'NORMATIVA',
-    nivel: 'A',
+    tipo: 'NORMATIVA' as const,
+    nivel: 'A' as const,
     ambito: {
-      edadMin: 20,
-      edadMax: 24,
-      sexo: 'M',
+      edadMin: b.edadMin,
+      edadMax: b.edadMax,
+      sexo: b.sexo,
       pais: 'CA',
-      contexto: 'general',
-      // G-06 RESUELTO (PAS-11.2): el país SE MANTIENE como condición para el
-      // salto. `rouis_etnia_salto_2016` documenta ~10 cm de diferencia entre
-      // grupos de ascendencia distinta con brazos libres —el mismo protocolo
-      // que usa esta fuente—, y 10 cm cruzan cuatro bandas de percentil de esta
-      // misma tabla. La composición de una muestra nacional canadiense no es la
-      // de una colombiana, así que trasladarla sería una suposición con
-      // evidencia en contra.
-      protocolo: { brazos: 'libres' },
+      contexto: 'general' as const,
+      protocolo: CHMS[b.prueba].protocolo,
       unidad: 'cm',
       patron: null,
     },
-    representacion: {
-      clase: 'percentiles',
-      puntos: [{ p: 5, valor: 32.6 }, { p: 10, valor: 36.6 }, { p: 20, valor: 41.2 }, { p: 30, valor: 44.3 }, { p: 40, valor: 47 }, { p: 50, valor: 49.4 }, { p: 60, valor: 51.7 }, { p: 70, valor: 54.1 }, { p: 80, valor: 56.9 }, { p: 90, valor: 60.7 }, { p: 95, valor: 63.8 }],
-    },
+    representacion: { clase: 'percentiles' as const, puntos: b.puntos },
     limitaciones: [
-      'Muestra nacionalmente representativa de CANADÁ. No describe a ninguna otra población.',
-      'Plataforma Leonardo Mechanograph; salto bilateral con contramovimiento y BRAZOS LIBRES.',
-      'Se tomó el mejor de tres intentos válidos.',
-      'Solo se han transcrito las bandas de 20 a 29 años; la fuente publica de 8 a 69.',
+      ...CHMS[b.prueba].limitaciones,
+      // El hueco se declara EN LA BANDA QUE LO TIENE, no en las sesenta y seis.
+      // Dos celdas se perdieron en la extracción del PDF y las fichas prohíben
+      // reconstruirlas; decirlo en todas convertiría el aviso en decorado.
+      ...(b.puntos.length === 11
+        ? []
+        : [
+            `Esta banda se publica con once percentiles y aquí salen ${b.puntos.length}: ` +
+              'la extracción del PDF perdió una celda y la ficha de la NKB prohíbe estimarla.',
+          ]),
     ],
     variablesAtleta: ['edad', 'sexo'],
-  },
-  {
-    id: 'P-04/chms/m-25-29',
-    pruebaId: 'P-04',
-    fuenteId: 'hoffmann_chms_2019',
-    tipo: 'NORMATIVA',
-    nivel: 'A',
-    ambito: {
-      edadMin: 25,
-      edadMax: 29,
-      sexo: 'M',
-      pais: 'CA',
-      contexto: 'general',
-      protocolo: { brazos: 'libres' },
-      unidad: 'cm',
-      patron: null,
-    },
-    representacion: {
-      clase: 'percentiles',
-      puntos: [{ p: 5, valor: 31.5 }, { p: 10, valor: 35.5 }, { p: 20, valor: 40 }, { p: 30, valor: 43.1 }, { p: 40, valor: 45.7 }, { p: 50, valor: 48 }, { p: 60, valor: 50.3 }, { p: 70, valor: 52.6 }, { p: 80, valor: 55.3 }, { p: 90, valor: 59 }, { p: 95, valor: 61.9 }],
-    },
-    limitaciones: [
-      'Muestra nacionalmente representativa de CANADÁ. No describe a ninguna otra población.',
-      'Plataforma Leonardo Mechanograph; salto bilateral con contramovimiento y BRAZOS LIBRES.',
-      'Se tomó el mejor de tres intentos válidos.',
-      'Solo se han transcrito las bandas de 20 a 29 años; la fuente publica de 8 a 69.',
-    ],
-    variablesAtleta: ['edad', 'sexo'],
-  },
-  {
-    id: 'P-04/chms/f-20-24',
-    pruebaId: 'P-04',
-    fuenteId: 'hoffmann_chms_2019',
-    tipo: 'NORMATIVA',
-    nivel: 'A',
-    ambito: {
-      edadMin: 20,
-      edadMax: 24,
-      sexo: 'F',
-      pais: 'CA',
-      contexto: 'general',
-      protocolo: { brazos: 'libres' },
-      unidad: 'cm',
-      patron: null,
-    },
-    representacion: {
-      clase: 'percentiles',
-      puntos: [{ p: 5, valor: 22.8 }, { p: 10, valor: 24.7 }, { p: 20, valor: 27.1 }, { p: 30, valor: 28.9 }, { p: 40, valor: 30.4 }, { p: 50, valor: 31.8 }, { p: 60, valor: 33.3 }, { p: 70, valor: 34.8 }, { p: 80, valor: 36.7 }, { p: 90, valor: 39.3 }, { p: 95, valor: 41.4 }],
-    },
-    limitaciones: [
-      'Muestra nacionalmente representativa de CANADÁ. No describe a ninguna otra población.',
-      'Plataforma Leonardo Mechanograph; salto bilateral con contramovimiento y BRAZOS LIBRES.',
-      'Se tomó el mejor de tres intentos válidos.',
-      'Solo se han transcrito las bandas de 20 a 29 años; la fuente publica de 8 a 69.',
-    ],
-    variablesAtleta: ['edad', 'sexo'],
-  },
-  {
-    id: 'P-04/chms/f-25-29',
-    pruebaId: 'P-04',
-    fuenteId: 'hoffmann_chms_2019',
-    tipo: 'NORMATIVA',
-    nivel: 'A',
-    ambito: {
-      edadMin: 25,
-      edadMax: 29,
-      sexo: 'F',
-      pais: 'CA',
-      contexto: 'general',
-      protocolo: { brazos: 'libres' },
-      unidad: 'cm',
-      patron: null,
-    },
-    representacion: {
-      clase: 'percentiles',
-      puntos: [{ p: 5, valor: 22.2 }, { p: 10, valor: 24.1 }, { p: 20, valor: 26.5 }, { p: 30, valor: 28.3 }, { p: 40, valor: 29.9 }, { p: 50, valor: 31.3 }, { p: 60, valor: 32.8 }, { p: 70, valor: 34.3 }, { p: 80, valor: 36.2 }, { p: 90, valor: 38.8 }, { p: 95, valor: 41 }],
-    },
-    limitaciones: [
-      'Muestra nacionalmente representativa de CANADÁ. No describe a ninguna otra población.',
-      'Plataforma Leonardo Mechanograph; salto bilateral con contramovimiento y BRAZOS LIBRES.',
-      'Se tomó el mejor de tres intentos válidos.',
-      'Solo se han transcrito las bandas de 20 a 29 años; la fuente publica de 8 a 69.',
-    ],
-    variablesAtleta: ['edad', 'sexo'],
-  },
-  {
-    id: 'P-06/chms/m-20-24',
-    pruebaId: 'P-06',
-    fuenteId: 'hoffmann_chms_2019',
-    tipo: 'NORMATIVA',
-    nivel: 'A',
-    ambito: {
-      edadMin: 20,
-      edadMax: 24,
-      sexo: 'M',
-      pais: 'CA',
-      contexto: 'general',
-      // G-06 RESUELTO (PAS-11.2): el país SE MANTIENE también aquí, y por un
-      // motivo que la propia PKB ya registraba: el sit-and-reach mide una
-      // DISTANCIA ALCANZADA, y quien tiene brazos largos y piernas cortas
-      // alcanza más sin ser más extensible. Las proporciones de segmentos
-      // varían sistemáticamente entre poblaciones, así que la composición de la
-      // muestra confunde la comparación de forma directa.
-      protocolo: { version: 'clasico' },
-      unidad: 'cm',
-      patron: null,
-    },
-    representacion: {
-      clase: 'percentiles',
-      puntos: [{ p: 5, valor: 8.9 }, { p: 10, valor: 11.7 }, { p: 20, valor: 15.5 }, { p: 30, valor: 18.7 }, { p: 40, valor: 21.7 }, { p: 50, valor: 24.6 }, { p: 60, valor: 27.5 }, { p: 70, valor: 30.4 }, { p: 80, valor: 33.5 }, { p: 90, valor: 37.2 }, { p: 95, valor: 39.9 }],
-    },
-    limitaciones: [
-      'Muestra nacionalmente representativa de CANADÁ. No describe a ninguna otra población.',
-      'Flexómetro con el cero calibrado de modo que tocar los dedos equivale a 26 cm: un valor medido con otra calibración no es comparable.',
-      'Se tomó el mejor de dos intentos válidos, tras estiramiento previo.',
-      'Solo se han transcrito las bandas de 20 a 29 años; la fuente publica de 6 a 69.',
-    ],
-    variablesAtleta: ['edad', 'sexo'],
-  },
-  {
-    id: 'P-06/chms/m-25-29',
-    pruebaId: 'P-06',
-    fuenteId: 'hoffmann_chms_2019',
-    tipo: 'NORMATIVA',
-    nivel: 'A',
-    ambito: {
-      edadMin: 25,
-      edadMax: 29,
-      sexo: 'M',
-      pais: 'CA',
-      contexto: 'general',
-      protocolo: { version: 'clasico' },
-      unidad: 'cm',
-      patron: null,
-    },
-    representacion: {
-      clase: 'percentiles',
-      puntos: [{ p: 5, valor: 8.8 }, { p: 10, valor: 11.6 }, { p: 20, valor: 15.4 }, { p: 30, valor: 18.6 }, { p: 40, valor: 21.6 }, { p: 50, valor: 24.5 }, { p: 60, valor: 27.4 }, { p: 70, valor: 30.3 }, { p: 80, valor: 33.4 }, { p: 90, valor: 37.1 }, { p: 95, valor: 39.7 }],
-    },
-    limitaciones: [
-      'Muestra nacionalmente representativa de CANADÁ. No describe a ninguna otra población.',
-      'Flexómetro con el cero calibrado de modo que tocar los dedos equivale a 26 cm: un valor medido con otra calibración no es comparable.',
-      'Se tomó el mejor de dos intentos válidos, tras estiramiento previo.',
-      'Solo se han transcrito las bandas de 20 a 29 años; la fuente publica de 6 a 69.',
-    ],
-    variablesAtleta: ['edad', 'sexo'],
-  },
-  {
-    id: 'P-06/chms/f-20-24',
-    pruebaId: 'P-06',
-    fuenteId: 'hoffmann_chms_2019',
-    tipo: 'NORMATIVA',
-    nivel: 'A',
-    ambito: {
-      edadMin: 20,
-      edadMax: 24,
-      sexo: 'F',
-      pais: 'CA',
-      contexto: 'general',
-      protocolo: { version: 'clasico' },
-      unidad: 'cm',
-      patron: null,
-    },
-    representacion: {
-      clase: 'percentiles',
-      puntos: [{ p: 5, valor: 14.4 }, { p: 10, valor: 18.3 }, { p: 20, valor: 22.9 }, { p: 30, valor: 26.1 }, { p: 40, valor: 28.7 }, { p: 50, valor: 31.1 }, { p: 60, valor: 33.5 }, { p: 70, valor: 36 }, { p: 80, valor: 38.8 }, { p: 90, valor: 42.6 }, { p: 95, valor: 45.7 }],
-    },
-    limitaciones: [
-      'Muestra nacionalmente representativa de CANADÁ. No describe a ninguna otra población.',
-      'Flexómetro con el cero calibrado de modo que tocar los dedos equivale a 26 cm: un valor medido con otra calibración no es comparable.',
-      'Se tomó el mejor de dos intentos válidos, tras estiramiento previo.',
-      'Solo se han transcrito las bandas de 20 a 29 años; la fuente publica de 6 a 69.',
-    ],
-    variablesAtleta: ['edad', 'sexo'],
-  },
-  {
-    id: 'P-06/chms/f-25-29',
-    pruebaId: 'P-06',
-    fuenteId: 'hoffmann_chms_2019',
-    tipo: 'NORMATIVA',
-    nivel: 'A',
-    ambito: {
-      edadMin: 25,
-      edadMax: 29,
-      sexo: 'F',
-      pais: 'CA',
-      contexto: 'general',
-      protocolo: { version: 'clasico' },
-      unidad: 'cm',
-      patron: null,
-    },
-    representacion: {
-      clase: 'percentiles',
-      puntos: [{ p: 5, valor: 14.1 }, { p: 10, valor: 17.9 }, { p: 20, valor: 22.5 }, { p: 30, valor: 25.8 }, { p: 40, valor: 28.5 }, { p: 50, valor: 31.1 }, { p: 60, valor: 33.7 }, { p: 70, valor: 36.2 }, { p: 80, valor: 39.1 }, { p: 90, valor: 42.9 }, { p: 95, valor: 45.8 }],
-    },
-    limitaciones: [
-      'Muestra nacionalmente representativa de CANADÁ. No describe a ninguna otra población.',
-      'Flexómetro con el cero calibrado de modo que tocar los dedos equivale a 26 cm: un valor medido con otra calibración no es comparable.',
-      'Se tomó el mejor de dos intentos válidos, tras estiramiento previo.',
-      'Solo se han transcrito las bandas de 20 a 29 años; la fuente publica de 6 a 69.',
-    ],
-    variablesAtleta: ['edad', 'sexo'],
-  },
+  })),
 
   // ── P-05 · RSI ───────────────────────────────────────────────────────────
   {
@@ -798,6 +955,128 @@ export const REFERENCIAS: readonly ReferenciaEvidencia[] = [
     ],
     variablesAtleta: [],
   },
+
+  // ── Senior Fitness Test · 98 intervalos normales (PAS-18) ────────────────
+  //
+  // Un `rango`, no unos percentiles: la fuente publica el tramo entre el P25 y
+  // el P75 y nada más. La posición que sale de aquí es «dentro» o «fuera», y
+  // fuera por arriba y fuera por abajo son cosas distintas — que es justo lo
+  // que necesita quien valora a una persona mayor.
+  ...INTERVALOS_SFT.map((s) => ({
+    id: `${s.prueba}/sft/${s.sexo.toLowerCase()}-${s.edadMin}-${s.edadMax}`,
+    pruebaId: s.prueba,
+    fuenteId: 'rikli_jones_sft_2001',
+    tipo: 'NORMATIVA' as const,
+    nivel: 'B' as const,
+    ambito: {
+      edadMin: s.edadMin,
+      edadMax: s.edadMax,
+      sexo: s.sexo,
+      // País `null` A PROPÓSITO, y es la única de las tablas nuevas que lo
+      // hace. La muestra es estadounidense, pero la batería se administra
+      // igual en todas partes y el documento que la trae es europeo: fijar
+      // 'US' la habría marcado como ajena a un colombiano sin que eso añada
+      // ninguna cautela que las limitaciones no digan ya.
+      pais: null,
+      contexto: 'general',
+      protocolo: { protocolo: 'rikli_jones' },
+      unidad: s.unidad,
+      patron: null,
+    },
+    representacion: { clase: 'rango' as const, min: s.min, max: s.max },
+    limitaciones: [
+      'Muestra estadounidense: más de 7.000 mayores independientes de 60 a 94 años.',
+      'Es el intervalo entre el percentil 25 y el 75, no una categoría: quedar fuera no es un ' +
+        'grado ni un diagnóstico.',
+      'La batería se diseñó para personas mayores AUTÓNOMAS. No describe a quien ya depende de ' +
+        'ayuda para moverse.',
+      'Transcrita de un documento docente que traduce el manual original, no del manual.',
+    ],
+    variablesAtleta: ['edad', 'sexo'],
+  })),
+
+  // ── VO2máx y escalón · bandas con nombre (PAS-18) ────────────────────────
+  //
+  // CUATRO TABLAS PARA EL MISMO NÚMERO, Y NO COINCIDEN. Un varón de 25 años
+  // con 44 mL/kg/min es «Promedio» para Rivera y «Bueno» para Cooper y para la
+  // AHA. Las cuatro se registran y NINGUNA se elige: `leerEvidencia` las
+  // devuelve todas y la frase dice cuántas hay (PAS-ADR-04).
+  //
+  // Es incómodo de leer y es la verdad. Enseñar una sola etiqueta obligaría a
+  // decidir cuál de las cuatro es la buena, y eso no lo ha decidido nadie.
+  ...GRUPOS_BANDAS.map((g) => ({
+    id: `${g.prueba}/${g.tabla}/${g.sexo === null ? 'todos' : g.sexo.toLowerCase()}-${g.edadMin ?? 'x'}`,
+    pruebaId: g.prueba,
+    fuenteId: FUENTE_DE_TABLA[g.tabla],
+    tipo: 'NORMATIVA' as const,
+    nivel: 'C' as const,
+    ambito: {
+      edadMin: g.edadMin,
+      edadMax: g.edadMax,
+      sexo: g.sexo,
+      pais: g.tabla === 'rivera' ? 'PR' : null,
+      contexto: 'general',
+      protocolo: PROTOCOLO_DE_TABLA[g.tabla],
+      unidad: g.unidad,
+      patron: null,
+    },
+    representacion: { clase: 'bandas' as const, bandas: g.bandas },
+    limitaciones: [
+      ...LIMITACIONES_DE_TABLA[g.tabla],
+      'Los nombres de los tramos son los de esta tabla. Otras tablas de la misma prueba parten ' +
+        'los tramos en otros sitios y los llaman de otra manera.',
+      ...(SOLAPES_EN_LA_FUENTE.some((s) =>
+        s.startsWith(`${g.tabla}/${g.sexo ?? '-'}/${g.edadMin ?? '-'}:`),
+      )
+        ? [
+            'Esta tabla imprime dos tramos que se tocan en un mismo valor. Se conserva tal cual: ' +
+              'un intervalo explícito manda sobre un extremo abierto, y si el empate es entre dos ' +
+              'intervalos cerrados no se sitúa.',
+          ]
+        : []),
+    ],
+    variablesAtleta: g.sexo === null ? [] : ['edad', 'sexo'],
+  })),
+
+  // ── McGill · los tres cocientes (PAS-18) ─────────────────────────────────
+  //
+  // La batería NO publica normas para los tiempos sueltos. Lo que publica son
+  // tres criterios de EQUILIBRIO entre las tres pruebas del mismo sujeto, y
+  // por eso viven en la capa de cálculo y no como referencia de una prueba:
+  // un cociente no es una prueba del catálogo.
+  //
+  // Aquí solo queda constancia de que los tiempos, por sí solos, no sitúan a
+  // nadie. Es la diferencia entre «no hay literatura» y «la literatura dice
+  // expresamente que este número aislado no significa nada».
+  ...(['P-21', 'P-22', 'P-23'] as const).map((prueba) => ({
+    id: `${prueba}/mcgill/sin-norma`,
+    pruebaId: prueba,
+    fuenteId: 'mcgill_torso_ace_2015',
+    tipo: 'NORMATIVA' as const,
+    nivel: 'C' as const,
+    ambito: {
+      edadMin: null,
+      edadMax: null,
+      sexo: null,
+      pais: null,
+      contexto: 'general',
+      protocolo: {},
+      unidad: 's',
+      patron: null,
+    },
+    representacion: {
+      clase: 'valores_sin_transcribir' as const,
+      queSePublica:
+        'tres criterios de relación entre las tres pruebas (flexión:extensión menor que 1,0; ' +
+        'puente derecho:izquierdo a menos de 0,05 de 1,0; puente:extensión menor que 0,75), no ' +
+        'valores normativos para cada tiempo por separado',
+    },
+    limitaciones: [
+      'La fuente no publica norma para el tiempo aislado de esta prueba: solo los cocientes ' +
+        'entre las tres.',
+    ],
+    variablesAtleta: [],
+  })),
 ];
 
 /** Todas las referencias declaradas para una prueba, sin filtrar. */

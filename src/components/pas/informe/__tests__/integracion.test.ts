@@ -154,6 +154,15 @@ describe('cada estado de evidencia se ve distinto', () => {
     expect(negaciones).toBeLessThanOrEqual(1);
   });
 
+  it('EL FALLO QUE ESTO IMPIDE · el detalle de la referencia sin transcribir no se repite', () => {
+    // `redactar` copia el detalle de la carencia de sistema en `frase.limite`,
+    // y ese MISMO detalle vuelve a listarse en `evidencia.carencias`: sin
+    // filtrar, la tarjeta decía «la fuente publica: …» dos veces seguidas.
+    const html = bloque(LECTURAS.parcialSistema);
+    const apariciones = (html.match(/La fuente publica:/g) ?? []).length;
+    expect(apariciones).toBe(1);
+  });
+
   it('la evidencia de fiabilidad se enuncia antes que lo que falta', () => {
     const html = bloque(LECTURAS.parcialFiabilidad);
     const texto = html.replace(/<[^>]+>/g, ' ');

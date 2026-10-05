@@ -29,15 +29,18 @@ export interface GrupoRegistros {
   fecha: string;
   /** El patrón que comparten. `null` en las pruebas que no lo declaran. */
   patron: string | null;
+  /** El lado que comparten. `null` en las pruebas que no lo declaran. */
+  lado: string | null;
   registros: RegistroPrueba[];
   /** Valores distintos presentes en el grupo. */
   valoresDistintos: string[];
 }
 
 /**
- * Agrupa por `pruebaId` + `fecha` + `patron`. Solo se comparan registros del
- * MISMO día: dos resultados de fechas distintas no son incompatibles, son
- * evolución, y el PAS no interpreta evolución (`02-state-model.md`).
+ * Agrupa por `pruebaId` + `fecha` + `patron` + `lado`. Solo se comparan
+ * registros del MISMO día: dos resultados de fechas distintas no son
+ * incompatibles, son evolución, y el PAS no interpreta evolución
+ * (`02-state-model.md`).
  *
  * ── EL PATRÓN ENTRA EN LA CLAVE, Y ES UNA CORRECCIÓN ──────────────────────
  *
@@ -60,6 +63,20 @@ export interface GrupoRegistros {
  *   Un `patron` nulo agrupa con los demás nulos, que es el comportamiento
  *   anterior para las pruebas que no lo piden.
  *
+ * ── EL LADO ENTRA POR LA MISMA RAZÓN, Y ES EL MISMO ERROR ─────────────────
+ *
+ *   Y-Balance, el puente lateral de McGill y cinco pruebas del FMS se
+ *   registran una vez por lado el mismo día. Sin el lado en la clave, «puente
+ *   lateral derecho: 58 s» y «puente lateral izquierdo: 60 s» agrupaban
+ *   juntos y salían como «resultado divergente» — dos medidas de partes
+ *   DISTINTAS del cuerpo, acusadas de contradecirse entre sí.
+ *
+ *   A diferencia de condiciones como el instrumento o la sujeción —donde dos
+ *   valores distintos SÍ son una divergencia real que hay que reportar—, el
+ *   lado no describe CÓMO se midió: describe QUÉ se midió. Es la misma
+ *   distinción que ya hace `patron`, aplicada a la mitad del cuerpo en vez de
+ *   al ejercicio.
+ *
  * Los grupos salen ordenados para que dos ejecuciones produzcan la misma
  * lista.
  */
@@ -67,7 +84,7 @@ export function agrupar(registros: readonly RegistroPrueba[]): GrupoRegistros[] 
   const mapa = new Map<string, RegistroPrueba[]>();
 
   for (const registro of registros) {
-    const clave = `${registro.pruebaId}|${registro.fecha}|${registro.patron ?? ''}`;
+    const clave = `${registro.pruebaId}|${registro.fecha}|${registro.patron ?? ''}|${registro.condiciones.lado ?? ''}`;
     const grupo = mapa.get(clave);
     if (grupo) grupo.push(registro);
     else mapa.set(clave, [registro]);
@@ -75,12 +92,13 @@ export function agrupar(registros: readonly RegistroPrueba[]): GrupoRegistros[] 
 
   return [...mapa.entries()]
     .map(([clave, lista]) => {
-      const [pruebaId, fecha, patron] = clave.split('|');
+      const [pruebaId, fecha, patron, lado] = clave.split('|');
       const valores = [...new Set(lista.map((r) => claveValor(r.valor)))].sort();
       return {
         pruebaId,
         fecha,
         patron: patron === '' ? null : patron,
+        lado: lado === '' ? null : lado,
         registros: lista,
         valoresDistintos: valores,
       };
@@ -89,7 +107,8 @@ export function agrupar(registros: readonly RegistroPrueba[]): GrupoRegistros[] 
       (a, b) =>
         a.pruebaId.localeCompare(b.pruebaId) ||
         a.fecha.localeCompare(b.fecha) ||
-        (a.patron ?? '').localeCompare(b.patron ?? ''),
+        (a.patron ?? '').localeCompare(b.patron ?? '') ||
+        (a.lado ?? '').localeCompare(b.lado ?? ''),
     );
 }
 

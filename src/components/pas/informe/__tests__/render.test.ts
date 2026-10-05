@@ -12,6 +12,7 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
 import type { ResultadoHumano, ResumenAtleta } from '@/lib/pas/informe-humano';
+import { interpretar } from '@/lib/pas/interpretacion';
 import {
   construirSerie,
   type PosicionRango,
@@ -220,6 +221,21 @@ describe('la serie se pinta cuando hay serie', () => {
     expect(conSerie([punto('2026-05-01', 42), punto('2026-08-15', 46)])).not.toContain(
       'pas10-ruptura',
     );
+  });
+
+  it('EL FALLO QUE ESTO IMPIDE · la frase de la ruptura no se repite en «lo que no puede afirmarse»', () => {
+    // El `detalle` de la ruptura ya es la frase completa («El método cambió.
+    // Comparar valores…»), y la regla L-04 copiaba su segunda oración en
+    // `longitudinal.limite`. Sin el filtro, la tarjeta la imprimía dos veces.
+    const serie = construirSerie('P-03', [
+      punto('2026-01-01', 40, { condiciones: { dinamometro: 'camry-digital' } }),
+      punto('2026-08-15', 46),
+    ]);
+    const base = resultado({ serie, tendencia: { ...resultado().tendencia, disponible: false } });
+    const html = render({ ...base, interpretacion: { disponible: true, texto: null, porEje: interpretar(base) } });
+
+    const apariciones = html.match(/describiría el cambio de instrumento/g) ?? [];
+    expect(apariciones).toHaveLength(1);
   });
 });
 

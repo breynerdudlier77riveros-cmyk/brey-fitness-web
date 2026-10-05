@@ -282,6 +282,53 @@ export default function EvidenceScale({ representacion: r, observado, unidad }: 
     );
   }
 
+  // ── Bandas con nombre publicado (PAS-18) ─────────────────────────────────
+  //
+  // Se dibuja la TABLA ENTERA, no solo el tramo donde cae la marca. Enseñar
+  // únicamente «Bueno» convierte una escala en un veredicto; enseñar los cinco
+  // tramos con sus límites deja ver que es una tabla, que tiene bordes y que
+  // el valor está a un kilo o a un mililitro de caer en el de al lado.
+  //
+  // Sin color por tramo, y es deliberado: pintar el primero de rojo y el
+  // último de verde añadiría un juicio que la fuente no publica. Solo se marca
+  // dónde cae.
+  if (r.clase === "bandas") {
+    const orden = [...r.bandas].sort((a, b) => (a.min ?? -Infinity) - (b.min ?? -Infinity));
+    const dentro = (b: (typeof orden)[number]) =>
+      !(b.min !== null && observado < b.min) && !(b.max !== null && observado > b.max);
+
+    return (
+      <div className="pas10e-escala" data-clase="bandas">
+        <ol className="mt-2 flex flex-col gap-px overflow-hidden rounded border border-white/10">
+          {orden.map((b) => {
+            const aqui = dentro(b);
+            return (
+              <li
+                key={b.nombre}
+                data-aqui={aqui ? "si" : undefined}
+                className={`flex items-baseline justify-between px-3 py-1.5 text-[11px] ${
+                  aqui ? "bg-white/[0.09] text-white" : "bg-white/[0.02] text-white/40"
+                }`}
+              >
+                <span className={aqui ? "font-semibold" : undefined}>{b.nombre}</span>
+                <span className="tabular-nums">
+                  {b.min === null
+                    ? `hasta ${num(b.max!)}`
+                    : b.max === null
+                      ? `${num(b.min)} o más`
+                      : `${num(b.min)} – ${num(b.max)}`}
+                </span>
+              </li>
+            );
+          })}
+        </ol>
+        <p className="mt-1.5 text-[11px] tabular-nums text-white/45">
+          Tu valor: {num(observado)} {unidad}
+        </p>
+      </div>
+    );
+  }
+
   // ── La fuente existe y falta cargarla ────────────────────────────────────
   return (
     <div

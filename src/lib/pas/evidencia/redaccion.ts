@@ -89,7 +89,21 @@ function situacionDe(p: Posicion, ref: ReferenciaEvidencia): string {
       return p.lado === 'en_el_corte'
         ? `coincide con el punto de corte publicado para ${donde}`
         : `queda ${p.lado === 'por_debajo' ? 'por debajo' : 'por encima'} del punto de corte publicado para ${donde}`;
+    case 'en_banda':
+      // LA ETIQUETA NUNCA SALE SOLA. La tabla que la publica va en la misma
+      // frase, porque otra tabla del mismo VO2máx lo llama de otra manera: un
+      // «Bueno» a secas se lee como un veredicto del sistema, y el sistema no
+      // dictamina, transcribe.
+      return `cae en el tramo que ${citaCorta(ref) ?? 'la fuente'} llama «${p.nombre}»${intervaloDe(p)} para ${donde}`;
   }
+}
+
+/** El intervalo de la banda, entre paréntesis, cuando la fuente lo acota. */
+function intervaloDe(p: Extract<Posicion, { clase: 'en_banda' }>): string {
+  if (p.min === null && p.max === null) return '';
+  if (p.min === null) return ` (hasta ${num(p.max!)})`;
+  if (p.max === null) return ` (desde ${num(p.min)})`;
+  return ` (de ${num(p.min)} a ${num(p.max)})`;
 }
 
 /** El límite propio de cada clase de posición. */
@@ -115,6 +129,20 @@ function limiteDe(p: Posicion, ref: ReferenciaEvidencia): string {
     ).trim();
   }
   return base;
+}
+
+/**
+ * «Cooper (1979)» — la cita mínima que cabe DENTRO de una frase.
+ *
+ * `procedenciaDe` produce la referencia completa, que va aparte. Esta se usa
+ * cuando la atribución tiene que ir pegada a lo que atribuye: una etiqueta de
+ * categoría sin su tabla al lado es exactamente el juicio que este sistema no
+ * emite.
+ */
+function citaCorta(ref: ReferenciaEvidencia): string | null {
+  const f = fuenteDe(ref.fuenteId);
+  if (f === null || f.cita === null) return null;
+  return `${f.cita.autores.split(',')[0].trim()} (${f.cita.anio})`;
 }
 
 /** La cita corta con la que se acompaña una frase. */

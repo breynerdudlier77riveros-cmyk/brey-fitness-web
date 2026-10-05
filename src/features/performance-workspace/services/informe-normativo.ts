@@ -20,6 +20,7 @@ import {
 
 import { aRegistroPAE } from './mapeo';
 import { resolverSujeto, type CoordenadaAusente } from './sujeto';
+import { nombrePrueba } from '../schemas/catalogo';
 import type { Atleta, RegistroWorkspace } from '../schemas/tipos';
 
 /**
@@ -184,5 +185,8 @@ export function construirInformeNormativo(
 
   const consultas = consultarEvaluacion(registros.map(aRegistroPAE), sujeto.sujeto, normas);
 
-  return { estado: 'DISPONIBLE', informe: componerInformeNormativo(consultas, entrada.portada) };
+  return {
+    estado: 'DISPONIBLE',
+    informe: componerInformeNormativo(consultas, entrada.portada, nombrePrueba),
+  };
 }

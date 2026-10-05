@@ -32,6 +32,9 @@ import {
 } from '@/lib/pas/seguimiento';
 
 import { objetivoDe, type ObjetivoAtleta } from './objetivos';
+import { panelFmsDe } from './fms';
+import { panelMcGillDe } from './mcgill';
+import { panelVo2EstimadoDe } from './vo2-estimado';
 import type { LecturaEvidencia } from '@/lib/pas/evidencia';
 import type {
   Alerta,
@@ -680,6 +683,9 @@ export function componerInformeHumano(entrada: EntradaInformeHumano): InformeHum
     objetivos: panelObjetivos.activos,
     panelObjetivos,
     resumen: resumirAtleta(resultados, panelObjetivos),
+    mcgill: panelMcGillDe(mediciones),
+    vo2Estimado: panelVo2EstimadoDe(mediciones, sujeto),
+    fms: panelFmsDe(mediciones, nombres),
     estadoGeneral:
       conReferencia === 0
         ? 'Ninguna de las mediciones de esta evaluación dispone de una referencia comparable.'

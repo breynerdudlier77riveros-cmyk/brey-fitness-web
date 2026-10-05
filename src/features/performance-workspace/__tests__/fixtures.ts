@@ -38,6 +38,13 @@ export function evaluacion(over: Partial<Evaluacion> & { id: string }): Evaluaci
     // Por defecto sin peso: es el estado real de las evaluaciones históricas, y
     // conviene que sea el caso base de los tests.
     pesoKg: null,
+    // Los cuatro signos vitales, tambien nulos por defecto (PAS-18): el caso
+    // base de un test tiene que ser el expediente incompleto, que es el que
+    // de verdad llega.
+    fcReposoLpm: null,
+    spo2Pct: null,
+    taSistolicaMmhg: null,
+    taDiastolicaMmhg: null,
     estado: 'borrador',
     observaciones: null,
     createdAt: '2026-08-02T10:00:00Z',

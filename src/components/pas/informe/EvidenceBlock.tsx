@@ -56,6 +56,13 @@ export default function EvidenceBlock({ evidencia, normativaCubierta }: Props) {
 
   const frase = redactar(evidencia);
 
+  // `redactar` copia el detalle de la carencia de sistema a `frase.limite`
+  // cuando existe una referencia sin transcribir (EVIDENCIA_PARCIAL): es la
+  // misma frase con dos dueños. Sin este filtro, la tarjeta la imprime dos
+  // veces seguidas —una como límite, otra dentro de la lista de carencias—
+  // diciendo exactamente lo mismo con las mismas palabras.
+  const carencias = evidencia.carencias.filter((c) => c.detalle !== frase.limite);
+
   return (
     <section
       className="pas10e-evidencia border-t border-white/[0.06] pt-3"
@@ -77,9 +84,9 @@ export default function EvidenceBlock({ evidencia, normativaCubierta }: Props) {
       {/* Y a quién hay que pedírselo. `origen` ya lo trae resuelto: no es lo
           mismo un dato que falta en la ficha del atleta que una condición que
           no se anotó al medir, y pedirle lo segundo al atleta no sirve. */}
-      {evidencia.carencias.length > 0 ? (
+      {carencias.length > 0 ? (
         <ul className="mt-2 space-y-1">
-          {evidencia.carencias.map((c) => (
+          {carencias.map((c) => (
             <li
               key={`${c.origen}-${c.variable}`}
               data-origen={c.origen}

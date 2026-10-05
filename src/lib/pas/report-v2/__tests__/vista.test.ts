@@ -44,6 +44,22 @@ describe('eslabón PAS → NIE', () => {
     expect(i.sinNorma[0].detalle).toContain('no contiene todavía una referencia admisible');
   });
 
+  it('EL FALLO QUE ESTO IMPIDE · la tarjeta dice el nombre de la prueba, no su código', () => {
+    // Antes de esta prueba, `variable` era el `pruebaId` en crudo: el informe
+    // mostraba «P-13» donde el profesional esperaba leer qué prueba es.
+    const i = informe([registroSinNorma('x', 'P-13')], SUJETO_CO_20);
+    expect(i.sinNorma[0].variable).toBe('Escalón de Harvard · índice de aptitud');
+    expect(i.sinNorma[0].variable).not.toBe('P-13');
+    expect(i.resumen[0].variable).toBe('Escalón de Harvard · índice de aptitud');
+  });
+
+  it('la tarjeta CON norma también nombra su propia prueba, no la de otra', () => {
+    // `variable` salía de un rótulo fijo para «fuerza de prensión manual»: con
+    // una prueba distinta habría enseñado el nombre equivocado sin avisar.
+    expect(UNI.resumen[0].variable).toBe('Dinamometría de agarre');
+    expect(UNI.tarjetas[0].variable).toBe('Dinamometría de agarre');
+  });
+
   it('un registro anulado no se consulta', () => {
     const i = informe(
       [registro('r', 37.5, 'kg', COND_UNI, { estado: 'anulada' })],

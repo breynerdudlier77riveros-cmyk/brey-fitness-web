@@ -427,6 +427,15 @@ describe('el patrón separa mediciones que no son comparables', () => {
     valor: { tipo: 'continuo' as const, valor, unidad: 'kg' },
   });
 
+  const regLado = (id: string, valor: number, lado: string | null) => ({
+    ...base,
+    id,
+    pruebaId: 'P-22',
+    patron: null,
+    condiciones: (lado === null ? {} : { lado }) as Record<string, string>,
+    valor: { tipo: 'continuo' as const, valor, unidad: 's' },
+  });
+
   it('cuatro levantamientos distintos NO son un conflicto', () => {
     const grupos = agrupar([
       reg('r1', 120, 'Sentadilla'),
@@ -466,5 +475,34 @@ describe('el patrón separa mediciones que no son comparables', () => {
   it('el mismo valor en el mismo patrón sigue siendo duplicado exacto', () => {
     const [g] = agrupar([reg('r1', 120, 'Sentadilla'), reg('r2', 120, 'Sentadilla')]);
     expect(esDuplicadoExacto(g)).toBe(true);
+  });
+
+  it('EL FALLO QUE ESTO IMPIDE · el puente lateral derecho e izquierdo NO se contradicen', () => {
+    // Antes de este arreglo, «puente lateral derecho: 58 s» e «izquierdo: 60
+    // s» del mismo día agrupaban juntos y salían como resultado divergente:
+    // dos medidas de partes DISTINTAS del cuerpo, acusadas de contradecirse.
+    const grupos = agrupar([regLado('r1', 58, 'derecho'), regLado('r2', 60, 'izquierdo')]);
+    expect(grupos).toHaveLength(2);
+    expect(grupos.every((g) => !esDivergente(g))).toBe(true);
+  });
+
+  it('CONTROL POSITIVO · el MISMO lado con valores distintos SÍ es divergente', () => {
+    const grupos = agrupar([regLado('r1', 58, 'derecho'), regLado('r2', 62, 'derecho')]);
+    expect(grupos).toHaveLength(1);
+    expect(esDivergente(grupos[0])).toBe(true);
+  });
+
+  it('sin lado se sigue agrupando como antes', () => {
+    // Las pruebas que no declaran lado —dinamometría, salto— no pueden
+    // cambiar de comportamiento por este arreglo.
+    const grupos = agrupar([regLado('r1', 58, null), regLado('r2', 62, null)]);
+    expect(grupos).toHaveLength(1);
+    expect(esDivergente(grupos[0])).toBe(true);
+  });
+
+  it('el grupo declara qué lado comparte', () => {
+    const [g] = agrupar([regLado('r1', 58, 'derecho')]);
+    expect(g.lado).toBe('derecho');
+    expect(agrupar([regLado('r2', 60, null)])[0].lado).toBeNull();
   });
 });

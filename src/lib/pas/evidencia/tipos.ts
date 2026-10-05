@@ -157,6 +157,35 @@ export type Representacion =
   | { clase: 'media_dt'; media: number; dt: number }
   | { clase: 'rango'; min: number; max: number }
   | { clase: 'punto_de_corte'; valor: number; porDebajo: string; porEncima: string }
+  /**
+   * Bandas contiguas con NOMBRE PUBLICADO por la fuente (Sprint PAS-18).
+   *
+   * Es el formato de las tablas de aptitud cardiorrespiratoria —Cooper, la
+   * American Heart Association, Rivera para adultos puertorriqueños— y de los
+   * índices del escalón de Harvard: no publican percentiles, publican tramos
+   * con una etiqueta cada uno.
+   *
+   * ── POR QUÉ ESTO NO CONTRADICE «POSICIÓN, NUNCA CATEGORÍA» ──────────────
+   *
+   *   La regla del sistema es que no se emite una etiqueta de mérito **que
+   *   nadie haya publicado**. Aquí la etiqueta ES el dato: la fuente define
+   *   «Promedio» como un intervalo concreto y con un límite concreto, y
+   *   ocultarlo para sustituirlo por un percentil que la fuente no calculó
+   *   sería inventar más, no menos.
+   *
+   *   Lo que el sistema sigue sin hacer es decir la etiqueta a secas. Viaja
+   *   siempre atribuida —«Cooper (1979) lo sitúa en “Bueno”»— porque otra
+   *   tabla del mismo VO2máx puede llamarlo de otra manera, y de hecho lo
+   *   hace.
+   *
+   * `min: null` = banda abierta por abajo; `max: null` = abierta por arriba.
+   * Los límites son INCLUSIVOS y las bandas se ordenan aquí, no se confía en
+   * el orden de transcripción.
+   */
+  | {
+      clase: 'bandas';
+      bandas: readonly { nombre: string; min: number | null; max: number | null }[];
+    }
   | { clase: 'fiabilidad'; icc: readonly [number, number] | null; cvPct: number | null }
   | {
       clase: 'error_medicion';
@@ -205,7 +234,15 @@ export type Posicion =
   | { clase: 'desviaciones'; z: number }
   | { clase: 'dentro_del_rango' }
   | { clase: 'fuera_del_rango'; lado: 'inferior' | 'superior' }
-  | { clase: 'respecto_al_corte'; lado: 'por_debajo' | 'por_encima' | 'en_el_corte' };
+  | { clase: 'respecto_al_corte'; lado: 'por_debajo' | 'por_encima' | 'en_el_corte' }
+  /**
+   * El valor cae en una banda que la fuente nombra (PAS-18).
+   *
+   * `nombre` es LITERAL de la fuente, sin traducir ni suavizar: si publica
+   * «Muy Pobre», eso es lo que se dice, atribuido. Los límites viajan con él
+   * para que se vea de qué intervalo se está hablando.
+   */
+  | { clase: 'en_banda'; nombre: string; min: number | null; max: number | null };
 
 /** Qué falta, cuando falta algo. Accionable, nunca «datos incompletos». */
 export interface Carencia {

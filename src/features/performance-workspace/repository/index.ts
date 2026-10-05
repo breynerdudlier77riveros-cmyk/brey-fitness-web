@@ -239,6 +239,40 @@ export async function actualizarPesoEvaluacion(
   return data ? mapEvaluacion(data) : null;
 }
 
+/**
+ * Escribe los signos vitales en reposo de la evaluacion (PAS-18).
+ *
+ * Se envian los CUATRO campos siempre, incluidos los nulos: es una
+ * actualizacion del bloque entero, y omitir el que quedo vacio dejaria el
+ * valor anterior en la fila. Borrar una tension mal tecleada tiene que
+ * poder hacerse.
+ */
+export async function actualizarSignosVitales(
+  supabase: SupabaseClient,
+  id: string,
+  signos: {
+    fcReposoLpm: number | null;
+    spo2Pct: number | null;
+    taSistolicaMmhg: number | null;
+    taDiastolicaMmhg: number | null;
+  }
+): Promise<Evaluacion | null> {
+  const { data, error } = await supabase
+    .from('pas_evaluaciones')
+    .update({
+      fc_reposo_lpm: signos.fcReposoLpm,
+      spo2_pct: signos.spo2Pct,
+      ta_sistolica_mmhg: signos.taSistolicaMmhg,
+      ta_diastolica_mmhg: signos.taDiastolicaMmhg,
+    })
+    .eq('id', id)
+    .select()
+    .single();
+
+  registrarFallo('actualizarSignosVitales', error);
+  return data ? mapEvaluacion(data) : null;
+}
+
 export async function cambiarEstadoEvaluacion(
   supabase: SupabaseClient,
   id: string,

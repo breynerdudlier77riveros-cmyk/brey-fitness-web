@@ -446,7 +446,10 @@ describe('accesibilidad', () => {
   });
 
   it('el aria-label nombra población, valor y estado', () => {
-    const m = HTML.match(/aria-label="(Fuerza de prensión[^"]+)"/);
+    // El nombre es el de la prueba del catálogo («Dinamometría de agarre»),
+    // no un rótulo fijo de la variable normativa: ver el fallo que evita en
+    // `vista.test.ts`, «la tarjeta dice el nombre de la prueba, no su código».
+    const m = HTML.match(/aria-label="(Dinamometría de agarre[^"]+)"/);
     expect(m).not.toBeNull();
     expect(m![1]).toMatch(/kg/);
     expect(m![1]).toMatch(/Colombia/);

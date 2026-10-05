@@ -138,9 +138,14 @@ describe('el país deja de bloquear, pero nunca deja de nombrarse', () => {
   });
 
   it('la edad fuera de banda también descarta, con su motivo', () => {
-    // Solo están transcritas las bandas 20-24 y 25-29: un adulto de 45 queda
-    // fuera y NO se le extrapola, aunque la fuente publique hasta los 69.
-    const mayor: SujetoEvidencia = { edad: 45, sexo: 'M', pais: 'CA', pesoKg: null };
+    // La fuente publica de 8 a 69 años. A los 75 NO hay banda, y NO se
+    // extrapola desde la de 65-69: una norma se aplica donde se midió.
+    //
+    // Este test miraba a un adulto de 45 hasta el Sprint PAS-17, cuando solo
+    // estaban transcritas las bandas 20-24 y 25-29. Ya no: 45 tiene su banda
+    // (ver más abajo), así que el invariante se comprueba donde sigue siendo
+    // cierto, que es fuera del rango PUBLICADO y no fuera del transcrito.
+    const mayor: SujetoEvidencia = { edad: 75, sexo: 'M', pais: 'CA', pesoKg: null };
     const l = leerEvidencia(SALTO, mayor);
     expect(l.compatibles).toEqual([]);
     expect(l.descartadas.some((d) => /rango de edad/.test(d.motivo))).toBe(true);
@@ -201,10 +206,130 @@ describe('la fuente nueva es rastreable', () => {
     expect(sr.limitaciones.join(' ')).toMatch(/tocar los dedos equivale a 26 cm/);
   });
 
-  it('declara que solo se transcribieron las bandas adultas', () => {
+  it('declara cuántas bandas se transcribieron de cuántas', () => {
+    // Hasta PAS-17 esto decía «Solo se han transcrito las bandas de 20 a 29
+    // años», que era la deuda declarada honestamente. La deuda está pagada y
+    // la frase cambia: lo que no puede es desaparecer, porque el lector tiene
+    // que saber si mira la fuente entera o un recorte de ella.
     const suyas = REFERENCIAS.filter((r) => r.fuenteId === 'hoffmann_chms_2019');
     for (const r of suyas) {
-      expect(r.limitaciones.join(' '), r.id).toMatch(/Solo se han transcrito/);
+      expect(r.limitaciones.join(' '), r.id).toMatch(/Se han transcrito las \d+ bandas/);
+    }
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// LAS 66 NORMAS CANADIENSES (Sprint PAS-17)
+// ════════════════════════════════════════════════════════════════════════════
+//
+// EL FALLO QUE ESTOS TESTS EXISTEN PARA IMPEDIR:
+//
+//   Las fichas `CMJ-CA-TN1-percentiles.md` y `SAR-CA-TN1-percentiles.md`
+//   llevaban desde PAS-12 con sus 32 y 34 normas transcritas y verificadas. De
+//   las 66, llegaban OCHO al motor: varones y mujeres de 20 a 24 y de 25 a 29,
+//   tecleadas a mano. Las otras 58 estaban en el repositorio sin situar a
+//   nadie, y un niño de 12 o una mujer de 60 salían sin posición en dos de las
+//   cinco pruebas que la tienen.
+//
+//   Es la diferencia entre vender valoraciones a un club —que mide menores— o
+//   a una EPS —que mide adultos y mayores— y no poder situar a ninguno.
+
+describe('la cobertura por edad del CHMS', () => {
+  const chms = REFERENCIAS.filter((r) => r.fuenteId === 'hoffmann_chms_2019');
+
+  it('CONTROL POSITIVO · son 66 y no 8', () => {
+    expect(chms.filter((r) => r.pruebaId === 'P-04')).toHaveLength(32);
+    expect(chms.filter((r) => r.pruebaId === 'P-06')).toHaveLength(34);
+  });
+
+  it('el salto cubre de 8 a 69 años y el sit-and-reach de 6 a 69', () => {
+    // Los dos rangos NO coinciden, y la ficha del salto lo advierte
+    // expresamente: el salto se midió desde los 8 y el sit-and-reach desde los
+    // 6. Darlos por equivalentes inventaría dos bandas infantiles.
+    const rango = (id: string) => {
+      const suyas = chms.filter((r) => r.pruebaId === id);
+      return [
+        Math.min(...suyas.map((r) => r.ambito.edadMin!)),
+        Math.max(...suyas.map((r) => r.ambito.edadMax!)),
+      ];
+    };
+    expect(rango('P-04')).toEqual([8, 69]);
+    expect(rango('P-06')).toEqual([6, 69]);
+  });
+
+  it('un adulto de 45 y un menor de 12 SÍ se sitúan', () => {
+    for (const edad of [12, 45, 62]) {
+      const s: SujetoEvidencia = { edad, sexo: 'M', pais: 'CA', pesoKg: null };
+      expect(leerEvidencia(SALTO, s).estado, `salto a los ${edad}`).toBe('EVIDENCIA_COMPATIBLE');
+      expect(leerEvidencia(FLEX, s).estado, `flexión a los ${edad}`).toBe('EVIDENCIA_COMPATIBLE');
+    }
+  });
+
+  it('y un colombiano de 45 también, con su población nombrada', () => {
+    // Es el caso real del negocio: el atleta no es canadiense. La norma se
+    // aplica —PAS-13— y la frase tiene que decir de dónde es.
+    const s: SujetoEvidencia = { edad: 45, sexo: 'M', pais: 'CO', pesoKg: null };
+    const f = redactar(leerEvidencia(SALTO, s));
+    expect(f.texto).toMatch(/Canad/);
+    expect(f.texto).not.toMatch(/(?<![-\w])(bueno|malo|alto|bajo|normal)(?![-\w])/i);
+  });
+
+  it('cada banda cae en UNA sola referencia por sexo: no se solapan', () => {
+    // Dos bandas que se pisen darían dos posiciones distintas del mismo valor,
+    // y el informe tendría que elegir una — que es justo lo que no hace.
+    for (const id of ['P-04', 'P-06']) {
+      for (const sexo of ['M', 'F']) {
+        const suyas = chms
+          .filter((r) => r.pruebaId === id && r.ambito.sexo === sexo)
+          .sort((a, b) => a.ambito.edadMin! - b.ambito.edadMin!);
+        for (let i = 1; i < suyas.length; i++) {
+          expect(
+            suyas[i].ambito.edadMin!,
+            `${id}/${sexo}: ${suyas[i - 1].id} y ${suyas[i].id}`,
+          ).toBeGreaterThan(suyas[i - 1].ambito.edadMax!);
+        }
+      }
+    }
+  });
+
+  it('las dos celdas perdidas salen con diez percentiles y lo dicen', () => {
+    // `CMJ-CA-F-60_64/P95` y `SAR-CA-F-50_54/P95` se perdieron en la
+    // extracción del PDF. Las fichas prohíben reconstruirlos. Una banda de
+    // diez percentiles que lo declara es honesta; una de once con un número
+    // estimado sería una invención con aspecto de dato.
+    const huecos = chms.filter(
+      (r) => r.representacion.clase === 'percentiles' && r.representacion.puntos.length !== 11,
+    );
+    expect(huecos.map((r) => r.id).sort()).toEqual(['P-04/chms/f-60-64', 'P-06/chms/f-50-54']);
+    for (const r of huecos) {
+      expect(r.limitaciones.join(' '), r.id).toMatch(/prohíbe estimarla/);
+    }
+  });
+
+  it('y las otras 64 NO llevan ese aviso', () => {
+    // CONTROL POSITIVO del test anterior: si el aviso saliera en todas, no
+    // avisaría de nada.
+    const completas = chms.filter(
+      (r) => r.representacion.clase === 'percentiles' && r.representacion.puntos.length === 11,
+    );
+    expect(completas).toHaveLength(64);
+    for (const r of completas) {
+      expect(r.limitaciones.join(' '), r.id).not.toMatch(/prohíbe estimarla/);
+    }
+  });
+
+  it('ninguna banda tiene percentiles que bajen', () => {
+    // El fichero generado ya lo verifica, pero el generador no se ejecuta en
+    // CI: si alguien edita `percentiles-chms.ts` a mano —que el encabezado
+    // prohíbe— esto lo dice.
+    for (const r of chms) {
+      if (r.representacion.clase !== 'percentiles') continue;
+      const p = r.representacion.puntos;
+      for (let i = 1; i < p.length; i++) {
+        expect(p[i].valor, `${r.id} P${p[i].p} < P${p[i - 1].p}`).toBeGreaterThanOrEqual(
+          p[i - 1].valor,
+        );
+      }
     }
   });
 });

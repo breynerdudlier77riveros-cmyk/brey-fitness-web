@@ -73,10 +73,19 @@ export default function ResultCard({ resultado: r }: Props) {
   const serie = tramo && tramo.puntos.length > 2 ? tramo : null;
 
   const { normativo, longitudinal, objetivo: ejeObjetivo } = r.interpretacion.porEje;
+
+  // Cuando la serie se cortó por un cambio de método o de unidad, el
+  // `detalle` de la ruptura YA es la frase completa —«El método cambió.
+  // Comparar valores de protocolos distintos describiría el cambio de
+  // instrumento, no el del atleta.»— y `longitudinal.limite` repite su
+  // segunda oración con las mismas palabras. Se descarta aquí para que la
+  // tarjeta no diga la misma frase dos veces: una bajo «Tu evolución», otra
+  // en «Lo que no puede afirmarse».
+  const ultimaRupturaDetalle = r.serie.rupturas[r.serie.rupturas.length - 1]?.detalle ?? null;
   const limites = [...new Set(
-    [normativo?.limite, longitudinal?.limite, ejeObjetivo?.limite].filter(
-      (l): l is string => typeof l === 'string',
-    ),
+    [normativo?.limite, longitudinal?.limite, ejeObjetivo?.limite]
+      .filter((l): l is string => typeof l === 'string')
+      .filter((l) => ultimaRupturaDetalle === null || !ultimaRupturaDetalle.includes(l)),
   )];
 
   // ── Quién responde al eje normativo ────────────────────────────────────

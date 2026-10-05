@@ -111,7 +111,13 @@ describe('el registro de evidencia es auditable', () => {
     for (const f of FUENTES.filter((x) => x.estado === 'propuesta')) {
       expect(f.claveExterna, f.id).toBeNull();
       expect(f.cita, f.id).not.toBeNull();
-      expect(f.cita!.localizador, f.id).toMatch(/doi:|PMID/);
+      // Un localizador es lo que permite IR A BUSCARLO. Hasta PAS-18 todas
+      // las fuentes eran artículos y eso era un DOI o un PMID; los cinco
+      // protocolos de población general son libros y manuales, y su
+      // localizador es un ISBN, una URL o una página concreta. La regla no se
+      // relaja —sigue exigiendo un asidero recuperable—, se le enseñan las
+      // formas que ese asidero tiene fuera de una revista.
+      expect(f.cita!.localizador, f.id).toMatch(/doi:|PMID|ISBN|https?:\/\/|pp?\. ?\d/);
     }
   });
 

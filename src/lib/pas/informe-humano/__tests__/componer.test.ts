@@ -796,3 +796,108 @@ describe('determinismo y agrupación', () => {
     expect(informe([registro('P-01', 120, 'kg', {}, 'r2')]).estadoGeneral).toMatch(/Ninguna/);
   });
 });
+
+// ════════════════════════════════════════════════════════════════════════════
+// EL PANEL DE McGILL
+// ════════════════════════════════════════════════════════════════════════════
+//
+// De extremo a extremo: registros del Workspace → `construirInformeAtleta` →
+// `componerInformeHumano` → `panelMcGillDe`. Los cocientes en sí ya están
+// probados en `calculo/__tests__/derivados.test.ts`; aquí se protege que
+// LLEGUEN al informe con las tres pruebas puestas.
+
+describe('el panel de McGill sale del informe completo, no de una prueba suelta', () => {
+  const SUJECION = { sujecion: 'correa' };
+  const flexion = registro('P-21', 90, 's', SUJECION, 'r-flex');
+  const extension = registro('P-23', 130, 's', SUJECION, 'r-ext');
+  const lateralDer = registro('P-22', 80, 's', { ...SUJECION, lado: 'derecho' }, 'r-lat-d');
+  const lateralIzq = registro('P-22', 70, 's', { ...SUJECION, lado: 'izquierdo' }, 'r-lat-i');
+  const COMPLETO = [flexion, extension, lateralDer, lateralIzq];
+
+  it('CONTROL POSITIVO · con las tres pruebas y los dos lados, hay panel', () => {
+    const i = informe(COMPLETO);
+    expect(i.mcgill).not.toBeNull();
+    expect(i.mcgill!.cocientes).toHaveLength(3);
+    expect(i.mcgill!.cocientes.map((c) => c.id)).toEqual([
+      'flexion_extension',
+      'lateral_derecha_izquierda',
+      'lateral_extension',
+    ]);
+  });
+
+  it('sin el puente lateral IZQUIERDO no hay panel, aunque estén las otras dos', () => {
+    const i = informe([flexion, extension, lateralDer]);
+    expect(i.mcgill).toBeNull();
+  });
+
+  it('con solo una o dos pruebas registradas, tampoco', () => {
+    expect(informe([flexion]).mcgill).toBeNull();
+    expect(informe([flexion, extension]).mcgill).toBeNull();
+  });
+
+  it('sin ninguna prueba de McGill, el resto del informe no se entera', () => {
+    const i = informe(CASO_REAL);
+    expect(i.mcgill).toBeNull();
+    expect(i.resultados.length).toBeGreaterThan(0);
+    expect(i.resultados.every((r) => r.pruebaId === PRENSION)).toBe(true);
+  });
+
+  it('el criterio es literal del manual, y cita su fuente', () => {
+    const i = informe(COMPLETO);
+    const derIzq = i.mcgill!.cocientes.find((c) => c.id === 'lateral_derecha_izquierda')!;
+    expect(derIzq.criterio).toBe('a menos de 0,05 de 1,00');
+    expect(i.mcgill!.fuente).toContain('American Council on Exercise');
+  });
+
+  it('el VO2máx estimado de la Course-navette llega hasta aquí también', () => {
+    // Integración de extremo a extremo: registro del Workspace →
+    // construirInformeAtleta → componerInformeHumano → panelVo2EstimadoDe.
+    const i = informe([registro('P-07', 10, 'estadios', {}, 'r-cn')]);
+    expect(i.vo2Estimado).not.toBeNull();
+    expect(i.vo2Estimado!.unidad).toBe('mL/kg/min');
+    expect(i.vo2Estimado!.evidencia.pruebaId).toBe('P-12');
+  });
+
+  it('sin Course-navette registrada, no hay VO2máx estimado', () => {
+    expect(informe(CASO_REAL).vo2Estimado).toBeNull();
+  });
+
+  it('el FMS de las siete pruebas llega hasta aquí también, sin ninguna banda', () => {
+    const L = (l: 'derecho' | 'izquierdo') => ({ lado: l });
+    const i = informe([
+      registro('P-24', 3, '', {}, 'f1'),
+      registro('P-25', 3, '', L('derecho'), 'f2'),
+      registro('P-25', 3, '', L('izquierdo'), 'f3'),
+      registro('P-26', 2, '', L('derecho'), 'f4'),
+      registro('P-26', 2, '', L('izquierdo'), 'f5'),
+      registro('P-27', 2, '', L('derecho'), 'f6'),
+      registro('P-27', 2, '', L('izquierdo'), 'f7'),
+      registro('P-28', 3, '', L('derecho'), 'f8'),
+      registro('P-28', 3, '', L('izquierdo'), 'f9'),
+      registro('P-29', 3, '', {}, 'f10'),
+      registro('P-30', 2, '', L('derecho'), 'f11'),
+      registro('P-30', 2, '', L('izquierdo'), 'f12'),
+    ]);
+    expect(i.fms).not.toBeNull();
+    expect(i.fms!.total).toBe(3 + 3 + 2 + 2 + 3 + 3 + 2);
+    expect(Object.keys(i.fms!).sort()).toEqual(['maximo', 'pruebas', 'total']);
+  });
+
+  it('con las siete del FMS incompletas, no hay panel', () => {
+    expect(informe([registro('P-24', 3, '', {}, 'f1')]).fms).toBeNull();
+  });
+
+  it('la superficie principal sigue sin códigos, con o sin panel de McGill', () => {
+    // Los códigos SÍ viven en `detalles` (es lo que prueba el bloque de
+    // arriba, «pero los códigos siguen existiendo»): aquí se comprueba solo
+    // el nombre visible, que es lo que un panel nuevo podría filtrar sin querer.
+    const i = informe(COMPLETO);
+    const nombres = i.resultados.map((r) => r.nombre);
+    expect(nombres).toEqual([
+      'McGill · resistencia flexora del tronco',
+      'McGill · resistencia extensora del tronco',
+      'McGill · puente lateral',
+      'McGill · puente lateral',
+    ]);
+  });
+});

@@ -22,7 +22,7 @@
 import type { ConflictoDeclarado } from '@/lib/nie';
 import type { Escala } from '@/lib/pas/report-v2';
 import type { InterpretacionResultado } from '@/lib/pas/interpretacion';
-import type { LecturaEvidencia, Posicion } from '@/lib/pas/evidencia';
+import type { LecturaEvidencia, Posicion, Representacion } from '@/lib/pas/evidencia';
 import type { MotivoSinProgreso, PosicionRango, SerieLongitudinal } from '@/lib/pas/seguimiento';
 
 import type { EstadoObjetivo, ObjetivoAtleta, TipoObjetivo } from './objetivos';
@@ -336,6 +336,86 @@ export interface ResumenAtleta {
   alertas: readonly Alerta[];
 }
 
+/**
+ * Un cociente de la batería de McGill, ya comparado con su criterio.
+ *
+ * `cumple` es literal del manual, nunca una clasificación inventada: el
+ * criterio es «menor que 1,00» o «a menos de 0,05 de 1,00», y `cumple` dice
+ * si ESTE cociente lo cumple. No hay «bien» ni «mal», hay «cumple» o no.
+ */
+export interface CocientePanelMcGill {
+  id: string;
+  nombre: string;
+  criterio: string;
+  valor: number;
+  cumple: boolean;
+  /**
+   * El mismo criterio, en la forma que `EvidenceScale` sabe dibujar: un punto
+   * de corte o un rango de tolerancia. Es la misma escala que dibuja
+   * sit-and-reach, aplicada a un criterio de manual en vez de a un percentil
+   * poblacional — el eje sigue siendo del valor publicado, no del atleta.
+   */
+  representacion: Representacion;
+}
+
+/**
+ * El panel de McGill: los tres cocientes entre flexión, extensión y puente
+ * lateral, con la cita de dónde salen sus criterios.
+ *
+ * Es aritmética sobre las TRES mediciones del propio atleta en esta
+ * evaluación — la misma excepción que ya cubre `tendencia` —, y por eso se
+ * calcula en esta capa y no en el NIE ni en la de evidencia: ninguna de las
+ * dos compara a nadie con una población para esto.
+ */
+export interface PanelMcGill {
+  cocientes: readonly CocientePanelMcGill[];
+  /** Cita de la fuente que publica los tres criterios. `null` si no consta. */
+  fuente: string | null;
+}
+
+/** Una de las siete pruebas del FMS, ya con su puntuación final (0-3). */
+export interface PruebaFms {
+  pruebaId: string;
+  nombre: string;
+  /** 0 a 3. En las cinco bilaterales, ya es la del lado más bajo. */
+  puntuacion: number;
+}
+
+/**
+ * El total del FMS: la suma de sus siete pruebas, y nada más.
+ *
+ * NO lleva ninguna banda ni punto de corte. La PKB ya lo declaró para P-09:
+ * tres revisiones sistemáticas independientes coinciden en que la puntuación
+ * compuesta no respalda predecir lesión, y el umbral de 14 está expresamente
+ * prohibido como corte de riesgo (`moran_fms_2017`). `total` es una suma.
+ */
+export interface PanelFms {
+  pruebas: readonly PruebaFms[];
+  total: number;
+  maximo: number;
+}
+
+/**
+ * El VO2máx estimado de la Course-navette, ya clasificado contra las tablas
+ * de VO2máx de población general.
+ *
+ * `evidencia` es la MISMA `LecturaEvidencia` que sitúa cualquier otra prueba:
+ * de ahí sale tanto el texto (`redactar`) como el gráfico (`EvidenceScale`,
+ * con `evidencia.compatibles[0].referencia.representacion`), exactamente como
+ * en `ResultCard`. No hay una segunda forma de dibujar «Tu posición» solo
+ * porque el valor es estimado y no escrito a mano.
+ */
+export interface PanelVo2Estimado {
+  /** mL·kg⁻¹·min⁻¹. */
+  valor: number;
+  unidad: string;
+  /** La ecuación, con sus coeficientes, para quien quiera comprobarla. */
+  formula: string;
+  /** Cita de dónde sale la ecuación. `null` si no consta. */
+  fuente: string | null;
+  evidencia: LecturaEvidencia;
+}
+
 /** Lo que la ruta entrega a la vista. */
 export interface InformeHumano {
   atleta: { nombre: string; edad: number | null; sexo: string | null };
@@ -352,6 +432,25 @@ export interface InformeHumano {
   panelObjetivos: PanelObjetivos;
   /** Las cuentas de cabecera. Ninguna resume el rendimiento en una cifra. */
   resumen: ResumenAtleta;
+
+  /**
+   * El panel de los tres cocientes de McGill. `null` si esta evaluación no
+   * registró las tres pruebas (P-21, P-22 en sus dos lados, P-23): un
+   * cociente con un tercio ausente no es un cociente a medias, es ninguno.
+   */
+  mcgill: PanelMcGill | null;
+
+  /**
+   * El VO2máx estimado de la Course-navette, si se registró y consta la edad.
+   * `null` sin una cosa o la otra: la ecuación no tiene un valor por defecto.
+   */
+  vo2Estimado: PanelVo2Estimado | null;
+
+  /**
+   * El panel del FMS, si las siete pruebas están completas. `null` con una
+   * sola ausente: un total de seis séptimos no es un total del FMS.
+   */
+  fms: PanelFms | null;
 
   /** Frase de cabecera sobre qué evidencia hubo. Sin juicio. */
   estadoGeneral: string;

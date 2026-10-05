@@ -20,7 +20,6 @@ import {
   ETIQUETA_INTERPRETACION,
   ETIQUETA_PAIS,
   ETIQUETA_UNIDAD,
-  ETIQUETA_VARIABLE,
 } from './etiquetas';
 import type {
   FilaEvidencia,
@@ -305,13 +304,19 @@ function comparabilidadDe(salida: SalidaNIE): PanelComparabilidad {
 
 function tarjetasDe(
   consulta: Extract<ConsultaNormativa, { estado: 'CONSULTADA' }>,
+  nombreDe: (pruebaId: string) => string,
 ): readonly TarjetaNormativa[] {
   const publicados = new Map(consulta.publicados.map((p) => [p.normaId, p.valores]));
 
   return consulta.salida.particion.comparables.map((r) => {
     const valores = publicados.get(r.norma.id);
     const valor = r.unidad.valorOriginal;
-    const variable = ETIQUETA_VARIABLE.fuerza_prension_manual;
+    // El nombre viene del catálogo de pruebas del PAS, no de un rótulo fijo:
+    // ese rótulo solo existía para «fuerza de prensión manual» y con una
+    // segunda variable mapeada habría etiquetado la suya con el nombre de la
+    // primera. Se recibe como función y no se importa aquí: este módulo no
+    // depende de `features/`, igual que `informe-humano/componer.ts`.
+    const variable = nombreDe(consulta.pruebaId);
     const lectura = leerResultado(r, r.norma.unidad);
 
     return {
@@ -349,10 +354,17 @@ function tarjetasDe(
  *
  * `consultas` llega del eslabón PAS→NIE en su orden. No se reordena por
  * calidad, ni por país, ni por nada: el orden es el de los registros.
+ *
+ * `nombreDe` traduce un `pruebaId` a su nombre legible. Se recibe como
+ * función, no se importa del catálogo del Workspace: este módulo no depende
+ * de `features/`, la misma regla que sigue `informe-humano/componer.ts`. Sin
+ * ella, cada tarjeta enseñaría el código («P-13») en vez de la prueba
+ * («Escalón de Harvard · índice de aptitud»).
  */
 export function componerInformeNormativo(
   consultas: readonly ConsultaNormativa[],
   datos: DatosPortada,
+  nombreDe: (pruebaId: string) => string,
 ): InformeNormativoV2 {
   const consultadas = consultas.filter(
     (c): c is Extract<ConsultaNormativa, { estado: 'CONSULTADA' }> => c.estado === 'CONSULTADA',
@@ -363,7 +375,7 @@ export function componerInformeNormativo(
 
   const sinNorma: TarjetaSinNorma[] = consultas.flatMap((c) =>
     c.estado === 'SIN_CONSULTA'
-      ? [{ id: c.registroId, variable: c.pruebaId, detalle: c.detalle }]
+      ? [{ id: c.registroId, variable: nombreDe(c.pruebaId), detalle: c.detalle }]
       : [],
   );
 
@@ -371,7 +383,7 @@ export function componerInformeNormativo(
     if (c.estado === 'SIN_CONSULTA') {
       return {
         id: c.registroId,
-        variable: c.pruebaId,
+        variable: nombreDe(c.pruebaId),
         estado: 'Sin norma disponible',
         evidencia: '—',
         conNorma: false,
@@ -380,7 +392,7 @@ export function componerInformeNormativo(
     const propias = c.salida.particion.comparables;
     return {
       id: c.registroId,
-      variable: ETIQUETA_VARIABLE.fuerza_prension_manual,
+      variable: nombreDe(c.pruebaId),
       estado: ETIQUETA_INTERPRETACION[c.salida.estadoInterpretacion],
       evidencia:
         propias.length === 0 ? '—' : [...new Set(propias.map((r) => r.norma.estado))].join(' · '),
@@ -399,7 +411,7 @@ export function componerInformeNormativo(
           : `${conNorma} de ${resumen.length} mediciones disponen de al menos una norma comparable.`,
     },
     resumen,
-    tarjetas: consultadas.flatMap(tarjetasDe),
+    tarjetas: consultadas.flatMap((c) => tarjetasDe(c, nombreDe)),
     comparabilidad,
     sinNorma,
     advertencias: [...new Set(consultadas.flatMap((c) => c.salida.advertencias))],

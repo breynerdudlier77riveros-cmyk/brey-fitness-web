@@ -12,6 +12,7 @@ import { getUser } from "@/lib/supabase/user";
 import { fechaISOLocal } from "@/lib/utils";
 import {
   actualizarPesoEvaluacion,
+  actualizarSignosVitales,
   anularRegistro,
   cambiarEstadoEvaluacion,
   crearEnlace,
@@ -173,6 +174,58 @@ export async function accionActualizarPeso(
   if (!admiteRegistros(evaluacion.estado)) return { ok: false, error: "EVALUACION_CERRADA" };
 
   const guardada = await actualizarPesoEvaluacion(supabase, id, pesoKg);
+  if (!guardada) return { ok: false, error: "NO_ACTUALIZADA" };
+
+  revalidatePath(`${RUTA}/evaluacion/${id}`);
+  return { ok: true, data: { id } };
+}
+
+/**
+ * Guarda los signos vitales en reposo (PAS-18).
+ *
+ * LOS RANGOS SON DE PLAUSIBILIDAD, NO DE NORMALIDAD. Rechazan un error de
+ * tecleo —una SpO2 de 950, una sistolica de 1400— y no opinan sobre si la
+ * cifra es sana: eso es una lectura clinica y este sistema no la hace.
+ *
+ * Los mismos limites estan en la migracion como CHECK. Duplicarlos es
+ * deliberado: aqui producen un mensaje que el profesional entiende, y alli
+ * impiden que entre una fila mala por cualquier otra via.
+ */
+export async function accionActualizarSignosVitales(
+  id: string,
+  signos: {
+    fcReposoLpm: number | null;
+    spo2Pct: number | null;
+    taSistolicaMmhg: number | null;
+    taDiastolicaMmhg: number | null;
+  }
+): Promise<ActionResult<{ id: string }>> {
+  const user = await getUser();
+  if (!user) return { ok: false, error: "NO_AUTENTICADO" };
+
+  const fuera = (v: number | null, min: number, max: number) =>
+    v !== null && (!Number.isFinite(v) || v < min || v > max);
+
+  if (fuera(signos.fcReposoLpm, 20, 250)) return { ok: false, error: "FC_FUERA_DE_RANGO" };
+  if (fuera(signos.spo2Pct, 50, 100)) return { ok: false, error: "SPO2_FUERA_DE_RANGO" };
+  if (fuera(signos.taSistolicaMmhg, 50, 300)) return { ok: false, error: "TA_FUERA_DE_RANGO" };
+  if (fuera(signos.taDiastolicaMmhg, 30, 200)) return { ok: false, error: "TA_FUERA_DE_RANGO" };
+
+  // Sistolica por encima de diastolica. Al reves es una inversion al teclear.
+  if (
+    signos.taSistolicaMmhg !== null &&
+    signos.taDiastolicaMmhg !== null &&
+    signos.taSistolicaMmhg <= signos.taDiastolicaMmhg
+  ) {
+    return { ok: false, error: "TA_INVERTIDA" };
+  }
+
+  const supabase = await createClient();
+  const evaluacion = await obtenerEvaluacion(supabase, id);
+  if (!evaluacion) return { ok: false, error: "NO_ENCONTRADA" };
+  if (!admiteRegistros(evaluacion.estado)) return { ok: false, error: "EVALUACION_CERRADA" };
+
+  const guardada = await actualizarSignosVitales(supabase, id, signos);
   if (!guardada) return { ok: false, error: "NO_ACTUALIZADA" };
 
   revalidatePath(`${RUTA}/evaluacion/${id}`);

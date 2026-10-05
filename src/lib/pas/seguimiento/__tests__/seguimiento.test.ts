@@ -50,7 +50,7 @@ describe('dirección de mejora en el catálogo', () => {
   });
 
   it('las once declaran el campo, aunque sea null', () => {
-    expect(PRUEBAS).toHaveLength(11);
+    expect(PRUEBAS).toHaveLength(30);
     for (const p of PRUEBAS) expect(p, p.id).toHaveProperty('direccion');
   });
 });

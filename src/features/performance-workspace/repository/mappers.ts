@@ -68,6 +68,12 @@ export function mapEvaluacion(fila: Fila): Evaluacion {
     // Aqui se perdia el peso: la consulta ya lo traia con `select('*')` y el
     // mapeador no lo copiaba, asi que nunca llegaba al motor.
     pesoKg: typeof fila.peso_kg === 'number' ? fila.peso_kg : null,
+    // Las cuatro llegan como `undefined` mientras la migracion PAS-18 no se
+    // aplique, y `numeroONulo` las convierte en «no consta», que es la verdad.
+    fcReposoLpm: numeroONulo(fila.fc_reposo_lpm),
+    spo2Pct: numeroONulo(fila.spo2_pct),
+    taSistolicaMmhg: numeroONulo(fila.ta_sistolica_mmhg),
+    taDiastolicaMmhg: numeroONulo(fila.ta_diastolica_mmhg),
     estado: texto(fila.estado) as EstadoEvaluacion,
     observaciones: textoONulo(fila.observaciones),
     createdAt: texto(fila.created_at),

@@ -14,6 +14,7 @@ import {
 import { informeDeEvaluacion } from "@/features/performance-workspace/services/informe";
 import { admiteInforme, admiteRegistros } from "@/features/performance-workspace/schemas/estados";
 import MasaCorporal from "@/features/performance-workspace/components/MasaCorporal";
+import SignosVitales from "@/features/performance-workspace/components/SignosVitales";
 import RegistroPruebaForm from "@/features/performance-workspace/components/RegistroPruebaForm";
 import RegistrosTabla from "@/features/performance-workspace/components/RegistrosTabla";
 import AccionesEvaluacion from "@/features/performance-workspace/components/AccionesEvaluacion";
@@ -195,6 +196,20 @@ export default async function EvaluacionPage({ params }: Props) {
       {admiteRegistros(evaluacion.estado) ? (
         <Section label="Masa corporal">
           <MasaCorporal evaluacionId={evaluacionId} pesoKg={evaluacion.pesoKg} />
+        </Section>
+      ) : null}
+
+      {/* PAS-18 · contexto de la sesión y condición de seguridad. Va junto a
+          la masa corporal porque comparte su regla: es del día, no del atleta. */}
+      {admiteRegistros(evaluacion.estado) ? (
+        <Section label="Signos vitales en reposo">
+          <SignosVitales
+            evaluacionId={evaluacionId}
+            fcReposoLpm={evaluacion.fcReposoLpm}
+            spo2Pct={evaluacion.spo2Pct}
+            taSistolicaMmhg={evaluacion.taSistolicaMmhg}
+            taDiastolicaMmhg={evaluacion.taDiastolicaMmhg}
+          />
         </Section>
       ) : null}
 

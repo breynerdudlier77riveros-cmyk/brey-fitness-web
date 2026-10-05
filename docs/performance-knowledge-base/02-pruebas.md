@@ -188,6 +188,15 @@ referencia; aquí se documenta qué se sabe de ella.
 | **Prohibido** | **«FMS ≤ 14 predice lesión».** La conclusión literal de los autores es que la asociación NO respalda su uso como herramienta de predicción [`moran_fms_2017`] |
 | **Referencias** | `moran_fms_2017`, `moore_fms_2019`, `bunn_fms_2019` |
 
+**Addendum · las siete pruebas por separado (P-24 a P-30).** El Workspace admite además registrar
+cada uno de los siete movimientos individualmente —sentadilla profunda, paso de valla, zancada en
+línea, movilidad de hombro, elevación de pierna recta, estabilidad de tronco y estabilidad
+rotatoria—, en vez de solo la puntuación compuesta de P-09. El protocolo de puntuación (escala de
+0 a 3; en las cinco que se hacen a cada lado, la puntuación final es la del lado más bajo) es el que
+publican Cook, Burton y Hoogenboom (2006) [`cook_fms_2006`]. Nada de esto cambia lo que dice esta
+ficha: el total compuesto sigue sin norma ni punto de corte válido, se calcule a mano o sumando las
+siete.
+
 ---
 
 ## P-10 · Tests de cambio de dirección (5-0-5, T-test, Illinois)

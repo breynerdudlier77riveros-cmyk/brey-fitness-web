@@ -102,8 +102,8 @@ describe('máquina de estados · evaluación', () => {
 
 describe('catálogo de pruebas', () => {
   it('declara las 11 pruebas de la base de conocimiento', () => {
-    expect(PRUEBAS).toHaveLength(11);
-    expect(CATALOGO_PAS.pruebas).toHaveLength(11);
+    expect(PRUEBAS).toHaveLength(30);
+    expect(CATALOGO_PAS.pruebas).toHaveLength(30);
   });
 
   it('ningún id se repite', () => {

@@ -176,6 +176,12 @@ function resumenDe(p: Posicion): string {
       return p.lado === 'en_el_corte'
         ? 'en el punto de corte publicado'
         : `${p.lado === 'por_debajo' ? 'por debajo' : 'por encima'} del punto de corte`;
+    case 'en_banda':
+      // Entre comillas y sin adorno: son las palabras de la tabla, no las del
+      // sistema. El resumen no tiene sitio para la cita, así que las comillas
+      // son lo único que separa «lo que dice la fuente» de «lo que decimos
+      // nosotros» — y por eso no se quitan nunca.
+      return `tramo «${p.nombre}»`;
   }
 }
 
@@ -263,6 +269,35 @@ export function enLlano(pruebaId: string, p: Posicion, poblacion: string): Lectu
         sentido,
         resumen: resumenDe(p),
         tecnico: 'Respecto al punto de corte publicado',
+      };
+
+    case 'en_banda':
+      // ── LA ÚNICA POSICIÓN QUE LLEVA UNA ETIQUETA DE MÉRITO ───────────────
+      //
+      //   Y sale porque la fuente la publica, no porque el sistema opine. Dos
+      //   cautelas que no se quitan:
+      //
+      //     · Las comillas. Separan la palabra de la tabla de la voz del
+      //       informe. «Tu aptitud es buena» y «la tabla llama a este tramo
+      //       "Bueno"» dicen cosas distintas, y solo la segunda es cierta.
+      //
+      //     · La frase dice que HAY OTRAS TABLAS. Para el VO2máx hay cuatro
+      //       registradas y no coinciden: el mismo 44 mL/kg/min es «Promedio»
+      //       en una y «Bueno» en dos. Quien lea una etiqueta sin saberlo
+      //       creerá que es LA clasificación, y no existe tal cosa.
+      return {
+        texto:
+          `Tu marca cae en el tramo que esta tabla llama «${p.nombre}» para ${poblacion}. ` +
+          'Es la etiqueta que usa esa fuente concreta, con sus límites: otras tablas de la ' +
+          'misma prueba dividen los tramos en otros sitios y les ponen otros nombres.',
+        sentido,
+        resumen: resumenDe(p),
+        tecnico:
+          p.min === null
+            ? `Tramo «${p.nombre}», hasta ${num(p.max!)}`
+            : p.max === null
+              ? `Tramo «${p.nombre}», desde ${num(p.min)}`
+              : `Tramo «${p.nombre}», de ${num(p.min)} a ${num(p.max)}`,
       };
   }
 }

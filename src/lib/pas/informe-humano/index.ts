@@ -8,6 +8,9 @@ export {
   type EntradaInformeHumano,
   type MedicionPrevia,
 } from './componer';
+export { panelFmsDe, type MedicionFms } from './fms';
+export { panelMcGillDe, type MedicionMcGill } from './mcgill';
+export { panelVo2EstimadoDe, type MedicionVo2Estimado } from './vo2-estimado';
 export { lecturaLlanaDe } from './llano';
 export {
   metaDe,
@@ -27,6 +30,11 @@ export {
 export type {
   Alerta,
   CodigoAlerta,
+  CocientePanelMcGill,
+  PanelFms,
+  PruebaFms,
+  PanelMcGill,
+  PanelVo2Estimado,
   PanelObjetivos,
   ResumenAtleta,
   ClaseReferencia,
