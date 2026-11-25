@@ -34,11 +34,11 @@ export default function DiagnosticoCTA({ variant, className = "" }: Props) {
         </p>
         {isHome && <DiagnosticoFlow />}
         <Button href="/diagnostico" size="lg">
-          Iniciar Diagnóstico BPS
+          Empezar mi diagnóstico
           <ArrowRight className="w-5 h-5" strokeWidth={2.5} />
         </Button>
         {!isHome && (
-          <p className="text-white/40 text-[11px] tracking-[0.18em] uppercase mt-5">
+          <p className="text-white/50 text-[11px] tracking-[0.18em] uppercase mt-5">
             2 minutos · Sin registro · Gratis
           </p>
         )}

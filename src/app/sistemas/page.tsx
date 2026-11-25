@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 
 export default function SistemasPage() {
   return (
-    <main className="bg-slate-950 text-white overflow-x-hidden">
+    <main className="bg-neutral-950 text-white overflow-x-hidden">
 
       {/* ── Hero ── */}
       <section className="relative max-w-4xl mx-auto px-6 pt-20 pb-14 text-center">

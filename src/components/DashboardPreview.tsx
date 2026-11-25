@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   motion,
   animate,
+  useInView,
   useReducedMotion,
   useMotionValue,
   useSpring,
@@ -55,16 +56,12 @@ const diaEstilo: Record<(typeof dias)[number]["estado"], string> = {
   descanso: "bg-white/[0.06]",
 };
 
-// El propio mockup ya llega envuelto en HeroPreviewItem/ScrollReveal, que
-// tarda ~0.6-1s en asentarse visualmente (fade+scale). Sin este retraso,
-// el conteo terminaría "bajo cuerda" mientras la tarjeta aún es invisible
-// — se ve el número ya en su valor final apenas aparece, no contando.
-const REVEAL_DELAY = 0.6;
-
-// El skeleton se retira a los 450ms — después de que la tarjeta terminó de
-// asentarse visualmente (~400-600ms) pero antes de que el conteo/barras
-// arranquen (600ms), para que el orden se sienta como: aparece → carga → cuenta.
-const SKELETON_MS = 450;
+// Todo arranca cuando el mockup entra en pantalla (useInView), no al montar:
+// en la home vive a mitad de página y, contando desde la carga, la secuencia
+// terminaba antes de que nadie la viera. Orden: aparece (data-reveal de la
+// home, ~0.9 s) → carga (skeleton) → cuenta y crecen las barras.
+const SKELETON_MS = 700;
+const REVEAL_DELAY = 0.15;
 
 /** Bloque de carga — mismo alto que el texto real que reemplaza. */
 function SkeletonBar({ className = "" }: { className?: string }) {
@@ -173,52 +170,60 @@ function useTiltPreview() {
   return { rotateX, rotateY, onMouseMove, onMouseLeave };
 }
 
-/** true una vez pasado el breve estado de carga (instantáneo si reduced-motion). */
-function useSkeletonReady(delay = SKELETON_MS) {
+// Hidratación: el estado inicial NO depende de useReducedMotion(). En el
+// servidor ese hook vale null y en el navegador true/false; usarlo como valor
+// inicial hacía que servidor y cliente pintaran árboles distintos (skeleton
+// vs. contenido) y React regeneraba todo con un error de hidratación. Ambos
+// arrancan igual (skeleton, 0 %) y el cambio llega siempre por un callback.
+
+/** true una vez pasado el breve estado de carga (inmediato con movimiento reducido). */
+function useSkeletonReady(activo: boolean, delay = SKELETON_MS) {
   const shouldReduceMotion = useReducedMotion();
-  const [ready, setReady] = useState(!!shouldReduceMotion);
+  const [ready, setReady] = useState(false);
   useEffect(() => {
-    if (shouldReduceMotion) return;
-    const t = setTimeout(() => setReady(true), delay);
+    if (!activo) return;
+    const t = setTimeout(() => setReady(true), shouldReduceMotion ? 0 : delay);
     return () => clearTimeout(t);
-  }, [shouldReduceMotion, delay]);
+  }, [activo, shouldReduceMotion, delay]);
   return ready;
 }
 
 /**
- * Cuenta de 0 al valor objetivo una sola vez al montar.
+ * Cuenta de 0 al valor objetivo una sola vez, cuando `activo` pasa a true.
  * animate() es imperativo — a diferencia de motion.div, no lee el
- * MotionConfig reducedMotion="user" de layout.tsx, así que aquí se
- * consulta useReducedMotion() directamente y se salta la animación.
+ * MotionConfig reducedMotion="user" de layout.tsx, así que con movimiento
+ * reducido la duración es 0 (salta al valor final).
  */
-function useCountUp(target: number, duration = 1.1, delay = REVEAL_DELAY) {
+function useCountUp(target: number, activo: boolean, duration = 1.1, delay = REVEAL_DELAY) {
   const shouldReduceMotion = useReducedMotion();
-  const [value, setValue] = useState(shouldReduceMotion ? target : 0);
+  const [value, setValue] = useState(0);
   useEffect(() => {
-    if (shouldReduceMotion) return;
+    if (!activo) return;
     const controls = animate(0, target, {
-      duration,
-      delay,
+      duration: shouldReduceMotion ? 0 : duration,
+      delay: shouldReduceMotion ? 0 : delay,
       ease: [0.16, 1, 0.3, 1],
       onUpdate: (v) => setValue(Math.round(v)),
     });
     return () => controls.stop();
-  }, [target, duration, delay, shouldReduceMotion]);
+  }, [target, activo, duration, delay, shouldReduceMotion]);
   return value;
 }
 
 export default function DashboardPreview({ className = "" }: { className?: string }) {
-  const progreso = useCountUp(44);
-  const ready = useSkeletonReady();
+  const marco = useRef<HTMLDivElement>(null);
+  const enVista = useInView(marco, { once: true, margin: "0px 0px -15% 0px" });
+  const ready = useSkeletonReady(enVista);
+  const progreso = useCountUp(44, ready);
   const tilt = useTiltPreview();
 
   return (
-    <div className={`relative mx-auto w-full max-w-md ${className}`} style={{ perspective: 1000 }}>
+    <div ref={marco} className={`relative mx-auto w-full max-w-md ${className}`} style={{ perspective: 1000 }}>
       {/* Glow ambiental */}
       <div aria-hidden className="absolute -inset-8 rounded-full bg-orange-500/10 blur-3xl pointer-events-none" />
 
       {/* Etiqueta honesta — innegociable */}
-      <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10 whitespace-nowrap px-3.5 py-1.5 rounded-full border border-orange-500/30 bg-slate-950 text-[10px] font-bold tracking-[0.14em] uppercase text-orange-400">
+      <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10 whitespace-nowrap px-3.5 py-1.5 rounded-full border border-orange-500/30 bg-neutral-950 text-[10px] font-bold tracking-[0.14em] uppercase text-orange-400">
         Vista previa · Plataforma en desarrollo
       </div>
 
@@ -227,7 +232,7 @@ export default function DashboardPreview({ className = "" }: { className?: strin
         onMouseMove={tilt.onMouseMove}
         onMouseLeave={tilt.onMouseLeave}
         style={{ rotateX: tilt.rotateX, rotateY: tilt.rotateY, transformStyle: "preserve-3d" }}
-        className="relative rounded-3xl border border-white/10 bg-slate-900/70 backdrop-blur-xl shadow-2xl shadow-black/50 p-5 sm:p-6"
+        className="relative rounded-3xl border border-white/10 bg-neutral-900/70 backdrop-blur-xl shadow-2xl shadow-black/50 p-5 sm:p-6"
       >
         {!ready ? (
           <DashboardSkeleton />
@@ -316,7 +321,7 @@ export default function DashboardPreview({ className = "" }: { className?: strin
               <div className="flex items-center justify-between">
                 {dias.map(({ d, estado }, i) => (
                   <div key={i} className="flex flex-col items-center gap-1.5">
-                    <span className="text-[9px] text-white/40 font-medium">{d}</span>
+                    <span className="text-[9px] text-white/50 font-medium">{d}</span>
                     <span className={`w-2 h-2 rounded-full ${diaEstilo[estado]}`} />
                   </div>
                 ))}

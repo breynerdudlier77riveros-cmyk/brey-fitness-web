@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function CalculadorasPage() {
   return (
-    <main className="bg-slate-950 text-white">
+    <main className="bg-neutral-950 text-white">
       {/* Header */}
       <section className="max-w-4xl mx-auto px-6 pt-16 pb-12 text-center">
         <p className="text-[11px] font-semibold tracking-[0.25em] uppercase text-white/50 mb-4">

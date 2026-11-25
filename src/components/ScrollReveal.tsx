@@ -1,33 +1,23 @@
-"use client";
-
-import { motion } from "motion/react";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 interface Props {
   children: ReactNode;
+  /** Milisegundos de retardo (para escalonar listas). */
   delay?: number;
   className?: string;
 }
 
-// Revela al entrar en viewport — mismo fade+slide de siempre, ahora sobre
-// Motion en vez de IntersectionObserver+CSS a mano. API externa idéntica
-// (children/delay/className) — ningún call site cambia. Motion respeta
-// prefers-reduced-motion automáticamente (reduce a un fundido sin
-// desplazamiento cuando el sistema lo pide).
+// Fundido corto al entrar en pantalla. Lo dispara components/motion/Revelado
+// (montado en SiteChrome) y lo anima globals.css ("Capa de movimiento"):
+// sin JS o con movimiento reducido el contenido se ve quieto desde el inicio.
 export default function ScrollReveal({ children, delay = 0, className = "" }: Props) {
   return (
-    <motion.div
+    <div
+      data-reveal="up"
       className={className}
-      initial={{ opacity: 0, y: 28 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.07 }}
-      transition={{
-        duration: 0.85,
-        delay: delay / 1000,
-        ease: [0.16, 1, 0.3, 1],
-      }}
+      style={delay ? ({ "--retardo": `${delay}ms` } as CSSProperties) : undefined}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }

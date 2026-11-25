@@ -23,8 +23,8 @@ export default function ClienteCard({ cliente, enlaceActivo }: Props) {
     <Link href={`/app/composicion-corporal/${cliente.id}`}>
       <Card interactive className="p-4 h-full">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-orange-600 to-amber-700 flex items-center justify-center flex-shrink-0">
-            <span className="text-white font-black text-[10px]">{iniciales(cliente.nombre)}</span>
+          <div className="w-9 h-9 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0">
+            <span className="font-display text-neutral-950 font-black text-sm">{iniciales(cliente.nombre)}</span>
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-sm font-bold text-white truncate">{cliente.nombre}</p>

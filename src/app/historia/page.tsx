@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function HistoriaPage() {
   return (
-    <main className="bg-slate-950 text-white overflow-x-hidden">
+    <main className="bg-neutral-950 text-white overflow-x-hidden">
 
       {/* ── Hero ── */}
       <section className="relative border-b border-white/[0.05]">
@@ -50,7 +50,7 @@ export default function HistoriaPage() {
                 </div>
               ) : (
                 /* Monograma mientras llega la fotografía profesional */
-                <div className="relative aspect-[3/4] rounded-3xl border border-white/[0.08] bg-gradient-to-br from-orange-950/40 via-slate-900 to-slate-950 flex items-center justify-center">
+                <div className="relative aspect-[3/4] rounded-3xl border border-white/[0.08] bg-gradient-to-br from-orange-950/40 via-neutral-900 to-neutral-950 flex items-center justify-center">
                   <span aria-hidden className="font-black text-7xl text-transparent bg-clip-text bg-gradient-to-br from-orange-400 to-amber-500">
                     BR
                   </span>

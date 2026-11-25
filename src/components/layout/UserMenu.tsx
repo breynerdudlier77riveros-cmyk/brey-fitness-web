@@ -43,13 +43,13 @@ export default function UserMenu({ user, onNavigate }: { user: NavUser; onNaviga
         onClick={() => setOpen((v) => !v)}
         aria-label="Menú de cuenta"
         aria-expanded={open}
-        className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-600 to-amber-700 flex items-center justify-center flex-shrink-0 cursor-pointer"
+        className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0 cursor-pointer"
       >
-        <span className="text-white font-black text-[10px]">{iniciales(user.nombre)}</span>
+        <span className="font-display text-neutral-950 font-black text-sm">{iniciales(user.nombre)}</span>
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-48 rounded-xl border border-white/[0.08] bg-slate-950 shadow-xl shadow-black/40 py-2 z-50">
+        <div className="absolute right-0 mt-2 w-48 rounded-xl border border-white/[0.08] bg-neutral-950 shadow-xl shadow-black/40 py-2 z-50">
           <p className="px-3.5 py-1.5 text-xs font-bold text-white truncate">{user.nombre}</p>
           <div className="h-px bg-white/[0.06] my-1" />
           <Link

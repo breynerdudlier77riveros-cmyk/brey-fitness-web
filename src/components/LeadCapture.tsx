@@ -55,7 +55,7 @@ export default function LeadCapture({
 
   if (status === "ok") {
     return (
-      <div className={`flex items-center gap-2.5 text-sm text-emerald-400 ${className}`}>
+      <div role="status" className={`flex items-center gap-2.5 text-sm text-emerald-400 ${className}`}>
         <Check className="w-4 h-4 flex-shrink-0" strokeWidth={2.5} />
         {message}
       </div>
@@ -70,6 +70,7 @@ export default function LeadCapture({
       <div className="flex flex-col sm:flex-row gap-2">
         <Input
           type="email"
+          autoComplete="email"
           shape="pill"
           required
           value={email}
@@ -83,7 +84,7 @@ export default function LeadCapture({
         </Button>
       </div>
       {status === "error" && (
-        <p className="text-xs text-red-400 mt-2">{message}</p>
+        <p role="alert" className="text-xs text-red-400 mt-2">{message}</p>
       )}
       <p className="text-[10px] text-white/50 mt-2">
         Sin spam. Puedes darte de baja cuando quieras.

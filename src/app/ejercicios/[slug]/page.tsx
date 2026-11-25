@@ -51,7 +51,7 @@ export default async function EjercicioPage({ params }: Props) {
   const lvl = levelLabels[e.nivel];
 
   return (
-    <main className="bg-slate-950 text-white">
+    <main className="bg-neutral-950 text-white">
       {/* Breadcrumb */}
       <div className="max-w-4xl mx-auto px-6 pt-8">
         <nav className="flex items-center gap-2 text-xs text-white/50 mb-8">

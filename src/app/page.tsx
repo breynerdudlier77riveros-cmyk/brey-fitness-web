@@ -1,364 +1,583 @@
+import type { CSSProperties, ReactNode } from "react";
 import Link from "next/link";
-import { sistemas } from "@/data/sistemas";
-import ScrollReveal from "@/components/ScrollReveal";
-import SectionLabel from "@/components/layout/SectionLabel";
-import TestimonialsSlider from "@/components/TestimonialsSlider";
-import { ArrowRight, Check, TrendingUp, Cycle, Calendar, ChartBar, UserIcon } from "@/components/brand/icons";
-import Button from "@/components/brand/Button";
-import { cardStyles } from "@/components/brand/Card";
-import Badge from "@/components/brand/Badge";
+import { getSistemaBySlug, sistemas } from "@/data/sistemas";
+import { founder } from "@/data/founder";
+import { testimonios } from "@/data/testimonials";
+import { media, type MediaSlotData } from "@/data/media";
+import type { Sistema } from "@/lib/types";
 import DashboardPreview from "@/components/DashboardPreview";
-import FounderSection from "@/components/FounderSection";
-import EvolucionSection from "@/components/EvolucionSection";
-import DiagnosticoCTA from "@/components/DiagnosticoCTA";
-import RetencionFlow from "@/components/RetencionFlow";
-import { HeroStagger, HeroItem, HeroPreviewItem } from "@/components/HeroEntrance";
+import Button from "@/components/brand/Button";
+import Kicker from "@/components/brand/Kicker";
+import MediaSlot from "@/components/media/MediaSlot";
+import Lineas from "@/components/motion/Lineas";
+import Cifra from "@/components/motion/Cifra";
+import SuaveScroll from "@/components/motion/SuaveScroll";
+import { ArrowRight, Book, Check, Flame, Scale, Target } from "@/components/brand/icons";
+import { cn } from "@/lib/utils";
 
-// ── Acto 2 · Manifiesto ─────────────────────────────────────────────────────
+// ── Home ────────────────────────────────────────────────────────────────────
+// Movimiento (globals.css, "Capa de movimiento"): dos técnicas firma.
+//   1. Máscaras: titulares línea a línea (<Lineas>) y fotos que se descubren
+//      (data-reveal="image"); el resto entra con un fundido corto.
+//   2. Scroll: el hero se aleja, la cinta de disciplinas corre y las fotos
+//      grandes tienen parallax.
+// Descartados a propósito: cursor propio y botones magnéticos (no existen en
+// celular, que es de donde llega el tráfico de Instagram), preloader (castiga
+// la carga), partículas/3D (esto vende entrenamiento, no tecnología) y
+// secciones fijadas con pin (rompen el scroll en celular).
+
+const wrap = "mx-auto w-full max-w-7xl px-5 sm:px-8";
+const h2 = "font-display text-[length:clamp(2.75rem,6vw,5.5rem)] font-black leading-[0.95] tracking-[-0.01em]";
+const flecha = "h-4 w-4 motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:translate-x-1";
+const retardo = (ms: number) => ({ "--retardo": `${ms}ms` }) as CSSProperties;
+
 const creencias = [
-  { no: "No creemos en copiar rutinas.",  si: "Creemos en entender el entrenamiento." },
-  { no: "No creemos en tendencias.",      si: "Creemos en evidencia científica." },
-  { no: "No creemos en entrenar más.",    si: "Creemos en entrenar mejor." },
-  { no: "No creemos en improvisar.",      si: "Creemos en sistemas." },
+  { no: "Copiar rutinas", si: "Entender el entrenamiento" },
+  { no: "Seguir tendencias", si: "Evidencia científica" },
+  { no: "Entrenar más", si: "Entrenar mejor" },
+  { no: "Improvisar", si: "Sistemas" },
 ];
 
-// ── Acto 3 · Los 5 principios del método (BREY v2.1) ────────────────────────
-// Antes 3 pilares narrados en párrafos; ahora los principios concretos de
-// la ciencia del ejercicio, en formato compacto — "transmitir ciencia sin
-// saturar", no un artículo.
 const principios = [
-  { icon: TrendingUp, titulo: "Sobrecarga progresiva", frase: "Cada sesión, un estímulo mayor al anterior." },
-  { icon: Cycle,       titulo: "Autorregulación",        frase: "El plan se ajusta a cómo respondes, no al revés." },
-  { icon: Calendar,    titulo: "Periodización",           frase: "Cada fase tiene un propósito fisiológico distinto." },
-  { icon: ChartBar,    titulo: "Seguimiento del progreso", frase: "Lo que no se mide, no se puede ajustar." },
-  { icon: UserIcon,    titulo: "Adaptación individual",   frase: "Tu cuerpo, tu historial, tu punto de partida." },
+  { titulo: "Sobrecarga progresiva", frase: "Cada sesión, un estímulo mayor al anterior." },
+  { titulo: "Autorregulación", frase: "El plan se ajusta a cómo respondes, no al revés." },
+  { titulo: "Periodización", frase: "Cada fase tiene un propósito fisiológico distinto." },
+  { titulo: "Seguimiento del progreso", frase: "Lo que no se mide, no se puede ajustar." },
+  { titulo: "Adaptación individual", frase: "Tu cuerpo, tu historial, tu punto de partida." },
 ];
+
+const ciclo = ["Entrenamiento", "Registro", "Estadísticas", "Adaptación", "Nuevo entrenamiento"];
+
+const recursos = [
+  { href: "/diagnostico", icon: Target, nombre: "Diagnóstico BPS", detalle: "Tu punto de entrada exacto, en 2 minutos." },
+  { href: "/ejercicios", icon: Flame, nombre: "Biblioteca de ejercicios", detalle: "Técnica, errores y variantes de cada movimiento." },
+  { href: "/calculadoras", icon: Scale, nombre: "Calculadoras", detalle: "1RM, TDEE, macros y más, con evidencia." },
+  { href: "/blog", icon: Book, nombre: "Blog científico", detalle: "La evidencia, explicada en español claro." },
+];
+
+const disciplinas = ["Calistenia", "Fuerza", "Hipertrofia", "Periodización", "Evidencia", "Método"];
+
+function sistema(slug: string): Sistema {
+  const s = getSistemaBySlug(slug);
+  if (!s) throw new Error(`Sistema "${slug}" no existe en data/sistemas.ts`);
+  return s;
+}
+
+const destacados: { s: Sistema; foto: MediaSlotData }[] = [
+  { s: sistema("calistenia"), foto: media.sistemaCalistenia },
+  { s: sistema("hipertrofia"), foto: media.sistemaHipertrofia },
+  { s: sistema("hibrido"), foto: media.sistemaHibrido },
+];
+const proximamente = sistemas.filter((s) => !s.disponible);
+
+const semanas = sistemas
+  .filter((s) => s.disponible)
+  .map((s) => parseInt(s.duracion ?? "", 10))
+  .filter(Number.isFinite);
+
+const cifras = [
+  { valor: founder.stats[0].value, label: "Años en calistenia" },
+  { valor: String(sistemas.filter((s) => s.disponible).length), label: "Sistemas disponibles" },
+  { valor: `${Math.min(...semanas)}–${Math.max(...semanas)}`, label: "Semanas por sistema" },
+  { valor: "30", label: "Días de garantía" },
+];
+
+const [nombre, ...apellidos] = founder.nombre.split(" ");
+const experiencia = founder.credenciales.find((c) => c.titulo === "Experiencia")?.items ?? [];
+
+// Rótulo de sección que entra con el resto del bloque.
+function Rotulo({ children, className }: { children: ReactNode; className?: string }) {
+  return (
+    <div data-reveal="up" className={className}>
+      <Kicker>{children}</Kicker>
+    </div>
+  );
+}
+
+// Una fila de la cinta: las disciplinas dos veces, para que nunca se vea el final al desplazarse.
+function FilaCinta({ contorno = false }: { contorno?: boolean }) {
+  const palabras = contorno ? [...disciplinas].reverse() : disciplinas;
+  return [0, 1].flatMap((vuelta) =>
+    palabras.map((d) => (
+      <span key={`${vuelta}-${d}`} className="flex items-center whitespace-nowrap">
+        {d}
+        <span
+          className={cn(
+            "mx-[0.35em] inline-block h-[0.14em] w-[0.7em] -skew-x-12",
+            contorno ? "border-2 border-neutral-950" : "bg-neutral-950"
+          )}
+        />
+      </span>
+    ))
+  );
+}
 
 export default function HomePage() {
   return (
-    <div className="bg-slate-950 text-white overflow-x-hidden">
+    <div className="overflow-x-clip">
+      <SuaveScroll />
 
-      {/* ════════════════════════════════════════
-          ACTO 1 · HERO — Transformación + producto
-          Responde: ¿por qué debería quedarme?
-      ════════════════════════════════════════ */}
-      <section className="relative overflow-hidden">
-        <div aria-hidden className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="hero-drift-1 absolute -top-32 -left-32 w-[700px] h-[700px] rounded-full bg-orange-600/8 blur-[140px]" />
-          <div className="hero-drift-2 absolute top-1/4 -right-48 w-[500px] h-[500px] rounded-full bg-indigo-600/5 blur-[120px]" />
-          <div className="hero-drift-3 absolute bottom-0 left-1/2 w-[900px] h-[200px] bg-orange-600/5 blur-[80px]" />
-        </div>
-
-        <div className="relative max-w-6xl mx-auto px-4 md:px-6 pt-16 pb-20 md:pt-20 md:pb-28 lg:min-h-[88vh] flex items-center">
-          <HeroStagger className="grid lg:grid-cols-[1.05fr_0.95fr] gap-14 lg:gap-10 items-center w-full">
-
-            {/* Columna de mensaje */}
-            <div className="text-center lg:text-left">
-              <HeroItem className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full border border-white/10 bg-white/[0.04] backdrop-blur-sm text-sm text-white/50 mb-8 md:mb-10">
-                <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
-                The Brey Performance System
-              </HeroItem>
-
-              <HeroItem>
-                <h1 className="font-black leading-[1.06] tracking-tight mb-7">
-                  <span className="block text-4xl sm:text-5xl lg:text-6xl text-white">
-                    El fin del
-                  </span>
-                  <span className="block text-4xl sm:text-5xl lg:text-6xl text-white">
-                    entrenamiento
-                  </span>
-                  <span className="block text-4xl sm:text-5xl lg:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-orange-500 to-amber-400">
-                    a ciegas.
-                  </span>
-                </h1>
-              </HeroItem>
-
-              <HeroItem>
-                <p className="text-lg text-white/60 max-w-xl mx-auto lg:mx-0 mb-10 leading-[1.8] font-light">
-                  Un sistema que convierte la evidencia científica en un camino claro: qué hacer hoy, por qué hacerlo, y qué esperar de tu cuerpo mañana.
-                </p>
-              </HeroItem>
-
-              <HeroItem className="flex flex-col sm:flex-row items-center lg:justify-start justify-center gap-4 mb-10">
-                <Button href="/diagnostico" size="lg">
-                  Empezar mi diagnóstico
-                  <ArrowRight className="w-5 h-5" strokeWidth={2.5} />
-                </Button>
-                <Button href="/bps" variant="outline" size="md" className="px-7 py-3.5">
-                  Conocer el sistema
-                </Button>
-              </HeroItem>
-
-              {/* Indicadores de confianza — solo datos verdaderos */}
-              <HeroItem className="flex flex-wrap items-center lg:justify-start justify-center gap-x-3 gap-y-2 text-[11px] font-semibold tracking-[0.14em] uppercase text-white/50">
-                <span>Referencias científicas publicadas</span>
-                <span aria-hidden className="text-orange-400/60">·</span>
-                <span>72 semanas de programación</span>
-                <span aria-hidden className="text-orange-400/60">·</span>
-                <span>Garantía 30 días</span>
-              </HeroItem>
+      {/* ── Hero ─────────────────────────────────────────────────────────── */}
+      {/* En celular el video ocupa la parte alta y funde a negro bajo el texto;
+          desde sm cubre todo el hero. */}
+      <section className="hero-escena relative isolate flex min-h-[100svh] flex-col overflow-clip bg-neutral-950">
+        {/* sizes: en celular el póster se recorta (object-cover) y se ve ~2,8 veces
+            el ancho de la pantalla; con "100vw" llegaba borroso. En celular el
+            texto cubre casi todo el video: velo más oscuro para leer el rótulo
+            aunque detrás haya cielo. */}
+        <MediaSlot
+          slot={media.hero}
+          sizes="(max-width: 639px) 280vw, 100vw"
+          prioridad
+          className="hero-medio absolute inset-x-0 top-0 h-[72svh] sm:inset-0 sm:h-auto"
+          velo="bg-[linear-gradient(to_top,#0a0a0a_0%,rgba(10,10,10,0.72)_42%,rgba(10,10,10,0.5)_72%,rgba(10,10,10,0.7)_100%)] sm:bg-[linear-gradient(to_top,#0a0a0a_0%,rgba(10,10,10,0.62)_38%,rgba(10,10,10,0.18)_68%,rgba(10,10,10,0.6)_100%)]"
+          controlesClassName="right-5 top-[5.25rem] sm:right-8 sm:top-28"
+          notaClassName="hidden sm:block right-8 top-28 max-w-xs text-right"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-[72svh] bg-[radial-gradient(120%_90%_at_50%_40%,transparent_55%,rgba(0,0,0,0.55)_100%)] sm:inset-0 sm:h-auto"
+        />
+        {/* pointer-events solo en enlaces: la capa de texto cubre todo el ancho
+            y no debe tapar el botón de pausa del video. */}
+        <div
+          className={cn(
+            wrap,
+            // pt-36 en celular: deja libre la franja del botón de pausa, encima del rótulo.
+            "hero-salida-texto pointer-events-none relative z-10 flex flex-1 flex-col justify-end pb-10 pt-36 sm:pt-28 md:pb-12 [&_a]:pointer-events-auto"
+          )}
+        >
+          <div className="max-w-5xl">
+            <div className="entra-subir" style={retardo(0)}>
+              <Kicker>Calistenia · Fuerza · Hipertrofia</Kicker>
             </div>
-
-            {/* Columna de producto */}
-            <HeroPreviewItem className="mt-2 lg:mt-0">
-              <DashboardPreview />
-            </HeroPreviewItem>
-
-          </HeroStagger>
-        </div>
-      </section>
-
-      {/* ════════════════════════════════════════
-          ACTO 2 · MANIFIESTO — El ADN
-          Responde: ¿en qué cree esta empresa?
-      ════════════════════════════════════════ */}
-      <section className="border-t border-white/[0.05]">
-        <div className="max-w-3xl mx-auto px-4 md:px-6 py-24 md:py-36">
-          <ScrollReveal>
-            <SectionLabel>En qué creemos</SectionLabel>
-          </ScrollReveal>
-
-          <div className="flex flex-col gap-14 md:gap-20 text-center">
-            {creencias.map((c, i) => (
-              <ScrollReveal key={i} delay={i * 60}>
-                <p className="text-white/40 text-base md:text-lg font-medium mb-3">
-                  {c.no}
-                </p>
-                <p className="font-black text-2xl sm:text-3xl md:text-[2.6rem] md:leading-[1.25] text-white text-balance">
-                  {c.si}
-                </p>
-              </ScrollReveal>
-            ))}
-
-            <ScrollReveal>
-              <div aria-hidden className="w-10 h-px bg-orange-400/40 mx-auto mb-8" />
-              <p className="font-black text-lg sm:text-xl text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400 tracking-tight">
-                Esto es el Brey Performance System.
-              </p>
-            </ScrollReveal>
+            <Lineas
+              as="h1"
+              modo="carga"
+              className="mt-6 font-display text-[length:clamp(3.25rem,10vw,7.5rem)] font-black leading-[0.88] tracking-[-0.01em]"
+              lineas={["El fin del", "entrenamiento", <span key="c" className="italic text-orange-500">a ciegas.</span>]}
+            />
+            <p className="entra-subir mt-7 max-w-xl text-lg leading-relaxed text-white/80" style={retardo(550)}>
+              Un sistema que convierte la evidencia científica en un camino claro: qué hacer hoy, por qué hacerlo y
+              qué esperar de tu cuerpo mañana.
+            </p>
+            <div className="entra-subir mt-9 flex flex-wrap items-center gap-4" style={retardo(700)}>
+              <Button href="/diagnostico" size="lg">
+                Empezar mi diagnóstico
+                <ArrowRight className="h-5 w-5" strokeWidth={2.5} />
+              </Button>
+              <Button href="#sistemas" variant="outline" size="lg">
+                Ver los sistemas
+              </Button>
+            </div>
           </div>
         </div>
-      </section>
-
-      {/* ════════════════════════════════════════
-          ACTO 3 · EL SISTEMA
-          Responde: ¿por qué funciona?
-      ════════════════════════════════════════ */}
-      <section className="max-w-6xl mx-auto px-4 md:px-6 py-20 md:py-28">
-        <ScrollReveal>
-          <SectionLabel>El sistema</SectionLabel>
-          <div className="flex items-end justify-between gap-6 mb-6 -mt-8">
-            <h2 className="font-black text-3xl sm:text-4xl md:text-5xl text-white">
-              ¿Por qué funciona?
-            </h2>
-            <Link
-              href="/bps"
-              className="hidden sm:inline-flex items-center gap-1.5 text-sm text-orange-400 hover:text-orange-300 font-bold transition-colors flex-shrink-0"
-            >
-              Conocer el método completo
-              <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
-            </Link>
-          </div>
-          <p className="text-white/60 leading-relaxed max-w-xl mb-12">
-            Cinco principios de la ciencia del ejercicio. Ninguno es opcional.
-          </p>
-        </ScrollReveal>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-          {principios.map((p, i) => (
-            <ScrollReveal key={p.titulo} delay={i * 70}>
-              <div className={`${cardStyles.base} ${cardStyles.interactive} p-5 h-full flex flex-col items-start gap-3`}>
-                <div className="w-9 h-9 rounded-lg border border-orange-500/20 bg-orange-500/[0.08] flex items-center justify-center flex-shrink-0">
-                  <p.icon className="w-4 h-4 text-orange-400" strokeWidth={1.75} />
-                </div>
-                <h3 className="font-black text-sm text-white leading-snug">{p.titulo}</h3>
-                <p className="text-white/55 text-xs leading-relaxed">{p.frase}</p>
+        <div
+          className="entra-subir relative z-10 border-t border-white/10 bg-neutral-950/70 backdrop-blur-sm"
+          style={retardo(900)}
+        >
+          <dl className={cn(wrap, "grid grid-cols-2 gap-x-6 gap-y-5 py-6 md:grid-cols-4")}>
+            {cifras.map((c, i) => (
+              <div key={c.label} className="flex flex-col-reverse gap-1.5 border-l-2 border-orange-500 pl-4">
+                <dt className="font-display text-xs font-bold uppercase tracking-[0.18em] text-white/65">{c.label}</dt>
+                <dd className="font-display text-4xl font-black leading-none md:text-5xl">
+                  <Cifra valor={c.valor} retardo={900 + i * 120} />
+                </dd>
               </div>
-            </ScrollReveal>
-          ))}
+            ))}
+          </dl>
         </div>
-
-        <ScrollReveal className="mt-6 sm:hidden">
-          <Link
-            href="/bps"
-            className="flex items-center justify-center gap-2 text-sm text-orange-400 hover:text-orange-300 font-bold transition-colors py-3"
-          >
-            Conocer el método completo
-            <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
-          </Link>
-        </ScrollReveal>
       </section>
 
-      {/* ════════════════════════════════════════
-          ACTO 4 · SISTEMAS — Encuentra tu Camino
-          Responde: ¿cuál es para mí?
-      ════════════════════════════════════════ */}
-      <section className="max-w-6xl mx-auto px-4 md:px-6 py-16 md:py-24">
-        <ScrollReveal>
-          <SectionLabel>Sistemas</SectionLabel>
-        </ScrollReveal>
+      {/* ── Cinta de disciplinas: corre con el scroll (decorativa) ───────── */}
+      <div aria-hidden className="overflow-clip bg-orange-500 py-5 text-neutral-950 md:py-7">
+        <div className="cinta-izquierda flex w-max items-center font-display text-[length:clamp(3rem,8vw,7rem)] font-black uppercase italic leading-[0.95]">
+          <FilaCinta />
+        </div>
+        <div className="cinta-derecha mt-1 flex w-max items-center font-display text-[length:clamp(3rem,8vw,7rem)] font-black uppercase italic leading-[0.95] text-transparent [-webkit-text-stroke:1.5px_#0a0a0a]">
+          <FilaCinta contorno />
+        </div>
+      </div>
 
-        {/* Encuentra tu Camino — CTA principal antes de los Sistemas */}
-        <ScrollReveal>
-          <DiagnosticoCTA variant="home" className="mb-12" />
-        </ScrollReveal>
+      {/* ── Manifiesto ───────────────────────────────────────────────────── */}
+      <section className="bg-neutral-950">
+        <div className={cn(wrap, "grid gap-14 py-24 md:py-32 lg:grid-cols-12 lg:gap-12")}>
+          <div className="lg:col-span-7">
+            <Rotulo>En qué creemos</Rotulo>
+            <Lineas className={cn(h2, "mt-6")} lineas={["Entrena con", <span key="c" className="text-orange-500">criterio.</span>]} />
+            <ul className="mt-12 divide-y divide-white/10 border-y border-white/10">
+              {creencias.map((c, i) => (
+                <li
+                  key={c.si}
+                  data-reveal="up"
+                  style={retardo(i * 90)}
+                  className="grid gap-1 py-6 sm:grid-cols-[minmax(0,13rem)_1fr] sm:items-baseline sm:gap-8"
+                >
+                  <span className="font-display text-lg font-bold uppercase tracking-wide text-white/55 line-through decoration-orange-500 decoration-2">
+                    <span className="sr-only">En lugar de </span>
+                    {c.no}
+                  </span>
+                  <span className="font-display text-3xl font-black uppercase leading-none md:text-4xl">{c.si}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="lg:col-span-5">
+            <div data-reveal="image" style={retardo(150)}>
+              <MediaSlot
+                slot={media.manifiesto}
+                sizes="(min-width: 1024px) 40vw, 100vw"
+                parallax
+                className="aspect-[3/4] w-full rounded-2xl"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
 
-        {/* Los 5 Sistemas — CTA secundario */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {sistemas.map((s, i) => (
-            <ScrollReveal key={s.slug} delay={i * 80}>
-              <Link
-                href={`/sistemas/${s.slug}`}
-                className={`${cardStyles.base} ${cardStyles.interactive} group flex flex-col overflow-hidden h-full`}
-              >
-                <div className={`h-24 bg-gradient-to-br ${s.color.gradient} flex items-start justify-between p-5`}>
-                  <div className={`w-10 h-10 rounded-xl border flex items-center justify-center flex-shrink-0 ${s.color.badge}`}>
-                    <s.icon className="w-5 h-5" strokeWidth={1.75} />
-                  </div>
-                  {s.disponible ? (
-                    <Badge variant="success" className="text-[10px] tracking-[0.12em] px-2.5 py-1">
-                      Disponible
-                    </Badge>
-                  ) : (
-                    <Badge variant="neutral" className="text-[10px] tracking-[0.12em] px-2.5 py-1 bg-white/[0.05]">
-                      Próximamente
-                    </Badge>
-                  )}
+      {/* ── El método ────────────────────────────────────────────────────── */}
+      <section className="bg-neutral-900">
+        <div className={cn(wrap, "py-24 md:py-32")}>
+          <div className="flex flex-wrap items-end justify-between gap-8">
+            <div>
+              <Rotulo>El método</Rotulo>
+              <Lineas
+                className={cn(h2, "mt-6")}
+                lineas={["Cinco principios.", <span key="o" className="text-orange-500">Ninguno es opcional.</span>]}
+              />
+            </div>
+            <div data-reveal="up" style={retardo(200)}>
+              <Button href="/bps" variant="outline">
+                Conocer el método completo
+                <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
+              </Button>
+            </div>
+          </div>
+          <ol className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            {principios.map((p, i) => (
+              <li key={p.titulo} data-reveal="up" style={retardo(i * 80)}>
+                <div className="group relative h-full overflow-clip rounded-2xl border border-white/10 bg-neutral-950 p-6 transition-colors duration-300 hover:border-orange-500/50">
+                  <span
+                    aria-hidden
+                    data-reveal="draw"
+                    style={retardo(350 + i * 80)}
+                    className="absolute inset-x-0 top-0 h-1 bg-orange-500"
+                  />
+                  <span className="block font-display text-4xl font-black leading-none text-orange-500 motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:-translate-y-1 lg:text-5xl">
+                    0{i + 1}
+                  </span>
+                  <p className="mt-6 font-display text-2xl font-extrabold uppercase leading-[0.95]">{p.titulo}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-white/65">{p.frase}</p>
                 </div>
-                <div className="flex-1 p-5">
-                  <h3 className="font-black text-base text-white group-hover:text-orange-400 transition-colors duration-300 mb-1">
-                    {s.nombre}
-                  </h3>
-                  <div className="flex items-center gap-2 mb-2 flex-wrap">
-                    <p className={`text-[11px] font-semibold ${s.color.accent}`}>{s.objetivo}</p>
-                    {s.niveles.length > 0 && (
-                      <>
-                        <span aria-hidden className="text-white/25">·</span>
-                        <p className="text-[11px] text-white/50">{s.niveles.length} niveles</p>
-                      </>
-                    )}
-                    {s.duracion && (
-                      <>
-                        <span aria-hidden className="text-white/25">·</span>
-                        <p className="text-[11px] text-white/50">{s.duracion}</p>
-                      </>
-                    )}
-                  </div>
-                  <p className="text-white/55 text-xs leading-relaxed line-clamp-2 mb-4">{s.tagline}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
 
-                  {s.incluye.length > 0 && (
-                    <ul className="flex flex-col gap-1.5 mb-4">
+      {/* ── Sistemas ─────────────────────────────────────────────────────── */}
+      <section id="sistemas" className="scroll-mt-20 bg-neutral-950">
+        <div className={cn(wrap, "py-24 md:py-32")}>
+          <div className="grid gap-8 lg:grid-cols-12 lg:items-end">
+            <div className="lg:col-span-7">
+              <Rotulo>Sistemas</Rotulo>
+              <Lineas className={cn(h2, "mt-6")} lineas={["Elige tu", <span key="s" className="text-orange-500">sistema.</span>]} />
+            </div>
+            <div data-reveal="up" style={retardo(150)} className="lg:col-span-5">
+              <p className="text-lg leading-relaxed text-white/70">
+                No necesitas adivinar qué Sistema elegir. El Diagnóstico BPS analiza tus objetivos, experiencia y
+                disponibilidad para recomendarte el Sistema — y el nivel — más adecuado para ti.
+              </p>
+              <Link
+                href="/diagnostico"
+                className="group mt-4 inline-flex min-h-11 items-center gap-2 font-display text-base font-bold uppercase tracking-[0.08em] text-orange-400 transition-colors hover:text-orange-300"
+              >
+                Hacer el diagnóstico gratis
+                <ArrowRight className={flecha} strokeWidth={2.5} />
+              </Link>
+            </div>
+          </div>
+
+          <div className="mt-14 grid gap-6 md:grid-cols-3">
+            {destacados.map(({ s, foto }, i) => (
+              <div key={s.slug} data-reveal="up" style={retardo(i * 120)} className="flex">
+                <Link
+                  href={`/sistemas/${s.slug}`}
+                  className="group flex w-full flex-col overflow-clip rounded-2xl border border-white/10 bg-neutral-900 transition-[border-color,translate] duration-300 hover:-translate-y-0.5 hover:border-orange-500/60 motion-reduce:hover:translate-y-0"
+                >
+                  <div className="relative">
+                    <div data-reveal="image" style={retardo(i * 120 + 100)}>
+                      <MediaSlot
+                        slot={foto}
+                        sizes="(min-width: 768px) 33vw, 100vw"
+                        className="aspect-[4/5] w-full"
+                        zoom
+                        velo="bg-[linear-gradient(to_top,rgba(23,23,23,1)_0%,rgba(23,23,23,0.25)_45%,transparent_70%)]"
+                      />
+                    </div>
+                    <div className="absolute inset-x-0 bottom-0 p-6">
+                      <div className="flex flex-wrap gap-2">
+                        <span className="rounded-full bg-orange-500 px-3 py-1 font-display text-xs font-bold uppercase tracking-[0.12em] text-neutral-950">
+                          {s.duracion}
+                        </span>
+                        <span className="rounded-full border border-white/25 bg-black/40 px-3 py-1 font-display text-xs font-bold uppercase tracking-[0.12em] text-white backdrop-blur-sm">
+                          {s.niveles.length} niveles
+                        </span>
+                      </div>
+                      <h3 className="mt-4 font-display text-3xl font-black uppercase leading-[0.9] lg:text-4xl">{s.nombre}</h3>
+                    </div>
+                  </div>
+                  <div className="flex flex-1 flex-col p-6 pt-3">
+                    <p className="text-white/70">{s.tagline}</p>
+                    <ul className="mb-6 mt-5 space-y-2">
                       {s.incluye.slice(0, 3).map((item) => (
-                        <li key={item} className="flex items-start gap-1.5 text-[11px] text-white/55">
-                          <Check className={`w-3 h-3 flex-shrink-0 mt-0.5 ${s.color.accent}`} strokeWidth={3} />
-                          <span className="line-clamp-1">{item}</span>
+                        <li key={item} className="flex items-start gap-2 text-sm leading-snug text-white/70">
+                          <Check className="mt-0.5 h-4 w-4 shrink-0 text-orange-400" strokeWidth={3} />
+                          {item}
                         </li>
                       ))}
                     </ul>
-                  )}
-
-                  <div className="flex items-center justify-between mt-auto pt-4 border-t border-white/[0.06]">
-                    {s.disponible && s.precioFormato ? (
-                      <span className="font-black text-base text-white">{s.precioFormato}</span>
-                    ) : (
-                      <span className="text-xs text-white/50">Lista de espera</span>
-                    )}
-                    <span className="text-xs font-bold text-white/55 group-hover:text-orange-400 transition-colors flex items-center gap-1">
-                      Explorar
-                      <ArrowRight className="w-3.5 h-3.5" strokeWidth={2.5} />
-                    </span>
+                    <div className="mt-auto flex items-center justify-between border-t border-white/10 pt-5">
+                      <span className="font-display text-3xl font-black">{s.precioFormato}</span>
+                      <span className="inline-flex items-center gap-2 font-display text-sm font-bold uppercase tracking-[0.1em] text-orange-400">
+                        Ver sistema
+                        <ArrowRight className={flecha} strokeWidth={2.5} />
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            </ScrollReveal>
-          ))}
+                </Link>
+              </div>
+            ))}
+          </div>
 
-          {/* Sexta casilla: el catálogo completo */}
-          <ScrollReveal delay={5 * 80}>
-            <Link
-              href="/sistemas"
-              className={`${cardStyles.base} ${cardStyles.interactive} group h-full flex flex-col items-center justify-center gap-3 p-6 text-center`}
-            >
-              <p className="font-black text-base text-white group-hover:text-orange-400 transition-colors">
-                Ver los Sistemas en detalle
-              </p>
-              <p className="text-white/50 text-xs leading-relaxed max-w-[220px]">
-                Niveles internos, fases y todo lo que incluye cada ecosistema.
-              </p>
-              <ArrowRight className="w-4 h-4 text-white/55 group-hover:text-orange-400 transition-colors" strokeWidth={2.5} />
-            </Link>
-          </ScrollReveal>
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            {proximamente.map((s, i) => (
+              <div key={s.slug} data-reveal="up" style={retardo(i * 100)} className="flex">
+                <Link
+                  href={`/sistemas/${s.slug}`}
+                  className="group flex w-full items-center justify-between gap-6 rounded-2xl border border-dashed border-white/15 px-6 py-5 transition-colors hover:border-orange-500/50"
+                >
+                  <div>
+                    <p className="font-display text-xs font-bold uppercase tracking-[0.18em] text-white/60">Próximamente</p>
+                    <p className="mt-1 font-display text-2xl font-black uppercase leading-none">{s.nombre}</p>
+                    <p className="mt-2 text-sm text-white/60">{s.objetivo}</p>
+                  </div>
+                  <span className="inline-flex shrink-0 items-center gap-2 font-display text-sm font-bold uppercase tracking-[0.1em] text-orange-400">
+                    Lista de espera
+                    <ArrowRight className={flecha} strokeWidth={2.5} />
+                  </span>
+                </Link>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* ════════════════════════════════════════
-          ACTO 5 · RETENCIÓN — Así se ve tu progreso
-          Responde: ¿por qué voy a volver mañana?
-      ════════════════════════════════════════ */}
-      <section className="border-t border-white/[0.05]">
-        <div className="max-w-4xl mx-auto px-4 md:px-6 py-20 md:py-28">
-          <ScrollReveal>
-            <SectionLabel>Retención, no rutina</SectionLabel>
-            <h2 className="font-black text-3xl sm:text-4xl md:text-5xl text-white mb-4">
-              Así se ve tu progreso.
-            </h2>
-            <p className="text-white/60 leading-relaxed max-w-xl mb-14">
-              No es una rutina que terminas. Es un ciclo que se repite cada semana —
-              y que mejora cada vez que se repite.
+      {/* ── Pausa cinematográfica: la planche a todo lo ancho ────────────── */}
+      {/* El texto sube solo hasta la franja de pasto (el 20 % inferior de la
+          foto, ya fundido a negro): más arriba taparía cara, manos y barras. */}
+      <section className="relative bg-neutral-950">
+        <div data-reveal="image">
+          <MediaSlot
+            slot={media.planche}
+            sizes="100vw"
+            parallax
+            className="aspect-[4/5] w-full sm:aspect-[3/2] lg:max-h-[100svh]"
+            velo="bg-[linear-gradient(to_top,#0a0a0a_0%,rgba(10,10,10,0.55)_18%,transparent_42%)]"
+          />
+        </div>
+        <div className="relative z-10 -mt-16 sm:-mt-[9vw]">
+          <div className={cn(wrap, "pb-24 md:pb-32")}>
+            <div className="max-w-4xl">
+              <Rotulo>{founder.stats[0].value} años en las barras</Rotulo>
+              <Lineas
+                className={cn(h2, "mt-6")}
+                lineas={["El progreso real", <span key="n" className="text-orange-500">no se improvisa.</span>]}
+              />
+              <p data-reveal="up" style={retardo(250)} className="mt-6 max-w-xl text-lg leading-relaxed text-white/75">
+                Cada habilidad que hoy parece imposible se construye con paciencia, método y miles de repeticiones bien
+                pensadas.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Progreso ─────────────────────────────────────────────────────── */}
+      <section className="bg-neutral-900">
+        <div className={cn(wrap, "grid items-center gap-14 py-24 md:py-32 lg:grid-cols-2 lg:gap-16")}>
+          <div>
+            <Rotulo>Retención, no rutina</Rotulo>
+            <Lineas className={cn(h2, "mt-6")} lineas={["Así se ve", <span key="p" className="text-orange-500">tu progreso.</span>]} />
+            <p data-reveal="up" style={retardo(150)} className="mt-6 max-w-md text-lg leading-relaxed text-white/70">
+              No es una rutina que terminas. Es un ciclo que se repite cada semana — y que mejora cada vez que se
+              repite.
             </p>
-          </ScrollReveal>
-          <RetencionFlow />
+            <ol className="mt-10 space-y-3">
+              {ciclo.map((paso, i) => (
+                <li key={paso} data-reveal="up" style={retardo(200 + i * 80)} className="flex items-center gap-4">
+                  <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-orange-500/10 font-display text-lg font-black text-orange-400">
+                    {i + 1}
+                  </span>
+                  <span className={cn("font-display text-2xl font-extrabold uppercase", i === ciclo.length - 1 && "text-orange-400")}>
+                    {paso}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </div>
+          <div data-reveal="up" style={retardo(200)}>
+            <DashboardPreview />
+          </div>
         </div>
       </section>
 
-      {/* ════════════════════════════════════════
-          ACTO 6 · FUNDADOR
-          Responde: ¿por qué confiar en BREY?
-      ════════════════════════════════════════ */}
-      <FounderSection />
-
-      {/* ════════════════════════════════════════
-          ACTO 7 · EL ECOSISTEMA — BREY evoluciona
-          Responde: ¿esto crece o ya terminó?
-      ════════════════════════════════════════ */}
-      <EvolucionSection />
-
-      {/* ════════════════════════════════════════
-          TESTIMONIOS — se oculta hasta tener reales
-      ════════════════════════════════════════ */}
-      <TestimonialsSlider />
-
-      {/* ════════════════════════════════════════
-          ACTO 8 · CTA FINAL — Diagnóstico
-          Responde: ¿qué hago ahora?
-      ════════════════════════════════════════ */}
-      <section className="relative overflow-hidden border-t border-white/[0.05]">
-        <div aria-hidden className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-orange-600/6 blur-[120px] rounded-full" />
+      {/* ── Tu entrenador ────────────────────────────────────────────────── */}
+      <section className="bg-neutral-950">
+        <div className={cn(wrap, "grid gap-12 py-24 md:py-32 lg:grid-cols-12 lg:gap-12")}>
+          <div className="lg:col-span-5">
+            <div className="relative">
+              <div data-reveal="image">
+                <MediaSlot
+                  slot={media.fundadorRetrato}
+                  sizes="(min-width: 1024px) 40vw, 100vw"
+                  parallax
+                  encuadre="object-[50%_30%]"
+                  className="aspect-[4/5] w-full rounded-2xl"
+                  velo="bg-[linear-gradient(to_top,rgba(10,10,10,0.8)_0%,transparent_38%)]"
+                />
+              </div>
+              <div data-reveal="up" style={retardo(600)} className="absolute inset-x-5 bottom-5 flex flex-wrap gap-2">
+                <span className="rounded-full bg-orange-500 px-3 py-1.5 font-display text-xs font-bold uppercase tracking-[0.12em] text-neutral-950">
+                  {founder.stats[0].value} {founder.stats[0].label.toLowerCase()}
+                </span>
+                {experiencia[1] && (
+                  <span className="rounded-full border border-white/25 bg-black/45 px-3 py-1.5 font-display text-xs font-bold uppercase tracking-[0.12em] text-white backdrop-blur-sm">
+                    {experiencia[1]}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="lg:col-span-7 lg:pt-4">
+            <Rotulo>Tu entrenador</Rotulo>
+            <Lineas
+              className={cn(h2, "mt-6")}
+              lineas={[nombre, <span key="a" className="text-orange-500">{apellidos.join(" ")}</span>]}
+            />
+            <p data-reveal="up" style={retardo(150)} className="mt-4 font-display text-lg font-bold uppercase tracking-[0.12em] text-white/65">
+              {founder.titulo}
+            </p>
+            <blockquote
+              data-reveal="up"
+              style={retardo(250)}
+              className="mt-8 border-l-4 border-orange-500 pl-6 text-xl leading-relaxed text-white/85 md:text-2xl"
+            >
+              “{founder.cierre}”
+            </blockquote>
+            <dl className="mt-10 grid gap-x-8 gap-y-6 sm:grid-cols-2">
+              {founder.credenciales.map((c, i) => (
+                <div key={c.titulo} data-reveal="up" style={retardo(300 + i * 80)}>
+                  <dt className="font-display text-sm font-bold uppercase tracking-[0.18em] text-orange-400">{c.titulo}</dt>
+                  <dd className="mt-1.5 text-[15px] leading-relaxed text-white/70">{c.items.join(" · ")}</dd>
+                </div>
+              ))}
+            </dl>
+            <div data-reveal="up" style={retardo(400)}>
+              <Button href="/historia" variant="outline" className="mt-10">
+                Conoce mi historia
+                <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
+              </Button>
+            </div>
+          </div>
         </div>
+      </section>
 
-        <ScrollReveal>
-          <div className="relative max-w-2xl mx-auto px-4 md:px-6 py-20 md:py-40 text-center">
-            <p className="text-xs font-semibold tracking-[0.25em] uppercase text-white/50 mb-8">
+      {/* ── Resultados: solo con testimonios reales en data/testimonials.ts ── */}
+      {testimonios.length > 0 && (
+        <section className="bg-neutral-900">
+          <div className={cn(wrap, "py-24 md:py-32")}>
+            <Rotulo>Resultados</Rotulo>
+            <Lineas className={cn(h2, "mt-6")} lineas={["En sus", <span key="p" className="text-orange-500">palabras.</span>]} />
+            <ul className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {testimonios.map((t, i) => (
+                <li
+                  key={t.nombre}
+                  data-reveal="up"
+                  style={retardo(i * 100)}
+                  className="rounded-2xl border border-white/10 bg-neutral-950 p-7"
+                >
+                  <p className="font-display text-sm font-bold uppercase tracking-[0.14em] text-orange-400">{t.objetivo}</p>
+                  <blockquote className="mt-4 text-lg leading-relaxed text-white/85">“{t.comentario}”</blockquote>
+                  <p className="mt-6 font-display text-lg font-extrabold uppercase">{t.nombre}</p>
+                  <p className="text-sm text-white/60">
+                    {t.sistema} · {t.tiempo}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+
+      {/* ── Recursos gratuitos ───────────────────────────────────────────── */}
+      <section className="border-t border-white/5 bg-neutral-900">
+        <div className={cn(wrap, "py-24 md:py-28")}>
+          <div className="flex flex-wrap items-end justify-between gap-6">
+            <div>
+              <Rotulo>Gratis</Rotulo>
+              <Lineas className={cn(h2, "mt-6")} lineas={[<>Empieza <span className="text-orange-500">hoy.</span></>]} />
+            </div>
+            <p data-reveal="up" style={retardo(150)} className="max-w-sm text-lg leading-relaxed text-white/70">
+              Herramientas abiertas para entrenar con criterio desde hoy, sin pagar nada.
+            </p>
+          </div>
+          <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {recursos.map((r, i) => (
+              <li key={r.href} data-reveal="up" style={retardo(i * 80)}>
+                <Link
+                  href={r.href}
+                  className="group flex h-full flex-col rounded-2xl border border-white/10 bg-neutral-950 p-6 transition-[border-color,translate] duration-300 hover:-translate-y-0.5 hover:border-orange-500/60 motion-reduce:hover:translate-y-0"
+                >
+                  <r.icon className="h-7 w-7 text-orange-400" strokeWidth={1.75} />
+                  <span className="mt-8 font-display text-2xl font-black uppercase leading-none">{r.nombre}</span>
+                  <span className="mt-3 text-sm leading-relaxed text-white/65">{r.detalle}</span>
+                  <span className="mt-auto inline-flex items-center gap-2 pt-6 font-display text-sm font-bold uppercase tracking-[0.1em] text-orange-400">
+                    Abrir
+                    <ArrowRight className={flecha} strokeWidth={2.5} />
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* ── Cierre ───────────────────────────────────────────────────────── */}
+      <section className="bg-orange-500 text-neutral-950">
+        <div className={cn(wrap, "flex flex-col items-start gap-10 py-20 md:py-28 lg:flex-row lg:items-end lg:justify-between")}>
+          <div className="max-w-3xl">
+            <p data-reveal="up" className="font-display text-sm font-bold uppercase tracking-[0.22em]">
               2 minutos · Sin registro · Gratis
             </p>
-            <h2 className="font-black text-4xl sm:text-5xl md:text-6xl text-white leading-snug tracking-tight mb-6">
-              ¿No sabes por<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-500">
-                dónde empezar?
-              </span>
-            </h2>
-            <p className="text-white/55 text-lg mb-12 max-w-md mx-auto leading-relaxed">
-              El diagnóstico analiza tu objetivo, nivel, equipo y situación actual para recomendarte el ecosistema exacto — y explicarte por qué.
+            <Lineas className={cn(h2, "mt-5")} lineas={["¿No sabes por", "dónde empezar?"]} />
+            <p data-reveal="up" style={retardo(200)} className="mt-6 max-w-xl text-lg font-medium leading-relaxed text-neutral-950/90">
+              El diagnóstico analiza tu objetivo, nivel, equipo y situación actual para recomendarte el ecosistema
+              exacto — y explicarte por qué.
             </p>
-            <Button href="/diagnostico" size="xl">
+          </div>
+          <div data-reveal="up" style={retardo(300)} className="shrink-0">
+            <Button
+              href="/diagnostico"
+              size="xl"
+              className="bg-neutral-950 text-white hover:bg-neutral-800 active:bg-neutral-900 focus-visible:border-neutral-950 focus-visible:ring-neutral-950 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-500"
+            >
               Empezar mi diagnóstico
-              <ArrowRight className="w-5 h-5" strokeWidth={2.5} />
+              <ArrowRight className="h-5 w-5" strokeWidth={2.5} />
             </Button>
           </div>
-        </ScrollReveal>
+        </div>
       </section>
-
     </div>
   );
 }

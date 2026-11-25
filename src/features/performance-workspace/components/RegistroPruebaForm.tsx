@@ -190,10 +190,10 @@ export default function RegistroPruebaForm({ evaluacionId, fechaEvaluacion }: Pr
             name="pruebaId"
             value={pruebaId}
             onChange={(e) => setPruebaId(e.target.value)}
-            className="h-10 w-full rounded-lg border border-white/15 bg-slate-900 px-3 text-sm text-white outline-none focus:border-orange-500/40 [color-scheme:dark]"
+            className="h-10 w-full rounded-lg border border-white/15 bg-neutral-900 px-3 text-sm text-white outline-none focus:border-orange-500/40 [color-scheme:dark]"
           >
             {PRUEBAS.map((p) => (
-              <option key={p.id} value={p.id} className="bg-slate-900 text-white">
+              <option key={p.id} value={p.id} className="bg-neutral-900 text-white">
                 {p.id} · {p.nombre}
               </option>
             ))}
@@ -304,13 +304,13 @@ export default function RegistroPruebaForm({ evaluacionId, fechaEvaluacion }: Pr
                   <select
                     name={clave}
                     defaultValue=""
-                    className="h-10 w-full rounded-lg border border-white/15 bg-slate-900 px-3 text-sm text-white outline-none focus:border-orange-500/40 [color-scheme:dark]"
+                    className="h-10 w-full rounded-lg border border-white/15 bg-neutral-900 px-3 text-sm text-white outline-none focus:border-orange-500/40 [color-scheme:dark]"
                   >
-                    <option value="" className="bg-slate-900 text-white">
+                    <option value="" className="bg-neutral-900 text-white">
                       Sin declarar
                     </option>
                     {opciones.map((o) => (
-                      <option key={o} value={o} className="bg-slate-900 text-white">
+                      <option key={o} value={o} className="bg-neutral-900 text-white">
                         {ETIQUETA_OPCION[o] ?? o}
                       </option>
                     ))}
@@ -353,13 +353,13 @@ export default function RegistroPruebaForm({ evaluacionId, fechaEvaluacion }: Pr
                 <select
                   name={campo.clave}
                   defaultValue=""
-                  className="h-10 w-full rounded-lg border border-white/15 bg-slate-900 px-3 text-sm text-white outline-none focus:border-orange-500/40 [color-scheme:dark]"
+                  className="h-10 w-full rounded-lg border border-white/15 bg-neutral-900 px-3 text-sm text-white outline-none focus:border-orange-500/40 [color-scheme:dark]"
                 >
-                  <option value="" className="bg-slate-900 text-white">
+                  <option value="" className="bg-neutral-900 text-white">
                     Sin declarar
                   </option>
                   {campo.vocabulario.map((v) => (
-                    <option key={v} value={v} className="bg-slate-900 text-white">
+                    <option key={v} value={v} className="bg-neutral-900 text-white">
                       {campo.etiquetas[v] ?? v}
                     </option>
                   ))}

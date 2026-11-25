@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Barlow_Condensed } from "next/font/google";
 import { MotionConfig } from "motion/react";
 import "./globals.css";
 import SiteChrome from "@/components/layout/SiteChrome";
@@ -8,6 +8,12 @@ import { Toaster } from "@/components/brand/Toast";
 import { SITE_URL } from "@/lib/site";
 
 const inter = Inter({ subsets: ["latin"] });
+const barlowCondensed = Barlow_Condensed({
+  subsets: ["latin"],
+  weight: ["600", "700", "800", "900"],
+  style: ["normal", "italic"],
+  variable: "--font-barlow-condensed",
+});
 
 const plausibleDomain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN;
 
@@ -33,9 +39,9 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="es" className="h-full">
+    <html lang="es" className={`h-full ${barlowCondensed.variable}`}>
       <body
-        className={`${inter.className} min-h-full flex flex-col bg-slate-950 text-white antialiased`}
+        className={`${inter.className} min-h-full flex flex-col bg-neutral-950 text-white antialiased`}
       >
         {/* reducedMotion="user": todo motion.* de la app respeta
             prefers-reduced-motion desde este único punto — ningún

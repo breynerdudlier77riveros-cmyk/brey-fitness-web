@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import Revelado from "@/components/motion/Revelado";
 import { APP_PREFIX, AUTH_ROUTES, REPORT_PREFIX } from "@/lib/site";
 
 // ── Chrome condicional: Navbar/Footer de marketing vs. Dashboard/Auth ──────
@@ -41,8 +42,9 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
 
   return (
     <>
+      <Revelado />
       <Navbar />
-      <div className="flex-1">{children}</div>
+      <div id="contenido" className="flex-1">{children}</div>
       <Footer />
     </>
   );

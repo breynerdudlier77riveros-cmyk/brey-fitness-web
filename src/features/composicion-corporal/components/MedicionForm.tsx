@@ -214,7 +214,7 @@ export default function MedicionForm({ clienteId, medicionOriginal, onCancel, on
 
       {error && <p className="text-red-400 text-xs">{error}</p>}
 
-      <div className="flex items-center gap-3 sticky bottom-0 bg-slate-950/90 backdrop-blur-sm py-3 -mx-1 px-1">
+      <div className="flex items-center gap-3 sticky bottom-0 bg-neutral-950/90 backdrop-blur-sm py-3 -mx-1 px-1">
         <Button type="submit" size="md" disabled={guardando}>
           {guardando ? (
             <>

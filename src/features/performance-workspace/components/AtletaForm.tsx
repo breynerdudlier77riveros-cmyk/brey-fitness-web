@@ -114,11 +114,11 @@ export default function AtletaForm({ atleta }: Props) {
             <select
               name="sexo"
               defaultValue={atleta?.sexo ?? ""}
-              className="h-10 w-full rounded-lg border border-white/15 bg-slate-900 px-3 text-sm text-white outline-none focus:border-orange-500/40 [color-scheme:dark]"
+              className="h-10 w-full rounded-lg border border-white/15 bg-neutral-900 px-3 text-sm text-white outline-none focus:border-orange-500/40 [color-scheme:dark]"
             >
-              <option value="" className="bg-slate-900 text-white">Sin declarar</option>
-              <option value="M" className="bg-slate-900 text-white">Masculino</option>
-              <option value="F" className="bg-slate-900 text-white">Femenino</option>
+              <option value="" className="bg-neutral-900 text-white">Sin declarar</option>
+              <option value="M" className="bg-neutral-900 text-white">Masculino</option>
+              <option value="F" className="bg-neutral-900 text-white">Femenino</option>
             </select>
           </label>
 
@@ -130,13 +130,13 @@ export default function AtletaForm({ atleta }: Props) {
             <select
               name="pais"
               defaultValue={atleta?.pais ?? ""}
-              className="h-10 w-full rounded-lg border border-white/15 bg-slate-900 px-3 text-sm text-white outline-none focus:border-orange-500/40 [color-scheme:dark]"
+              className="h-10 w-full rounded-lg border border-white/15 bg-neutral-900 px-3 text-sm text-white outline-none focus:border-orange-500/40 [color-scheme:dark]"
             >
-              <option value="" className="bg-slate-900 text-white">Sin declarar</option>
-              <option value="CO" className="bg-slate-900 text-white">Colombia</option>
-              <option value="CL" className="bg-slate-900 text-white">Chile</option>
-              <option value="BR" className="bg-slate-900 text-white">Brasil</option>
-              <option value="DE" className="bg-slate-900 text-white">Alemania</option>
+              <option value="" className="bg-neutral-900 text-white">Sin declarar</option>
+              <option value="CO" className="bg-neutral-900 text-white">Colombia</option>
+              <option value="CL" className="bg-neutral-900 text-white">Chile</option>
+              <option value="BR" className="bg-neutral-900 text-white">Brasil</option>
+              <option value="DE" className="bg-neutral-900 text-white">Alemania</option>
             </select>
           </label>
 

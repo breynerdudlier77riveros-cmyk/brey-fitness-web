@@ -25,6 +25,7 @@ import { signOut } from "@/lib/supabase/actions";
 import { iniciales } from "@/lib/utils";
 import { useSidebarCollapse } from "@/components/app/AppShell";
 import SidebarItem from "@/components/app/SidebarItem";
+import Wordmark from "@/components/brand/Wordmark";
 
 // ── Navegación principal de /app — reemplaza el AppSidebar.tsx de la v1.1
 // del Dashboard mock ────────────────────────────────────────────────────────
@@ -91,14 +92,11 @@ export function isActive(pathname: string, href: string) {
   );
 }
 
-function BrandMark() {
+function Avatar({ nombre }: { nombre: string }) {
   return (
-    <span className="flex items-center gap-2">
-      <span className="w-2 h-2 rounded-full bg-orange-400 flex-shrink-0" />
-      <span className="text-sm font-black tracking-[0.10em] uppercase">
-        <span className="text-orange-400">Brey</span> <span className="text-white">App</span>
-      </span>
-    </span>
+    <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0">
+      <span className="font-display text-sm font-black text-neutral-950">{iniciales(nombre)}</span>
+    </div>
   );
 }
 
@@ -106,9 +104,7 @@ function UserBlock({ nombre, email, sistemaActual }: Omit<Props, "esAdmin">) {
   return (
     <div>
       <div className="flex items-center gap-3 px-2 mb-3">
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-600 to-amber-700 flex items-center justify-center flex-shrink-0">
-          <span className="text-white font-black text-[10px]">{iniciales(nombre)}</span>
-        </div>
+        <Avatar nombre={nombre} />
         <div className="min-w-0">
           <p className="text-xs font-bold text-white truncate">{nombre}</p>
           <p className="text-[10px] text-white/50 truncate">{sistemaActual ?? email}</p>
@@ -136,14 +132,14 @@ export default function Sidebar({ nombre, email, sistemaActual, esAdmin }: Props
     <>
       {/* Desktop */}
       <aside
-        className={`print:hidden hidden md:flex md:flex-shrink-0 md:flex-col md:sticky md:top-0 md:h-screen border-r border-white/[0.06] bg-slate-950/60 px-3 py-6 transition-[width] duration-200 ${
+        className={`print:hidden hidden md:flex md:flex-shrink-0 md:flex-col md:sticky md:top-0 md:h-screen border-r border-white/[0.06] bg-neutral-950/60 px-3 py-6 transition-[width] duration-200 ${
           collapsed ? "md:w-[4.5rem]" : "md:w-60"
         }`}
       >
         <div className={`flex items-center mb-8 px-1 ${collapsed ? "justify-center" : "justify-between"}`}>
           {!collapsed && (
             <Link href="/" className="px-1">
-              <BrandMark />
+              <Wordmark className="text-xl" />
             </Link>
           )}
           <button
@@ -168,9 +164,7 @@ export default function Sidebar({ nombre, email, sistemaActual, esAdmin }: Props
         <div className="mt-auto pt-6 border-t border-white/[0.06]">
           {collapsed ? (
             <div className="flex justify-center">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-600 to-amber-700 flex items-center justify-center flex-shrink-0">
-                <span className="text-white font-black text-[10px]">{iniciales(nombre)}</span>
-              </div>
+              <Avatar nombre={nombre} />
             </div>
           ) : (
             <UserBlock nombre={nombre} email={email} sistemaActual={sistemaActual} />
@@ -179,9 +173,9 @@ export default function Sidebar({ nombre, email, sistemaActual, esAdmin }: Props
       </aside>
 
       {/* Mobile top bar */}
-      <header className="print:hidden md:hidden sticky top-0 z-40 flex items-center justify-between px-4 h-14 border-b border-white/[0.06] bg-slate-950/90 backdrop-blur-xl">
+      <header className="print:hidden md:hidden sticky top-0 z-40 flex items-center justify-between px-4 h-14 border-b border-white/[0.06] bg-neutral-950/90 backdrop-blur-xl">
         <Link href="/">
-          <BrandMark />
+          <Wordmark className="text-xl" />
         </Link>
         <button
           onClick={() => setOpen(true)}
@@ -193,7 +187,7 @@ export default function Sidebar({ nombre, email, sistemaActual, esAdmin }: Props
       </header>
 
       <Drawer direction="right" open={open} onOpenChange={setOpen}>
-        <DrawerContent className="bg-slate-950/95 backdrop-blur-2xl">
+        <DrawerContent className="bg-neutral-950/95 backdrop-blur-2xl">
           <DrawerTitle className="sr-only">Menú del Dashboard</DrawerTitle>
           <div className="px-4 py-6 flex flex-col gap-6">
             <nav className="flex flex-col gap-1">
@@ -205,10 +199,10 @@ export default function Sidebar({ nombre, email, sistemaActual, esAdmin }: Props
                     href={href}
                     onClick={() => setOpen(false)}
                     aria-current={active ? "page" : undefined}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 border ${
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl font-display text-lg font-bold uppercase tracking-[0.04em] transition-all duration-200 border ${
                       active
-                        ? "bg-orange-500/[0.08] text-orange-400 border-orange-500/20"
-                        : "text-white/55 border-transparent hover:text-white hover:bg-white/[0.04]"
+                        ? "bg-orange-500 text-neutral-950 border-orange-500"
+                        : "text-white/65 border-transparent hover:text-white hover:bg-white/[0.05]"
                     }`}
                   >
                     <Icon className="w-4 h-4 flex-shrink-0" strokeWidth={2} />

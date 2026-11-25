@@ -66,7 +66,7 @@ export default function WeekGrid({ ejercicio, semanas }: Props) {
           <tr>
             <th
               scope="col"
-              className="sticky left-0 z-10 bg-slate-950 pb-1.5 pr-3 text-[10px] font-bold uppercase tracking-[0.12em] text-white/30 print:bg-transparent"
+              className="sticky left-0 z-10 bg-neutral-950 pb-1.5 pr-3 text-[10px] font-bold uppercase tracking-[0.12em] text-white/30 print:bg-transparent"
             >
               <span className="sr-only">Número de </span>Serie
             </th>
@@ -87,7 +87,7 @@ export default function WeekGrid({ ejercicio, semanas }: Props) {
             ))}
           </tr>
           <tr>
-            <th className="sticky left-0 z-10 bg-slate-950 print:bg-transparent" />
+            <th className="sticky left-0 z-10 bg-neutral-950 print:bg-transparent" />
             {Array.from({ length: semanas }, (_, i) => (
               <SubCabecera key={i} banda={i % 2 === 1} />
             ))}
@@ -99,7 +99,7 @@ export default function WeekGrid({ ejercicio, semanas }: Props) {
             <tr key={iFila} className="align-top">
               <th
                 scope="row"
-                className="sticky left-0 z-10 bg-slate-950 py-1 pr-3 text-[11px] font-bold text-white/30 print:bg-transparent"
+                className="sticky left-0 z-10 bg-neutral-950 py-1 pr-3 text-[11px] font-bold text-white/30 print:bg-transparent"
               >
                 {iFila + 1}
               </th>

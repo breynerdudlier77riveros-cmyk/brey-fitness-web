@@ -89,7 +89,7 @@ const steps = [
 
 export default function BPSPage() {
   return (
-    <main className="bg-slate-950 text-white overflow-x-hidden">
+    <main className="bg-neutral-950 text-white overflow-x-hidden">
 
       {/* ── Hero ── */}
       <section className="relative border-b border-white/[0.05]">

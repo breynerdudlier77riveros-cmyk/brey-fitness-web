@@ -158,7 +158,7 @@ export default function PreguntarIA({ contexto }: Props) {
             hilo.length === 0 ? "¿Qué significa mi porcentaje de grasa?" : "Sigue preguntando…"
           }
           disabled={cargando}
-          className="h-10 flex-1 rounded-lg border border-white/15 bg-slate-900 px-3 text-sm text-white outline-none placeholder:text-white/25 focus:border-orange-500/40"
+          className="h-10 flex-1 rounded-lg border border-white/15 bg-neutral-900 px-3 text-sm text-white outline-none placeholder:text-white/25 focus:border-orange-500/40"
         />
         <Button type="submit" size="md" disabled={cargando || pregunta.trim() === ""}>
           {cargando ? (

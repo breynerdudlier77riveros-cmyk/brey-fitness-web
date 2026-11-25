@@ -37,7 +37,7 @@ const preguntasRapidas = [
 
 export default function ContactoPage() {
   return (
-    <main className="bg-slate-950 text-white overflow-x-hidden">
+    <main className="bg-neutral-950 text-white overflow-x-hidden">
       <section className="relative border-b border-white/[0.05]">
         <div aria-hidden className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute -top-32 left-1/3 w-[500px] h-[300px] bg-orange-600/6 blur-[120px] rounded-full" />

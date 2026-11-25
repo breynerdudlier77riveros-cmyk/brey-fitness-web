@@ -1,4 +1,4 @@
-import type { ComponenteEcosistema, Sistema } from '@/lib/types';
+import type { ComponenteEcosistema, Sistema, SistemaColor } from '@/lib/types';
 import { Bolt, TrendingUp, Cycle, Merge, Star } from '@/components/brand/icons';
 
 // ── Los 5 Sistemas del BPS (arquitectura BREY v2, decisión jul 2026) ────────
@@ -23,6 +23,18 @@ const ecosistemaBase: ComponenteEcosistema[] = [
   { etiqueta: 'Nutrición inteligente',        estado: 'en-camino' },
   { etiqueta: 'IA Coach',                     estado: 'en-camino' },
 ];
+
+// Un solo color de marca para todos los Sistemas: se distinguen por nombre y
+// foto, no por color. cta lleva texto oscuro encima (el blanco no contrasta).
+const colorMarca: SistemaColor = {
+  gradient: 'from-orange-950/50 via-neutral-900 to-neutral-950',
+  badge: 'text-orange-400 bg-orange-500/10 border-orange-500/25',
+  accent: 'text-orange-400',
+  glow: 'bg-orange-600/8',
+  dot: 'bg-orange-400',
+  border: 'border-orange-500/25',
+  cta: 'bg-orange-500 hover:bg-orange-400',
+};
 
 export const sistemas: Sistema[] = [
 
@@ -86,15 +98,7 @@ export const sistemas: Sistema[] = [
       'Estrategias de recuperación y manejo del sueño',
     ],
     ecosistema: ecosistemaBase,
-    color: {
-      gradient: 'from-orange-950/60 via-orange-900/20 to-slate-950',
-      badge: 'text-orange-400 bg-orange-500/10 border-orange-500/20',
-      accent: 'text-orange-400',
-      glow: 'bg-orange-600/8',
-      dot: 'bg-orange-400',
-      border: 'border-orange-500/20',
-      cta: 'bg-orange-500 hover:bg-orange-400',
-    },
+    color: colorMarca,
     seo: {
       title: 'Sistema de Hipertrofia — Masa Muscular con Método | BREY',
       description:
@@ -162,15 +166,7 @@ export const sistemas: Sistema[] = [
       'Tablas de progresión semanal por habilidad',
     ],
     ecosistema: ecosistemaBase,
-    color: {
-      gradient: 'from-sky-950/60 via-sky-900/20 to-slate-950',
-      badge: 'text-sky-400 bg-sky-500/10 border-sky-500/20',
-      accent: 'text-sky-400',
-      glow: 'bg-sky-600/8',
-      dot: 'bg-sky-400',
-      border: 'border-sky-500/20',
-      cta: 'bg-sky-500 hover:bg-sky-400',
-    },
+    color: colorMarca,
     seo: {
       title: 'Sistema de Calistenia — Domina tu Peso Corporal | BREY',
       description:
@@ -238,15 +234,7 @@ export const sistemas: Sistema[] = [
       'Acceso a ambas bibliotecas (cargas + calistenia)',
     ],
     ecosistema: ecosistemaBase,
-    color: {
-      gradient: 'from-violet-950/60 via-violet-900/20 to-slate-950',
-      badge: 'text-violet-400 bg-violet-500/10 border-violet-500/20',
-      accent: 'text-violet-400',
-      glow: 'bg-violet-600/8',
-      dot: 'bg-violet-400',
-      border: 'border-violet-500/20',
-      cta: 'bg-violet-500 hover:bg-violet-400',
-    },
+    color: colorMarca,
     seo: {
       title: 'Sistema Híbrido — Cargas + Calistenia | BREY',
       description:
@@ -278,15 +266,7 @@ export const sistemas: Sistema[] = [
     fases: [],
     incluye: [],
     ecosistema: ecosistemaBase,
-    color: {
-      gradient: 'from-rose-950/60 via-rose-900/20 to-slate-950',
-      badge: 'text-rose-400 bg-rose-500/10 border-rose-500/20',
-      accent: 'text-rose-400',
-      glow: 'bg-rose-600/8',
-      dot: 'bg-rose-400',
-      border: 'border-rose-500/20',
-      cta: 'bg-rose-500 hover:bg-rose-400',
-    },
+    color: colorMarca,
     seo: {
       title: 'Sistema de Fuerza — Próximamente | BREY',
       description:
@@ -314,15 +294,7 @@ export const sistemas: Sistema[] = [
     fases: [],
     incluye: [],
     ecosistema: ecosistemaBase,
-    color: {
-      gradient: 'from-yellow-950/60 via-yellow-900/20 to-slate-950',
-      badge: 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20',
-      accent: 'text-yellow-400',
-      glow: 'bg-yellow-600/8',
-      dot: 'bg-yellow-400',
-      border: 'border-yellow-500/20',
-      cta: 'bg-yellow-500 hover:bg-yellow-400',
-    },
+    color: colorMarca,
     seo: {
       title: 'Sistema Elite — Coaching y Acceso Total, Próximamente | BREY',
       description:

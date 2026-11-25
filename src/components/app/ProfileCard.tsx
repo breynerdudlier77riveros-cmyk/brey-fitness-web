@@ -43,8 +43,8 @@ export default function ProfileCard({ profile }: Props) {
   return (
     <DashboardCard>
       <div className="flex items-center gap-4 mb-5">
-        <div className="w-11 h-11 rounded-full bg-gradient-to-br from-orange-600 to-amber-700 flex items-center justify-center flex-shrink-0">
-          <span className="text-white font-black text-xs">{iniciales(nombre)}</span>
+        <div className="w-11 h-11 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0">
+          <span className="font-display text-neutral-950 font-black text-base">{iniciales(nombre)}</span>
         </div>
         <div className="min-w-0 flex-1">
           <p className="font-black text-white text-sm truncate">{nombre}</p>

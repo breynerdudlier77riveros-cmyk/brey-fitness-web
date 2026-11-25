@@ -95,7 +95,7 @@ describe('los desplegables nativos son legibles al abrirse', () => {
   it('el componente compartido declara el tratamiento', () => {
     const fuente = readFileSync(join(process.cwd(), FUENTE_COMPARTIDA), 'utf-8');
     expect(fuente).toContain('[color-scheme:dark]');
-    expect(fuente).toContain('bg-slate-900');
+    expect(fuente).toContain('bg-neutral-900');
   });
 
   it('TODOS llevan color-scheme dark, directo o heredado de las clases comunes', () => {

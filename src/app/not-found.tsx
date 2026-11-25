@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
   return (
-    <main className="bg-slate-950 text-white flex-1 flex items-center justify-center px-6 py-24">
+    <main className="bg-neutral-950 text-white flex-1 flex items-center justify-center px-6 py-24">
       <div className="relative max-w-xl text-center">
         <div aria-hidden className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-orange-600/6 blur-[100px] rounded-full" />

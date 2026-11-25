@@ -31,7 +31,7 @@ export function EstadoVacioMediciones({ onRegistrar }: { onRegistrar: () => void
 /** Sin permiso — token de EnlacePúblico inválido o revocado (pantalla dedicada, página completa). Mismo tratamiento para ambos casos, por seguridad (no revela cuál de los dos ocurrió). */
 export function EstadoSinPermiso() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center text-center px-6 bg-slate-950">
+    <div className="min-h-screen flex flex-col items-center justify-center text-center px-6 bg-neutral-950">
       <div className="w-12 h-12 rounded-2xl border border-white/[0.10] bg-white/[0.03] flex items-center justify-center mb-5">
         <AlertTriangle className="w-6 h-6 text-white/40" strokeWidth={1.75} />
       </div>
@@ -77,7 +77,7 @@ export function OfflineBanner() {
   if (!offline) return null;
 
   return (
-    <div className="sticky top-0 z-50 flex items-center justify-center gap-2 py-2 px-4 bg-yellow-500/90 text-slate-950 text-xs font-bold">
+    <div className="sticky top-0 z-50 flex items-center justify-center gap-2 py-2 px-4 bg-yellow-500/90 text-neutral-950 text-xs font-bold">
       <WifiOff className="w-3.5 h-3.5" strokeWidth={2.5} />
       Sin conexión — mostrando la última información disponible, posiblemente desactualizada.
     </div>

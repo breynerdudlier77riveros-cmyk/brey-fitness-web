@@ -42,7 +42,7 @@ export default async function ReportePublicoPage({ params }: Props) {
   if (!resultado.ok) {
     if (resultado.error === "SIN_MEDICIONES") {
       return (
-        <main className="min-h-screen flex flex-col items-center justify-center text-center px-6 bg-slate-950">
+        <main className="min-h-screen flex flex-col items-center justify-center text-center px-6 bg-neutral-950">
           <div className="w-12 h-12 rounded-2xl border border-white/[0.10] bg-white/[0.03] flex items-center justify-center mb-5">
             <Scale className="w-6 h-6 text-white/40" strokeWidth={1.75} />
           </div>
@@ -82,7 +82,7 @@ export default async function ReportePublicoPage({ params }: Props) {
   const generadoEl = hoy.toLocaleDateString("es", { day: "2-digit", month: "long", year: "numeric" });
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
+    <main className="min-h-screen bg-neutral-950 text-white">
       <div className="max-w-5xl mx-auto px-4 md:px-8 py-6 md:py-10">
         <div className="flex items-start justify-between gap-4 flex-wrap mb-8">
           <div>

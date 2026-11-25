@@ -41,7 +41,7 @@ export interface ComponenteEcosistema {
 }
 
 export interface SistemaColor {
-  gradient: string;       // e.g. "from-orange-950/60 via-orange-900/20 to-slate-950"
+  gradient: string;       // e.g. "from-orange-950/60 via-orange-900/20 to-neutral-950"
   badge: string;          // e.g. "text-orange-400 bg-orange-500/10 border-orange-500/20"
   accent: string;         // e.g. "text-orange-400"
   glow: string;           // e.g. "bg-orange-600/8"

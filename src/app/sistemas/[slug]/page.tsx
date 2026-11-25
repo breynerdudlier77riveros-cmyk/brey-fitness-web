@@ -51,7 +51,7 @@ export default async function SistemaPage({ params }: Props) {
     : null;
 
   return (
-    <main className="bg-slate-950 text-white overflow-x-hidden">
+    <main className="bg-neutral-950 text-white overflow-x-hidden">
       {jsonLd && (
         <script
           type="application/ld+json"
@@ -109,7 +109,7 @@ export default async function SistemaPage({ params }: Props) {
           <div className="flex flex-col sm:flex-row gap-4">
             <a
               href="#acceso"
-              className={`inline-flex items-center justify-center gap-2 px-7 py-4 rounded-full ${s.color.cta} text-white font-bold text-sm transition-all duration-200`}
+              className={`inline-flex items-center justify-center gap-2 px-7 py-4 rounded-full ${s.color.cta} text-neutral-950 font-display uppercase tracking-[0.06em] font-bold text-[15px] transition-all duration-200`}
             >
               {s.disponible ? `Entrar al ${s.nombre}` : "Unirme a la lista de espera"}
               <ArrowRight className="w-4 h-4" strokeWidth={2.5} />

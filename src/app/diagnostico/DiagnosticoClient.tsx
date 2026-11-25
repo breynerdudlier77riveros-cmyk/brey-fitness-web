@@ -116,7 +116,7 @@ export default function DiagnosticoClient() {
     <div className="flex-1 flex flex-col">
 
       {/* Progreso */}
-      <div className="sticky top-16 z-10 bg-slate-950/90 backdrop-blur-sm">
+      <div className="sticky top-16 z-10 bg-neutral-950/90 backdrop-blur-sm">
         <Progress value={progreso} />
         {!resultado && (
           <p className="max-w-xl mx-auto px-6 py-2 text-[10px] font-bold tracking-[0.18em] uppercase text-white/40 text-right">

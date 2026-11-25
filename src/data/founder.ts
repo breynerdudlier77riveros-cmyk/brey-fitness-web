@@ -4,8 +4,8 @@
 // ni cifras infladas. Los slots vacíos se ocultan solos en la interfaz.
 //
 // PENDIENTES DEL FUNDADOR:
-// 1. FOTO: añade una fotografía profesional en public/historia/ y apunta
-//    `fotoPerfil` a ella. Mientras sea null, se muestra el monograma BR.
+// 1. FOTO: hecha (nov 2026) — public/media/breyner-retrato.jpg. Ojo: las
+//    fotos de public/historia/ son de otra persona (web GRESH anterior).
 // 2. FORMACIÓN: está en su versión más conservadora ("estudiante de último
 //    año"). Si ya estás titulado, cámbiala a
 //    "Licenciado en Educación Física y Deportes".
@@ -33,8 +33,12 @@ export const founder = {
   titulo: 'Educador físico · Atleta de calistenia · Entrenador',
   ubicacion: 'Colombia',
 
-  // REVISAR: foto profesional pendiente — null muestra el monograma BR.
-  fotoPerfil: null as FounderPhoto | null,
+  // Retrato real del fundador (cuadrado 2293 px; las vistas lo recortan con object-cover).
+  fotoPerfil: {
+    src: '/media/breyner-retrato.jpg',
+    alt: 'Breyner Riveros en el parque, sin camiseta, mirando a cámara',
+    caption: 'Breyner Riveros',
+  } as FounderPhoto | null,
 
   // Manifiesto personal — palabras del fundador, verbatim.
   manifiesto:

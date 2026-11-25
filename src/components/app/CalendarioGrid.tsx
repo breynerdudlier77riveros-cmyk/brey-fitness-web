@@ -63,7 +63,7 @@ export default function CalendarioGrid({ semanas, hoyISO }: Props) {
                 >
                   <span
                     className={`w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full border ${diaEstilo[celda.estado]} ${
-                      esHoy ? "ring-2 ring-orange-400/60 ring-offset-2 ring-offset-slate-950" : ""
+                      esHoy ? "ring-2 ring-orange-400/60 ring-offset-2 ring-offset-neutral-950" : ""
                     }`}
                   />
                   <span className="text-[9px] text-white/40 tabular-nums hidden sm:block">
@@ -91,7 +91,7 @@ export default function CalendarioGrid({ semanas, hoyISO }: Props) {
             </div>
             <span
               className={`text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full border ${diaEstilo[seleccion.estado]} ${
-                seleccion.estado === "planificado" || seleccion.estado === "descanso" ? "text-white/60" : "text-slate-950"
+                seleccion.estado === "planificado" || seleccion.estado === "descanso" ? "text-white/60" : "text-neutral-950"
               }`}
             >
               {diaEtiqueta[seleccion.estado]}

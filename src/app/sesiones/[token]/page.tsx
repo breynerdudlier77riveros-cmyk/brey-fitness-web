@@ -35,7 +35,7 @@ export default async function SesionPublicaPage({ params }: Props) {
 
   if (!resultado.ok) {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center bg-slate-950 px-6 text-center">
+      <main className="flex min-h-screen flex-col items-center justify-center bg-neutral-950 px-6 text-center">
         <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/[0.10] bg-white/[0.03]">
           <Cycle className="h-6 w-6 text-white/40" strokeWidth={1.75} />
         </div>
@@ -50,7 +50,7 @@ export default async function SesionPublicaPage({ params }: Props) {
   const plantilla = resultado.data;
 
   return (
-    <main className="min-h-screen bg-slate-950 print:bg-white">
+    <main className="min-h-screen bg-neutral-950 print:bg-white">
       <div className="hoja-print mx-auto max-w-4xl px-5 py-10 sm:px-8 sm:py-14">
         <header className="mb-8">
           <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.14em] text-orange-400/70">

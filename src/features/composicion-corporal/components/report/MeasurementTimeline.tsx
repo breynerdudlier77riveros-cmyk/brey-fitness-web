@@ -64,7 +64,7 @@ export default function MeasurementTimeline({ historico, onCorregir }: Props) {
             <span
               aria-hidden="true"
               className={`absolute left-0 top-3 w-[15px] h-[15px] rounded-full border-2 ${
-                indice === 0 ? "border-orange-400 bg-orange-400/20" : "border-white/25 bg-slate-950"
+                indice === 0 ? "border-orange-400 bg-orange-400/20" : "border-white/25 bg-neutral-950"
               }`}
             />
 

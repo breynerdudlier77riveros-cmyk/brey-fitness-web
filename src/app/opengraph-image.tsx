@@ -18,7 +18,7 @@ export default function OpenGraphImage() {
           justifyContent: "space-between",
           padding: 72,
           background:
-            "radial-gradient(circle at 15% 0%, rgba(249, 115, 22, 0.22) 0%, rgba(2, 6, 23, 0) 45%), radial-gradient(circle at 100% 100%, rgba(249, 115, 22, 0.10) 0%, rgba(2, 6, 23, 0) 40%), #020617",
+            "radial-gradient(circle at 15% 0%, rgba(249, 115, 22, 0.22) 0%, rgba(10, 10, 10, 0) 45%), radial-gradient(circle at 100% 100%, rgba(249, 115, 22, 0.10) 0%, rgba(10, 10, 10, 0) 40%), #0a0a0a",
           color: "#ffffff",
         }}
       >

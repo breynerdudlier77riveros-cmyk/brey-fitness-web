@@ -49,7 +49,7 @@ const ESTADOS: readonly { valor: EstadoAtleta | ""; etiqueta: string }[] = [
 
 /** Clase compartida con los demás desplegables del Workspace. */
 const SELECT =
-  "h-10 w-full rounded-lg border border-white/15 bg-slate-900 px-3 text-sm text-white outline-none focus:border-orange-500/40 [color-scheme:dark]";
+  "h-10 w-full rounded-lg border border-white/15 bg-neutral-900 px-3 text-sm text-white outline-none focus:border-orange-500/40 [color-scheme:dark]";
 
 export default function FiltrosAtletas({ valores, deportes, total, visibles }: Props) {
   const hayFiltro = Boolean(valores.q || valores.estado || valores.deporte);
@@ -72,7 +72,7 @@ export default function FiltrosAtletas({ valores, deportes, total, visibles }: P
           <span className="mb-1 block text-xs font-semibold text-white/60">Estado</span>
           <select name="estado" defaultValue={valores.estado ?? ""} className={SELECT}>
             {ESTADOS.map((e) => (
-              <option key={e.valor} value={e.valor} className="bg-slate-900 text-white">
+              <option key={e.valor} value={e.valor} className="bg-neutral-900 text-white">
                 {e.etiqueta}
               </option>
             ))}
@@ -87,11 +87,11 @@ export default function FiltrosAtletas({ valores, deportes, total, visibles }: P
             className={SELECT}
             disabled={deportes.length === 0}
           >
-            <option value="" className="bg-slate-900 text-white">
+            <option value="" className="bg-neutral-900 text-white">
               {deportes.length === 0 ? "Ninguno declarado" : "Todos"}
             </option>
             {deportes.map((d) => (
-              <option key={d} value={d} className="bg-slate-900 text-white">
+              <option key={d} value={d} className="bg-neutral-900 text-white">
                 {d}
               </option>
             ))}

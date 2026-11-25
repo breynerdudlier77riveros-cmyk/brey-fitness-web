@@ -24,12 +24,12 @@ export default function SidebarItem({ href, label, icon: Icon, active, onNavigat
       href={href}
       onClick={onNavigate}
       aria-current={active ? "page" : undefined}
-      className={`flex items-center gap-3 rounded-xl text-sm font-semibold transition-all duration-200 border ${
+      className={`flex items-center gap-3 rounded-xl font-display text-[15px] font-bold uppercase tracking-[0.04em] transition-all duration-200 border ${
         collapsed ? "justify-center px-0 py-2.5 w-10 h-10" : "px-3 py-2.5"
       } ${
         active
-          ? "bg-orange-500/[0.08] text-orange-400 border-orange-500/20"
-          : "text-white/55 border-transparent hover:text-white hover:bg-white/[0.04]"
+          ? "bg-orange-500 text-neutral-950 border-orange-500"
+          : "text-white/65 border-transparent hover:text-white hover:bg-white/[0.05]"
       }`}
     >
       <Icon className="w-4 h-4 flex-shrink-0" strokeWidth={2} />

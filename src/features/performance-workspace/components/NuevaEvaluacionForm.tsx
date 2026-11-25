@@ -84,10 +84,10 @@ export default function NuevaEvaluacionForm({ atletaId, fechaPorDefecto }: Props
           <select
             name="tipo"
             defaultValue="T-01"
-            className="h-10 w-full rounded-lg border border-white/15 bg-slate-900 px-3 text-sm text-white outline-none focus:border-orange-500/40 [color-scheme:dark]"
+            className="h-10 w-full rounded-lg border border-white/15 bg-neutral-900 px-3 text-sm text-white outline-none focus:border-orange-500/40 [color-scheme:dark]"
           >
             {TIPOS.map((tipo) => (
-              <option key={tipo.id} value={tipo.id} className="bg-slate-900 text-white">
+              <option key={tipo.id} value={tipo.id} className="bg-neutral-900 text-white">
                 {tipo.id} · {tipo.nombre}
               </option>
             ))}

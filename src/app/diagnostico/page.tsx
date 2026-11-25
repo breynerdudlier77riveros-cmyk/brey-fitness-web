@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function DiagnosticoPage() {
   return (
-    <main className="bg-slate-950 text-white min-h-[calc(100vh-4rem)] flex flex-col">
+    <main className="bg-neutral-950 text-white min-h-[calc(100vh-4rem)] flex flex-col">
       <DiagnosticoClient />
     </main>
   );

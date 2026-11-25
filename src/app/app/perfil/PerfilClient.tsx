@@ -57,8 +57,8 @@ export default function PerfilClient({ profile: profileInicial, email, emailConf
             // eslint-disable-next-line @next/next/no-img-element -- URL arbitraria pegada por el usuario (avatar como texto, sin Storage/dominio fijo este Sprint)
             <img src={profile.avatar_url} alt="" className="w-14 h-14 rounded-full object-cover flex-shrink-0" />
           ) : (
-            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-orange-600 to-amber-700 flex items-center justify-center flex-shrink-0">
-              <span className="text-white font-black text-lg">{iniciales(nombre)}</span>
+            <div className="w-14 h-14 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0">
+              <span className="font-display text-neutral-950 font-black text-lg">{iniciales(nombre)}</span>
             </div>
           )}
           <div className="min-w-0">

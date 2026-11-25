@@ -34,7 +34,7 @@ const ESTADOS: readonly { valor: EstadoEvaluacion | ""; etiqueta: string }[] = [
 ];
 
 const SELECT =
-  "h-10 w-full rounded-lg border border-white/15 bg-slate-900 px-3 text-sm text-white outline-none focus:border-orange-500/40 [color-scheme:dark]";
+  "h-10 w-full rounded-lg border border-white/15 bg-neutral-900 px-3 text-sm text-white outline-none focus:border-orange-500/40 [color-scheme:dark]";
 
 export default function FiltrosEvaluaciones({ valores, rutaLimpia, total, visibles }: Props) {
   const hayFiltro = Boolean(valores.estado || valores.tipo || valores.desde || valores.hasta);
@@ -46,7 +46,7 @@ export default function FiltrosEvaluaciones({ valores, rutaLimpia, total, visibl
           <span className="mb-1 block text-xs font-semibold text-white/60">Estado</span>
           <select name="estado" defaultValue={valores.estado ?? ""} className={SELECT}>
             {ESTADOS.map((e) => (
-              <option key={e.valor} value={e.valor} className="bg-slate-900 text-white">
+              <option key={e.valor} value={e.valor} className="bg-neutral-900 text-white">
                 {e.etiqueta}
               </option>
             ))}
@@ -56,11 +56,11 @@ export default function FiltrosEvaluaciones({ valores, rutaLimpia, total, visibl
         <label className="block">
           <span className="mb-1 block text-xs font-semibold text-white/60">Tipo</span>
           <select name="tipo" defaultValue={valores.tipo ?? ""} className={SELECT}>
-            <option value="" className="bg-slate-900 text-white">
+            <option value="" className="bg-neutral-900 text-white">
               Todos los tipos
             </option>
             {TIPOS_EVALUACION.map((t) => (
-              <option key={t} value={t} className="bg-slate-900 text-white">
+              <option key={t} value={t} className="bg-neutral-900 text-white">
                 {t}
               </option>
             ))}

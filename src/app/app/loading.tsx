@@ -16,9 +16,9 @@ function CardSkeleton({ className = "" }: { className?: string }) {
 
 export default function AppLoading() {
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col md:flex-row">
+    <div className="min-h-screen bg-neutral-950 text-white flex flex-col md:flex-row">
       {/* Silueta del sidebar de escritorio */}
-      <aside className="hidden md:flex md:w-60 md:flex-shrink-0 md:flex-col md:sticky md:top-0 md:h-screen border-r border-white/[0.06] bg-slate-950/60 px-3 py-6">
+      <aside className="hidden md:flex md:w-60 md:flex-shrink-0 md:flex-col md:sticky md:top-0 md:h-screen border-r border-white/[0.06] bg-neutral-950/60 px-3 py-6">
         <div className="flex items-center justify-between mb-8 px-1">
           <Bar className="h-4 w-20" />
           <div className="w-7 h-7 rounded-lg bg-white/[0.06] animate-pulse motion-reduce:animate-none" />
@@ -41,7 +41,7 @@ export default function AppLoading() {
       </aside>
 
       {/* Silueta de la barra superior móvil */}
-      <header className="md:hidden sticky top-0 z-40 flex items-center justify-between px-4 h-14 border-b border-white/[0.06] bg-slate-950/90">
+      <header className="md:hidden sticky top-0 z-40 flex items-center justify-between px-4 h-14 border-b border-white/[0.06] bg-neutral-950/90">
         <Bar className="h-4 w-20" />
         <div className="w-5 h-5 rounded bg-white/[0.06] animate-pulse motion-reduce:animate-none" />
       </header>

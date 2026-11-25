@@ -53,7 +53,7 @@ export default function EjerciciosPage() {
   };
 
   return (
-    <main className="bg-slate-950 text-white">
+    <main className="bg-neutral-950 text-white">
       {/* Hero */}
       <section className="relative border-b border-white/[0.05]">
         <div aria-hidden className="absolute inset-0 pointer-events-none overflow-hidden">

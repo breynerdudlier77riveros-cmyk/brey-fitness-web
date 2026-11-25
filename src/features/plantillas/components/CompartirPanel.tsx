@@ -249,7 +249,7 @@ function FilaEnlace({
         value={url}
         aria-label="Enlace público"
         onFocus={(e) => e.currentTarget.select()}
-        className="min-w-0 flex-1 rounded-lg border border-white/[0.10] bg-slate-900 px-3 py-1.5 font-mono text-[11px] text-white/60 outline-none focus:border-orange-500/40"
+        className="min-w-0 flex-1 rounded-lg border border-white/[0.10] bg-neutral-900 px-3 py-1.5 font-mono text-[11px] text-white/60 outline-none focus:border-orange-500/40"
       />
       <button
         type="button"

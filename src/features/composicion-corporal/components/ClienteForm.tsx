@@ -206,15 +206,15 @@ export default function ClienteForm({ cliente, onCancel, onSaved }: Props) {
             value={sexo}
             onChange={(e) => setSexo(e.target.value)}
             disabled={guardando}
-            className="h-10 w-full rounded-lg border border-white/15 bg-slate-900 px-3 text-sm text-white outline-none focus:border-orange-500/40 [color-scheme:dark]"
+            className="h-10 w-full rounded-lg border border-white/15 bg-neutral-900 px-3 text-sm text-white outline-none focus:border-orange-500/40 [color-scheme:dark]"
           >
-            <option value="" className="bg-slate-900 text-white">
+            <option value="" className="bg-neutral-900 text-white">
               No consta
             </option>
-            <option value="M" className="bg-slate-900 text-white">
+            <option value="M" className="bg-neutral-900 text-white">
               Masculino
             </option>
-            <option value="F" className="bg-slate-900 text-white">
+            <option value="F" className="bg-neutral-900 text-white">
               Femenino
             </option>
           </select>

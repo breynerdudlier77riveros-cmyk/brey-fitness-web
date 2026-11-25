@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
 //
 //   · `[color-scheme:dark]` — le dice al navegador que pinte los controles
 //     nativos en oscuro, incluido el panel desplegable.
-//   · Un FONDO OPACO (`bg-slate-900`, no `bg-white/x`) — porque un fondo
+//   · Un FONDO OPACO (`bg-neutral-900`, no `bg-white/x`) — porque un fondo
 //     translúcido deja que se vea lo que hay detrás, y detrás del panel
 //     nativo no hay página: hay el blanco del sistema.
 //
@@ -64,7 +64,7 @@ interface Props {
  * en un solo sitio.
  */
 export const CLASES_SELECT =
-  "h-10 w-full rounded-lg border border-white/15 bg-slate-900 px-3 text-sm text-white " +
+  "h-10 w-full rounded-lg border border-white/15 bg-neutral-900 px-3 text-sm text-white " +
   "outline-none transition-colors focus:border-orange-500/40 disabled:opacity-50 " +
   "[color-scheme:dark]";
 
@@ -92,12 +92,12 @@ export default function SelectNativo({
       {/* El fondo también en cada `<option>`: hay navegadores que no propagan
           el `color-scheme` del control a sus hijos, y el cinturón es barato. */}
       {placeholder !== undefined ? (
-        <option value="" className="bg-slate-900 text-white">
+        <option value="" className="bg-neutral-900 text-white">
           {placeholder}
         </option>
       ) : null}
       {options.map((o) => (
-        <option key={o.value} value={o.value} className="bg-slate-900 text-white">
+        <option key={o.value} value={o.value} className="bg-neutral-900 text-white">
           {o.label}
         </option>
       ))}

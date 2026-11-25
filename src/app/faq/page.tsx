@@ -22,7 +22,7 @@ export default function FaqPage() {
   };
 
   return (
-    <main className="bg-slate-950 text-white">
+    <main className="bg-neutral-950 text-white">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{

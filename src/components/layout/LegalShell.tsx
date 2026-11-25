@@ -8,7 +8,7 @@ interface Props {
 // Los h2/p/ul del contenido se estilizan aquí para no repetir clases.
 export default function LegalShell({ title, updated, children }: Props) {
   return (
-    <main className="bg-slate-950 text-white">
+    <main className="bg-neutral-950 text-white">
       <div className="max-w-2xl mx-auto px-6 py-16 md:py-24">
         <p className="text-[11px] font-semibold tracking-[0.25em] uppercase text-white/50 mb-4">
           Legal

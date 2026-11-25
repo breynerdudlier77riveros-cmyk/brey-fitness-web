@@ -58,7 +58,7 @@ export default function AppShell({ sidebar, header, children }: Props) {
 
   return (
     <SidebarCollapseContext.Provider value={{ collapsed, toggle }}>
-      <div className="min-h-screen bg-slate-950 text-white flex flex-col md:flex-row">
+      <div className="min-h-screen bg-neutral-950 text-white flex flex-col md:flex-row">
         {sidebar}
         <div className="flex-1 min-w-0 flex flex-col">
           {header}
