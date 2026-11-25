@@ -1,9 +1,12 @@
 import BlogGrid from "@/components/BlogGrid";
+import Publicacion from "@/components/Publicacion";
+import { publicaciones } from "@/data/publicaciones";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Blog | Brey Fitness",
-  description: "Artículos sobre entrenamiento, nutrición y mentalidad.",
+  description:
+    "Artículos sobre entrenamiento, nutrición y mentalidad, y la investigación publicada de Breyner Riveros.",
 };
 
 export default function BlogPage() {
@@ -20,6 +23,26 @@ export default function BlogPage() {
           Artículos sobre entrenamiento, nutrición y mentalidad atlética.
         </p>
       </div>
+
+      {/* ── Investigación publicada ───────────────────────────────────────
+          Encabeza el blog a propósito: es lo único de esta página que no es
+          opinión propia sino evidencia revisable por cualquiera. Aparece
+          sola si data/publicaciones.ts tiene entradas. El rótulo va en <p>,
+          no en un encabezado, para que el <h2> de la ficha siga colgando
+          directo del <h1> de la página. */}
+      {publicaciones.length > 0 && (
+        <section className="mb-16">
+          <p className="text-[11px] tracking-[0.22em] uppercase text-orange-400 mb-5 font-medium">
+            Investigación
+          </p>
+          <div className="space-y-5">
+            {publicaciones.map((p, i) => (
+              <Publicacion key={p.doi} p={p} retardo={i * 120} />
+            ))}
+          </div>
+        </section>
+      )}
+
       <BlogGrid />
     </main>
   );

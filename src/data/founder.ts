@@ -6,11 +6,12 @@
 // PENDIENTES DEL FUNDADOR:
 // 1. FOTO: hecha (nov 2026) — public/media/breyner-retrato.jpg. Ojo: las
 //    fotos de public/historia/ son de otra persona (web GRESH anterior).
-// 2. FORMACIÓN: está en su versión más conservadora ("estudiante de último
-//    año"). Si ya estás titulado, cámbiala a
-//    "Licenciado en Educación Física y Deportes".
+// 2. FORMACIÓN: titulado (nov 2026). Antes figuraba en su versión más
+//    conservadora, "estudiante de último año".
 // 3. CERTIFICACIONES: añade cada certificación real al array cuando la
 //    obtengas — la tarjeta aparece sola cuando el array tenga datos.
+
+import { publicaciones } from '@/data/publicaciones';
 
 export interface FounderPhoto {
   src: string;
@@ -65,8 +66,7 @@ export const founder = {
     {
       titulo: 'Formación',
       items: [
-        // REVISAR: si ya estás titulado → "Licenciado en Educación Física y Deportes"
-        'Licenciatura en Educación Física y Deportes — estudiante de último año',
+        'Licenciado en Educación Física y Deportes',
       ],
     },
     {
@@ -80,7 +80,10 @@ export const founder = {
     {
       titulo: 'Investigación',
       items: [
-        'Desarrollo de proyectos de investigación',
+        // Se cuenta solo: nunca puede desfasarse de data/publicaciones.ts.
+        publicaciones.length === 1
+          ? '1 publicación científica'
+          : `${publicaciones.length} publicaciones científicas`,
         'Entrenamiento basado en evidencia',
       ],
     },

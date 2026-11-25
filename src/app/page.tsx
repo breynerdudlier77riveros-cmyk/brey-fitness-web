@@ -9,6 +9,8 @@ import DashboardPreview from "@/components/DashboardPreview";
 import Button from "@/components/brand/Button";
 import Kicker from "@/components/brand/Kicker";
 import MediaSlot from "@/components/media/MediaSlot";
+import Publicacion from "@/components/Publicacion";
+import { publicaciones } from "@/data/publicaciones";
 import Lineas from "@/components/motion/Lineas";
 import Cifra from "@/components/motion/Cifra";
 import SuaveScroll from "@/components/motion/SuaveScroll";
@@ -483,7 +485,10 @@ export default function HomePage() {
                 </div>
               ))}
             </dl>
-            <div data-reveal="up" style={retardo(400)}>
+            {publicaciones.length > 0 && (
+              <Publicacion p={publicaciones[0]} variante="compacta" retardo={380} />
+            )}
+            <div data-reveal="up" style={retardo(460)}>
               <Button href="/historia" variant="outline" className="mt-10">
                 Conoce mi historia
                 <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
